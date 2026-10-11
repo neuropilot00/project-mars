@@ -36,6 +36,10 @@ async function createTournament(params) {
     throw new Error('INVALID_SIZE'); // 2^n만 허용
   }
   
+  // Tournament currency issuance is bounded even for operator input.
+  for (const [amount, cap] of [[reward_1st_gp, 1000], [reward_2nd_gp, 500], [reward_3rd_gp, 250]]) {
+    if (!Number.isSafeInteger(amount) || amount < 0 || amount > cap) throw new Error('INVALID_PRIZE');
+  }
   const totalRounds = Math.log2(max_participants);
   
   const { rows } = await pool.query(`
@@ -496,74 +500,69 @@ async function promoteWinner(matchId) {
 // ─── 토너먼트 종료 ───
 
 async function finalizeTournament(tournamentId) {
-  const { rows: tRows } = await pool.query(
-    `SELECT * FROM tournaments WHERE id = $1`, [tournamentId]
-  );
-  const t = tRows[0];
-  if (!t || t.status === 'completed') return;
-  
-  // 결승전 승자 = 1등
-  const { rows: finalRows } = await pool.query(`
-    SELECT winner_wallet FROM tournament_matches
-    WHERE tournament_id = $1 AND round = $2
-    ORDER BY match_index ASC LIMIT 1
-  `, [tournamentId, t.total_rounds]);
-  const firstWallet = finalRows[0]?.winner_wallet;
-  
-  // 결승 패자 = 2등
-  const { rows: finalMatch } = await pool.query(`
-    SELECT p1_wallet, p2_wallet, winner_wallet FROM tournament_matches
-    WHERE tournament_id = $1 AND round = $2 LIMIT 1
-  `, [tournamentId, t.total_rounds]);
-  const secondWallet = finalMatch[0] 
-    ? (finalMatch[0].winner_wallet === finalMatch[0].p1_wallet ? finalMatch[0].p2_wallet : finalMatch[0].p1_wallet)
-    : null;
-  
-  // 준결승 패자 둘 중 하나 = 3등 (간단화: 랜덤)
-  const { rows: semiLosers } = await pool.query(`
-    SELECT p1_wallet, p2_wallet, winner_wallet FROM tournament_matches
-    WHERE tournament_id = $1 AND round = $2
-  `, [tournamentId, t.total_rounds - 1]);
-  let thirdWallet = null;
-  for (const sm of semiLosers) {
-    const loser = sm.winner_wallet === sm.p1_wallet ? sm.p2_wallet : sm.p1_wallet;
-    if (loser && loser !== secondWallet) { thirdWallet = loser; break; }
-  }
-  
-  // 상금 지급
-  const prizes = [];
-  if (firstWallet) prizes.push({ wallet: firstWallet, rank: 1, gp: t.reward_1st_gp });
-  if (secondWallet) prizes.push({ wallet: secondWallet, rank: 2, gp: t.reward_2nd_gp });
-  if (thirdWallet) prizes.push({ wallet: thirdWallet, rank: 3, gp: t.reward_3rd_gp });
-  
-  for (const p of prizes) {
-    if (p.gp > 0) {
-      await pool.query(
-        `UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)`,
-        [p.gp, p.wallet]
-      );
-      await pool.query(`
-        INSERT INTO fleet_gp_activity (wallet_address, activity_type, gp_delta, meta)
-        VALUES ($1, 'tournament_prize', $2, $3)
-      `, [p.wallet, p.gp, JSON.stringify({ 
-        tournament_id: tournamentId, rank: p.rank 
-      })]).catch(()=>{});
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    // The completed marker and all currency credits commit together under one lock.
+    const { rows } = await client.query('SELECT * FROM tournaments WHERE id = $1 FOR UPDATE', [tournamentId]);
+    const t = rows[0];
+    if (!t || t.status === 'completed') {
+      await client.query('ROLLBACK');
+      return;
     }
-    
-    await pool.query(
-      `UPDATE tournament_participants SET final_rank = $1
-       WHERE tournament_id = $2 AND wallet_address = $3`,
-      [p.rank, tournamentId, p.wallet]
-    );
+    const final = (await client.query(`SELECT p1_wallet, p2_wallet, winner_wallet, status
+      FROM tournament_matches WHERE tournament_id = $1 AND round = $2
+      ORDER BY match_index LIMIT 1 FOR UPDATE`, [tournamentId, t.total_rounds])).rows[0];
+    if (t.status !== 'running' || final?.status !== 'completed' || !final.winner_wallet ||
+        ![final.p1_wallet, final.p2_wallet].includes(final.winner_wallet)) {
+      await client.query('ROLLBACK');
+      return;
+    }
+    const firstWallet = final.winner_wallet;
+    const secondWallet = firstWallet === final.p1_wallet ? final.p2_wallet : final.p1_wallet;
+    const semis = (await client.query(`SELECT p1_wallet, p2_wallet, winner_wallet
+      FROM tournament_matches WHERE tournament_id = $1 AND round = $2 AND status = 'completed'
+      ORDER BY match_index`, [tournamentId, t.total_rounds - 1])).rows;
+    let thirdWallet = null;
+    for (const sm of semis) {
+      if (!sm.winner_wallet || ![sm.p1_wallet, sm.p2_wallet].includes(sm.winner_wallet)) continue;
+      const loser = sm.winner_wallet === sm.p1_wallet ? sm.p2_wallet : sm.p1_wallet;
+      if (loser && loser !== firstWallet && loser !== secondWallet) { thirdWallet = loser; break; }
+    }
+    // Reject legacy unbounded/user-supplied prize records rather than silently minting them.
+    const amounts = [t.reward_1st_gp, t.reward_2nd_gp, t.reward_3rd_gp].map(Number);
+    if (amounts.some((amount, i) => !Number.isSafeInteger(amount) || amount < 0 || amount > [1000, 500, 250][i])) {
+      throw new Error('INVALID_PRIZE');
+    }
+    const prizes = [firstWallet, secondWallet, thirdWallet].map((wallet, i) => ({ wallet, rank: i + 1, gp: amounts[i] }))
+      .filter(p => p.wallet);
+    // Consistent recipient order avoids deadlocks between concurrently ending tournaments.
+    prizes.sort((a, b) => a.wallet.toLowerCase().localeCompare(b.wallet.toLowerCase()));
+    for (const p of prizes) {
+      const participant = await client.query(`SELECT 1 FROM tournament_participants
+        WHERE tournament_id = $1 AND LOWER(wallet_address) = LOWER($2)`, [tournamentId, p.wallet]);
+      if (!participant.rows.length) throw new Error('PRIZE_PARTICIPANT_NOT_FOUND');
+      if (p.gp > 0) {
+        const credited = await client.query(`UPDATE users SET gp_balance = gp_balance + $1
+          WHERE LOWER(wallet_address) = LOWER($2) RETURNING wallet_address`, [p.gp, p.wallet]);
+        if (credited.rowCount !== 1) throw new Error('PRIZE_RECIPIENT_NOT_FOUND');
+        await client.query(`INSERT INTO fleet_gp_activity (wallet_address, activity_type, gp_delta, meta)
+          VALUES ($1, 'tournament_prize', $2, $3)`,
+          [p.wallet, p.gp, JSON.stringify({ tournament_id: tournamentId, rank: p.rank })]);
+      }
+      await client.query(`UPDATE tournament_participants SET final_rank = $1
+        WHERE tournament_id = $2 AND LOWER(wallet_address) = LOWER($3)`, [p.rank, tournamentId, p.wallet]);
+    }
+    await client.query(`UPDATE tournaments SET status = 'completed', winner_wallet = $1, completed_at = NOW()
+      WHERE id = $2`, [firstWallet, tournamentId]);
+    await client.query('COMMIT');
+    console.log(`[tournament] ${tournamentId} finalized. 1st: ${firstWallet}`);
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
   }
-  
-  await pool.query(`
-    UPDATE tournaments 
-    SET status = 'completed', winner_wallet = $1, completed_at = NOW()
-    WHERE id = $2
-  `, [firstWallet, tournamentId]);
-  
-  console.log(`[tournament] ${tournamentId} finalized. 1st: ${firstWallet}`);
 }
 
 // ─── 조회 ───

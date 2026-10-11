@@ -370,7 +370,10 @@ function _drawSectorOverlay(ctx,w,h){
     var tierSize=Math.max(_isMobTex?10:14,fontSize*0.38);
     ctx.font='bold '+tierSize+'px monospace';
     ctx.globalAlpha=0.75;
-    ctx.fillText(s.tier.toUpperCase(),cx,cy+fontSize*0.48);
+    var satelliteBoost = (_starlinkData.passes || []).filter(function(p) {
+      return String(p.sectorId) === String(s.id) && new Date(p.endsAt).getTime() > Date.now();
+    }).reduce(function(sum, p) { return sum + (Number(p.boostValue) || 0); }, 0);
+    ctx.fillText(s.tier.toUpperCase() + (satelliteBoost > 0 ? ' · SL +' + Math.round(satelliteBoost * 100) + '%' : ''),cx,cy+fontSize*0.48);
 
     if(polyW>fontSize*7){
       var badgeY=cy+fontSize*0.88;
@@ -1121,107 +1124,17 @@ function _drawMissionPreview(ctx, w, h){
 var _starlinkMeshes = [];
 var _starlinkData = { satellites: [], passes: [] };
 
-// 6 orbits at evenly distributed inclinations — electron shell around atom
-var _satOrbits = [
-  { id: 1, speed: 0.00025, phase: 0,    inclination: 25,  tiltAxis: 0 },
-  { id: 2, speed: 0.00028, phase: 1.05, inclination: 50,  tiltAxis: 60 },
-  { id: 3, speed: 0.00030, phase: 2.09, inclination: 75,  tiltAxis: 120 },
-  { id: 4, speed: 0.00027, phase: 3.14, inclination: 40,  tiltAxis: 180 },
-  { id: 5, speed: 0.00032, phase: 4.19, inclination: 65,  tiltAxis: 240 },
-  { id: 6, speed: 0.00026, phase: 5.24, inclination: 85,  tiltAxis: 300 }
-];
-var _slDots = []; // DOM elements
-var _slAlt = 0.35; // orbit altitude above globe surface
-var _slRafId = null;
-
-function _initStarlinkOrbit() {
-  if (_slDots.length || !globe) return;
-  var container;
-  try { container = globe.renderer().domElement.parentElement; } catch(_e) { return; }
-  if (!container) return;
-  _satOrbits.forEach(function(orb) {
-    var dot = document.createElement('div');
-    dot.style.cssText = 'position:absolute;z-index:50;pointer-events:none;transition:opacity 0.15s;';
-    dot.innerHTML = '<div style="width:8px;height:8px;border-radius:50%;background:radial-gradient(circle,#fff 25%,rgba(0,255,136,0.8) 60%,transparent 100%);box-shadow:0 0 8px rgba(0,255,136,0.6),0 0 16px rgba(0,255,136,0.2)"></div>' +
-      '<div style="position:absolute;top:-14px;left:50%;transform:translateX(-50%);font:bold 7px monospace;color:#00FF88;white-space:nowrap;text-shadow:0 0 4px rgba(0,0,0,0.9)">SL-' + orb.id + '</div>';
-    container.appendChild(dot);
-    _slDots.push({ el: dot, orb: orb });
-  });
-  if (!_slRafId) _slRafId = requestAnimationFrame(_animateStarlinkOrbit);
-}
-
-var _slLastFrame=0;
-var _slFrameInterval=/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)?100:33;
-function _animateStarlinkOrbit() {
-  if (!_pageIsActive()) {
-    _slRafId = null;
-    return;
-  }
-  if (!globe || !_slDots.length) { _slRafId = requestAnimationFrame(_animateStarlinkOrbit); return; }
-  var t = Date.now();
-  if(t-_slLastFrame<_slFrameInterval){_slRafId = requestAnimationFrame(_animateStarlinkOrbit);return;}
-  _slLastFrame=t;
-  _slDots.forEach(function(sd) {
-    var orb = sd.orb;
-    var angle = t * orb.speed + orb.phase; // orbital angle
-    // Compute lat/lng on a tilted great circle
-    var incRad = orb.inclination * Math.PI / 180;
-    var tiltRad = orb.tiltAxis * Math.PI / 180;
-    // Position on unit circle in orbital plane, then rotate by inclination and tilt
-    var x0 = Math.cos(angle);
-    var y0 = Math.sin(angle);
-    // Rotate around Y-axis by tiltAxis, then around X-axis by inclination
-    var x1 = x0 * Math.cos(tiltRad) - y0 * Math.sin(tiltRad) * Math.cos(incRad);
-    var y1 = x0 * Math.sin(tiltRad) + y0 * Math.cos(tiltRad) * Math.cos(incRad);
-    var z1 = y0 * Math.sin(incRad);
-    // Convert to lat/lng
-    var lat = Math.asin(Math.max(-1, Math.min(1, z1))) * 180 / Math.PI;
-    var lng = Math.atan2(y1, x1) * 180 / Math.PI;
-    // Get screen position
-    var sc = globe.getScreenCoords(lat, lng, _slAlt);
-    if (sc && sc.x > -50 && sc.y > -50) {
-      sd.el.style.left = (sc.x - 4) + 'px';
-      sd.el.style.top = (sc.y - 4) + 'px';
-      // Occlusion: dot product of surface normal with camera direction
-      var cam = globe.camera().position;
-      var latR = lat * Math.PI / 180, lngR = lng * Math.PI / 180;
-      var px = Math.cos(latR) * Math.cos(lngR);
-      var py = Math.sin(latR);
-      var pz = Math.cos(latR) * Math.sin(lngR);
-      var dot = px * cam.x + py * cam.y + pz * cam.z;
-      // dot>0 = facing camera (visible), dot<=0 = behind globe
-      // Smooth fade near the edge (dot 0~0.15)
-      if (dot < 0) {
-        sd.el.style.opacity = '0';
-      } else if (dot < 0.15 * Math.sqrt(cam.x*cam.x+cam.y*cam.y+cam.z*cam.z)) {
-        sd.el.style.opacity = '0.3';
-      } else {
-        sd.el.style.opacity = '1';
-      }
-    } else {
-      sd.el.style.opacity = '0';
-    }
-  });
-  _slRafId = requestAnimationFrame(_animateStarlinkOrbit);
-}
-
-_onPageVisible(function(){
-  if (_slDots.length && !_slRafId) _slRafId = requestAnimationFrame(_animateStarlinkOrbit);
-});
-_onPageHidden(function(){
-  if (_slRafId) {
-    cancelAnimationFrame(_slRafId);
-    _slRafId = null;
-  }
-});
-
-// Texture trail stub (no longer used)
+// Satellites have regional yield effects; autonomous orbit decoration was misleading.
 function _drawStarlinkTrails() {}
-function _updateStarlinkPositions() {}
-function _initStarlinkSatellites() {}
+function _updateStarlinkPositions() { if (typeof compositeClaimsOnTexture === 'function') compositeClaimsOnTexture(); }
 
 // ═══════ ROCKET EVENTS ═══════
 var _rocketData = { events: [] };
+function _isRocketEventVisible(ev) {
+  var now = Date.now();
+  if (!ev || !(new Date(ev.lootingEndsAt).getTime() > now) || !(ev.totalRewards > ev.claimedRewards)) return false;
+  return ev.status === 'looting' || (ev.status === 'incoming' && new Date(ev.landingAt).getTime() > now);
+}
 var _rocketMesh = null;
 var _rocketParticles = [];
 // Preload starship pixel art
@@ -1238,6 +1151,7 @@ function _drawRocketOverlay(ctx, w, h) {
   var t = Date.now();
 
   _rocketData.events.forEach(function(ev) {
+    if (!_isRocketEventVisible(ev)) return;
     var x = ((ev.lng + 180) / 360) * w;
     var y = ((90 - ev.lat) / 180) * h;
 
@@ -1330,7 +1244,7 @@ function _initRocketMesh() {
 
 function _updateRocketMesh() {
   if (!_rocketMesh) return;
-  var ev = _rocketData.events.find(function(e) { return e.status === 'incoming' || e.status === 'looting'; });
+  var ev = _rocketData.events.find(function(e) { return _isRocketEventVisible(e); });
   if (!ev) { _rocketMesh.visible = false; return; }
 
   var GLOBE_RADIUS = 100;

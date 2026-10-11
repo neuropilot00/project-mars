@@ -57,7 +57,7 @@ router.post('/rental/list', requireAuth, async (req, res) => {
       boostPct ? parseInt(boostPct, 10) : undefined
     );
     res.json(listing);
-  } catch (e) { res.status(400).json({ error: e.message }); }
+  } catch (e) { res.status(e.message === 'RENTAL_PRODUCTION_UNAVAILABLE' ? 409 : 400).json({ error: e.message }); }
 });
 
 // POST /api/rental/rent — tenant rents a listed claim
@@ -83,7 +83,7 @@ router.post('/rental/rent', requireAuth, async (req, res) => {
     }
 
     res.json(result);
-  } catch (e) { res.status(400).json({ error: e.message }); }
+  } catch (e) { res.status(e.message === 'RENTAL_PRODUCTION_UNAVAILABLE' ? 409 : 400).json({ error: e.message }); }
 });
 
 // POST /api/rental/cancel — owner cancels unlisted listing

@@ -130,29 +130,11 @@ router.post('/alliances/leave', requireAuth, async (req, res) => {
   } catch (err) { handleErr(res, err, ALLIANCE_ERRORS, 'leave'); }
 });
 
-router.post('/alliances/team-battle', requireAuth, async (req, res) => {
-  try {
-    const wallet = getWallet(req);
-    const { participants, battle_type } = req.body || {};
-    if (!Array.isArray(participants)) {
-      return res.status(400).json({ error: 'PARTICIPANTS_REQUIRED' });
-    }
-    
-    // 선언자는 participants에 있어야 함
-    if (!participants.some(p => p.wallet === wallet)) {
-      return res.status(403).json({ error: 'DECLARER_MUST_PARTICIPATE' });
-    }
-    
-    const result = await alliance.createTeamBattle({ participants, battle_type });
-    
-    // 즉시 실행
-    const battleScheduler = require('../services/battleScheduler');
-    battleScheduler.runBattle(result.battle_id).catch(err =>
-      console.error(`[phaseD] team battle ${result.battle_id} error:`, err)
-    );
-    
-    res.json(result);
-  } catch (err) { handleErr(res, err, ALLIANCE_ERRORS, 'team-battle'); }
+router.post('/alliances/team-battle', requireAuth, (req, res) => {
+  return res.status(410).json({
+    error: 'TEAM_BATTLE_CONSENT_REQUIRED',
+    alternative: 'POST /api/battles/duel-invitations'
+  });
 });
 
 // ═══════════════════════════════════════════════════════════════

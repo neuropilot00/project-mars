@@ -203,23 +203,22 @@
     el.classList.add('show');
   }
 
-  function _buildWxEffectMap(){return {
-    sandstorm:   { name: t('wx_sandstorm'), desc: t('wx_sandstorm_desc'),
-      effects: [{label:t('wx_mining_yield'),val:'+50%',type:'buff'},{label:t('wx_movement_speed'),val:'-20%',type:'debuff'},{label:t('wx_visibility'),val:tl('Reduced','감소','低下','降低'),type:'debuff'}]},
-    solar_flare: { name: t('wx_solar_flare'), desc: t('wx_solar_flare_desc'),
-      effects: [{label:t('wx_mining_yield'),val:'+100%',type:'buff'},{label:t('wx_shield_strength'),val:'-50%',type:'debuff'},{label:t('wx_hijack_cost'),val:'+25%',type:'buff'}]},
-    meteor_shower:{ name: t('wx_meteor_shower'), desc: t('wx_meteor_shower_desc'),
-      effects: [{label:t('wx_rare_drop'),val:'+30%',type:'buff'},{label:t('wx_harvest_bonus'),val:'+20%',type:'buff'},{label:t('wx_structure_damage'),val:tl('Possible','가능성 있음','可能性あり','可能'),type:'debuff'}]},
-    dust_devil:  { name: t('wx_dust_devil'), desc: t('wx_dust_devil_desc'),
-      effects: [{label:t('wx_claim_cost'),val:'-15%',type:'buff'},{label:t('wx_mining_yield'),val:'-10%',type:'debuff'},{label:t('wx_exploration_speed'),val:'+25%',type:'buff'}]}
-  };}
-  var _wxEffectMap = _buildWxEffectMap();
-
   window._showWeatherDetail = function(idx) {
     var wx = _weatherData[idx];
     if(!wx) return;
-    var wxMap = _buildWxEffectMap();
-    var info = wxMap[wx.weatherType] || {name:wx.weatherType,desc:tl('Unknown weather event','알 수 없는 기상 현상','不明な気象現象','未知天气现象'),effects:[]};
+    var applied = wx.effects || {};
+    var labels = {
+      miningMod: tl('Territory yield','영토 수확량','領土収穫量','领地收益'),
+      attackMod: tl('Territory attack chance','영토 공격 확률','領土攻撃確率','领地攻击概率'),
+      defenseMod: tl('Territory defense chance','영토 방어 확률','領土防御確率','领地防御概率')
+    };
+    var info = { name: wx.label || wx.weatherType,
+      desc: tl('Active effects in this region.','이 지역에 적용 중인 효과입니다.','この地域の適用中の効果。','此区域生效中的效果。'),
+      effects: Object.keys(labels).filter(function(key){ return Number(applied[key]); }).map(function(key){
+        var value = Number(applied[key]);
+        return { label: labels[key], val: (value > 0 ? '+' : '') + value + '%', type: value > 0 ? 'buff' : 'debuff' };
+      })
+    };
     var remaining = Math.max(0, new Date(wx.endsAt).getTime() - Date.now());
     var mins = Math.floor(remaining / 60000);
     var timeStr = mins >= 60 ? Math.floor(mins / 60) + 'h ' + (mins % 60) + 'm' : mins + 'm';
@@ -336,15 +335,6 @@
   _setActiveTimeout(loadStarlinkData, 6000);
   // Starlink position updates: 30s desktop, 60s mobile (3D mesh update is heavy)
   _setActiveInterval(loadStarlinkData, /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 60000 : 30000);
-  // Init Starlink 3D orbit around globe
-  function _tryInitStarlinkOrbit() {
-    if (_slDots.length) return;
-    _initStarlinkOrbit();
-    if (!_slDots.length) _setActiveTimeout(_tryInitStarlinkOrbit, 2000);
-  }
-  _setActiveTimeout(_tryInitStarlinkOrbit, 3000);
-  // Starlink position updates handled by _animateStarlink RAF loop
-
   // ═══════ ROCKET EVENT POLLING ═══════
   function loadRocketData() {
     if (!_pageIsActive()) return;
@@ -353,14 +343,26 @@
       _rocketData = data;
       updateRocketBanner();
       if (typeof _updateRocketMesh === 'function') _updateRocketMesh();
-      if (_rocketData.events && _rocketData.events.length > 0) compositeClaimsOnTexture();
+      compositeClaimsOnTexture();
     }).catch(function(){});
   }
+  var _rocketAnnounceText = '';
   function updateRocketBanner() {
     var el = document.getElementById('rocketBanner');
     if (!el) return;
-    var events = (_rocketData.events || []).filter(function(e){ return e.status !== 'completed'; });
-    if (!events.length) { el.classList.remove('show'); el.innerHTML = ''; return; }
+    var events = (_rocketData.events || []).filter(function(e){ return _isRocketEventVisible(e); });
+    if (!events.length) {
+      el.classList.remove('show'); el.innerHTML = '';
+      var track = document.getElementById('announceTrack');
+      var banner = document.getElementById('announceBanner');
+      // Clear only our own previous rocket message, preserving unrelated announcements.
+      if (_rocketAnnounceText && track && track.firstChild && track.firstChild.textContent === _rocketAnnounceText) {
+        if (banner) banner.classList.remove('show');
+        track.innerHTML = '';
+      }
+      _rocketAnnounceText = '';
+      return;
+    }
     var ev = events[0];
     var now = Date.now();
     var icon, typeLabel, timeStr;
@@ -379,11 +381,8 @@
     }
     var remaining2 = ev.totalRewards - ev.claimedRewards;
     var priorityBtn = '';
-    if (ev.status === 'incoming' && walletState.address) {
-      priorityBtn = '<button onclick="event.stopPropagation();buyLootPriority(' + ev.id + ')" style="font-size:8px;padding:2px 8px;background:rgba(255,209,102,.15);border:1px solid rgba(255,209,102,.3);border-radius:4px;color:var(--gold);cursor:pointer;font-family:var(--fn);white-space:nowrap">'+tl('PRIORITY (0.3 PP)','우선권 (0.3 PP)','優先権 (0.3 PP)','优先权 (0.3 PP)')+'</button>';
-    }
     var tooltipText = ev.status === 'incoming'
-      ? tl('A rocket is arriving! When it lands, click the drop zone on the map to claim loot (items, GP, PP). First come, first served!','로켓이 도착 중입니다! 착륙하면 지도의 투하 지점을 눌러 전리품(아이템, GP, PP)을 획득하세요. 선착순!','ロケットが到着中！着地したらマップの投下地点をクリックして戦利品（アイテム・GP・PP）を獲得。早い者勝ち！','火箭即将抵达！着陆后点击地图上的投放区领取战利品（道具、GP、PP）。先到先得！')
+      ? tl('A rocket is arriving! When it lands, click the drop zone on the map to claim loot (items, GP, minerals). First come, first served!','로켓이 도착 중입니다! 착륙하면 지도의 투하 지점을 눌러 전리품(아이템, GP, 광물)을 획득하세요. 선착순!','ロケットが到着中！着地したらマップの投下地点をクリックして戦利品（アイテム・GP・鉱物）を獲得。早い者勝ち！','火箭即将抵达！着陆后点击地图上的投放区领取战利品（道具、GP、矿物）。先到先得！')
       : tl('The supply drop has landed! Click the 📦 marker on the map to claim loot. ','보급 투하가 착륙했습니다! 지도의 📦 마커를 눌러 전리품을 획득하세요. ','補給投下が着地しました！マップの📦マーカーをクリックして戦利品を獲得。','补给已着陆！点击地图上的📦标记领取战利品。') + remaining2 + tl(' items remaining!','개 남음!','個 残り！','个剩余！');
     el.innerHTML = '<span class="rk-icon">' + icon + '</span>'
       + '<span class="rk-type">' + typeLabel + '</span>'
@@ -404,6 +403,7 @@
         announceText = '📦 ' + tl('SUPPLY DROP LANDED','보급 투하 착륙','補給投下 着地','补给已着陆') + sectorPart + ' · ' + timeStr + ' · ' + remaining2 + '/' + ev.totalRewards + tl(' LOOT',' 전리품',' 戦利品',' 战利品');
       }
       if (typeof showAnnounce === 'function') showAnnounce(announceText);
+      _rocketAnnounceText = announceText;
       // Hide the duplicate chip since the announce marquee carries the info
       el.classList.remove('show');
     }catch(_e){
@@ -417,8 +417,6 @@
   // Rocket 3D mesh: 2s desktop, 5s mobile (reduces WebGL draw calls)
   _setActiveInterval(function(){
     if (typeof _updateRocketMesh !== 'function') return;
-    var events = (_rocketData && _rocketData.events || []).filter(function(e){ return e.status !== 'completed'; });
-    if (!events.length) return;
     _updateRocketMesh();
   }, /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 5000 : 2000);
 
@@ -502,6 +500,7 @@
       var msg;
       if (r.type === 'gp') msg = tl('+'+r.amount+' GP from supply drop','보급 투하에서 +'+r.amount+' GP 획득','補給投下から +'+r.amount+' GP 獲得','从补给投放获得 +'+r.amount+' GP');
       else if (r.type === 'xp') msg = tl('+'+r.amount+' XP from supply drop','보급 투하에서 +'+r.amount+' XP 획득','補給投下から +'+r.amount+' XP 獲得','从补给投放获得 +'+r.amount+' XP');
+      else if (r.currency === 'gp') msg = tl('+'+r.gpAmount+' GP from supply drop','보급 투하에서 +'+r.gpAmount+' GP 획득','補給投下から +'+r.gpAmount+' GP 獲得','从补给投放获得 +'+r.gpAmount+' GP');
       else if (r.type === 'pp') msg = tl('+'+r.amount+' PP from supply drop','보급 투하에서 +'+r.amount+' PP 획득','補給投下から +'+r.amount+' PP 獲得','从补给投放获得 +'+r.amount+' PP');
       else if (r.type === 'cosmetic') msg = tl('Got '+(r.itemName||r.itemCode||'cosmetic')+' (rare cosmetic)!','희귀 코스메틱 획득: '+(r.itemName||r.itemCode||'cosmetic')+'!','レアコスメを獲得: '+(r.itemName||r.itemCode||'cosmetic')+'!','获得稀有外观：'+(r.itemName||r.itemCode||'cosmetic')+'！');
       else if (r.type === 'item') msg = tl('Got '+(r.itemName||r.itemCode||'item')+' x'+(r.amount||1),(r.itemName||r.itemCode||'item')+' x'+(r.amount||1)+' 획득',(r.itemName||r.itemCode||'item')+' x'+(r.amount||1)+' 獲得','获得 '+(r.itemName||r.itemCode||'item')+' x'+(r.amount||1));
@@ -515,7 +514,7 @@
 
   // ═══════ ROCKET INFO POPUP ═══════
   window.showRocketInfo = function() {
-    var events = (_rocketData.events || []).filter(function(e){ return e.status !== 'completed'; });
+    var events = (_rocketData.events || []).filter(function(e){ return _isRocketEventVisible(e); });
     if (!events.length) return;
     var ev = events[0];
     var now = Date.now();
@@ -545,7 +544,7 @@
       + '<div style="text-align:center"><div style="font-size:16px;font-weight:700;color:var(--mars)">' + timeLeft + '</div><div style="font-size:8px;color:var(--tx3)">'+tl('TIME','시간','時間','时间')+'</div></div>'
       + '</div>'
       + '<div style="font-size:9px;color:var(--tx3);line-height:1.4;padding:8px;background:rgba(255,255,255,.03);border-radius:6px">'
-      + '💡 <b>'+tl('How it works:','이용 방법:','使い方:','玩法说明:')+'</b> '+tl('Loot contains GP, items, or rare PP. Click the marker on the map to claim. Each player can claim one loot per drop. First come, first served!','전리품에는 GP, 아이템, 희귀 PP가 들어 있습니다. 지도의 마커를 눌러 획득하세요. 각 플레이어는 투하당 1개씩 획득 가능. 선착순!','戦利品にはGP・アイテム・レアPPが含まれます。マップのマーカーをクリックして獲得。各プレイヤーは投下ごとに1個獲得可能。早い者勝ち！','战利品包含GP、道具或稀有PP。点击地图标记领取。每位玩家每次投放可领取一个。先到先得！')
+      + '💡 <b>'+tl('How it works:','이용 방법:','使い方:','玩法说明:')+'</b> '+tl('Existing loot contains GP or items. Click the marker to claim an available reward before expiry. Rewards are shared and first come, first served.','기존 전리품에는 GP 또는 아이템이 들어 있습니다. 만료 전에 지도의 마커를 눌러 남은 보상을 획득하세요. 공용 보상이며 선착순입니다.','既存の戦利品にはGPやアイテムが含まれます。期限前にマーカーを押して残りの共有報酬を獲得。先着順です。','现有战利品包含GP或道具。到期前点击标记领取剩余共享奖励，先到先得。')
       + '</div></div>';
     showMobModal(tl('SUPPLY DROP','보급 투하','補給投下','补给投放'), html);
   };

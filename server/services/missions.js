@@ -316,6 +316,7 @@ function combineInvasionFactors(padMult, defFactor) {
 //
 async function previewMission(wallet, type, originClaimId, targetLat, targetLng, targetWallet) {
   if (!wallet) return { error: 'Wallet required' };
+  if (type === 'invasion') return { error: 'Timed invasions are retired. Use fleet battles for territory operations.', code: 'TIMED_INVASION_RETIRED', alternative: 'fleet_battles' };
   if (type !== 'invasion' && type !== 'exploration') return { error: 'Invalid mission type' };
   if (!originClaimId) return { error: 'Pick a launch pad first' };
   const lat = parseFloat(targetLat), lng = parseFloat(targetLng);
@@ -373,6 +374,7 @@ async function previewMission(wallet, type, originClaimId, targetLat, targetLng,
 //
 async function launchMission(wallet, type, originClaimId, targetLat, targetLng, targetWallet) {
   if (!wallet) return { error: 'Wallet required' };
+  if (type === 'invasion') return { error: 'Timed invasions are retired. Use fleet battles for territory operations.', code: 'TIMED_INVASION_RETIRED', alternative: 'fleet_battles' };
   if (type !== 'invasion' && type !== 'exploration') return { error: 'Invalid mission type' };
   if (type === 'invasion' && !targetWallet) return { error: 'Target wallet required for invasion' };
   if (!originClaimId) return { error: 'Pick a launch pad first' };
@@ -850,6 +852,7 @@ async function resolveMission(missionId) {
       return reward;
     }
 
+    let invasionWon = false;
     if (m.type === 'exploration') {
       // Roll an outcome tier — empty / partial / full / jackpot
       const emptyPct   = parseFloat(await getSetting('mission_explore_outcome_empty_pct')   || '25');
@@ -924,6 +927,7 @@ async function resolveMission(missionId) {
       // Invasion — roll success
       const rate = await invasionSuccessRate(m.wallet, m.target_wallet);
       const won = Math.random() < rate;
+      invasionWon = won;
 
       if (won) {
         // Roll base rewards (scaled by combined size factor)
@@ -964,7 +968,7 @@ async function resolveMission(missionId) {
         if (seasonService.addPassXP) seasonService.addPassXP(m.wallet, 'invasion').catch(() => {});
         // Guild war: invasion points
         const warPts = parseInt(await getSetting('guild_war_hijack_points') || '10');
-        if (guildService.recordWarAction) {
+        if (invasionWon && guildService.recordWarAction) {
           guildService.recordWarAction(m.wallet, 'invasion', warPts, { target: m.target_wallet }).catch(() => {});
         }
       }
@@ -984,7 +988,7 @@ async function resolveMission(missionId) {
 //  Invasion never transfers territory — territory is money and stays
 //  with the defender. Invasion is paid in PP/GP/XP only.
 //
-async function claimMission(wallet, missionId, minigameScore) {
+async function claimMission(wallet, missionId) {
   if (!wallet || !missionId) return { error: 'Missing args' };
   const client = await pool.connect();
   try {
@@ -1004,23 +1008,7 @@ async function claimMission(wallet, missionId, minigameScore) {
     const m = mRes.rows[0];
     const reward = typeof m.reward_json === 'string' ? JSON.parse(m.reward_json) : (m.reward_json || {});
 
-    // ── Minigame bonus: score → reward multiplier ──
-    // Score thresholds: 0→1x, 100→1.15x, 300→1.3x, 500→1.5x, 1000→1.8x, 2000+→2x
-    if (minigameScore && minigameScore > 0 && !reward.failed) {
-      let bonus = 1.0;
-      if (minigameScore >= 2000) bonus = 2.0;
-      else if (minigameScore >= 1000) bonus = 1.8;
-      else if (minigameScore >= 500) bonus = 1.5;
-      else if (minigameScore >= 300) bonus = 1.3;
-      else if (minigameScore >= 100) bonus = 1.15;
-      if (bonus > 1.0) {
-        if (reward.pp) reward.pp = Math.round(reward.pp * bonus * 1000000) / 1000000;
-        if (reward.gp) reward.gp = Math.round(reward.gp * bonus);
-        if (reward.xp) reward.xp = Math.floor(reward.xp * bonus);
-        reward.minigameBonus = bonus;
-        reward.minigameScore = minigameScore;
-      }
-    }
+    // Pay the stored resolved reward only; client minigame scores are unverified.
 
     // ── PP + GP credit
     if ((reward.pp || 0) > 0) {

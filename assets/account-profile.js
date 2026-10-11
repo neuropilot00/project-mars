@@ -17,6 +17,7 @@ function accountReadJson(key, url, minGap, auth) {
 }
 
 var _authMeInFlight = null;
+var _authMeInFlightToken = '';
 var _authMeLastToken = '';
 var _authMeLastAt = 0;
 var _authMeLastData = null;
@@ -29,20 +30,25 @@ function fetchAuthMe(force) {
   if (!force && _authMeLastData && _authMeLastToken === token && now - _authMeLastAt < AUTH_ME_MIN_GAP_MS) {
     return Promise.resolve(_authMeLastData);
   }
-  if (_authMeInFlight) return _authMeInFlight;
-  _authMeInFlight = fetch('/api/auth/me', { headers: { 'Authorization': 'Bearer ' + token } })
+  if (_authMeInFlight && _authMeInFlightToken === token) return _authMeInFlight;
+  _authMeInFlightToken = token;
+  var request = fetch('/api/auth/me', { headers: { 'Authorization': 'Bearer ' + token } })
     .then(function(r){
       if (!r.ok) throw new Error('auth_me_' + r.status);
       return r.json();
     })
     .then(function(d){
+      if (emailAuth.token !== token) return null;
       _authMeLastToken = token;
       _authMeLastAt = Date.now();
       _authMeLastData = d;
       return d;
     })
-    .finally(function(){ _authMeInFlight = null; });
-  return _authMeInFlight;
+    .finally(function(){
+      if (_authMeInFlight === request) { _authMeInFlight = null; _authMeInFlightToken = ''; }
+    });
+  _authMeInFlight = request;
+  return request;
 }
 
 function _authRankCacheKey(wallet){
@@ -99,10 +105,11 @@ function _applyAuthMeBalances(d){
 // Auto-login: restore session from saved token, or re-login with saved credentials
 (function autoLoginInit(){
   if(emailAuth.token){
+    var restoringToken = emailAuth.token;
     _authQuietPublicReads(300000);
     fetchAuthMe(true)
       .then(function(d){
-        if (!d) throw new Error('expired');
+        if (emailAuth.token !== restoringToken || !d) return;
         // [v7.174 A-C3] emailVerified 추적 — 미인증 시 verify 배너 노출
         emailAuth.user={wallet:d.wallet,email:d.email,nickname:d.nickname,rank:d.rank||1,referralCode:d.referralCode,emailVerified:!!d.emailVerified};
         walletState.connected=true;
@@ -140,7 +147,10 @@ function _applyAuthMeBalances(d){
         } catch(_) {}
         console.log('[Auth] Auto-login OK:',d.nickname);
       })
-      .catch(function(){
+      .catch(function(err){
+        if (emailAuth.token !== restoringToken) return;
+        // An offline/network failure is not evidence that the saved token expired.
+        if (!err || !/^auth_me_(401|403)$/.test(err.message)) return;
         // Token expired — try credential-based auto-login
         emailAuth.token=null;
         try{localStorage.removeItem('pw_token')}catch(e){}
@@ -716,6 +726,11 @@ async function requestDeleteAccount(){
 function logoutEmail(){
   emailAuth.token=null;
   emailAuth.user=null;
+  _authMeInFlight=null;
+  _authMeInFlightToken='';
+  _authMeLastToken='';
+  _authMeLastAt=0;
+  _authMeLastData=null;
   localStorage.removeItem('pw_token');
   // Clear auto-login (keep remember if user wants)
   localStorage.removeItem('pw_autologin');
@@ -735,9 +750,10 @@ function logoutEmail(){
 
 async function refreshEmailBalances(){
   if(!emailAuth.token) return;
+  var token = emailAuth.token;
   try{
     var d=await fetchAuthMe(false);
-    if(d){
+    if(d && emailAuth.token === token){
       _applyAuthMeBalances(d);
     }
   }catch(e){}

@@ -17,6 +17,7 @@
 
 const crypto = require('crypto');
 const { pool, getSetting } = require('../db');
+const { assertFleetsNotMining } = require('./fleetOccupancy');
 
 // Assembly is a premium "perfect gacha" finish: no plain common, weighted high.
 // Admin override: settings.assembly_quality_weights JSON, e.g. {"rare":40,"epic":35,"legendary":20,"mythic":5}
@@ -101,9 +102,16 @@ async function getUnit(unitCode) {
 
 async function getOrCreateFleet(client, wallet) {
   const { rows: existing } = await client.query(
-    `SELECT id FROM fleets WHERE owner_wallet = $1 ORDER BY id ASC LIMIT 1`, [wallet]
+    `SELECT id, is_in_battle, current_battle_id FROM fleets WHERE LOWER(owner_wallet) = LOWER($1) ORDER BY id ASC FOR UPDATE`, [wallet]
   );
-  if (existing[0]) return existing[0].id;
+  for (const fleet of existing) {
+    if (fleet.is_in_battle || fleet.current_battle_id) continue;
+    const active = await client.query(`SELECT 1 FROM fleet_battle_participants p JOIN fleet_battles b ON b.id=p.battle_id
+      WHERE p.fleet_id=$1 AND b.status IN ('preparing','active') LIMIT 1`, [fleet.id]);
+    if (active.rowCount) continue;
+    try { await assertFleetsNotMining(client, [fleet.id]); return fleet.id; }
+    catch (err) { if (!['FLEET_MINING', 'FLEET_TRANSPORTING'].includes(err.message)) throw err; }
+  }
   const { rows: nick } = await client.query('SELECT nickname FROM users WHERE LOWER(wallet_address) = LOWER($1)', [wallet]);
   const name = `${nick[0]?.nickname || 'Commander'} 제1함대`;
   const { rows } = await client.query(
@@ -323,6 +331,9 @@ async function assemble(wallet, unitCode) {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+    // Lock before counting hulls: concurrent assembly must observe the first result.
+    const { rows: users } = await client.query('SELECT gp_balance FROM users WHERE LOWER(wallet_address)=LOWER($1) FOR UPDATE', [w]);
+    if (!users[0]) { await client.query('ROLLBACK'); return { error: 'USER_NOT_FOUND' }; }
     const { rows: partRows } = await client.query(
       `SELECT part_code FROM assembly_parts WHERE unit_code = $1 AND is_active = true ORDER BY slot ASC`, [u.unit_code]
     );
@@ -342,9 +353,7 @@ async function assemble(wallet, unitCode) {
 
     const gpCost = u.assemble_gp_cost || 0;
     if (gpCost > 0) {
-      const { rows: uu } = await client.query(`SELECT gp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`, [w]);
-      if (!uu[0]) { await client.query('ROLLBACK'); return { error: 'USER_NOT_FOUND' }; }
-      if (Number(uu[0].gp_balance) < gpCost) { await client.query('ROLLBACK'); return { error: 'INSUFFICIENT_GP', required: gpCost, current: Number(uu[0].gp_balance) }; }
+      if (Number(users[0].gp_balance) < gpCost) { await client.query('ROLLBACK'); return { error: 'INSUFFICIENT_GP', required: gpCost, current: Number(users[0].gp_balance) }; }
       await client.query(`UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2)`, [gpCost, w]);
     }
 
@@ -417,12 +426,24 @@ async function disassemble(shipId, wallet) {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+    await client.query('SELECT wallet_address FROM users WHERE LOWER(wallet_address)=LOWER($1) FOR UPDATE', [w]);
+    const initial = await client.query('SELECT fleet_id FROM ships WHERE id=$1 AND LOWER(owner_wallet)=LOWER($2)', [sid, w]);
+    if (initial.rows[0]?.fleet_id) {
+      const { rows: fleets } = await client.query('SELECT is_in_battle,current_battle_id FROM fleets WHERE id=$1 FOR UPDATE', [initial.rows[0].fleet_id]);
+      if (!fleets[0] || fleets[0].is_in_battle || fleets[0].current_battle_id) { await client.query('ROLLBACK'); return { error: 'FLEET_IN_BATTLE' }; }
+      const active = await client.query(`SELECT 1 FROM fleet_battle_participants p JOIN fleet_battles b ON b.id=p.battle_id
+        WHERE p.fleet_id=$1 AND b.status IN ('preparing','active') LIMIT 1`, [initial.rows[0].fleet_id]);
+      if (active.rowCount) { await client.query('ROLLBACK'); return { error: 'FLEET_IN_BATTLE' }; }
+      await assertFleetsNotMining(client, [initial.rows[0].fleet_id]);
+    }
     const { rows: shipRows } = await client.query(
-      `SELECT id, ship_type_code, owner_wallet, is_market_listed FROM ships WHERE id = $1 FOR UPDATE`, [sid]
+      `SELECT id, fleet_id, ship_type_code, owner_wallet, is_market_listed, is_alive, current_hp, destroyed_at FROM ships WHERE id = $1 FOR UPDATE`, [sid]
     );
     const ship = shipRows[0];
     if (!ship) { await client.query('ROLLBACK'); return { error: 'SHIP_NOT_FOUND' }; }
     if (String(ship.owner_wallet).toLowerCase() !== w) { await client.query('ROLLBACK'); return { error: 'NOT_OWNER' }; }
+    if (String(ship.fleet_id || '') !== String(initial.rows[0]?.fleet_id || '')) { await client.query('ROLLBACK'); return { error: 'FLEET_CHANGED' }; }
+    if (!ship.is_alive || Number(ship.current_hp) <= 0 || ship.destroyed_at) { await client.query('ROLLBACK'); return { error: 'SHIP_DESTROYED' }; }
     if (ship.is_market_listed) { await client.query('ROLLBACK'); return { error: 'SHIP_LISTED_FOR_SALE' }; }
     const starter = await client.query('SELECT 1 FROM starter_fleet_grant_ships WHERE ship_id=$1', [sid]);
     if (starter.rowCount) { await client.query('ROLLBACK'); return { error: 'STARTER_HULL_LOCKED' }; }
@@ -433,11 +454,6 @@ async function disassemble(shipId, wallet) {
     if (!unitRows[0].disassemble_enabled) { await client.query('ROLLBACK'); return { error: 'DISASSEMBLE_DISABLED' }; }
     const unitCode = unitRows[0].unit_code;
 
-    const { rows: battle } = await client.query(
-      `SELECT 1 FROM ships s JOIN fleets f ON s.fleet_id = f.id WHERE s.id = $1 AND f.is_in_battle = true LIMIT 1`, [sid]
-    ).catch(() => ({ rows: [] }));
-    if (battle && battle.length) { await client.query('ROLLBACK'); return { error: 'FLEET_IN_BATTLE' }; }
-
     const { rows: partRows } = await client.query(`SELECT part_code FROM assembly_parts WHERE unit_code = $1 AND is_active = true`, [unitCode]);
     for (const p of partRows) {
       await client.query(
@@ -446,7 +462,9 @@ async function disassemble(shipId, wallet) {
         [w, p.part_code]
       );
     }
-    await client.query(`DELETE FROM ships WHERE id = $1`, [sid]);
+    // Retain hull history referenced by battles, repairs and build jobs.
+    // A dismantled hull cannot be rebuilt or dismantled a second time.
+    await client.query(`UPDATE ships SET is_alive=false,current_hp=0,destroyed_at=NOW(),destroyed_reason='scrapped' WHERE id=$1`, [sid]);
     await client.query(
       `INSERT INTO assembly_events (wallet, unit_code, action, ship_id, detail) VALUES ($1, $2, 'disassemble', $3, $4)`,
       [w, unitCode, sid, JSON.stringify({ parts_returned: partRows.map(p => p.part_code) })]
@@ -455,6 +473,7 @@ async function disassemble(shipId, wallet) {
     return { success: true, unit_code: unitCode, parts_returned: partRows.map(p => p.part_code) };
   } catch (err) {
     await client.query('ROLLBACK');
+    if (['FLEET_MINING', 'FLEET_TRANSPORTING'].includes(err.message)) return { success: false, error: err.message };
     console.error('[ASSEMBLY] disassemble error:', err.message);
     return { success: false, error: 'internal_error' };
   } finally { client.release(); }

@@ -1834,97 +1834,10 @@ async function getWarLeaderboard(warId) {
 
 const VALID_GAME_TYPES = ['invaders', 'runner', 'digger'];
 
-async function submitGameScore(wallet, warId, gameType, score) {
-  if (!VALID_GAME_TYPES.includes(gameType)) {
-    return { error: `Invalid game type. Must be one of: ${VALID_GAME_TYPES.join(', ')}` };
-  }
-  score = parseInt(score);
-  if (!score || score < 1) return { error: 'Score must be a positive integer' };
-
-  const client = await pool.connect();
-  try {
-    await client.query('BEGIN');
-
-    // Validate war exists and is active
-    const warRes = await client.query(
-      'SELECT * FROM guild_wars WHERE id = $1 AND status = $2 FOR UPDATE',
-      [warId, 'active']
-    );
-    if (!warRes.rows.length) {
-      await client.query('ROLLBACK');
-      return { error: 'War not found or not active' };
-    }
-    const war = warRes.rows[0];
-
-    // Validate player is in a guild participating in this war
-    const gmRes = await client.query('SELECT guild_id FROM guild_members WHERE wallet = $1', [wallet]);
-    if (!gmRes.rows.length) {
-      await client.query('ROLLBACK');
-      return { error: 'You are not in a guild' };
-    }
-    const guildId = gmRes.rows[0].guild_id;
-    if (guildId !== war.attacker_guild_id && guildId !== war.defender_guild_id) {
-      await client.query('ROLLBACK');
-      return { error: 'Your guild is not participating in this war' };
-    }
-
-    // Check daily play limit (all minigame types combined for this wallet+war today)
-    const maxPlays = parseInt(await getSetting('guild_war_game_plays_per_day') || '3');
-    const todayPlays = await client.query(
-      `SELECT COUNT(*)::int AS cnt FROM guild_war_actions
-       WHERE war_id = $1 AND wallet = $2
-         AND action_type LIKE 'minigame_%'
-         AND created_at >= CURRENT_DATE`,
-      [warId, wallet]
-    );
-    const playCount = todayPlays.rows[0].cnt;
-    if (playCount >= maxPlays) {
-      await client.query('ROLLBACK');
-      return { error: `Daily play limit reached (${maxPlays} per day). Try again tomorrow.` };
-    }
-
-    // Apply score multiplier
-    const multiplier = parseFloat(await getSetting('guild_war_game_score_multiplier') || '1');
-    const points = Math.round(score * multiplier);
-
-    // Insert action
-    const actionType = 'minigame_' + gameType;
-    await client.query(
-      `INSERT INTO guild_war_actions (war_id, guild_id, wallet, action_type, points, meta)
-       VALUES ($1, $2, $3, $4, $5, $6)`,
-      [warId, guildId, wallet, actionType, points, JSON.stringify({ rawScore: score, multiplier, gameType })]
-    );
-
-    // Update war score
-    const scoreCol = guildId === war.attacker_guild_id ? 'attacker_score' : 'defender_score';
-    await client.query(
-      `UPDATE guild_wars SET ${scoreCol} = ${scoreCol} + $1 WHERE id = $2`,
-      [points, warId]
-    );
-
-    await client.query('COMMIT');
-
-    const playsRemaining = maxPlays - playCount - 1;
-
-    // Get total score for this player in this war
-    const totalRes = await pool.query(
-      `SELECT COALESCE(SUM(points),0)::int AS total FROM guild_war_actions
-       WHERE war_id = $1 AND wallet = $2 AND action_type LIKE 'minigame_%'`,
-      [warId, wallet]
-    );
-
-    console.log(`[GUILD WAR MINIGAME] ${wallet} scored ${points} pts (${gameType}) in war #${warId}`);
-    return {
-      success: true,
-      points,
-      totalScore: totalRes.rows[0].total,
-      playsRemaining
-    };
-  } catch (e) {
-    await client.query('ROLLBACK');
-    console.error('[GUILD WAR MINIGAME] submitGameScore:', e.message);
-    return { error: e.message };
-  } finally { client.release(); }
+async function submitGameScore() {
+  // Browser minigame scores are not verified server gameplay evidence.
+  // Keep local play separate from guild war scoring and GP rewards.
+  return { error: 'WAR_MINIGAME_SCORING_DISABLED' };
 }
 
 async function getWarScoreboard(warId) {

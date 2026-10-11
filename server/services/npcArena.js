@@ -77,6 +77,8 @@ async function listBattleReadyNpcFleets() {
     JOIN users u ON LOWER(u.wallet_address) = LOWER(f.owner_wallet)
     LEFT JOIN ships s ON s.fleet_id = f.id
     WHERE u.is_ai = true
+      AND COALESCE(to_jsonb(u)->>'is_frontier_npc','false') <> 'true'
+      AND COALESCE(to_jsonb(u)->>'is_objective_npc','false') <> 'true'
       AND f.is_in_battle = false
     GROUP BY f.id, f.owner_wallet, u.faction_code
     HAVING COUNT(s.id) FILTER (WHERE s.is_alive) > 0
@@ -98,6 +100,8 @@ async function countActiveNpcFleets() {
       JOIN users u ON LOWER(u.wallet_address) = LOWER(f.owner_wallet)
       JOIN ships s ON s.fleet_id = f.id AND s.is_alive = true
       WHERE u.is_ai = true
+      AND COALESCE(to_jsonb(u)->>'is_frontier_npc','false') <> 'true'
+      AND COALESCE(to_jsonb(u)->>'is_objective_npc','false') <> 'true'
       GROUP BY f.id
     ) q
   `);
@@ -161,7 +165,12 @@ async function runArenaTick() {
 
     // FOR UPDATE 로 두 함대 lock + 재확인 (TOCTOU 방지)
     const { rows: locked } = await client.query(
-      `SELECT id, is_in_battle FROM fleets WHERE id = ANY($1::int[]) FOR UPDATE`,
+      `SELECT f.id, f.is_in_battle FROM fleets f
+       JOIN users u ON LOWER(u.wallet_address) = LOWER(f.owner_wallet)
+       WHERE f.id = ANY($1::int[]) AND u.is_ai = true
+         AND COALESCE(to_jsonb(u)->>'is_frontier_npc','false') <> 'true'
+         AND COALESCE(to_jsonb(u)->>'is_objective_npc','false') <> 'true'
+       FOR UPDATE OF f`,
       [[atk.fleet_id, def.fleet_id]]
     );
     // fleets.id 는 bigint → node-pg 가 문자열로 반환. Number() 로 양변 정규화 후 비교.

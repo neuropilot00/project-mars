@@ -41,6 +41,12 @@ function loadQuests(wallet){
       if(data.pool) _questPoolData=data.pool;
       loadCampaignStatus();
       renderQuests(data.quests||[], container);
+      if(data.legacyRetired){
+        var retirement=document.createElement('div');
+        retirement.style.cssText='padding:10px;color:var(--tx3);font-size:var(--fs-xs)';
+        retirement.textContent=tl('Random quests have retired. Previously completed rewards remain claimable.','랜덤 퀘스트는 종료되었습니다. 이미 완료한 보상은 수령할 수 있습니다.','ランダムクエストは終了しました。完了済みの報酬は受け取れます。','随机任务已停止，已完成任务的奖励仍可领取。');
+        container.prepend(retirement);
+      }
       renderClaimedQuests(data.recentlyClaimed||[], claimedDiv);
     })
     .catch(function(){
@@ -141,27 +147,8 @@ async function claimQuest(questId){
 }
 
 // Track quest progress on user actions
-function trackQuestAction(action, amount){
-  var w=walletState.address;
-  if(!w) return;
-  var headers={'Content-Type':'application/json'};
-  if(emailAuth.token) headers['Authorization']='Bearer '+emailAuth.token;
-  fetch('/api/quests/track',{
-    method:'POST',headers:headers,
-    body:JSON.stringify({wallet:w,action:action,amount:amount||1})
-  }).then(function(r){return r.json()}).then(function(d){
-    if(d.quests){
-      var anyCompleted = false;
-      d.quests.forEach(function(q){
-        if(q.justCompleted){
-          anyCompleted = true;
-          showToast(t('quests_completed_toast').replace('{title}',_questTitle(q)));
-          try{_sfx.notification()}catch(e){}
-        }
-      });
-      if(anyCompleted){ setBaseTabDot('quests', true); _updateBaseBtnDot(); }
-    }
-  }).catch(function(){});
+function trackQuestAction(_action, _amount){
+  // Retired legacy client tracking. Verified operations progress on the server.
 }
 
 // ── GP Activity Log (Migration 097) ──
@@ -863,55 +850,12 @@ async function renameTerritory(plot){
   }catch(e){showToast(t('quests_network_error')||tl('Network error','네트워크 오류','ネットワークエラー','网络错误'),'error')}
 }
 
-// ── POI Hint (micro-transaction) ──
+// Compatibility for stale buttons; retired services never ask for payment.
 async function getPOIHint(){
-  var w=walletState.address;
-  if(!w){showToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'));return}
-  // Use camera/globe center as user position
-  var lat=0,lng=0;
-  try{
-    if(typeof camera!=='undefined'&&camera.position){
-      // Convert camera to lat/lng approximation
-      var pos=camera.position;
-      lat=Math.asin(pos.y/pos.length())*180/Math.PI;
-      lng=Math.atan2(pos.x,pos.z)*180/Math.PI;
-    }
-  }catch(e){}
-  var ok=await shopConfirm('',tl('POI Hint','POI 힌트','POIヒント','POI 提示'),
-    '<div style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:4px">'+tl('POI DIRECTION HINT','POI 방향 힌트','POI方向ヒント','POI 方向提示')+'</div>'
-    +'<div style="font-size:var(--fs-sm);color:var(--tx3);margin-bottom:8px">'+tl('Get the approximate direction to the nearest undiscovered POI.','가장 가까운 미발견 POI의 대략적인 방향을 얻습니다.','最も近い未発見POIのおおよその方向を取得します。','获取最近未发现 POI 的大致方向。')+'</div>'
-    +'<div style="font-size:var(--fs-md);color:var(--gold)">0.2 PP</div>',tl('GET HINT','힌트 받기','ヒント取得','获取提示'));
-  if(!ok)return;
-  try{
-    var headers={'Content-Type':'application/json'};
-    if(emailAuth.token) headers['Authorization']='Bearer '+emailAuth.token;
-    var resp=await fetch('/api/exploration/hint',{method:'POST',headers:headers,body:JSON.stringify({wallet:w,lat:lat,lng:lng})});
-    var d=await resp.json();
-    if(!resp.ok){showToast(d.error||tl('Hint failed','힌트 요청 실패','ヒント取得失敗','提示获取失败'),'error');return}
-    var icon=d.hint.poiType?({'ancient_ruins':'','ore_deposit':'','crashed_probe':'','water_ice':'','alien_artifact':''}[d.hint.poiType]||''):'';
-    showNotification('exploration',tl('POI hint','POI 힌트','POIヒント','POI 提示'),icon+' '+d.hint.direction+' — '+d.hint.distance);
-    try{refreshEmailBalances()}catch(e){}
-  }catch(e){showToast(t('quests_network_error')||tl('Network error','네트워크 오류','ネットワークエラー','网络错误'),'error')}
+  showToast(tl('Paid POI hints have retired. Existing discoveries remain available.','유료 POI 힌트는 종료되었습니다. 기존 발견 보상은 유지됩니다.','有料POIヒントは終了しました。発見済みの報酬は維持されます。','付费POI提示已停止，现有发现奖励保留。'));
 }
-
-// ── Rocket Loot Priority (micro-transaction) ──
-async function buyLootPriority(rocketEventId){
-  var w=walletState.address;
-  if(!w){showToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'));return}
-  var ok=await shopConfirm('',tl('Priority Queue','우선 대기열','優先キュー','优先队列'),
-    '<div style="font-size:14px;font-weight:700;color:var(--tx);margin-bottom:4px">'+tl('LOOT PRIORITY','전리품 우선권','戦利品優先権','战利品优先权')+'</div>'
-    +'<div style="font-size:var(--fs-sm);color:var(--tx3);margin-bottom:8px">'+tl('Get a 5-second head start notification when rocket loot drops.','로켓 전리품이 떨어질 때 5초 빠른 알림을 받습니다.','ロケットの戦利品が落ちる際に5秒早い通知を受け取ります。','火箭战利品掉落时提前 5 秒收到通知。')+'</div>'
-    +'<div style="font-size:var(--fs-md);color:var(--gold)">0.3 PP</div>',tl('GET PRIORITY','우선권 받기','優先権取得','获取优先权'));
-  if(!ok)return;
-  try{
-    var headers={'Content-Type':'application/json'};
-    if(emailAuth.token) headers['Authorization']='Bearer '+emailAuth.token;
-    var resp=await fetch('/api/rockets/priority',{method:'POST',headers:headers,body:JSON.stringify({wallet:w,rocketEventId:rocketEventId})});
-    var d=await resp.json();
-    if(!resp.ok){showToast(d.error||tl('Priority failed','우선권 구매 실패','優先権の購入に失敗しました','优先权购买失败'),'error');return}
-    showToast(tl('Priority notification activated!','우선 알림이 활성화되었습니다!','優先通知を有効化しました！','优先通知已启用！'),'success');
-    try{refreshEmailBalances()}catch(e){}
-  }catch(e){showToast(t('quests_network_error')||tl('Network error','네트워크 오류','ネットワークエラー','网络错误'),'error')}
+async function buyLootPriority(_rocketEventId){
+  showToast(tl('Rocket priority sales have retired. Existing loot claims remain available.','로켓 우선권 판매는 종료되었습니다. 기존 전리품은 수령할 수 있습니다.','ロケット優先権の販売は終了しました。既存の戦利品は受け取れます。','火箭优先权销售已停止，现有战利品仍可领取。'));
 }
 
 // ── Auto-Renew Toggle ──

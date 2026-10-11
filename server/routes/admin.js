@@ -3114,7 +3114,7 @@ router.post('/tournaments/create', adminAuth, async (req, res) => {
     const t = await svc.adminCreateTournament(req.body || {});
     await auditLog(req, 'tournament_create', `tournament:${t.id}`, { name: t.name });
     res.json(t);
-  } catch (e) { res.status(400).json({ error: e.message }); }
+  } catch (e) { res.status(e.status || 400).json({ error: e.code || e.message, message: e.message, alternative: 'fleet_tournament_admin' }); }
 });
 
 // POST /admin/api/tournaments/:id/status  { status }

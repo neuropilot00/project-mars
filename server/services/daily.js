@@ -17,6 +17,10 @@ const MISSION_POOL = [
   { type: 'build_ship',          label: 'Shipyard Rush',         desc: 'Build a new ship for your fleet',                  icon: '🚢',  targetMin: 1, targetMax: 2, rewardGP: 25, rewardXP: 5 },
 ];
 
+// Keep retired definitions for historical completed reward labels only.
+const RETIRED_MISSION_TYPES = new Set(['view_weather', 'explore_poi', 'play_cantina']);
+const ASSIGNABLE_MISSIONS = MISSION_POOL.filter(m => !RETIRED_MISSION_TYPES.has(m.type));
+
 function randInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
@@ -189,51 +193,58 @@ async function recordDailyLogin(wallet) {
 // ── Get or generate daily missions ──
 async function getDailyMissions(wallet) {
   const w = wallet.toLowerCase();
-
-  // Check existing missions for today
-  const existing = await pool.query(
-    'SELECT * FROM daily_missions WHERE wallet = $1 AND mission_date = CURRENT_DATE ORDER BY slot',
-    [w]
-  );
-  if (existing.rows.length >= 3) {
-    return existing.rows.map(formatMission);
-  }
-
-  // Generate 3 random missions (no duplicates)
-  const shuffled = [...MISSION_POOL].sort(() => Math.random() - 0.5);
-  const selected = shuffled.slice(0, 3);
-
-  const missions = [];
-  for (let i = 0; i < 3; i++) {
-    const m = selected[i];
-    const target = randInt(m.targetMin, m.targetMax);
-    // Admin-configurable reward override (falls back to pool default)
-    const settingKey = 'daily_mission_' + m.type + '_reward_gp';
-    const settingVal = await getSetting(settingKey, null);  // explicit null fallback
-    const parsedVal = settingVal != null && settingVal !== '' ? parseFloat(settingVal) : NaN;
-    const rewardGP = !isNaN(parsedVal) ? parsedVal : m.rewardGP;  // use pool default if NaN
-    const res = await pool.query(
-      `INSERT INTO daily_missions (wallet, mission_date, slot, mission_type, target_value, reward_gp, reward_xp)
-       VALUES ($1, CURRENT_DATE, $2, $3, $4, $5, $6)
-       ON CONFLICT (wallet, mission_date, slot) DO NOTHING
-       RETURNING *`,
-      [w, i + 1, m.type, target, rewardGP, m.rewardXP]
-    );
-    if (res.rows.length) {
-      missions.push(formatMission(res.rows[0]));
-    }
-  }
-
-  // If ON CONFLICT hit (race condition), re-fetch
-  if (missions.length < 3) {
-    const refetch = await pool.query(
-      'SELECT * FROM daily_missions WHERE wallet = $1 AND mission_date = CURRENT_DATE ORDER BY slot',
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    // Serialize empty-board generation as well as existing-row reassignment.
+    await client.query('SELECT pg_advisory_xact_lock(hashtext($1))', ['daily-missions:' + w]);
+    const existing = await client.query(
+      'SELECT * FROM daily_missions WHERE wallet = $1 AND mission_date = CURRENT_DATE ORDER BY id FOR UPDATE',
       [w]
     );
-    return refetch.rows.map(formatMission);
+    const rows = existing.rows.sort((a, b) => a.slot - b.slot);
+    const used = new Set(rows.map(row => row.mission_type));
+    const replacementOrder = ['harvest', 'equip_cosmetic', 'enhance_item', 'marketplace_trade', 'build_ship', 'win_naval_battle', 'claim_pixels', 'hijack'];
+    for (const row of rows) {
+      if (!RETIRED_MISSION_TYPES.has(row.mission_type) || row.completed || row.claimed || Number(row.current_value) !== 0) continue;
+      const replacement = replacementOrder.find(type => !used.has(type));
+      if (!replacement) continue;
+      // Keep id, slot and promised GP/XP; only change an untouched retired goal.
+      const changed = await client.query(
+        `UPDATE daily_missions SET mission_type=$1, target_value=1
+         WHERE id=$2 AND completed=false AND claimed=false AND current_value=0 RETURNING *`,
+        [replacement, row.id]
+      );
+      if (changed.rows.length) {
+        used.add(replacement);
+        Object.assign(row, changed.rows[0]);
+      }
+    }
+    const available = ASSIGNABLE_MISSIONS.filter(m => !used.has(m.type)).sort(() => Math.random() - 0.5);
+    for (let slot = 1; slot <= 3; slot++) {
+      if (rows.some(row => row.slot === slot)) continue;
+      const m = available.shift();
+      if (!m) continue;
+      const settingRow = await client.query('SELECT value FROM settings WHERE key=$1', ['daily_mission_' + m.type + '_reward_gp']);
+      const settingVal = settingRow.rows[0]?.value ?? null;
+      const parsedVal = settingVal != null && settingVal !== '' ? parseFloat(settingVal) : NaN;
+      const rewardGP = !isNaN(parsedVal) ? parsedVal : m.rewardGP;
+      const inserted = await client.query(
+        `INSERT INTO daily_missions (wallet, mission_date, slot, mission_type, target_value, reward_gp, reward_xp)
+         VALUES ($1, CURRENT_DATE, $2, $3, $4, $5, $6)
+         ON CONFLICT (wallet, mission_date, slot) DO NOTHING RETURNING *`,
+        [w, slot, m.type, randInt(m.targetMin, m.targetMax), rewardGP, m.rewardXP]
+      );
+      rows.push(...inserted.rows);
+    }
+    await client.query('COMMIT');
+    return rows.sort((a, b) => a.slot - b.slot).map(formatMission);
+  } catch (e) {
+    await client.query('ROLLBACK');
+    throw e;
+  } finally {
+    client.release();
   }
-
-  return missions;
 }
 
 function formatMission(row) {
@@ -258,26 +269,34 @@ function formatMission(row) {
 async function updateMissionProgress(wallet, missionType, increment) {
   const w = wallet.toLowerCase();
   const inc = increment || 1;
-
-  const res = await pool.query(
-    `UPDATE daily_missions
-     SET current_value = LEAST(current_value + $1, target_value)
-     WHERE wallet = $2 AND mission_date = CURRENT_DATE AND mission_type = $3 AND completed = false
-     RETURNING *`,
-    [inc, w, missionType]
-  );
-
-  if (!res.rows.length) return null;
-
-  const mission = res.rows[0];
-  // Check if now completed
-  if (mission.current_value >= mission.target_value && !mission.completed) {
-    await pool.query(
-      'UPDATE daily_missions SET completed = true WHERE id = $1',
-      [mission.id]
+  const client = await pool.connect();
+  let mission;
+  try {
+    await client.query('BEGIN');
+    await client.query('SELECT pg_advisory_xact_lock(hashtext($1))', ['daily-missions:' + w]);
+    // Same lock order as assignment and claim; progress/completion is one write.
+    await client.query(
+      'SELECT id FROM daily_missions WHERE wallet=$1 AND mission_date=CURRENT_DATE ORDER BY id FOR UPDATE',
+      [w]
     );
-    mission.completed = true;
-    // 🔔 Mission complete notification (fire-and-forget)
+    const res = await client.query(
+      `UPDATE daily_missions
+       SET current_value=LEAST(current_value+$1,target_value),
+           completed=LEAST(current_value+$1,target_value)>=target_value
+       WHERE wallet=$2 AND mission_date=CURRENT_DATE AND mission_type=$3
+         AND completed=false AND claimed=false RETURNING *`,
+      [inc, w, missionType]
+    );
+    mission = res.rows[0];
+    await client.query('COMMIT');
+  } catch (e) {
+    await client.query('ROLLBACK');
+    throw e;
+  } finally {
+    client.release();
+  }
+  if (!mission) return null;
+  if (mission.completed) {
     try {
       const def = MISSION_POOL.find(m => m.type === mission.mission_type);
       const label = def ? def.label : mission.mission_type;
@@ -287,7 +306,6 @@ async function updateMissionProgress(wallet, missionType, increment) {
       ).catch(() => {});
     } catch (_ne) {}
   }
-
   return formatMission(mission);
 }
 

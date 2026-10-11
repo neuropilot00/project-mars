@@ -1249,9 +1249,13 @@ function _campaignStopBgm(quick){
 // 파일 없거나 자동재생 차단 시 무음. 전역 사운드 설정에 연동.
 var _campaignQuestId=null;
 var _campaignVoice={ el:null };
+// Production manifest is a generation plan, not proof of a shipped audio file.
+// No voice MP3s are currently shipped; only verified filenames may be enabled here.
+var _campaignVoiceAvailableFiles = Object.create(null);
 function _campaignVoiceFile(scene,lineIdx){
   if(!_campaignQuestId||!scene||!scene.id) return null;
-  return '/assets/audio/voice/'+_campaignQuestId+'_'+scene.id+'_l'+lineIdx+'.mp3';
+  var name=_campaignQuestId+'_'+scene.id+'_l'+lineIdx+'.mp3';
+  return _campaignVoiceAvailableFiles[name] === true ? '/assets/audio/voice/'+name : null;
 }
 function _campaignPlayVoice(scene,lineIdx){
   try{

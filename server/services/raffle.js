@@ -280,7 +280,11 @@ async function adminCancelRaffle(raffleId) {
     const rfRes = await client.query(`SELECT * FROM raffles WHERE id=$1 FOR UPDATE`, [raffleId]);
     if (!rfRes.rows.length) throw new Error('Not found');
     const rf = rfRes.rows[0];
-    if (rf.status === 'completed') throw new Error('Already completed');
+    if (rf.status === 'cancelled') {
+      await client.query('COMMIT');
+      return { ok: true, refunded: 0, alreadyCancelled: true };
+    }
+    if (!['open','drawing'].includes(rf.status)) throw new Error('Raffle is closed');
     // Refund all entrants
     const entries = await client.query(
       `SELECT wallet, gp_spent FROM raffle_entries WHERE raffle_id=$1`, [raffleId]

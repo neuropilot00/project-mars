@@ -44,7 +44,7 @@ router.post('/tournaments/join', requireAuth, async (req, res) => {
   const { tournamentId } = req.body || {};
   if (!wallet || !tournamentId) return res.status(400).json({ error: 'wallet and tournamentId required' });
   try { res.json(await svc.joinTournament(wallet, tournamentId)); }
-  catch (e) { res.status(400).json({ error: e.message }); }
+  catch (e) { res.status(e.status || 400).json({ error: e.code || e.message, message: e.message, alternative: 'fleet_tournament_registration' }); }
 });
 
 module.exports = router;

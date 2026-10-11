@@ -698,7 +698,7 @@ function openBaseModal(){
   loadBaseData();
   try{ _updateBaseTerritoryGroupList(); }catch(_){}
   _setActiveTimeout(loadNotifCount, 500);
-  _setActiveTimeout(function(){ try{ loadOpsCommandBoard(); }catch(_){} }, 200);
+  // Legacy OPS board is loaded by its visible Territory tab, not every BASE entry.
   // [v7.137] 레벨 게이트 잠금 표시 (레벨 DOM 채워진 뒤)
   try{ applyBaseTabLocks(); }catch(_){}
   setTimeout(function(){ try{ applyBaseTabLocks(); }catch(_){} }, 600);

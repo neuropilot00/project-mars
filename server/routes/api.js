@@ -4,6 +4,7 @@ const { pool, ensureUser, getSetting, getPPToGPRate, getReferralChain, creditRef
 const { recalculateGovernor, recalculateCommander, collectTax, getActiveSectorBuffs, hasActiveEvent } = require('../services/governance');
 const { requireAuth, getAuthWallet, sanitize, isInternalRequest } = require('../utils/apiHelpers');
 const { cfg } = require('../utils/settingsCache');
+const { regionMultiplier, weightedRegionMultiplier } = require('../utils/regionalHarvest');
 let weatherService;
 try { weatherService = require('../services/weather'); } catch (_e) { /* weather service not available */ }
 let explorationService;
@@ -657,7 +658,7 @@ router.post('/claim', requireAuth, writeLimiter, async (req, res) => {
           const wxSectorId = ownerPixels[0] && ownerPixels[0].existing ? findSectorForPixelSync(ownerPixels[0].lat, ownerPixels[0].lng) : null;
           if (wxSectorId) {
             const wMods = await weatherService.getWeatherModifiers(wxSectorId);
-            effectiveSuccessRate += (wMods.attackMod || 0) + (wMods.defenseMod || 0);
+            effectiveSuccessRate += (wMods.attackMod || 0) - (wMods.defenseMod || 0);
           }
         }
       } catch (_we) { /* weather unavailable */ }
@@ -1713,39 +1714,14 @@ router.post('/harvest', requireAuth, harvestLimiter, async (req, res) => {
       if (isDoubleMining) harvestedPP = Math.round(harvestedPP * 2 * 10000) / 10000;
     } catch(ge) { console.warn('[GOV] harvest buff check failed:', ge.message); }
 
-    // ── Weather modifiers (safe) ──
-    try {
-      if (weatherService) {
-        const sectorRows = await client.query(
-          'SELECT DISTINCT sector_id FROM pixels WHERE owner = $1 AND sector_id IS NOT NULL', [w]
-        );
-        let bestMiningMod = 0;
-        for (const row of sectorRows.rows) {
-          const wMods = await weatherService.getWeatherModifiers(row.sector_id);
-          if (wMods.miningMod > bestMiningMod) bestMiningMod = wMods.miningMod;
-        }
-        if (bestMiningMod > 0) {
-          harvestedPP = Math.round(harvestedPP * (1 + bestMiningMod / 100) * 10000) / 10000;
-        }
-      }
-    } catch (we) { /* weather system unavailable */ }
-
-    // ── Starlink boost (safe) ──
-    try {
-      if (explorationService) {
-        const sectorRows2 = await client.query(
-          'SELECT DISTINCT sector_id FROM pixels WHERE owner = $1 AND sector_id IS NOT NULL', [w]
-        );
-        let bestStarlinkBoost = 0;
-        for (const row of sectorRows2.rows) {
-          const slBoost = await explorationService.getStarlinkBoost(row.sector_id);
-          if (slBoost > bestStarlinkBoost) bestStarlinkBoost = slBoost;
-        }
-        if (bestStarlinkBoost > 0) {
-          harvestedPP = Math.round(harvestedPP * (1 + bestStarlinkBoost) * 10000) / 10000;
-        }
-      }
-    } catch (_se) { /* starlink system unavailable */ }
+    // Local weather and satellite effects only modify their territory share.
+    const regionRows = await client.query(
+      `SELECT p.sector_id, s.tier, COUNT(*) AS cnt FROM pixels p
+       LEFT JOIN sectors s ON s.id=p.sector_id WHERE p.owner=$1
+       GROUP BY p.sector_id,s.tier`, [w]
+    );
+    const regionalMult = await weightedRegionMultiplier(regionRows.rows, miningBonusMap, weatherService, explorationService);
+    harvestedPP = Math.round(harvestedPP * regionalMult * 10000) / 10000;
 
     // Check personal mining_boost item effect
     try {
@@ -2223,12 +2199,7 @@ router.post('/territory/harvest-all', requireAuth, harvestLimiter, async (req, r
         }
         if (isDoubleMining) harvestedPP = Math.round(harvestedPP * 2 * 10000) / 10000;
       } catch (_) {}
-      try {
-        if (weatherService && claim.sector_id) {
-          const wMods = await weatherService.getWeatherModifiers(claim.sector_id);
-          if (wMods.miningMod > 0) harvestedPP = Math.round(harvestedPP * (1 + wMods.miningMod / 100) * 10000) / 10000;
-        }
-      } catch (_) {}
+      harvestedPP = Math.round(harvestedPP * await regionMultiplier(claim.sector_id, weatherService, explorationService) * 10000) / 10000;
       if (virusPenalty > 0) harvestedPP = Math.round(harvestedPP * (1 - virusPenalty) * 10000) / 10000;
       if (vipBoost > 1) harvestedPP = Math.round(harvestedPP * vipBoost * 10000) / 10000;
       if (prestigeBoost > 1) harvestedPP = Math.round(harvestedPP * prestigeBoost * 10000) / 10000;
@@ -2463,13 +2434,8 @@ router.post('/territory/:claimId/harvest', requireAuth, harvestLimiter, async (r
       if (isDoubleMining) harvestedPP = Math.round(harvestedPP * 2 * 10000) / 10000;
     } catch (_) {}
 
-    // Weather
-    try {
-      if (weatherService && claim.sector_id) {
-        const wMods = await weatherService.getWeatherModifiers(claim.sector_id);
-        if (wMods.miningMod > 0) harvestedPP = Math.round(harvestedPP * (1 + wMods.miningMod / 100) * 10000) / 10000;
-      }
-    } catch (_) {}
+    // Same local weather/satellite accounting as global and batch harvest.
+    harvestedPP = Math.round(harvestedPP * await regionMultiplier(claim.sector_id, weatherService, explorationService) * 10000) / 10000;
 
     // Virus Payload: enemy-applied mining penalty for its active duration.
     try {

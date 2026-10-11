@@ -536,8 +536,10 @@ function loadBaseData(){
       renderBaseUser(data);
     }).catch(function(e){console.error('[BASE] Failed to load user data:', e)});
 
-    // Load quests
-    loadQuests(w);
+    // Legacy reward rows load only while their records section is visible.
+    var recordsPane=document.getElementById('basePane_records');
+    var rewardRecords=document.getElementById('coreRewardRecords');
+    if(recordsPane&&recordsPane.classList.contains('active')&&rewardRecords&&rewardRecords.open) loadQuests(w);
   }
 }
 

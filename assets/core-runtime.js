@@ -628,6 +628,7 @@ function setLoadProgress(pct,msg){
   if(msgEl&&msg)msgEl.textContent=msg;
 }
 function dismissLoader(){
+  if (window._globeReady) _clearMapRecovery();
   var el=document.getElementById('loadOverlay');
   if(!el)return;
   _clearActiveInterval(_loadQuoteTimer);
@@ -640,17 +641,44 @@ function dismissLoader(){
 
 setLoadProgress(2,'Initializing...');
 
-// [v7.263 fix] 하드 안전장치 — 로딩 오버레이(z9999, pointer-events:auto)가 어떤 이유로든
-//   영구히 화면을 덮어 모든 클릭을 막는 사고를 차단한다. 과거 증상: globe/WebGL init 예외
-//   (SW 업데이트 후 stale globe.gl·텍스처, 컨텍스트 손실 등) → _doInitGlobe 내부 throw →
-//   그 뒤에 등록되던 8s fallback 이 실행 안 됨 → 로더가 95%에서 고착 → "버튼 안 눌림".
-//   이 타이머는 어떤 init 예외와도 독립적으로 최상위에서 무조건 등록되어 오버레이를 해제한다.
+// Keep failed WebGL initialization recoverable without blocking game navigation.
+var _mapRecoveryTimer = null;
+function _clearMapRecovery(){
+  var notice=document.getElementById('mapRecoveryNotice');
+  if(notice) notice.remove();
+  if(_mapRecoveryTimer!==null){ _clearActiveInterval(_mapRecoveryTimer); _mapRecoveryTimer=null; }
+}
+function _showMapRecovery(){
+  if(window._globeReady){ _clearMapRecovery(); return; }
+  if(document.getElementById('mapRecoveryNotice')) return;
+  var notice=document.createElement('div');
+  notice.id='mapRecoveryNotice';
+  notice.setAttribute('role','alert');
+  notice.style.cssText='position:fixed;top:90px;left:12px;right:12px;max-width:440px;margin:auto;z-index:4500;padding:14px;border:1px solid #a85a32;border-radius:10px;background:#17121e;color:#eee;font:14px sans-serif;box-shadow:0 8px 24px #0008;';
+  var text=document.createElement('div');
+  text.textContent=typeof tl==='function'?tl('Mars map is unavailable. You can continue from the command center or retry loading.','화성 지도를 불러오지 못했습니다. 지휘 화면에서 계속하거나 다시 불러오세요.','火星マップを読み込めません。指揮画面を開くか再読み込みしてください。','火星地图不可用。可打开指挥中心或重试加载。'):'Mars map is unavailable. Continue from the command center or retry loading.';
+  notice.appendChild(text);
+  function action(label,handler){
+    var button=document.createElement('button');button.type='button';button.textContent=label;
+    button.style.cssText='min-height:44px;margin:10px 8px 0 0;padding:8px 12px;border:1px solid #b96a3c;border-radius:6px;background:#38251e;color:#fff;font:14px sans-serif;cursor:pointer';
+    button.addEventListener('click',handler);notice.appendChild(button);
+  }
+  action(typeof tl==='function'?tl('Open command center','지휘 화면 열기','指揮画面を開く','打开指挥中心'):'Open command center',function(){
+    if(typeof window.openCommandCenter==='function'){ window.openCommandCenter('front'); _clearMapRecovery(); }
+  });
+  action(typeof tl==='function'?tl('Retry loading','다시 불러오기','再読み込み','重试加载'):'Retry loading',function(){ location.reload(); });
+  document.body.appendChild(notice);
+  _mapRecoveryTimer=_setActiveInterval(function(){ if(window._globeReady) _clearMapRecovery(); },1000);
+}
+
+// Hard timeout releases the overlay even if globe initialization threw.
 setTimeout(function(){
   try {
     if (typeof _loadPct === 'undefined' || _loadPct < 100) {
       if (typeof dismissLoader === 'function') dismissLoader();
     }
   } catch(_) {}
+  if(!window._globeReady) _showMapRecovery();
   // 최후 안전망: dismissLoader 가 없거나 실패해도 오버레이를 강제로 클릭 불가 처리.
   var _el = document.getElementById('loadOverlay');
   if (_el && getComputedStyle(_el).display !== 'none') { _el.style.opacity='0'; _el.style.pointerEvents='none'; setTimeout(function(){ try{ _el.style.display='none'; }catch(_){} }, 650); }

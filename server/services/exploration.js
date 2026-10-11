@@ -21,139 +21,8 @@ const SATELLITES = [
 // ═══════════════════════════════════════
 
 async function spawnPOIs() {
-  const enabled = await getSetting('poi_enabled');
-  if (enabled === 'false') return [];
-
-  const count = parseInt(await getSetting('poi_count_per_cycle') || '6');
-  const maxActive = parseInt(await getSetting('poi_max_active') || '12');
-
-  // Skip spawning if enough active POIs exist
-  const activeRes = await pool.query('SELECT COUNT(*)::int AS cnt FROM exploration_pois WHERE active = true AND expires_at > NOW()');
-  const currentActive = activeRes.rows[0]?.cnt || 0;
-  if (currentActive >= maxActive) {
-    console.log(`[EXPLORE] Skip spawn: ${currentActive} active POIs (max ${maxActive})`);
-    return [];
-  }
-  const expireHours = parseInt(await getSetting('poi_expire_hours') || '12');
-  const minPP = parseFloat(await getSetting('poi_reward_min_pp') || '0.05');
-  const maxPP = parseFloat(await getSetting('poi_reward_max_pp') || '0.3');
-  const minGP = parseFloat(await getSetting('poi_reward_min_gp') || '10');
-  const maxGP = parseFloat(await getSetting('poi_reward_max_gp') || '50');
-
-  // Reward distribution weights (admin configurable) — gp / item / mineral / pp
-  const gpWeight      = parseInt(await getSetting('poi_drop_gp_weight') || '50');
-  const itemWeight    = parseInt(await getSetting('poi_drop_item_weight') || '20');
-  const mineralWeight = parseInt(await getSetting('poi_drop_mineral_weight') || '25');
-  const ppWeight      = parseInt(await getSetting('poi_drop_pp_weight') || '10');
-  const totalWeight   = gpWeight + itemWeight + mineralWeight + ppWeight;
-
-  // Load item drop table
-  let dropTable = [];
-  try {
-    const dtRes = await pool.query('SELECT * FROM poi_drop_table WHERE active = true ORDER BY weight DESC');
-    dropTable = dtRes.rows;
-  } catch (_e) { /* table may not exist yet */ }
-
-  // Load mineral pool (resources.code 쉼표 구분 from settings)
-  const mineralPoolRaw = String(await getSetting('poi_drop_mineral_pool') || 'iron_ore,carbon_fiber,silicon_chip').replace(/^"|"$/g, '');
-  const mineralCodes = mineralPoolRaw.split(',').map(s => s.trim()).filter(Boolean);
-  const mineralMinQty = parseInt(await getSetting('poi_drop_mineral_min_qty') || '1');
-  const mineralMaxQty = parseInt(await getSetting('poi_drop_mineral_max_qty') || '4');
-  let mineralPool = [];
-  if (mineralCodes.length) {
-    try {
-      const mpRes = await pool.query(
-        `SELECT id, code, name_ko, icon_emoji FROM resources WHERE code = ANY($1::text[]) AND is_active = true`,
-        [mineralCodes]
-      );
-      mineralPool = mpRes.rows;
-    } catch (_e) { /* resources missing — mineral fallback to GP */ }
-  }
-
-  // Scale rewards based on active user count
-  const userCountRes = await pool.query("SELECT COUNT(*)::int AS cnt FROM users WHERE created_at > NOW() - INTERVAL '30 days'");
-  const activeUsers = userCountRes.rows[0]?.cnt || 1;
-  const scaleFactor = Math.min(1 + Math.floor(activeUsers / 10) * 0.1, 3.0); // +10% per 10 users, max 3x
-
-  // Get all sectors for random placement
-  const sectors = await pool.query('SELECT id, bounds_polygon FROM sectors');
-  if (!sectors.rows.length) return [];
-
-  const types = Object.keys(POI_TYPES);
-  const results = [];
-
-  for (let i = 0; i < count; i++) {
-    // Pick random sector
-    const sector = sectors.rows[Math.floor(Math.random() * sectors.rows.length)];
-    const polygon = typeof sector.bounds_polygon === 'string' ? JSON.parse(sector.bounds_polygon) : sector.bounds_polygon;
-    if (!polygon || polygon.length < 3) continue;
-
-    // Random point inside sector polygon
-    const lngs = polygon.map(p => p[0]);
-    const lats = polygon.map(p => p[1]);
-    const minLng = Math.min(...lngs), maxLng = Math.max(...lngs);
-    const minLat = Math.min(...lats), maxLat = Math.max(...lats);
-
-    let lat, lng, inside = false;
-    for (let attempt = 0; attempt < 20; attempt++) {
-      lng = minLng + Math.random() * (maxLng - minLng);
-      lat = minLat + Math.random() * (maxLat - minLat);
-      if (pointInPolygon([lng, lat], polygon)) { inside = true; break; }
-    }
-    if (!inside) { lat = (minLat + maxLat) / 2; lng = (minLng + maxLng) / 2; }
-
-    const poiType = types[Math.floor(Math.random() * types.length)];
-
-    // Weighted random: GP > Item > Mineral > PP (admin tunable)
-    let roll = Math.random() * totalWeight;
-    let rewardType, rewardAmount, rewardItemCode = null;
-
-    if (roll < gpWeight) {
-      rewardType = 'gp';
-      rewardAmount = Math.round((minGP + Math.random() * (maxGP - minGP)) * scaleFactor);
-    } else if ((roll -= gpWeight) < itemWeight && dropTable.length > 0) {
-      rewardType = 'item';
-      const picked = weightedPickItem(dropTable);
-      rewardItemCode = picked.item_code;
-      rewardAmount = randInt(picked.min_qty, picked.max_qty);
-    } else if ((roll -= itemWeight) < mineralWeight && mineralPool.length > 0) {
-      rewardType = 'mineral';
-      const picked = mineralPool[Math.floor(Math.random() * mineralPool.length)];
-      rewardItemCode = picked.code;
-      rewardAmount = randInt(mineralMinQty, mineralMaxQty);
-    } else {
-      rewardType = 'pp';
-      rewardAmount = Math.round((minPP + Math.random() * (maxPP - minPP)) * scaleFactor * 100) / 100;
-    }
-
-    try {
-      const res = await pool.query(
-        `INSERT INTO exploration_pois (lat, lng, sector_id, poi_type, reward_type, reward_amount, reward_item_code, expires_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, NOW() + INTERVAL '1 hour' * $8) RETURNING id`,
-        [lat, lng, sector.id, poiType, rewardType, rewardAmount, rewardItemCode, expireHours]
-      );
-      results.push({ id: res.rows[0].id, sectorId: sector.id, poiType, lat, lng, rewardType, rewardAmount, rewardItemCode });
-    } catch (insertErr) {
-      console.warn('[EXPLORE] POI insert failed (reward_type=' + rewardType + '):', insertErr.message);
-      // Fallback: try as 'xp' if constraint rejects 'gp'
-      try {
-        const fbRes = await pool.query(
-          `INSERT INTO exploration_pois (lat, lng, sector_id, poi_type, reward_type, reward_amount, reward_item_code, expires_at)
-           VALUES ($1, $2, $3, $4, 'xp', $5, NULL, NOW() + INTERVAL '1 hour' * $6) RETURNING id`,
-          [lat, lng, sector.id, poiType, Math.max(5, Math.round(rewardAmount / 3)), expireHours]
-        );
-        results.push({ id: fbRes.rows[0].id, sectorId: sector.id, poiType, lat, lng, rewardType: 'xp', rewardAmount: Math.max(5, Math.round(rewardAmount / 3)), rewardItemCode: null });
-      } catch (_e2) { /* skip this POI */ }
-    }
-  }
-
-  if (results.length > 0) {
-    console.log('[EXPLORE] Spawned POIs:', results.map(r => {
-      const label = r.rewardType === 'item' ? `${r.rewardItemCode} x${r.rewardAmount}` : `${r.rewardAmount} ${r.rewardType.toUpperCase()}`;
-      return `#${r.id} ${r.poiType} (${label}) scale:${scaleFactor}`;
-    }).join(', '));
-  }
-  return results;
+  // Retired click-reward supply; existing POIs keep their original expiry/claim rights.
+  return [];
 }
 
 // Weighted random pick from drop table
@@ -312,7 +181,8 @@ async function discoverPOI(wallet, poiId) {
         const rewardGP = Math.round(reward * await getPPToGPRate(client) * 1000000) / 1000000;
         // [경제v2 P2] POI PP 보상은 PP 발행 대신 가치 보존 GP로 지급.
         await client.query('UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE LOWER(wallet_address) = LOWER($2)', [rewardGP, wallet]);
-        rewardGiven.amount = reward;
+        rewardGiven.type = 'gp';
+        rewardGiven.amount = rewardGP;
         rewardGiven.currency = 'gp';
         rewardGiven.gpAmount = rewardGP;
       } else {

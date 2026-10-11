@@ -46,12 +46,6 @@ router.get('/weather', readLimiter, async (req, res) => {
   try {
     if (!weatherService) return res.json({ active: [] });
     const active = await weatherService.getActiveWeather();
-    // Daily mission + Season tracking: weather check (non-blocking, needs wallet)
-    const ww = getOptionalAuthWallet(req);
-    if (ww) {
-      if (dailyService) dailyService.updateMissionProgress(ww, 'view_weather', 1).catch(() => {});
-      if (seasonService) seasonService.addSeasonScore(ww, 'weather', 1).catch(() => {});
-    }
     res.json({ active, serverTime: new Date().toISOString() });
   } catch (e) {
     console.error('[WEATHER] get error:', e.message);
@@ -140,94 +134,8 @@ router.get('/exploration/starlink', readLimiter, async (req, res) => {
 });
 
 // POST /api/exploration/hint — get approximate direction to nearest undiscovered POI (0.2 PP)
-router.post('/exploration/hint', requireAuth, writeLimiter, async (req, res) => {
-  const { lat, lng } = req.body;
-  const wallet = getAuthWallet(req);
-  if (!wallet || lat == null || lng == null) return res.status(400).json({ error: 'Missing wallet or coordinates' });
-
-  const client = await pool.connect();
-  try {
-    const w = wallet.toLowerCase();
-    const hintCost = parseFloat(await getSetting('poi_hint_cost_pp', '0.2')) || 0.2;
-
-    await client.query('BEGIN');
-
-    // Check PP balance
-    const balRes = await client.query('SELECT pp_balance FROM users WHERE wallet_address = $1 FOR UPDATE', [w]);
-    const ppBal = parseFloat(balRes.rows[0]?.pp_balance || 0);
-    if (ppBal < hintCost) {
-      await client.query('ROLLBACK');
-      return res.status(400).json({ error: `Insufficient PP. Need ${hintCost} PP.`, cost: hintCost });
-    }
-
-    // Find nearest undiscovered POI
-    const poiRes = await client.query(
-      `SELECT id, lat, lng, poi_type FROM exploration_pois
-       WHERE active = true AND expires_at > NOW() AND discovered_by IS NULL
-       ORDER BY (lat - $1)*(lat - $1) + (lng - $2)*(lng - $2) ASC
-       LIMIT 1`,
-      [lat, lng]
-    );
-
-    if (!poiRes.rows.length) {
-      await client.query('ROLLBACK');
-      return res.status(404).json({ error: 'No undiscovered POIs available right now' });
-    }
-
-    const poi = poiRes.rows[0];
-    const dlat = parseFloat(poi.lat) - lat;
-    const dlng = parseFloat(poi.lng) - lng;
-    const dist = Math.sqrt(dlat * dlat + dlng * dlng);
-
-    // Calculate approximate direction (N/S/E/W/NE/NW/SE/SW)
-    const angle = Math.atan2(dlng, dlat) * 180 / Math.PI; // degrees from north
-    let direction;
-    if (angle >= -22.5 && angle < 22.5) direction = 'NORTH';
-    else if (angle >= 22.5 && angle < 67.5) direction = 'NORTHEAST';
-    else if (angle >= 67.5 && angle < 112.5) direction = 'EAST';
-    else if (angle >= 112.5 && angle < 157.5) direction = 'SOUTHEAST';
-    else if (angle >= 157.5 || angle < -157.5) direction = 'SOUTH';
-    else if (angle >= -157.5 && angle < -112.5) direction = 'SOUTHWEST';
-    else if (angle >= -112.5 && angle < -67.5) direction = 'WEST';
-    else direction = 'NORTHWEST';
-
-    // Approximate distance category
-    let distLabel;
-    if (dist < 5) distLabel = 'very close';
-    else if (dist < 15) distLabel = 'nearby';
-    else if (dist < 40) distLabel = 'moderate distance';
-    else distLabel = 'far away';
-
-    // Deduct PP
-    const deductHint = await client.query('UPDATE users SET pp_balance = pp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND pp_balance >= $1', [hintCost, w]);
-    if (deductHint.rowCount === 0) {
-      await client.query('ROLLBACK');
-      return res.status(400).json({ error: 'Insufficient balance (concurrent modification)' });
-    }
-
-    // Log transaction
-    await client.query(
-      `INSERT INTO transactions (type, from_wallet, pp_amount, fee, meta)
-       VALUES ('poi_hint', $1, $2, 0, $3)`,
-      [w, hintCost, JSON.stringify({ fromLat: lat, fromLng: lng, direction, distLabel })]
-    );
-
-    await client.query('COMMIT');
-
-    res.json({
-      success: true,
-      cost: hintCost,
-      hint: { direction, distance: distLabel, poiType: poi.poi_type }
-    });
-    // Season tracking: pp_spend (non-blocking)
-    if (seasonService) { seasonService.addSeasonScore(w, 'pp_spend', 1).catch(() => {}); }
-  } catch (e) {
-    await client.query('ROLLBACK');
-    console.error('[MICRO] poi-hint error:', e.message);
-    res.status(500).json({ error: 'Hint failed' });
-  } finally {
-    client.release();
-  }
+router.post('/exploration/hint', requireAuth, writeLimiter, (_req, res) => {
+  res.status(410).json({ error: 'POI hint sales are retired. Available sites are shown on the map.' });
 });
 
 // ══════════════════════════════════════
@@ -302,74 +210,8 @@ router.post('/rockets/claim-loot', requireAuth, writeLimiter, async (req, res) =
 });
 
 // POST /api/rockets/priority — purchase priority notification for rocket loot (0.3 PP)
-router.post('/rockets/priority', requireAuth, writeLimiter, async (req, res) => {
-  const { rocketEventId } = req.body;
-  const wallet = getAuthWallet(req);
-  if (!wallet || rocketEventId == null) return res.status(400).json({ error: 'Missing wallet or rocketEventId' });
-
-  const client = await pool.connect();
-  try {
-    const w = wallet.toLowerCase();
-    const priorityCost = parseFloat(await getSetting('loot_priority_cost_pp', '0.3')) || 0.3;
-
-    await client.query('BEGIN');
-
-    // Check rocket event exists and is incoming/landed
-    const evRes = await client.query(
-      "SELECT id, status FROM rocket_events WHERE id = $1 AND status IN ('incoming','looting')", [rocketEventId]
-    );
-    if (!evRes.rows.length) {
-      await client.query('ROLLBACK');
-      return res.status(400).json({ error: 'No active rocket event found' });
-    }
-
-    // Check if already purchased
-    const existRes = await client.query(
-      'SELECT id FROM loot_priority_claims WHERE wallet = $1 AND rocket_event_id = $2', [w, rocketEventId]
-    );
-    if (existRes.rows.length) {
-      await client.query('ROLLBACK');
-      return res.status(400).json({ error: 'Priority already purchased for this event' });
-    }
-
-    // Check PP balance
-    const balRes = await client.query('SELECT pp_balance FROM users WHERE wallet_address = $1 FOR UPDATE', [w]);
-    const ppBal = parseFloat(balRes.rows[0]?.pp_balance || 0);
-    if (ppBal < priorityCost) {
-      await client.query('ROLLBACK');
-      return res.status(400).json({ error: `Insufficient PP. Need ${priorityCost} PP.`, cost: priorityCost });
-    }
-
-    // Deduct PP
-    const deductRocket = await client.query('UPDATE users SET pp_balance = pp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND pp_balance >= $1', [priorityCost, w]);
-    if (deductRocket.rowCount === 0) {
-      await client.query('ROLLBACK');
-      return res.status(400).json({ error: 'Insufficient balance (concurrent modification)' });
-    }
-
-    // Record priority claim
-    await client.query(
-      'INSERT INTO loot_priority_claims (wallet, rocket_event_id) VALUES ($1, $2)',
-      [w, rocketEventId]
-    );
-
-    // Log transaction
-    await client.query(
-      `INSERT INTO transactions (type, from_wallet, pp_amount, fee, meta)
-       VALUES ('loot_priority', $1, $2, 0, $3)`,
-      [w, priorityCost, JSON.stringify({ rocketEventId })]
-    );
-
-    await client.query('COMMIT');
-
-    res.json({ success: true, cost: priorityCost, message: 'Priority notification activated! You\'ll get a 5-second head start when loot drops.' });
-  } catch (e) {
-    await client.query('ROLLBACK');
-    console.error('[MICRO] loot-priority error:', e.message);
-    res.status(500).json({ error: 'Priority purchase failed' });
-  } finally {
-    client.release();
-  }
+router.post('/rockets/priority', requireAuth, writeLimiter, (_req, res) => {
+  res.status(410).json({ error: 'Rocket priority sales are retired.' });
 });
 
 // GET /api/rockets/priority?rocketEventId= — check priority status

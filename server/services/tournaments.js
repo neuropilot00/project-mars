@@ -67,93 +67,52 @@ async function getMyTournaments(wallet) {
 
 // ── JOIN ──────────────────────────────────────────────────────────────────────
 
-async function joinTournament(wallet, tournamentId) {
-  const cfg = await getCfg();
-  if (!cfg.enabled) throw new Error('Tournaments are disabled');
-  wallet = wallet.toLowerCase();
-  tournamentId = parseInt(tournamentId, 10);
-
-  const client = await pool.connect();
-  try {
-    await client.query('BEGIN');
-
-    const tRow = await client.query('SELECT * FROM tournaments WHERE id=$1 FOR UPDATE', [tournamentId]);
-    if (!tRow.rows.length) throw new Error('Tournament not found');
-    const t = tRow.rows[0];
-    // 종료 상태만 거부 (열림 상태명이 배포마다 다름: open/registering/preparing/active 모두 허용)
-    if (['completed','cancelled','refunded','ended'].includes(t.status)) throw new Error(`Tournament is ${t.status}, not open for registration`);
-
-    // [v7.60] Check for duplicate entry BEFORE GP deduction to prevent double-charge
-    const dupCheck = await client.query(
-      'SELECT 1 FROM tournament_entries WHERE tournament_id=$1 AND wallet=$2',
-      [tournamentId, wallet]
-    );
-    if (dupCheck.rows.length) throw new Error('ALREADY_ENTERED');
-
-    if (t.max_participants) {
-      const cnt = await client.query('SELECT COUNT(*) AS n FROM tournament_entries WHERE tournament_id=$1', [tournamentId]);
-      if (parseInt(cnt.rows[0].n, 10) >= t.max_participants) throw new Error('Tournament is full');
-    }
-
-    const gpCost = t.entry_fee_gp;
-    const bal    = await client.query('SELECT gp_balance AS balance FROM users WHERE LOWER(wallet_address)=LOWER($1) FOR UPDATE', [wallet]);
-    const balance = bal.rows.length ? parseInt(bal.rows[0].balance, 10) : 0;
-    if (balance < gpCost) throw new Error(`Insufficient GP. Need ${gpCost}, have ${balance}`);
-
-    // Deduct GP
-    const tnDeduct = await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address)=LOWER($2) AND gp_balance >= $1', [gpCost, wallet]);
-    if (tnDeduct.rowCount === 0) throw new Error('INSUFFICIENT_GP');
-    await client.query(
-      "INSERT INTO gp_transactions(wallet,amount,type,note) VALUES($1,$2,'tournament_entry',$3)",
-      [wallet, -gpCost, `Entered ${t.name} (#${tournamentId})`]
-    );
-
-    // House cut burned, rest to prize pool
-    const houseCut  = Math.floor(gpCost * cfg.housePct / 100);
-    const toPrize   = gpCost - houseCut;
-    await client.query(
-      'UPDATE tournaments SET prize_pool_gp=prize_pool_gp+$1 WHERE id=$2',
-      [toPrize, tournamentId]
-    );
-
-    // Register entry
-    await client.query(
-      'INSERT INTO tournament_entries(tournament_id, wallet) VALUES($1,$2) ON CONFLICT DO NOTHING',
-      [tournamentId, wallet]
-    );
-
-    await client.query('COMMIT');
-
-    // Side effects
-    if (logGPActivity) logGPActivity(wallet, -gpCost, 'tournament', `Entry: ${t.name}`).catch(() => {});
-    if (seasonService && seasonService.trackGPSpend) seasonService.trackGPSpend(wallet, gpCost).catch(() => {});
-    if (weeklySvc && weeklySvc.trackProgress) weeklySvc.trackProgress(wallet, 'gp_burn', gpCost).catch(() => {});
-
-    return { tournamentId, tournamentName: t.name, gpSpent: gpCost, addedToPrize: toPrize };
-  } catch (e) { await client.query('ROLLBACK'); throw e; }
-  finally { client.release(); }
+async function joinTournament(_wallet, _tournamentId) {
+  throw Object.assign(new Error('Legacy manual tournaments are retired. Use fleet tournament registration.'), {
+    status: 410, code: 'LEGACY_MANUAL_TOURNAMENT_RETIRED'
+  });
 }
 
 // ── ADMIN ──────────────────────────────────────────────────────────────────────
 
-async function adminCreateTournament(data) {
-  // [v7.317e] 실스키마(097): status/max_participants/start_at/completed_at/prize_pool_gp. icon/max_players/ends_at 없음.
-  const { name, description, entryFeeGp, maxPlayers, startsAt } = data;
-  if (!name) throw new Error('name required');
-  // status는 INSERT에 지정 안 함 → DB 기본값 'registering' 사용 (status check 제약 위배 방지)
-  const r = await pool.query(
-    `INSERT INTO tournaments(name, description, entry_fee_gp, max_participants, start_at)
-     VALUES($1,$2,$3,$4,$5) RETURNING *`,
-    [name, description || null, parseInt(entryFeeGp,10)||50, maxPlayers || 8, startsAt || null]
+async function adminCreateTournament(_data) {
+  throw Object.assign(new Error('Legacy manual tournament creation is retired. Use fleet tournament admin controls.'), {
+    status: 410, code: 'LEGACY_MANUAL_TOURNAMENT_RETIRED'
+  });
+}
+
+// There is no type column. The fleet creator always stores a deadline, while
+// manual creation omitted it. Also guard participant/match evidence for mixed
+// historical records; defaults such as total_rounds do not distinguish types.
+async function assertManualTournament(client, tournament) {
+  if (tournament.registration_deadline != null) throw new Error('FLEET_TOURNAMENT_REQUIRES_BRACKET_CONTROLS');
+  const evidence = await client.query(
+    `SELECT EXISTS (SELECT 1 FROM tournament_participants WHERE tournament_id=$1)
+       OR EXISTS (SELECT 1 FROM tournament_matches WHERE tournament_id=$1) AS fleet_tournament`,
+    [tournament.id]
   );
-  return r.rows[0];
+  if (evidence.rows[0]?.fleet_tournament) throw new Error('FLEET_TOURNAMENT_REQUIRES_BRACKET_CONTROLS');
 }
 
 async function adminUpdateStatus(id, status) {
-  const valid = ['open','running','completed','cancelled'];
-  if (!valid.includes(status)) throw new Error('Invalid status');
-  await pool.query('UPDATE tournaments SET status=$1 WHERE id=$2', [status, parseInt(id,10)]);
-  return { ok: true };
+  // Terminal transitions must use the payout/refund transaction, and cannot reopen.
+  const valid = ['open','running'];
+  if (!valid.includes(status)) throw new Error('Use winner or cancel controls for terminal status');
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    const row = await client.query('SELECT * FROM tournaments WHERE id=$1 FOR UPDATE', [parseInt(id,10)]);
+    if (!row.rows.length) throw new Error('Tournament not found');
+    const tournament = row.rows[0];
+    await assertManualTournament(client, tournament);
+    if (!['open','running','registering','preparing','active'].includes(tournament.status)) {
+      throw new Error('Tournament already closed');
+    }
+    await client.query('UPDATE tournaments SET status=$1 WHERE id=$2', [status, tournament.id]);
+    await client.query('COMMIT');
+    return { ok: true };
+  } catch (e) { await client.query('ROLLBACK'); throw e; }
+  finally { client.release(); }
 }
 
 async function adminPickWinner(tournamentId, winnerWallet) {
@@ -163,7 +122,10 @@ async function adminPickWinner(tournamentId, winnerWallet) {
     const tRow = await client.query('SELECT * FROM tournaments WHERE id=$1 FOR UPDATE', [parseInt(tournamentId,10)]);
     if (!tRow.rows.length) throw new Error('Tournament not found');
     const t = tRow.rows[0];
-    if (t.status === 'completed') throw new Error('Already completed');
+    await assertManualTournament(client, t);
+    if (!['open','running','registering','preparing','active'].includes(t.status)) {
+      throw new Error('Tournament is closed; no prize can be paid');
+    }
 
     // Verify winner is an entrant
     const entry = await client.query(
@@ -207,7 +169,14 @@ async function adminCancelTournament(tournamentId) {
     const tRow = await client.query('SELECT * FROM tournaments WHERE id=$1 FOR UPDATE', [parseInt(tournamentId,10)]);
     if (!tRow.rows.length) throw new Error('Tournament not found');
     const t = tRow.rows[0];
-    if (t.status === 'completed') throw new Error('Cannot cancel completed tournament');
+    await assertManualTournament(client, t);
+    if (['cancelled','refunded'].includes(t.status)) {
+      await client.query('COMMIT');
+      return { refunded: 0, entryFee: t.entry_fee_gp, alreadyCancelled: true };
+    }
+    if (!['open','running','registering','preparing','active'].includes(t.status)) {
+      throw new Error('Cannot cancel closed tournament');
+    }
 
     const entries = await client.query('SELECT wallet FROM tournament_entries WHERE tournament_id=$1', [t.id]);
     for (const e of entries.rows) {

@@ -1,13 +1,12 @@
 // server/services/rocket.js
 // ═══════════════════════════════════════════════════════════════
-// Rocket Supply Drop System  [STATUS: 🟢 LIVE]
+// Rocket Supply Drop System — existing event settlement only
 //
 // 화성 표면에 보급/RUD 로켓이 떨어지면 일정 반경에 loot 마커가 생기고
 // 유저가 맵에서 클릭해 선착순으로 수령. GP / item / XP / PP / cosmetic 드롭.
 //
 // ─── Flow ─────────────────────────────────────────────────
-// 1. autoScheduleRocket() — 12시간마다 자동 (server/index.js:725~)
-//    또는 커맨더가 POST /api/rockets/trigger로 수동 발사
+// 1. New timed click drops and priority sales are retired; no new supply is minted.
 // 2. status: 'incoming' (advance_notice_hours = 2h 카운트다운)
 // 3. processRocketLanding() — 1분 스케줄러: incoming → looting 전환
 // 4. 유저는 맵 마커 클릭 → POST /api/rockets/claim-loot
@@ -30,181 +29,8 @@ const { sendTelegramNotification } = require('./telegram');
 //  SCHEDULE ROCKET EVENT
 // ═══════════════════════════════════════
 
-async function scheduleRocketEvent(triggeredBy) {
-  const enabled = await getSetting('rocket_enabled');
-  if (enabled === 'false') return null;
-
-  const advanceHours = parseFloat(await getSetting('rocket_advance_notice_hours') || '2');
-  const lootingHours = parseFloat(await getSetting('rocket_looting_hours') || '1');
-  const rudChance = parseInt(await getSetting('rocket_rud_chance') || '5');
-  const normalLoot = parseInt(await getSetting('rocket_loot_count_normal') || '15');
-  const rudLoot = parseInt(await getSetting('rocket_loot_count_rud') || '30');
-  const minPP = parseFloat(await getSetting('rocket_loot_min_pp') || '0.02');
-  const maxPP = parseFloat(await getSetting('rocket_loot_max_pp') || '0.1');
-  const minGP = parseFloat(await getSetting('rocket_loot_min_gp') || '10');
-  const maxGP = parseFloat(await getSetting('rocket_loot_max_gp') || '40');
-  const minXP = parseInt(await getSetting('rocket_loot_min_xp') || '5');
-  const maxXP = parseInt(await getSetting('rocket_loot_max_xp') || '25');
-  const normalRadius = parseFloat(await getSetting('rocket_loot_radius') || '5');
-  const rudRadius = parseFloat(await getSetting('rocket_rud_radius') || '10');
-
-  // Weighted drop distribution (admin configurable) — rewards mix GP / Item / Mineral / XP / PP / Cosmetic.
-  // PP 는 crypto real-value 라 가장 드물게.
-  const wGP       = parseInt(await getSetting('rocket_drop_gp_weight')       || '30');
-  const wItem     = parseInt(await getSetting('rocket_drop_item_weight')     || '25');
-  const wMineral  = parseInt(await getSetting('rocket_drop_mineral_weight')  || '25');
-  const wXP       = parseInt(await getSetting('rocket_drop_xp_weight')       || '12');
-  const wPP       = parseInt(await getSetting('rocket_drop_pp_weight')       || '6');
-  const wCosmetic = parseInt(await getSetting('rocket_drop_cosmetic_weight') || '2');
-  const totalWeight = wGP + wItem + wMineral + wXP + wPP + wCosmetic || 1;
-
-  // Load battle item drop table (shared with POI system — admin-managed).
-  let dropTable = [];
-  try {
-    const dtRes = await pool.query('SELECT item_code, weight, min_qty, max_qty FROM poi_drop_table WHERE active = true');
-    dropTable = dtRes.rows;
-  } catch (_e) { /* table missing — handled below */ }
-
-  // Load mineral pool (resources.code 쉼표 구분 from settings) — 광물 풀이 비면 mineral slot 은 GP 로 fallback.
-  const mineralPoolRaw = String(await getSetting('rocket_drop_mineral_pool') || 'iron_ore,carbon_fiber,silicon_chip').replace(/^"|"$/g, '');
-  const mineralCodes = mineralPoolRaw.split(',').map(s => s.trim()).filter(Boolean);
-  const mineralMinQty = parseInt(await getSetting('rocket_drop_mineral_min_qty') || '1');
-  const mineralMaxQty = parseInt(await getSetting('rocket_drop_mineral_max_qty') || '5');
-  let mineralPool = [];
-  if (mineralCodes.length) {
-    try {
-      const mpRes = await pool.query(
-        `SELECT id, code, name_ko, icon_emoji FROM resources WHERE code = ANY($1::text[]) AND is_active = true`,
-        [mineralCodes]
-      );
-      mineralPool = mpRes.rows;
-    } catch (_e) { /* resources table missing — mineral slot will fall back */ }
-  }
-
-  // Check for existing incoming/landed events — [v7.65] advisory lock prevents concurrent duplicate insert
-  const lockClient = await pool.connect();
-  try {
-    await lockClient.query('BEGIN');
-    await lockClient.query('SELECT pg_advisory_xact_lock(75300)'); // 75300 = rocket scheduler lock key
-    const existing = await lockClient.query(
-      "SELECT id FROM rocket_events WHERE status IN ('incoming','landed','looting') LIMIT 1"
-    );
-    if (existing.rows.length > 0) {
-      await lockClient.query('ROLLBACK');
-      return { error: 'A rocket event is already active' };
-    }
-    // Also check recent creation
-    const recentRow = await lockClient.query(
-      "SELECT id FROM rocket_events WHERE created_at > NOW() - INTERVAL '6 hours' LIMIT 1"
-    );
-    if (recentRow.rows.length > 0) {
-      await lockClient.query('ROLLBACK');
-      return { error: 'Rocket event created too recently' };
-    }
-    await lockClient.query('COMMIT');
-  } catch (e) {
-    await lockClient.query('ROLLBACK');
-    throw e;
-  } finally {
-    lockClient.release();
-  }
-
-  // Random landing coords (avoid extreme poles)
-  const lat = -60 + Math.random() * 120; // -60 to 60
-  const lng = -180 + Math.random() * 360;
-
-  // Determine event type
-  const isRUD = Math.random() * 100 < rudChance;
-  const eventType = isRUD ? 'rud_explosion' : 'supply_drop';
-  const lootCount = isRUD ? rudLoot : normalLoot;
-  const radius = isRUD ? rudRadius : normalRadius;
-
-  // Find sector
-  let sectorId = null;
-  try {
-    const sectors = await pool.query('SELECT id, bounds_polygon FROM sectors');
-    for (const s of sectors.rows) {
-      const polygon = typeof s.bounds_polygon === 'string' ? JSON.parse(s.bounds_polygon) : s.bounds_polygon;
-      if (polygon && pointInPolygon([lng, lat], polygon)) {
-        sectorId = s.id;
-        break;
-      }
-    }
-  } catch (_e) { /* sector lookup failed */ }
-
-  // Generate loot positions with weighted reward types
-  const rewards = [];
-  for (let i = 0; i < lootCount; i++) {
-    const angle = Math.random() * Math.PI * 2;
-    const dist = Math.random() * radius;
-    const lootLat = lat + Math.cos(angle) * dist;
-    const lootLng = lng + Math.sin(angle) * dist;
-
-    // Weighted pick: GP > Item > Mineral > XP > PP > Cosmetic
-    let roll = Math.random() * totalWeight;
-    let type, amount, itemCode = null;
-    if (roll < wGP) {
-      type = 'gp';
-      amount = Math.round(minGP + Math.random() * (maxGP - minGP));
-    } else if ((roll -= wGP) < wItem && dropTable.length > 0) {
-      type = 'item';
-      const picked = weightedPickItem(dropTable);
-      itemCode = picked.item_code;
-      amount = randInt(picked.min_qty || 1, picked.max_qty || 1);
-    } else if ((roll -= wItem) < wMineral && mineralPool.length > 0) {
-      type = 'mineral';
-      const picked = mineralPool[Math.floor(Math.random() * mineralPool.length)];
-      itemCode = picked.code;
-      amount = randInt(mineralMinQty, mineralMaxQty);
-    } else if ((roll -= wMineral) < wXP) {
-      type = 'xp';
-      amount = randInt(minXP, maxXP);
-    } else if ((roll -= wXP) < wPP) {
-      type = 'pp';
-      amount = Math.round((minPP + Math.random() * (maxPP - minPP)) * 100) / 100;
-    } else {
-      // Cosmetic: starship_border (rocket signature)
-      type = 'cosmetic';
-      itemCode = 'starship_border';
-      amount = 1;
-    }
-
-    rewards.push({
-      index: i,
-      lat: Math.round(lootLat * 100) / 100,
-      lng: Math.round(lootLng * 100) / 100,
-      type,
-      amount,
-      itemCode,
-      claimedBy: null
-    });
-  }
-
-  const landingAt = new Date(Date.now() + advanceHours * 60 * 60 * 1000);
-  const lootingEndsAt = new Date(landingAt.getTime() + lootingHours * 60 * 60 * 1000);
-
-  const res = await pool.query(
-    `INSERT INTO rocket_events (landing_lat, landing_lng, sector_id, event_type, status, landing_at, looting_ends_at, rewards_json, total_rewards, triggered_by)
-     VALUES ($1, $2, $3, $4, 'incoming', $5, $6, $7, $8, $9) RETURNING id`,
-    [lat, lng, sectorId, eventType, landingAt, lootingEndsAt, JSON.stringify(rewards), lootCount, triggeredBy || null]
-  );
-
-  console.log(`[ROCKET] Scheduled ${eventType} at (${lat.toFixed(1)}, ${lng.toFixed(1)}) — landing in ${advanceHours}h, ${lootCount} loot items`);
-  // Telegram notification for rocket events
-  const rocketEmoji = isRUD ? '💥' : '🚀';
-  const typeLabel = isRUD ? 'RUD EXPLOSION' : 'SUPPLY DROP';
-  sendTelegramNotification(
-    `<b>${rocketEmoji} ROCKET EVENT: ${typeLabel}</b>\n\nLocation: (${lat.toFixed(1)}°, ${lng.toFixed(1)}°)\nLanding in: ${advanceHours}h\nLoot items: ${lootCount}\n\nGet ready to collect!`
-  ).catch(() => {});
-  return {
-    id: res.rows[0].id,
-    eventType,
-    lat, lng,
-    sectorId,
-    landingAt,
-    lootingEndsAt,
-    lootCount
-  };
+async function scheduleRocketEvent() {
+  return { error: 'Rocket click rewards are retired. Outstanding loot remains claimable until expiry.' };
 }
 
 // ═══════════════════════════════════════
@@ -247,7 +73,8 @@ async function getActiveRocketEvents() {
   const res = await pool.query(
     `SELECT re.*, s.name AS sector_name FROM rocket_events re
      LEFT JOIN sectors s ON s.id = re.sector_id
-     WHERE re.status != 'completed'
+     WHERE re.looting_ends_at > NOW() AND re.claimed_rewards < re.total_rewards
+       AND (re.status = 'looting' OR (re.status = 'incoming' AND re.landing_at > NOW()))
      ORDER BY re.created_at DESC`
   );
   return res.rows.map(r => ({
@@ -272,7 +99,7 @@ async function getActiveRocketEvents() {
 
 async function getRocketLoot(eventId) {
   const res = await pool.query(
-    'SELECT rewards_json, status FROM rocket_events WHERE id = $1', [eventId]
+    "SELECT rewards_json, status FROM rocket_events WHERE id = $1 AND status = 'looting' AND looting_ends_at > NOW()", [eventId]
   );
   if (!res.rows.length) return [];
   const rewards = res.rows[0].rewards_json || [];
@@ -298,7 +125,7 @@ async function claimRocketLoot(wallet, eventId, lootIndex) {
 
     // Lock event row
     const evRes = await client.query(
-      "SELECT * FROM rocket_events WHERE id = $1 AND status = 'looting' FOR UPDATE",
+      "SELECT * FROM rocket_events WHERE id = $1 AND status = 'looting' AND looting_ends_at > NOW() FOR UPDATE",
       [eventId]
     );
     if (!evRes.rows.length) {
@@ -323,12 +150,6 @@ async function claimRocketLoot(wallet, eventId, lootIndex) {
     await client.query(
       'UPDATE rocket_events SET rewards_json = $1, claimed_rewards = claimed_rewards + 1 WHERE id = $2',
       [JSON.stringify(rewards), eventId]
-    );
-
-    // Record claim
-    await client.query(
-      'INSERT INTO rocket_loot_claims (rocket_event_id, wallet, loot_index, reward_type, reward_amount, reward_item_code) VALUES ($1,$2,$3,$4,$5,$6)',
-      [eventId, wallet, lootIndex, loot.type, loot.amount, loot.itemCode]
     );
 
     // Grant reward — supports gp / item / xp / pp / cosmetic
@@ -409,13 +230,20 @@ async function claimRocketLoot(wallet, eventId, lootIndex) {
         const rewardGP = Math.round(reward * await getPPToGPRate(client) * 1000000) / 1000000;
         // [경제v2 P2] 로켓 PP 룻은 PP 발행 대신 가치 보존 GP로 지급.
         await client.query('UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE LOWER(wallet_address) = LOWER($2)', [rewardGP, wallet]);
-        rewardGiven.amount = reward;
+        rewardGiven.type = 'gp';
+        rewardGiven.amount = rewardGP;
         rewardGiven.currency = 'gp';
         rewardGiven.gpAmount = rewardGP;
       } else {
         rewardGiven.amount = 0;
       }
     }
+
+    // Persist the actual granted currency, including PP-to-GP and retired item fallbacks.
+    await client.query(
+      'INSERT INTO rocket_loot_claims (rocket_event_id, wallet, loot_index, reward_type, reward_amount, reward_item_code) VALUES ($1,$2,$3,$4,$5,$6)',
+      [eventId, wallet, lootIndex, rewardGiven.type, rewardGiven.amount, rewardGiven.itemCode]
+    );
 
     await client.query('COMMIT');
     return { success: true, reward: rewardGiven };
@@ -432,16 +260,8 @@ async function claimRocketLoot(wallet, eventId, lootIndex) {
 // ═══════════════════════════════════════
 
 async function autoScheduleRocket() {
-  const enabled = await getSetting('rocket_enabled');
-  if (enabled === 'false') return;
-
-  // Check if there's any active or recently completed event
-  const recent = await pool.query(
-    "SELECT id FROM rocket_events WHERE created_at > NOW() - INTERVAL '6 hours' LIMIT 1"
-  );
-  if (recent.rows.length > 0) return; // Too recent
-
-  await scheduleRocketEvent(null);
+  // New timed click drops are retired. Landing/completion still settle existing events.
+  return;
 }
 
 // ═══════════════════════════════════════

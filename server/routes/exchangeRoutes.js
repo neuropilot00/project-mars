@@ -46,6 +46,13 @@ router.post('/exchange/pp-to-gp', requireAuth, writeLimiter, async (req, res) =>
 
     await client.query('BEGIN');
 
+    // Serialize the rolling quota check as well as the balance debit.
+    const { rows: [user] } = await client.query('SELECT pp_balance FROM users WHERE wallet_address=$1 FOR UPDATE', [w]);
+    if (!user || parseFloat(user.pp_balance) < ppAmount) {
+      await client.query('ROLLBACK');
+      return res.status(400).json({ error: 'Insufficient PP' });
+    }
+
     const { rows: [dailyRow] } = await client.query(
       `SELECT COALESCE(SUM(pp_amount), 0) as total
        FROM transactions WHERE LOWER(from_wallet)=LOWER($1) AND type='pp_to_gp_exchange'
@@ -55,12 +62,6 @@ router.post('/exchange/pp-to-gp', requireAuth, writeLimiter, async (req, res) =>
     if (dailyUsed + ppAmount > dailyLimit) {
       await client.query('ROLLBACK');
       return res.status(400).json({ error: `Daily limit: ${dailyLimit} PP (used: ${dailyUsed.toFixed(2)})` });
-    }
-
-    const { rows: [user] } = await client.query('SELECT pp_balance FROM users WHERE wallet_address=$1 FOR UPDATE', [w]);
-    if (!user || parseFloat(user.pp_balance) < ppAmount) {
-      await client.query('ROLLBACK');
-      return res.status(400).json({ error: 'Insufficient PP' });
     }
 
     const fee = ppAmount * (feePct / 100);

@@ -50,7 +50,7 @@ router.get('/missions/preview', requireAuth, readLimiter, async (req, res) => {
   if (!missionService) return res.status(503).json({ error: 'Mission service unavailable' });
   try {
     const result = await missionService.previewMission(w, type, originClaimId, lat, lng, targetWallet);
-    if (result.error) return res.status(400).json(result);
+    if (result.error) return res.status(result.code === 'TIMED_INVASION_RETIRED' ? 410 : 400).json(result);
     res.json(result);
   } catch (e) {
     console.error('[MISSION] preview error:', e.message);
@@ -73,7 +73,7 @@ router.post('/missions/launch', requireAuth, writeLimiter, async (req, res) => {
       w, type, parseInt(originClaimId), targetLat, targetLng,
       targetWallet ? targetWallet.toLowerCase() : null
     );
-    if (result.error) return res.status(400).json(result);
+    if (result.error) return res.status(result.code === 'TIMED_INVASION_RETIRED' ? 410 : 400).json(result);
     res.json(result);
   } catch (e) {
     console.error('[MISSION] launch error:', e.message);
@@ -97,14 +97,12 @@ router.get('/missions/active', requireAuth, readLimiter, async (req, res) => {
 
 // Claim a completed mission's rewards
 router.post('/missions/:id/claim', requireAuth, writeLimiter, async (req, res) => {
-  const { minigameScore } = req.body || {};
   const w = getAuthWallet(req);
   const missionId = parseInt(req.params.id);
   if (!w || !missionId) return res.status(400).json({ error: 'Missing fields' });
   if (!missionService) return res.status(503).json({ error: 'Mission service unavailable' });
   try {
-    const score = minigameScore ? parseInt(minigameScore) : 0;
-    const result = await missionService.claimMission(w, missionId, score);
+    const result = await missionService.claimMission(w, missionId);
     if (result.error) return res.status(400).json(result);
     res.json(result);
     // Season tracking (best-effort)

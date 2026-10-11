@@ -636,21 +636,38 @@ async function getPriceHistory(itemTypeId, enhancementLevel) {
 
 // ── Expire old listings (called periodically) ──
 async function expireListings() {
-  const res = await pool.query(
-    "UPDATE marketplace_listings SET status = 'expired' WHERE status = 'active' AND expires_at < NOW() RETURNING id, item_instance_id, claim_id, seller"
-  );
-  // Return escrowed assets
-  for (const row of res.rows) {
-    try {
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    // Only newly expired rows are refunded. A retry cannot refund historical expired rows.
+    const res = await client.query(
+      "UPDATE marketplace_listings SET status = 'expired' WHERE status = 'active' AND expires_at < NOW() RETURNING *"
+    );
+    for (const row of res.rows) {
       if (row.item_instance_id) {
-        await pool.query('UPDATE item_instances SET wallet = $1 WHERE id = $2', [row.seller, row.item_instance_id]);
+        await client.query('UPDATE item_instances SET wallet = $1 WHERE id = $2', [row.seller, row.item_instance_id]);
       }
       if (row.claim_id) {
-        await pool.query('UPDATE claims SET marketplace_locked = false WHERE id = $1', [row.claim_id]);
+        await client.query('UPDATE claims SET marketplace_locked = false WHERE id = $1', [row.claim_id]);
       }
-    } catch (_e) { /* non-critical */ }
+      if (row.listing_type === 'resource' && row.resource_code && row.resource_quantity > 0) {
+        const restored = await client.query(
+          `INSERT INTO user_resource_inventory (wallet_address, resource_id, quantity, updated_at)
+           SELECT $1, r.id, $2, NOW() FROM resources r WHERE r.code = $3
+           ON CONFLICT (wallet_address, resource_id) DO UPDATE SET quantity = user_resource_inventory.quantity + EXCLUDED.quantity, updated_at = NOW()`,
+          [row.seller, row.resource_quantity, row.resource_code]
+        );
+        if (!restored.rowCount) throw new Error('ESCROW_RESOURCE_NOT_FOUND');
+      }
+    }
+    await client.query('COMMIT');
+    return res.rowCount;
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
   }
-  return res.rowCount;
 }
 
 // ── Admin stats ──
@@ -681,7 +698,7 @@ async function getMarketplaceStats() {
 // ── Admin: force cancel a listing ──
 async function adminCancelListing(client, listingId) {
   const res = await client.query(
-    "SELECT * FROM marketplace_listings WHERE id = $1 AND status = 'active'", [listingId]
+    "SELECT * FROM marketplace_listings WHERE id = $1 AND status = 'active' FOR UPDATE", [listingId]
   );
   if (!res.rows.length) throw new Error('Listing not found or not active');
   const listing = res.rows[0];
@@ -691,6 +708,15 @@ async function adminCancelListing(client, listingId) {
   }
   if (listing.claim_id) {
     await client.query('UPDATE claims SET marketplace_locked = false WHERE id = $1', [listing.claim_id]);
+  }
+  if (listing.listing_type === 'resource' && listing.resource_code && listing.resource_quantity > 0) {
+    const restored = await client.query(
+      `INSERT INTO user_resource_inventory (wallet_address, resource_id, quantity, updated_at)
+       SELECT $1, r.id, $2, NOW() FROM resources r WHERE r.code = $3
+       ON CONFLICT (wallet_address, resource_id) DO UPDATE SET quantity = user_resource_inventory.quantity + EXCLUDED.quantity, updated_at = NOW()`,
+      [listing.seller, listing.resource_quantity, listing.resource_code]
+    );
+    if (!restored.rowCount) throw new Error('ESCROW_RESOURCE_NOT_FOUND');
   }
 
   await client.query("UPDATE marketplace_listings SET status = 'moderated' WHERE id = $1", [listingId]);

@@ -633,88 +633,9 @@ router.get('/guild/war/enemies', readLimiter, async (req, res) => {
 });
 
 // 적 함대가 없을 때 자동 승리 포인트 획득 (1회/24h/전쟁)
-router.post('/guild/war/auto-win', requireAuth, writeLimiter, async (req, res) => {
-  const wallet  = getAuthWallet(req);
-  const warId   = parseInt(req.body.war_id);
-  const guildId = parseInt(req.body.guild_id);
-  if (!wallet || !warId || !guildId) return res.status(400).json({ error: 'wallet, war_id, guild_id required' });
-
-  // ✅ [v7.42] TOCTOU fix: wrap cooldown-check + INSERT in a single transaction,
-  //    locking the guild_wars row to serialize concurrent auto-win requests.
-  const client = await pool.connect();
-  try {
-    await client.query('BEGIN');
-
-    // 전쟁 유효성 검사 + 행 잠금 (race condition 방지)
-    const { rows: war } = await client.query(
-      `SELECT attacker_guild_id, defender_guild_id FROM guild_wars WHERE id=$1 AND status='active' FOR UPDATE`,
-      [warId]
-    );
-    if (!war.length) {
-      await client.query('ROLLBACK');
-      return res.status(404).json({ error: 'War not found or not active' });
-    }
-    const w = war[0];
-    if (w.attacker_guild_id !== guildId && w.defender_guild_id !== guildId) {
-      await client.query('ROLLBACK');
-      return res.status(403).json({ error: 'Not in this war' });
-    }
-
-    // 멤버 검증
-    const { rows: mem } = await client.query(
-      `SELECT 1 FROM guild_members WHERE wallet=$1 AND guild_id=$2`, [wallet, guildId]
-    );
-    if (!mem.length) {
-      await client.query('ROLLBACK');
-      return res.status(403).json({ error: 'Not a member of this guild' });
-    }
-
-    // 적 길드에 준비된 함대가 없는지 재확인
-    const enemyGuildId = w.attacker_guild_id === guildId ? w.defender_guild_id : w.attacker_guild_id;
-    const { rows: ef } = await client.query(`
-      SELECT COUNT(*) FROM fleets f
-      JOIN guild_members gm ON gm.wallet = f.owner_wallet
-      WHERE gm.guild_id=$1 AND f.is_in_battle=false AND f.ships_alive>0
-    `, [enemyGuildId]);
-    if (parseInt(ef[0].count) > 0) {
-      await client.query('ROLLBACK');
-      return res.status(400).json({ error: 'ENEMY_HAS_FLEETS' });
-    }
-
-    // 24h 쿨다운 — now inside transaction (serialized by guild_wars FOR UPDATE)
-    const { rows: recent } = await client.query(`
-      SELECT 1 FROM guild_war_actions
-      WHERE war_id=$1 AND wallet=$2 AND action_type='fleet_battle_auto_win'
-        AND created_at > NOW() - INTERVAL '24 hours'
-    `, [warId, wallet]);
-    if (recent.length) {
-      await client.query('ROLLBACK');
-      return res.status(429).json({ error: 'AUTO_WIN_COOLDOWN' });
-    }
-
-    // 포인트 지급 (INSERT + score UPDATE inside same transaction)
-    const points = parseInt(await getSetting('guild_war_points_ship_battle', '10')) || 10;
-    const scoreCol = w.attacker_guild_id === guildId ? 'attacker_score' : 'defender_score';
-
-    await client.query(
-      `INSERT INTO guild_war_actions (war_id, guild_id, wallet, action_type, points, meta)
-       VALUES ($1, $2, $3, 'fleet_battle_auto_win', $4, $5)`,
-      [warId, guildId, wallet, points, JSON.stringify({ auto: true })]
-    );
-    await client.query(
-      `UPDATE guild_wars SET ${scoreCol} = ${scoreCol} + $1 WHERE id = $2`,
-      [points, warId]
-    );
-
-    await client.query('COMMIT');
-    res.json({ success: true, points });
-  } catch (e) {
-    await client.query('ROLLBACK');
-    console.error('[guild/war/auto-win]', e.message);
-    res.status(500).json({ error: e.message });
-  } finally {
-    client.release();
-  }
+router.post('/guild/war/auto-win', requireAuth, writeLimiter, (req, res) => {
+  // No battle/result means no war score, including when enemy fleets are busy.
+  return res.status(410).json({ error: 'WAR_AUTO_WIN_DISABLED' });
 });
 
 router.get('/guild/war/active', readLimiter, async (req, res) => {
@@ -765,16 +686,8 @@ router.get('/guild/research-bonuses', requireAuth, readLimiter, async (req, res)
 //  GUILD WAR MINIGAMES
 // ═══════════════════════════════════════
 
-router.post('/guild/war/score', requireAuth, writeLimiter, async (req, res) => {
-  const { warId, gameType, score } = req.body || {};
-  const w = getAuthWallet(req);
-  if (!w || !warId || !gameType || !score) return res.status(400).json({ error: 'Missing fields (wallet, warId, gameType, score)' });
-  if (!guildService) return res.status(503).json({ error: 'Guild service unavailable' });
-  try {
-    const r = await guildService.submitGameScore(w, parseInt(warId), gameType, score);
-    if (r.error) return res.status(400).json(r);
-    res.json(r);
-  } catch (e) { res.status(500).json({ error: e.message }); }
+router.post('/guild/war/score', requireAuth, writeLimiter, (req, res) => {
+  return res.status(410).json({ error: 'WAR_MINIGAME_SCORING_DISABLED' });
 });
 
 router.get('/guild/war/:id/scores', readLimiter, async (req, res) => {

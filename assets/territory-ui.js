@@ -501,8 +501,10 @@ function _attachGlobeClick(){
     if(_rocketData.events && _rocketData.events.length > 0 && !landSelectMode) {
       for(var ri=0;ri<_rocketData.events.length;ri++){
         var rev=_rocketData.events[ri];
-        if(rev.status !== 'looting') continue;
+        if(rev.status !== 'looting' || !_isRocketEventVisible(rev)) continue;
         var rdlat=lat-rev.lat, rdlng=lng-rev.lng;
+        if(rdlng > 180) rdlng -= 360;
+        if(rdlng < -180) rdlng += 360;
         var rdist=Math.sqrt(rdlat*rdlat+rdlng*rdlng);
         if(rdist < 8) { _showRocketLootPopup(rev); return; }
       }

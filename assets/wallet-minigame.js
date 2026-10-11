@@ -414,11 +414,10 @@ function openMinigameOverlay(warId){
   document.getElementById('mgSelectPanel').style.display = '';
   document.getElementById('mgCanvasWrap').style.display = 'none';
   document.getElementById('mgContinueOverlay').style.display = 'none';
-  document.getElementById('mgWarInfo').textContent = tl('War #','전쟁 #','戦争 #','战争 #')+warId+tl(' — Play games to earn points for your guild!',' — 게임을 플레이해 길드 점수를 획득하세요!',' — ゲームをプレイしてギルドのポイントを獲得!',' — 玩游戏为公会赢取积分!');
-  // Load continue costs
-  walletReadJson('war-continue-cost', '/api/guild/war/continue-cost', 30000, false).then(function(d){
-    if(d.gpCosts) _mgContinueCosts = d;
-  }).catch(function(){});
+  _missionMgId = null;
+  _missionMgType = null;
+  document.getElementById('mgWarInfo').textContent = tl('Practice only — scores do not change guild wars or rewards.','연습 게임 — 점수는 길드전이나 보상에 반영되지 않습니다.','練習用 — スコアはギルド戦や報酬に反映されません。','仅供练习，分数不影响公会战或奖励。');
+  var plays=document.getElementById('mgPlaysLeft'); if(plays) plays.textContent='';
   document.getElementById('minigameOverlay').classList.add('active');
   document.body.style.overflow = 'hidden';
 }
@@ -459,77 +458,32 @@ function launchMinigame(type){
 }
 
 function showContinueOverlay(score){
-  var ov = document.getElementById('mgContinueOverlay');
-  ov.style.display = 'flex';
-  document.getElementById('mgFinalScore').textContent = tl('SCORE: ','점수: ','スコア: ','分数: ')+score;
-  var nextNum = _mgContinueNum + 1;
-  var btn = document.getElementById('mgContinueBtn');
-  if(nextNum > _mgContinueCosts.maxContinues){
-    btn.style.display = 'none';
-    document.getElementById('mgContinueCost').textContent = tl('Max continues reached','컨티뉴 한도 도달','コンティニュー上限に達しました','已达续命上限');
-    return;
-  }
-  btn.style.display = '';
-  var costText = '';
-  var gc = _mgContinueCosts.gpCosts;
-  if(nextNum <= gc.length){
-    costText = gc[nextNum-1]+' GP';
-    btn.style.background = 'linear-gradient(135deg,#00E676,#00C853)';
-    btn.style.color = '#000';
-  }else{
-    var ppCost = _mgContinueCosts.ppBase * Math.pow(_mgContinueCosts.ppMult, nextNum - gc.length - 1);
-    costText = ppCost.toFixed(2)+' PP';
-    btn.style.background = 'linear-gradient(135deg,#B388FF,#7C4DFF)';
-    btn.style.color = '#fff';
-  }
-  document.getElementById('mgContinueCost').textContent = tl('Continue #','컨티뉴 #','コンティニュー #','续命 #')+nextNum+': '+costText;
-  btn.textContent = tl('CONTINUE','컨티뉴','コンティニュー','续命')+' ('+costText+')';
+  var ov=document.getElementById('mgContinueOverlay'); ov.style.display='flex';
+  document.getElementById('mgFinalScore').textContent=tl('SCORE: ','점수: ','スコア: ','分数: ')+score;
+  var btn=document.getElementById('mgContinueBtn');
+  btn.style.display=_mgContinueNum>=1?'none':'';
+  btn.textContent=tl('FREE CONTINUE','무료 컨티뉴','無料コンティニュー','免费续命');
+  document.getElementById('mgContinueCost').textContent=tl('One free continue. Practice scores have no economy effect.','무료 컨티뉴 1회. 연습 점수는 경제에 영향을 주지 않습니다.','無料コンティニュー1回。練習スコアは経済に影響しません。','一次免费续命，练习分数不影响经济。');
 }
 
 async function payAndContinue(){
-  if(!_mgCurrentEngine || !_mgWarId) return;
-  var nextNum = _mgContinueNum + 1;
-  try{
-    var resp = await fetch('/api/guild/war/continue',{
-      method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+(emailAuth&&emailAuth.token||'')},
-      body:JSON.stringify({ wallet:walletState.address, warId:_mgWarId, continueNum:nextNum })
-    });
-    var d = await resp.json();
-    if(!resp.ok){ showToast(srvErr(d.error)||tl('CONTINUE FAILED','컨티뉴 실패','コンティニュー失敗','续命失败'),'error'); return; }
-    // Update balances
-    if(d.ppBalance!=null) walletState.gamePP = d.ppBalance;
-    if(d.gpBalance!=null) walletState.gameGP = d.gpBalance;
-    refreshEmailBalances();
-    // Continue the game
-    _mgContinueNum = nextNum;
-    document.getElementById('mgContinueOverlay').style.display = 'none';
-    _mgCurrentEngine.continueGame();
-    showToast('▶ '+tl('CONTINUE!','컨티뉴!','コンティニュー!','续命!')+' ('+tl('paid','지불','支払い','已支付')+' '+d.paid.amount+(d.paid.type==='pp'?' PP':' GP')+')');
-  }catch(e){ showToast(tl('CONTINUE FAILED','컨티뉴 실패','コンティニュー失敗','续命失败')); console.error(e); }
+  if(!_mgCurrentEngine || _mgContinueNum>=1) return;
+  _mgContinueNum=1;
+  document.getElementById('mgContinueOverlay').style.display='none';
+  _mgCurrentEngine.continueGame();
 }
 
 async function submitMinigameScore(){
   if(!_mgCurrentEngine) return;
-  var score = _mgCurrentEngine.getScore();
-  document.getElementById('mgContinueOverlay').style.display = 'none';
-  try{
-    var resp = await fetch('/api/guild/war/score',{
-      method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+(emailAuth&&emailAuth.token||'')},
-      body:JSON.stringify({ wallet:walletState.address, warId:_mgWarId, gameType:_mgCurrentGame, score:score })
-    });
-    var d = await resp.json();
-    if(!resp.ok){ showToast(srvErr(d.error)||tl('SUBMIT FAILED','제출 실패','送信失敗','提交失败'),'error'); return; }
-    showToast('🎮 '+tl('Score','점수','スコア','分数')+' '+score+' '+tl('submitted!','제출됨!','送信完了!','已提交!')+' ('+tl('Plays left:','남은 플레이:','残りプレイ:','剩余次数:')+' '+(d.playsRemaining||0)+')','success');
-    // Go back to game select
-    _mgCurrentEngine = null;
-    document.getElementById('mgCanvasWrap').style.display = 'none';
-    document.getElementById('mgSelectPanel').style.display = '';
-    if(d.playsRemaining!=null) document.getElementById('mgPlaysLeft').textContent = d.playsRemaining+' '+tl('plays remaining today','회 오늘 남음','回 本日残り','次 今日剩余');
-  }catch(e){ showToast(tl('SUBMIT FAILED','제출 실패','送信失敗','提交失败')); console.error(e); }
+  var score=_mgCurrentEngine.getScore();
+  _mgCurrentEngine.stop();
+  _mgCurrentEngine=null;
+  closeMinigameOverlay();
+  showToast(tl('Practice score: ','연습 점수: ','練習スコア: ','练习分数：')+score);
 }
 
 // ═══════════════════════════════════════
-//  MISSION MINIGAME (invasion/exploration bonus)
+//  MISSION PRACTICE (stored rewards are independent of score)
 // ═══════════════════════════════════════
 var _missionMgId = null;       // mission id to claim after game
 var _missionMgType = null;     // 'invasion' | 'exploration'
@@ -545,8 +499,7 @@ function playMissionMinigame(missionId, missionType){
   document.getElementById('mgSelectPanel').style.display = '';
   document.getElementById('mgCanvasWrap').style.display = 'none';
   document.getElementById('mgContinueOverlay').style.display = 'none';
-  var typeLabel = missionType==='invasion' ? '⚔️ '+tl('INVASION BONUS','침공 보너스','侵攻ボーナス','入侵奖励') : '🛰 '+tl('EXPLORATION BONUS','탐사 보너스','探査ボーナス','探索奖励');
-  document.getElementById('mgWarInfo').textContent = typeLabel+tl(' — Play a game to boost your rewards!',' — 게임을 플레이해 보상을 늘리세요!',' — ゲームをプレイして報酬を増やそう!',' — 玩游戏提升你的奖励!');
+  document.getElementById('mgWarInfo').textContent = tl('Optional practice — your stored mission reward does not change.','선택 연습 — 확정된 미션 보상은 변하지 않습니다.','任意の練習 — 確定したミッション報酬は変わりません。','可选练习，不改变已确定的任务奖励。');
   document.getElementById('minigameOverlay').classList.add('active');
   document.body.style.overflow = 'hidden';
 }
@@ -564,19 +517,12 @@ submitMinigameScore = async function(){
   _mgCurrentEngine.stop();
   _mgCurrentEngine = null;
   closeMinigameOverlay();
-  // Calculate bonus preview
-  var bonus = 1.0;
-  if(score>=2000) bonus=2.0;
-  else if(score>=1000) bonus=1.8;
-  else if(score>=500) bonus=1.5;
-  else if(score>=300) bonus=1.3;
-  else if(score>=100) bonus=1.15;
-  showToast('🎮 '+tl('Score:','점수:','スコア:','分数:')+' '+score+' → '+tl('Bonus:','보너스:','ボーナス:','奖励:')+' '+bonus+'x','success');
-  // Claim mission with minigame score
+  showToast(tl('Practice score: ','연습 점수: ','練習スコア: ','练习分数：')+score);
+  // Claim the server-resolved reward independently of practice score.
   try{
     var resp = await fetch('/api/missions/'+_missionMgId+'/claim',{
       method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
-      body:JSON.stringify({wallet:walletState.address, minigameScore:score})
+      body:JSON.stringify({wallet:walletState.address})
     });
     var d = await resp.json();
     _missionMgId = null;
@@ -584,13 +530,13 @@ submitMinigameScore = async function(){
     if(d.error){ showAlert(d.error); return; }
     var r = d.mission.reward||{};
     var parts=[];
-    if(r.pp>0) parts.push(r.pp.toFixed(3)+' PP');
+    if(r.ppAsGp>0) parts.push(r.ppAsGp.toFixed(3)+' GP');
+    else if(r.pp>0) parts.push(r.pp.toFixed(3)+' PP');
     if(r.gp>0) parts.push(r.gp+' GP');
     if(r.xp>0) parts.push(r.xp+' XP');
     if(r.item) parts.push(r.item.name);
     if(!parts.length) parts.push(tl('No reward','보상 없음','報酬なし','无奖励'));
-    var bonusTag = r.minigameBonus>1 ? ' (🎮×'+r.minigameBonus+')' : '';
-    showAlert('✓ '+parts.join(' · ')+bonusTag,'success');
+    showAlert('✓ '+parts.join(' · '),'success');
     if(d.mission.type==='invasion'){try{trackQuestAction('complete_invasion',1)}catch(e){}}
     if(d.mission.type==='exploration'){try{trackQuestAction('complete_exploration',1)}catch(e){}}
     loadOpsTab();
@@ -627,7 +573,7 @@ showContinueOverlay = function(score){
     btn.style.background = 'linear-gradient(135deg,#00E676,#00C853)';
     btn.style.color = '#000';
     btn.textContent = tl('FREE CONTINUE','무료 컨티뉴','無料コンティニュー','免费续命');
-    document.getElementById('mgContinueCost').textContent = LANG==='ko'?'무료 컨티뉴 1회 (미션 보너스)':LANG==='ja'?'無料コンティニュー1回 (ミッションボーナス)':LANG==='zh'?'免费续命1次 (任务奖励)':'FREE CONTINUE ×1 (Mission Bonus)';
+    document.getElementById('mgContinueCost').textContent = tl('One free practice continue','무료 연습 컨티뉴 1회','無料練習コンティニュー1回','一次免费练习续命');
   }
 };
 

@@ -953,7 +953,7 @@ function _showPOIPopup(poi) {
     + '<div style="display:flex;justify-content:center;gap:12px;margin:10px 0 14px">'
     + '<div style="text-align:center"><div style="font-size:16px">🪙</div><div style="font-size:8px;color:var(--tx3);margin-top:2px">GP</div></div>'
     + '<div style="text-align:center"><div style="font-size:16px">📦</div><div style="font-size:8px;color:var(--tx3);margin-top:2px">' + tl('ITEMS','아이템','アイテム','物品') + '</div></div>'
-    + '<div style="text-align:center"><div style="font-size:16px">⭐</div><div style="font-size:8px;color:var(--tx3);margin-top:2px">' + tl('RARE PP','희귀 PP','レアPP','稀有PP') + '</div></div>'
+    + '<div style="text-align:center"><div style="font-size:16px">⭐</div><div style="font-size:8px;color:var(--tx3);margin-top:2px">' + tl('MINERALS','광물','鉱物','矿物') + '</div></div>'
     + '</div>'
     // Info + fee line
     + (function(){
@@ -973,9 +973,6 @@ function _showPOIPopup(poi) {
         }
         return '<button onclick="_discoverPOI(' + poi.id + ')" style="width:100%;padding:12px;background:linear-gradient(135deg,' + def.color + ',' + (def.glow || def.color) + ');background-size:200% auto;animation:poiShine 3s linear infinite;color:#000;border:none;border-radius:10px;font-family:var(--fn);font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1.5px;box-shadow:0 4px 20px ' + def.color + '44">🔍 '+tl('DISCOVER','발견','発見','发现')+(fee>0?' ('+fee+' PP)':'')+'</button>';
       })()
-    // Hint button
-    + '<button onclick="getPOIHint()" style="width:100%;margin-top:8px;padding:9px;background:transparent;color:var(--gold);border:1px solid rgba(255,209,102,.25);border-radius:10px;font-family:var(--fn);font-size:10px;cursor:pointer;letter-spacing:1px">'
-    + '💡 ' + tl('POI HINT','POI 힌트','POIヒント','地点提示') + ' (0.2 PP)</button>'
     + '</div></div>';
 
   overlay.appendChild(popup);
@@ -1022,6 +1019,8 @@ function _discoverPOI(poiId) {
     var rwText = '';
     if ((rw.type === 'item' || rw.type === 'mineral') && rw.itemName) {
       rwText = (rw.itemIcon||'📦') + ' ' + rw.itemName + (rw.amount > 1 ? ' x' + rw.amount : '');
+    } else if (rw.currency === 'gp') {
+      rwText = '+' + rw.gpAmount + ' GP';
     } else if (rw.type === 'gp') {
       rwText = '+' + rw.amount + ' GP';
     } else if (rw.type === 'pp') {

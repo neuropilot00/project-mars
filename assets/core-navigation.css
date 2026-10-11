@@ -1,0 +1,42 @@
+/* Preserve painted main navigation; organize the existing Base content. */
+#cratesQuickBtn,#campaignQuickBtn{display:none!important}
+#baseTabsRow [data-core-legacy-tab]{display:none!important}
+#baseModal .base-cat-row{padding:0 6px;gap:0}
+#baseModal .bcat{font-size:12px;min-height:44px;padding:8px 10px;flex:0 0 auto;gap:4px}
+#baseModal .base-tabs{padding:0 6px}
+#baseModal #baseTabsRow>.base-tab{font-size:12px;min-height:44px;padding:9px 12px;line-height:1.4;border-radius:0;background:none;cursor:pointer;white-space:nowrap;flex-shrink:0}
+#baseModal #baseTabsRow>button.base-tab{border:0;border-bottom:2px solid transparent;color:var(--tx3);font-family:var(--fn)}
+#baseModal #baseTabsRow>button.base-tab.active{border-bottom-color:var(--gold);color:var(--gold)}
+#baseModal .base-header button{min-width:44px;min-height:44px}
+#baseModal .core-pane{font-size:14px;line-height:1.6;min-width:0}
+#baseModal .core-pane div,#baseModal .core-pane span,#baseModal .core-pane p,#baseModal .core-pane label,#baseModal .core-pane button{font-size:12px!important}
+#baseModal .core-pane button{min-height:44px;min-width:44px;white-space:normal;line-height:1.4}
+#baseModal .core-pane button:focus-visible,#baseModal summary:focus-visible,#baseModal .base-tab:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.core-mission-hero{padding:18px 16px;border:1px solid #715337;border-radius:10px;background:linear-gradient(90deg,rgba(20,15,12,.97),rgba(20,15,12,.79)),url('/assets/base/quests.png?v=v7160') center/cover;margin-bottom:12px}
+#baseModal .core-overline{color:var(--gold);letter-spacing:1px;font-weight:700}
+.core-mission-hero h2{font-size:23px;color:#ffe2b4;line-height:1.3;margin:7px 0 10px;overflow-wrap:anywhere}
+.core-mission-hero p{color:var(--tx2);margin:10px 0}
+#baseModal .core-mission-meta{margin-top:7px;color:#cfb69a}
+.core-objectives{padding:0;margin:10px 0 14px;list-style:none}
+.core-objectives li{display:flex;justify-content:space-between;gap:12px;padding:5px 0;color:var(--tx2)}
+.core-objectives b{color:var(--gold);flex-shrink:0;font-size:12px;font-variant-numeric:tabular-nums}
+.core-primary{width:100%;border:1px solid #b99360;border-radius:7px;background:linear-gradient(135deg,#896139,#b18a56);color:#fff1d7;font-weight:700;padding:11px 12px}
+.core-route-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.core-route-grid button,.core-record-links button{border:1px solid var(--bdr2);border-radius:8px;background:var(--surface2);color:var(--tx);padding:12px;text-align:left;font-family:var(--fn);cursor:pointer;min-width:0}
+.core-route-grid strong{display:block;font-size:13px;color:#e2bc87;margin-bottom:4px;overflow-wrap:anywhere}
+.core-route-grid span{display:block;color:var(--tx2);line-height:1.5}
+.core-record-title{font-size:18px;color:var(--gold);margin:0 0 12px}
+.core-records{border:1px solid var(--bdr2);border-radius:8px;background:var(--surface1);margin:10px 0;overflow:hidden}
+.core-records>summary{min-height:48px;padding:12px;color:var(--gold);cursor:pointer;font-size:13px;line-height:1.5}
+.core-record-links{display:grid;gap:8px;padding:10px}
+.core-record-links button{text-align:center}
+#baseModal .core-pane .base-banner{height:100px}
+@media(max-width:390px){.core-route-grid{grid-template-columns:1fr}.core-mission-hero{padding:14px}.core-mission-hero h2{font-size:21px}#baseModal .bcat{padding:8px}#baseModal .bcat [data-game-icon]{display:none}#baseModal .base-header{gap:6px}#baseModal .base-header-title{font-size:14px;letter-spacing:1px}}
+/* Keep all five mission destinations visible on 320px phones. */
+@media(max-width:390px){
+  #baseModal #baseTabsRow>.base-tab{padding:9px 8px;min-width:44px;flex-shrink:1;white-space:normal;letter-spacing:0;justify-content:center}
+  #baseModal #baseTabsRow>.base-tab [data-game-icon]{display:none}
+  #baseModal #baseTabsRow>.base-tab[data-cat="mission"].cat-show{flex:1 1 0;overflow-wrap:anywhere}
+  #baseModal .base-cat-row{max-width:100%;min-width:0}
+  #baseModal .bcat{flex:1 1 0;min-width:44px;padding:8px 4px;white-space:normal;line-height:1.4;letter-spacing:0;word-break:keep-all;overflow-wrap:anywhere}
+}

@@ -644,10 +644,11 @@ app.use((req, res, next) => {
 });
 // ── Favicon 204 (no content) — avoid noisy 404 ──
 app.get('/favicon.ico', (_req, res) => res.status(204).end());
-app.use(express.static(path.join(__dirname, '..'), {
-  index: 'index.html',
-  extensions: ['html']
-}));
+// Publish only game client files, never the repository/server/tooling tree.
+app.use('/assets', express.static(path.join(__dirname, '..', 'assets'), { index: false }));
+for (const file of ['index.html', 'admin.html', 'arena.html', 'manifest.json', 'sw.js', 'map.png', 'PIXELWAR_landing.html', 'PIXELWAR_concept.html']) {
+  app.get('/' + file, (_req, res) => res.sendFile(path.join(__dirname, '..', file)));
+}
 
 // ── SPA fallback ──
 app.get('/', (req, res) => {
@@ -830,18 +831,8 @@ async function start() {
       // Don't crash — existing tables still work
     }
 
-    // ── 강제 Cantina 활성화 (매 부팅마다 idempotent) ──
-    try {
-      const { pool } = require('./db');
-      await pool.query(`
-        INSERT INTO settings (category, key, value, description)
-        VALUES ('cantina', 'cantina_enabled', 'true', 'Cantina (Arena) 활성화')
-        ON CONFLICT (key) DO UPDATE SET value = 'true'
-      `);
-      console.log('[boot] cantina_enabled = true 강제 세팅 완료');
-    } catch (cErr) {
-      console.warn('[boot] cantina enable failed:', cErr.message);
-    }
+    // Preserve the stored Cantina gate, including an operator's disabled value.
+    // Defaults are seeded by migrations; restarting must not reopen a disabled mode.
 
     // Initialize withdrawal signer (모든 인스턴스 — 출금 서명은 web API에서 처리)
     initSigner();
@@ -893,24 +884,19 @@ async function start() {
 
     // ── Exploration Scheduled Tasks ──
     try {
-      const { spawnPOIs, expirePOIs, updateStarlinkPasses, expireStarlinkPasses } = require('./services/exploration');
+      const { expirePOIs, updateStarlinkPasses, expireStarlinkPasses } = require('./services/exploration');
       scheduleTask('EXPLORE', 5 * 60 * 1000, async () => {
         await expirePOIs();
         await expireStarlinkPasses();
       }, {
         phase: 'expire',
       });
-      scheduleTask('EXPLORE', 4 * 60 * 60 * 1000, spawnPOIs, {
-        phase: 'spawn',
-        startDelayMs: 45 * 1000,
-        startPhase: 'initial spawn',
-      });
       scheduleTask('STARLINK', 10 * 60 * 1000, updateStarlinkPasses, {
         phase: 'update',
         startDelayMs: 45 * 1000,
         startPhase: 'initial update',
       });
-      console.log('[EXPLORE] Scheduled tasks initialized (expire: 5min, POI spawn: 4h, starlink: 10min)');
+      console.log('[EXPLORE] Scheduled tasks initialized (expire: 5min, starlink: 10min)');
     } catch(e) { console.warn('[EXPLORE] Could not init scheduled tasks:', e.message); }
 
     // ── Missions Scheduler (resolves elapsed missions) ──
@@ -956,19 +942,14 @@ async function start() {
 
     // ── Rocket Scheduled Tasks ──
     try {
-      const { autoScheduleRocket, processRocketLanding, processRocketCompletion } = require('./services/rocket');
+      const { processRocketLanding, processRocketCompletion } = require('./services/rocket');
       scheduleTask('ROCKET', 60 * 1000, async () => {
         await processRocketLanding();
         await processRocketCompletion();
       }, {
         phase: 'process',
       });
-      scheduleTask('ROCKET', 12 * 60 * 60 * 1000, autoScheduleRocket, {
-        phase: 'schedule',
-        startDelayMs: 60 * 1000,
-        startPhase: 'initial schedule',
-      });
-      console.log('[ROCKET] Scheduled tasks initialized (process: 1min, auto-schedule: 12h)');
+      console.log('[ROCKET] Scheduled tasks initialized (outstanding landing/completion: 1min)');
     } catch(e) { console.warn('[ROCKET] Could not init scheduled tasks:', e.message); }
 
     // ── Auto-Renewal Micro-Transaction Cron (every 5 minutes) ──

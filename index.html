@@ -46,6 +46,7 @@
 <script src="/assets/minigame-icons.js?v=7485"></script>
 
 <link rel="stylesheet" href="/assets/command-center.css?v=7474-upgrade21">
+<link rel="stylesheet" href="/assets/core-navigation.css?v=wholegame25">
 <link rel="stylesheet" href="/assets/game-icons.css?v=7474-upgrade21">
 <link rel="stylesheet" href="/assets/fleet-field-guide.css?v=7474-upgrade21">
 <link rel="stylesheet" href="/assets/ship-card-workshop.css?v=7474-upgrade21">
@@ -197,7 +198,7 @@
 <div class="col-fab-wrap" id="colFabWrap">
   <img class="cf-bg" src="/assets/nav/main_buttons_desktop.png" alt="">
   <button class="col-fab myland" data-action="toggleMyLand" title="My Land" aria-label="My Land"></button>
-  <button class="col-fab arena"  data-action="openArena"    title="Cantina" aria-label="Cantina"></button>
+  <button class="col-fab arena"  onclick="openGuildLounge()" title="Cantina · Guild lounge" aria-label="Cantina · Guild lounge"></button>
   <button class="col-fab place"  data-action="activateLandSelect" title="Claim" aria-label="Claim"></button>
   <button class="col-fab items"  data-action="openMyItems" title="Items" aria-label="Items"></button>
   <button class="col-fab base"   data-action="openBaseModal" title="Base" aria-label="Base">
@@ -574,13 +575,13 @@
 <div class="ops-quick ops-quick-split" id="opsQuick" style="display:none !important" aria-hidden="true"></div>
 
 <!-- [v7.171 F-Crit-2 fix] aria-label 추가 — 스크린리더 접근성 -->
-<button class="crates-quick" id="cratesQuickBtn" onclick="openGacha()" title="Ship Crates" aria-label="Open ship crate gacha">
+<button class="crates-quick" id="cratesQuickBtn" hidden onclick="openGacha()" title="Ship Crates" aria-label="Open ship crate gacha">
   <span class="crates-quick-icon">🎲</span>
   <span data-i18n="open_gacha_label">SHIP CRATES</span>
   <span class="crates-quick-sub" data-i18n="open_gacha_sub">GACHA</span>
 </button>
 
-<button class="campaign-quick" id="campaignQuickBtn" onclick="openCampaignHub()" title="Open campaign" aria-label="Open campaign hub">
+<button class="campaign-quick" id="campaignQuickBtn" hidden onclick="openCampaignHub()" title="Open campaign" aria-label="Open campaign hub">
   <span class="campaign-quick-icon">⚡</span>
   <span data-i18n="campaign_quick">CAMPAIGN</span>
   <span class="campaign-quick-sub" data-i18n="campaign_quick_sub">STORY</span>
@@ -1021,16 +1022,16 @@
 
     <!-- 대카테고리 바 -->
     <div class="base-cat-row" id="baseCatRow">
-      <button class="bcat active" data-cat="territory" onclick="switchBaseCat('territory',this)"><span data-game-icon="territory" data-icon-size="18"></span><span data-i18n="bcat_territory">Territory</span></button>
+      <button class="bcat" data-cat="territory" onclick="switchBaseCat('territory',this)"><span data-game-icon="territory" data-icon-size="18"></span><span data-i18n="bcat_territory">Territory</span></button>
       <button class="bcat" data-cat="fleet" onclick="switchBaseCat('fleet',this)"><span data-game-icon="fleet" data-icon-size="18"></span><span data-i18n="bcat_fleet">Fleet</span></button>
       <button class="bcat" data-cat="economy" onclick="switchBaseCat('economy',this)"><span data-game-icon="market" data-icon-size="18"></span><span data-i18n="bcat_economy">Economy</span></button>
-      <button class="bcat" data-cat="mission" onclick="switchBaseCat('mission',this)"><span data-game-icon="missions" data-icon-size="18"></span><span data-i18n="bcat_mission">Mission</span></button>
+      <button class="bcat active" data-cat="mission" onclick="switchBaseCat('mission',this)"><span data-game-icon="missions" data-icon-size="18"></span><span data-i18n="bcat_mission">Mission</span></button>
       <button class="bcat" data-cat="community" onclick="switchBaseCat('community',this)"><span data-game-icon="guild" data-icon-size="18"></span><span data-i18n="bcat_community">Community</span></button>
     </div>
     <!-- 서브탭 (카테고리별로 보임/숨김) -->
     <div class="base-tabs" id="baseTabsRow">
       <!-- 영토 -->
-      <div class="base-tab cat-show active" data-cat="territory" id="baseTabTerritory" onclick="switchBaseTab('territory',this);clearBaseTabDot('territory')"><span data-game-icon="territory" data-icon-size="18"></span><span data-i18n="base_tab_territory">MY TERRITORY</span><span class="tab-dot" id="territoryDot"></span></div>
+      <div class="base-tab" data-cat="territory" id="baseTabTerritory" onclick="switchBaseTab('territory',this);clearBaseTabDot('territory')"><span data-game-icon="territory" data-icon-size="18"></span><span data-i18n="base_tab_territory">MY TERRITORY</span><span class="tab-dot" id="territoryDot"></span></div>
       <div class="base-tab" data-cat="territory" id="baseTabSectors" onclick="switchBaseTab('sectors',this);clearBaseTabDot('sectors')"><span data-game-icon="front" data-icon-size="18"></span><span data-i18n="base_tab_sectors">SECTORS</span><span class="tab-dot" id="sectorsDot"></span></div>
       <!-- 함대 -->
       <div class="base-tab" data-cat="fleet" id="baseTabFleet" onclick="switchBaseTab('fleet',this);clearBaseTabDot('fleet')" style="color:#5cbbff"><span data-game-icon="fleet" data-icon-size="18"></span><span data-i18n="bcat_fleet">Fleet</span><span class="tab-dot" id="fleetDot"></span></div>
@@ -1041,10 +1042,12 @@
       <div class="base-tab" data-cat="economy" id="baseTabItems" onclick="switchBaseTab('items',this);loadBaseInventory();clearBaseTabDot('items')" style="color:#ce93d8"><span data-game-icon="resources" data-icon-size="18"></span><span data-i18n="base_tab_items">내 아이템</span><span class="tab-dot" id="itemsDot"></span></div>
 
       <!-- 임무 (퀘스트 → 작전 → 수송 → 시즌) -->
-      <div class="base-tab" data-cat="mission" id="baseTabQuests" onclick="switchBaseTab('quests',this);clearBaseTabDot('quests');try{(typeof checkDailyLogin==='function')&&checkDailyLogin();(typeof renderInlineCheckin==='function')&&renderInlineCheckin();(typeof loadDailyMissions==='function')&&loadDailyMissions();}catch(_){}"><span data-game-icon="missions" data-icon-size="18"></span><span data-i18n="base_tab_quests_full">CAMPAIGN/QUESTS</span><span class="tab-dot" id="questsDot"></span></div>
+      <button type="button" class="base-tab cat-show active" data-cat="mission" id="baseTabMission" onclick="switchBaseTab('mission',this)"><span data-core-en="OPERATIONS" data-core-ko="작전">OPERATIONS</span></button>
+      <button type="button" class="base-tab cat-show" data-cat="mission" id="baseTabQuests" onclick="switchBaseTab('quests',this);clearBaseTabDot('quests')"><span data-core-en="CAMPAIGN" data-core-ko="캠페인">CAMPAIGN</span><span class="tab-dot" id="questsDot"></span></button>
+      <button type="button" class="base-tab cat-show" data-cat="mission" id="baseTabRecords" onclick="switchBaseTab('records',this)"><span data-core-en="RECORDS" data-core-ko="기록·보상">RECORDS</span></button>
       <div class="base-tab" data-cat="mission" id="baseTabMining" onclick="switchBaseTab('mining',this);clearBaseTabDot('mining')" style="color:#64dc82"><span data-game-icon="mining" data-icon-size="18"></span><span data-i18n="base_tab_mining">RESOURCE RUN</span><span class="tab-dot" id="miningDot"></span></div>
-      <div class="base-tab" data-cat="mission" id="baseTabOps" onclick="switchBaseTab('ops',this);clearBaseTabDot('ops');loadOpsTab()" style="color:#ff9966"><span data-game-icon="objective" data-icon-size="18"></span><span data-i18n="base_tab_ops">OPS CONSOLE</span><span class="tab-dot" id="opsDot"></span></div>
-      <div class="base-tab" data-cat="mission" id="baseTabTransport" onclick="switchBaseTab('transport',this);loadTransportTab();clearBaseTabDot('transport')" style="color:#FFB347"><span data-game-icon="transport" data-icon-size="18"></span><span data-i18n="base_tab_transport">TRANSPORT</span><span class="tab-dot" id="transportDot"></span></div>
+      <div class="base-tab" data-cat="mission" data-core-legacy-tab="1" id="baseTabOps" onclick="switchBaseTab('ops',this);clearBaseTabDot('ops');loadOpsTab()" style="color:#ff9966"><span data-game-icon="objective" data-icon-size="18"></span><span data-i18n="base_tab_ops">OPS CONSOLE</span><span class="tab-dot" id="opsDot"></span></div>
+      <div class="base-tab" data-cat="mission" data-core-legacy-tab="1" id="baseTabTransport" onclick="switchBaseTab('transport',this);loadTransportTab();clearBaseTabDot('transport')" style="color:#FFB347"><span data-game-icon="transport" data-icon-size="18"></span><span data-i18n="base_tab_transport">TRANSPORT</span><span class="tab-dot" id="transportDot"></span></div>
       <div class="base-tab" data-cat="mission" id="baseTabRank" onclick="switchBaseTab('rank',this);clearBaseTabDot('rank')" style="color:var(--mars)"><span data-game-icon="rank" data-icon-size="18"></span><span data-i18n="base_tab_season">SEASON</span><span class="tab-dot" id="rankDot"></span></div>
       <!-- 커뮤니티 (길드·거버넌스) -->
       <div class="base-tab" data-cat="community" id="baseTabGuild" onclick="switchBaseTab('guild',this);loadGuildTab();clearBaseTabDot('guild')" style="color:var(--mars)"><span data-game-icon="guild" data-icon-size="18"></span><span data-i18n="base_tab_guild">GUILD</span><span class="tab-dot" id="guildDot"></span></div>
@@ -1053,7 +1056,7 @@
     <div class="base-body">
 
       <!-- TAB: MY TERRITORY -->
-      <div class="base-pane active" id="basePane_territory">
+      <div class="base-pane" id="basePane_territory">
         <!-- [v7.169] 배너 cache-bust 쿼리(?v=...) — 브라우저/CDN 캐시 무효화. 신규 배너 업데이트 시 ?v= 값을 올린다. -->
         <div class="base-banner" id="bannerTerritory"><img src="/assets/base/territory.png?v=v7160" alt=""></div>
 
@@ -1523,10 +1526,41 @@
 
       </div>
 
-      <!-- TAB: QUESTS -->
-      <div class="base-pane" id="basePane_quests">
+      <!-- Core operations: server-backed goals, with existing destinations. -->
+      <div class="base-pane active core-pane" id="basePane_mission">
+        <section class="core-mission-hero">
+          <div class="core-overline" data-core-en="NEXT OBJECTIVE" data-core-ko="다음 목표">NEXT OBJECTIVE</div>
+          <div id="coreMissionState" aria-live="polite"></div>
+        </section>
+        <div class="core-route-grid">
+          <button type="button" onclick="openCommandCenter('front')"><strong data-core-en="Front production · cargo" data-core-ko="전선 생산·운송">Front production · cargo</strong><span data-core-en="Capture → produce → deliver → repair" data-core-ko="점령 → 생산 → 운송 → 수리">Capture → produce → deliver → repair</span></button>
+          <button type="button" onclick="closeBaseModal();openObjectiveOperations()"><strong data-core-en="Objective operations" data-core-ko="목표형 전투">Objective operations</strong><span data-core-en="Three operations with fleet requirements" data-core-ko="함대 조건에 맞는 세 가지 작전">Three operations with fleet requirements</span></button>
+          <button type="button" onclick="closeBaseModal();openTacticalLab()"><strong data-core-en="Tactical practice" data-core-ko="전술 연습">Tactical practice</strong><span data-core-en="Try formations before a sortie" data-core-ko="출격 전 진형을 시험하세요">Try formations before a sortie</span></button>
+          <button type="button" onclick="switchBaseTab('mining')"><strong data-core-en="Resource run" data-core-ko="자원 출항">Resource run</strong><span data-core-en="Send miners and collect their return" data-core-ko="채굴 함선을 보내고 귀환 보상을 수령하세요">Send miners and collect their return</span></button>
+        </div>
+      </div>
+      <!-- Campaign keeps its original art, IDs, profile and reward inbox. -->
+      <div class="base-pane core-pane" id="basePane_quests">
         <div class="base-banner" id="bannerQuests"><img src="/assets/base/quests.png?v=v7160" alt=""></div>
 
+        <div id="campaignPanel" style="padding:8px 10px;border-bottom:1px solid var(--bdr)">
+          <div class="base-section-title" style="display:flex;align-items:center;justify-content:space-between;color:#4fc3f7;margin-top:2px">
+            <span>⚡ CAMPAIGN</span>
+            <!-- [v7.172 D-Crit-2/3 fix] 칭호 장착 + 평판 history 진입 버튼 — 백엔드 완비됐는데 UI 0건이었음 -->
+            <button type="button" onclick="openCampaignProfileModal()" aria-label="Campaign profile — titles and reputation history" style="font-size:9px;padding:3px 9px;border-radius:6px;background:rgba(184,140,255,.12);border:1px solid rgba(184,140,255,.35);color:#caa8ff;cursor:pointer;font-family:var(--fn)" data-i18n="campaign_profile_btn">🎖 PROFILE</button>
+          </div>
+          <div id="campaignReputation"></div>
+          <div id="campaignRewardInbox"></div>
+          <div id="campaignList">
+            <div style="font-size:9px;color:var(--tx3);padding:8px 0">Loading campaign...</div>
+          </div>
+        </div>
+
+      </div>
+      <div class="base-pane core-pane" id="basePane_records">
+        <h2 class="core-record-title" data-core-en="Records · existing rewards" data-core-ko="기록·기존 보상">Records · existing rewards</h2>
+        <details id="coreRewardRecords" class="core-records">
+          <summary data-core-en="Check-in · completed rewards · achievements" data-core-ko="출석·완료 보상·업적">Check-in · completed rewards · achievements</summary>
         <!-- Daily Check-in (Mobile Game Style) -->
         <div id="dailyCheckinInline" style="margin:0;padding:0;border-bottom:1px solid var(--bdr)">
           <div style="background:linear-gradient(135deg,rgba(255,160,40,.12),rgba(255,80,30,.06));padding:10px 12px 6px">
@@ -1553,19 +1587,6 @@
           <div id="dailyBonusCard" style="display:none"></div>
         </div>
 
-
-        <div id="campaignPanel" style="padding:8px 10px;border-bottom:1px solid var(--bdr)">
-          <div class="base-section-title" style="display:flex;align-items:center;justify-content:space-between;color:#4fc3f7;margin-top:2px">
-            <span>⚡ CAMPAIGN</span>
-            <!-- [v7.172 D-Crit-2/3 fix] 칭호 장착 + 평판 history 진입 버튼 — 백엔드 완비됐는데 UI 0건이었음 -->
-            <button type="button" onclick="openCampaignProfileModal()" aria-label="Campaign profile — titles and reputation history" style="font-size:9px;padding:3px 9px;border-radius:6px;background:rgba(184,140,255,.12);border:1px solid rgba(184,140,255,.35);color:#caa8ff;cursor:pointer;font-family:var(--fn)" data-i18n="campaign_profile_btn">🎖 PROFILE</button>
-          </div>
-          <div id="campaignReputation"></div>
-          <div id="campaignRewardInbox"></div>
-          <div id="campaignList">
-            <div style="font-size:9px;color:var(--tx3);padding:8px 0">Loading campaign...</div>
-          </div>
-        </div>
 
         <div id="questsContainer" style="padding:8px 10px">
           <div id="questsLoading" style="text-align:center;padding:24px;color:var(--tx3);font-size:var(--fs-xs)" data-i18n="quests_loading">Loading quests...</div>
@@ -1604,6 +1625,17 @@
           </div>
         </div>
 
+        </details>
+        <details class="core-records">
+          <summary data-core-en="Running legacy operations · settlements" data-core-ko="기존 진행 작전·정산">Running legacy operations · settlements</summary>
+          <div class="core-record-links">
+            <button type="button" onclick="switchBaseTab('ops');loadOpsTab()" data-core-en="Timed operations · claim / cancel" data-core-ko="시간제 작전 · 수령/취소">Timed operations · claim / cancel</button>
+            <button type="button" onclick="switchBaseTab('transport');loadTransportTab();switchTransportSub('my')" data-core-en="Existing GP shipments" data-core-ko="기존 GP 운송 내역">Existing GP shipments</button>
+            <button type="button" data-action="openArena" data-core-en="Cantina games · existing settlements" data-core-ko="칸티나 게임·기존 정산">Cantina games · existing settlements</button>
+          </div>
+        </details>
+        <details id="coreLegacyCommunity" class="core-records">
+          <summary data-core-en="Community · existing events" data-core-ko="커뮤니티·기존 이벤트">Community · existing events</summary>
         <!-- 🎯 BOUNTY BOARD Section -->
         <div id="bountyBoardSection" style="padding:8px 10px;border-top:1px solid var(--bdr)">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:4px">
@@ -2183,7 +2215,8 @@
           </div>
         </div>
 
-      </div><!-- /quests pane -->
+        </details>
+      </div>
 
       <!-- TAB: PVP -->
       <div class="base-pane" id="basePane_pvp">
@@ -3109,7 +3142,7 @@
   <div class="nav-img-wrap">
     <img class="mob-nav-bg" src="/assets/nav/main_buttons_mobile.png" alt="">
     <button class="mob-nav-item mn-myland"  data-action="toggleMyLand"           id="mobNavMyLand" aria-label="My Land"></button>
-    <button class="mob-nav-item mn-cantina" data-action="openArena"              aria-label="Cantina"></button>
+    <button class="mob-nav-item mn-cantina" onclick="openGuildLounge()" aria-label="Cantina · Guild lounge"></button>
     <button class="mob-nav-item mn-claim"   data-action="activateLandSelect"     id="mobNavClaim"  aria-label="Claim"></button>
     <button class="mob-nav-item mn-items"   data-action="openMyItems" aria-label="Items"></button>
     <button class="mob-nav-item mn-base"    data-action="openBaseModal"          aria-label="Base">
@@ -4426,26 +4459,26 @@
   </div>
 </div>
 
-<script src="/assets/core-runtime.js?v=7485"></script>
+<script src="/assets/core-runtime.js?v=wholegame25"></script>
 <script src="/assets/world-globe.js?v=7474-upgrade21"></script>
 <script src="/assets/i18n.js?v=7474-upgrade21"></script>
 <script src="/assets/i18n-sea.js?v=7474-upgrade21"></script>
-<script src="/assets/wallet-minigame.js?v=7485"></script>
-<script src="/assets/territory-ui.js?v=7485"></script>
-<script src="/assets/account-profile.js?v=7485"></script>
-<script src="/assets/economy-inventory.js?v=7474-upgrade21"></script>
+<script src="/assets/wallet-minigame.js?v=wholegame25"></script>
+<script src="/assets/territory-ui.js?v=wholegame25"></script>
+<script src="/assets/account-profile.js?v=wholegame25"></script>
+<script src="/assets/economy-inventory.js?v=wholegame25"></script>
 <script src="/assets/market-transport.js?v=7474-upgrade21"></script>
 <script src="/assets/ship-mining.js?v=7485"></script>
-<script src="/assets/base-navigation.js?v=7474-upgrade21"></script>
-<script src="/assets/guild-ops.js?v=7485"></script>
-<script src="/assets/season-base.js?v=7474-upgrade21"></script>
-<script src="/assets/campaign-system.js?v=7485"></script>
-<script src="/assets/quest-economy.js?v=7485"></script>
-<script src="/assets/mars-map-overlays.js?v=7485"></script>
+<script src="/assets/base-navigation.js?v=wholegame25"></script>
+<script src="/assets/guild-ops.js?v=wholegame25"></script>
+<script src="/assets/season-base.js?v=wholegame25"></script>
+<script src="/assets/campaign-system.js?v=wholegame25"></script>
+<script src="/assets/quest-economy.js?v=wholegame25"></script>
+<script src="/assets/mars-map-overlays.js?v=wholegame25"></script>
 <script src="/assets/public-stats.js?v=7485"></script>
 <script src="/assets/arena-overlay.js?v=7485"></script>
-<script src="/assets/world-live-feeds.js?v=7485"></script>
-<script src="/assets/main-game.js?v=7485"></script>
+<script src="/assets/world-live-feeds.js?v=wholegame25"></script>
+<script src="/assets/main-game.js?v=wholegame25"></script>
 <!-- ══════════════════════════════════════════════════════════ -->
 <!--  LEGAL: Terms of Service Modal                          -->
 <!-- ══════════════════════════════════════════════════════════ -->
@@ -4638,7 +4671,7 @@
 </div>
 
 <script src="/assets/legal-consent.js?v=7485"></script>
-<script src="/assets/daily-engagement.js?v=7485"></script>
+<script src="/assets/daily-engagement.js?v=wholegame25"></script>
 
 <!-- ═══════════════════════════════════════════════════════════════
      GUILD WAR DECLARATION MODAL
@@ -5394,5 +5427,6 @@
 <script src="/assets/ship-card-workshop.js?v=7474-upgrade21"></script>
 <script src="/assets/objective-operations.js?v=7474-upgrade21"></script>
 <script src="/assets/command-center.js?v=7474-upgrade21"></script>
+<script src="/assets/core-navigation.js?v=wholegame25"></script>
 </body>
 </html>

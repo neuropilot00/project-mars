@@ -102,7 +102,8 @@
 // 2026-06-16 v105: ACE 엔진 구현 — ace-combat.html size_class 뷰 프로파일/fleet-presets/postMessage 훅.
 // 2026-06-29 v123: v7.465 first-session 핸즈온 — 첫 클레임 연출 + BASE 골든패스 글로우 + globe 첫클릭 가이드.
 // 2026-06-29 v124: 주간 챌린지 UI + 섹터 서지 배너 + 전투 결과 부각 + 골든패스 step2→fleet 보정.
-const CACHE_NAME = 'mars-v166-upgrade22';
+// 2026-10-11: unified mission flow, retired click rewards, server integrity and private API cache isolation.
+const CACHE_NAME = 'mars-v169-wholegame25';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'
@@ -129,30 +130,26 @@ self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
-    ).then(() => self.clients.claim())
+    ).then(() => caches.open(CACHE_NAME))
+     .then((cache) => cache.keys().then((requests) => Promise.all(
+       requests.filter((request) => new URL(request.url).pathname.startsWith('/api/'))
+         .map((request) => cache.delete(request))
+     )))
+     .then(() => self.clients.claim())
   );
 });
 
-// Fetch: network-first for API + HTML, cache-first for static assets
+// Fetch: network-only API, network-first HTML, cache-first static assets
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
 
   // Cache API only supports GET. Skip SW logic for non-GET (POST/PUT/DELETE etc.)
   if (e.request.method !== 'GET') return;
 
-  // Network-first for API calls — only cache 2xx so 404/5xx never get cached
+  // Game state and account data are online-only. CacheStorage does not partition
+  // requests by Authorization, and stale balances/fleets must never look current.
   if (url.pathname.startsWith('/api/')) {
-    e.respondWith(
-      fetch(e.request)
-        .then((res) => {
-          if (res && res.ok && res.status >= 200 && res.status < 300) {
-            const clone = res.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(e.request, clone)).catch(() => {});
-          }
-          return res;
-        })
-        .catch(() => caches.match(e.request))
-    );
+    e.respondWith(fetch(e.request));
     return;
   }
 

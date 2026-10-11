@@ -11,7 +11,7 @@
 //                                → 결과를 world_events.hp_current에 반영
 //   5) settleExpiredEvents()  — 만료된 이벤트를 결산 (스케줄러)
 //                                → HP 0이면 'defeated' (보상 분배)
-//                                → 시간 종료면 'expired' (디버프 부여)
+//                                → 시간 종료면 'escaped' (보상 없음)
 //
 // NPC 시드 wallet: 0xnpc0000000000000000000000000000000000000
 // ═══════════════════════════════════════════════════════════════════════
@@ -305,6 +305,12 @@ async function engageEvent(eventId, attackerWallet, attackerFleetId) {
     if (!['active','engaged'].includes(event.status)) throw new Error('EVENT_NOT_ENGAGEABLE');
     if (new Date(event.ends_at) <= new Date()) throw new Error('EVENT_EXPIRED');
     if (!event.fleet_id) throw new Error('EVENT_HAS_NO_FLEET');
+    // Reserve the same persisted boss fleet the scheduler uses, before creating a battle.
+    const { rows: bossFleets } = await client.query(
+      'SELECT id, is_in_battle, current_battle_id FROM fleets WHERE id=$1 FOR UPDATE', [event.fleet_id]
+    );
+    if (!bossFleets.length) throw new Error('EVENT_HAS_NO_FLEET');
+    if (bossFleets[0].is_in_battle || bossFleets[0].current_battle_id) throw new Error('FLEET_BUSY');
 
     // 2) 공격자 함대 검증
     const { rows: atkFleetRows } = await client.query(
@@ -359,10 +365,17 @@ async function engageEvent(eventId, attackerWallet, attackerFleetId) {
       [battleId, attackerFleetId, attackerWallet, event.fleet_id, NPC_WALLET]
     );
 
-    // 함대 상태 업데이트 — atk만 잠금 (NPC는 여러 교전 동시 가능하게 잠금 안함)
+    // Both participant fleets are reserved for this battle; scheduler honors the same ID.
     await client.query(
-      `UPDATE fleets SET is_in_battle = true, current_battle_id = $2 WHERE id = $1`,
-      [attackerFleetId, battleId]
+      `UPDATE fleets SET is_in_battle = true, current_battle_id = $2 WHERE id = ANY($1::bigint[])`,
+      [[attackerFleetId, event.fleet_id], battleId]
+    );
+
+    // Reserve cooldown when accepting the sortie, including first-time participants.
+    await client.query(
+      `INSERT INTO world_event_participants (event_id,wallet,battles_count,last_battle_at)
+       VALUES ($1,$2,0,NOW()) ON CONFLICT (event_id,wallet) DO UPDATE SET last_battle_at=NOW()`,
+      [eventId, attackerWallet]
     );
 
     // event status → engaged
@@ -386,7 +399,7 @@ async function engageEvent(eventId, attackerWallet, attackerFleetId) {
   } catch (err) {
     console.error('[worldEvents] runBattle error:', err);
     // fleet 잠금 해제
-    await pool.query(`UPDATE fleets SET is_in_battle = false, current_battle_id = NULL WHERE id = $1`, [attackerFleetId]);
+    await pool.query(`UPDATE fleets SET is_in_battle = false, current_battle_id = NULL WHERE current_battle_id = $1`, [battleId]);
     throw err;
   }
 
@@ -443,8 +456,8 @@ async function engageEvent(eventId, attackerWallet, attackerFleetId) {
 
     // 공격자 함대 잠금 해제
     await finalClient.query(
-      `UPDATE fleets SET is_in_battle = false, current_battle_id = NULL WHERE id = $1`,
-      [attackerFleetId]
+      `UPDATE fleets SET is_in_battle = false, current_battle_id = NULL WHERE current_battle_id = $1`,
+      [battleId]
     );
 
     await finalClient.query('COMMIT');
@@ -487,9 +500,9 @@ async function distributeRewards(eventId, resolution) {
   const topTitle    = await getSetS('void_raider_reward_top_title', 'Void Hunter');
 
   const { rows: parts } = await pool.query(
-    `SELECT wallet, damage_dealt FROM world_event_participants
-      WHERE event_id = $1 AND damage_dealt > 0 AND rewarded = false
-      ORDER BY damage_dealt DESC`,
+    `SELECT wallet, damage_dealt, rewarded FROM world_event_participants
+      WHERE event_id = $1 AND damage_dealt > 0
+      ORDER BY damage_dealt DESC, wallet ASC`,
     [eventId]
   );
   if (!parts.length) return;
@@ -497,10 +510,18 @@ async function distributeRewards(eventId, resolution) {
   const topWallet = (parts[0].wallet || '').toLowerCase();
 
   for (const p of parts) {
+    if (p.rewarded) continue;
     const isTop = ((p.wallet || '').toLowerCase() === topWallet);
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
+      // Claim the payout ledger before granting anything. Concurrent retries serialize here.
+      const pending = await client.query(
+        `SELECT wallet FROM world_event_participants
+         WHERE event_id=$1 AND LOWER(wallet)=LOWER($2) AND rewarded=false FOR UPDATE`,
+        [eventId, p.wallet]
+      );
+      if (!pending.rowCount) { await client.query('ROLLBACK'); continue; }
       await ensureUser(client, p.wallet);
 
       // GP + XP 보상
@@ -511,34 +532,26 @@ async function distributeRewards(eventId, resolution) {
 
       // 광물 보상 — user_resource_inventory(wallet_address, resource_id, quantity) 사용
       // resource_id는 resources.code → id 매핑
-      try {
-        const grantMineral = async (code, qty) => {
-          await client.query(
-            `INSERT INTO user_resource_inventory (wallet_address, resource_id, quantity)
-             VALUES ($1, (SELECT id FROM resources WHERE code = $2), $3)
-             ON CONFLICT (wallet_address, resource_id)
-             DO UPDATE SET quantity = user_resource_inventory.quantity + EXCLUDED.quantity`,
-            [p.wallet, code, qty]
-          );
-        };
-        await grantMineral('iron_dust',   ironDust);
-        await grantMineral('ice_crystal', iceCrystal);
-        if (isTop) await grantMineral('ancient_metal', topMetal);
-      } catch (e) {
-        // resources 테이블에 해당 code가 없을 수 있음 — 로그만
-        console.warn('[worldEvents] minerals reward skipped:', e.message);
-      }
-
-      // 칭호 (있으면) — user_titles 테이블 시도
+      const grantMineral = async (code, qty) => {
+        if (!(qty > 0)) return;
+        await client.query(
+          `INSERT INTO user_resource_inventory (wallet_address, resource_id, quantity)
+           VALUES ($1, (SELECT id FROM resources WHERE code = $2), $3)
+           ON CONFLICT (wallet_address, resource_id)
+           DO UPDATE SET quantity = user_resource_inventory.quantity + EXCLUDED.quantity`,
+          [p.wallet, code, qty]
+        );
+      };
+      await grantMineral('iron_dust', ironDust);
+      await grantMineral('ice_crystal', iceCrystal);
       if (isTop) {
-        try {
-          await client.query(
-            `INSERT INTO user_titles (wallet, title_code, awarded_at, source)
-             VALUES ($1, $2, NOW(), 'world_event')
-             ON CONFLICT DO NOTHING`,
-            [p.wallet, topTitle]
-          );
-        } catch (e) { /* user_titles 테이블 없을 수 있음 */ }
+        await grantMineral('ancient_metal', topMetal);
+        // Match the persisted title schema; a failed grant leaves the payout retryable.
+        if (topTitle) await client.query(
+          `INSERT INTO user_titles (user_wallet, title_code, title_en, earned_at)
+           VALUES ($1, $2, $2, NOW()) ON CONFLICT (user_wallet, title_code) DO NOTHING`,
+          [p.wallet, topTitle]
+        );
       }
 
       // 보상 표시 — [v7.65] AND rewarded=false 이중 지급 방지
@@ -581,6 +594,12 @@ async function distributeRewards(eventId, resolution) {
 // 6) 만료 이벤트 결산 (스케줄러)
 // ═══════════════════════════════════════════════════════════════════
 async function settleExpiredEvents() {
+  // Recover a crash between event resolution and payouts, or a prior failed recipient.
+  const { rows: unpaid } = await pool.query(
+    `SELECT DISTINCT we.id FROM world_events we JOIN world_event_participants p ON p.event_id=we.id
+     WHERE we.status='defeated' AND p.damage_dealt>0 AND p.rewarded=false ORDER BY we.id LIMIT 10`
+  );
+  for (const event of unpaid) await distributeRewards(event.id, 'defeated');
   const { rows: expired } = await pool.query(
     `SELECT id, sector_id, hp_current, hp_max, status
        FROM world_events
@@ -604,14 +623,13 @@ async function settleExpiredEvents() {
         if (casRes.rowCount === 0) continue; // already processed by concurrent run
         await distributeRewards(ev.id, 'defeated');
       } else {
-        // 시간 만료 → escaped (HP 일부 남음) — 디버프 부여
+        // 시간 만료 → escaped (HP 일부 남음)
         const casRes = await pool.query(
           `UPDATE world_events SET status='escaped', resolution='escaped', resolved_at=NOW()
            WHERE id=$1 AND status IN ('active','engaged')`,
           [ev.id]
         );
         if (casRes.rowCount === 0) continue; // already processed by concurrent run
-        await applyFailureDebuff(ev);
       }
 
       // NPC fleet 정리 (제거)
@@ -630,17 +648,9 @@ async function settleExpiredEvents() {
   return { settled };
 }
 
-async function applyFailureDebuff(event) {
-  const debuffPct = await getSetN('void_raider_fail_mining_debuff_pct', 30);
-  const debuffDays = await getSetN('void_raider_fail_debuff_days', 3);
-  if (!event.sector_id || debuffPct <= 0) return;
-
-  await pool.query(
-    `INSERT INTO sector_debuffs (sector_id, debuff_type, magnitude_pct, source_event_id, ends_at)
-     VALUES ($1, 'mining_penalty', $2, $3, NOW() + ($4 || ' days')::interval)`,
-    [event.sector_id, -Math.abs(debuffPct), event.id, debuffDays]
-  );
-  console.log(`[worldEvents] Applied -${debuffPct}% mining debuff to sector ${event.sector_id} for ${debuffDays} days`);
+async function applyFailureDebuff() {
+  // Retired: this stored penalty had no production/mining consumer.
+  return;
 }
 
 // ═══════════════════════════════════════════════════════════════════

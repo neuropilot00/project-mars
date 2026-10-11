@@ -460,74 +460,10 @@ async function withdrawTreasury(walletAddress, amount, note = '') {
  * 동맹전/팀전 전투 생성
  * participants = [{ wallet, fleet_id, team_id, alliance_id? }]
  */
-async function createTeamBattle(params) {
-  const { participants, battle_type = 'event' } = params;
-  
-  if (!Array.isArray(participants) || participants.length < 4) {
-    throw new Error('NOT_ENOUGH_PARTICIPANTS');
-  }
-  
-  const teams = new Set(participants.map(p => p.team_id));
-  if (teams.size < 2) throw new Error('NEED_AT_LEAST_2_TEAMS');
-  
-  const client = await pool.connect();
-  try {
-    await client.query('BEGIN');
-
-    const fleetIds = participants.map(p => Number(p.fleet_id)).filter(Number.isFinite);
-    if (fleetIds.length !== participants.length) throw new Error('INVALID_FLEET');
-
-    const { rows: fleetRows } = await client.query(
-      `SELECT id, owner_wallet, is_in_battle
-         FROM fleets
-        WHERE id = ANY($1::bigint[])
-        FOR UPDATE`,
-      [fleetIds]
-    );
-    if (fleetRows.length !== fleetIds.length) throw new Error('FLEET_NOT_FOUND');
-
-    const fleetsById = new Map(fleetRows.map(row => [Number(row.id), row]));
-    for (const p of participants) {
-      const fleet = fleetsById.get(Number(p.fleet_id));
-      if (!fleet || (fleet.owner_wallet || '').toLowerCase() !== String(p.wallet || '').toLowerCase()) {
-        throw new Error('FLEET_OWNER_MISMATCH');
-      }
-      if (fleet.is_in_battle) throw new Error('FLEET_IN_BATTLE');
-    }
-    await assertFleetsNotMining(client, fleetIds, 'FLEET_MINING');
-    
-    // 전투 생성
-    const { rows: bRows } = await client.query(`
-      INSERT INTO fleet_battles (
-        battle_type, status, phase, is_team_battle, team_count,
-        prepare_started_at, scheduled_start_at
-      ) VALUES ($1, 'preparing', 'main', true, $2, NOW(), NOW())
-      RETURNING id
-    `, [battle_type, teams.size]);
-    const battleId = bRows[0].id;
-    
-    // 참가자 등록
-    for (const p of participants) {
-      // side: team_id 1 = atk, 나머지 = def로 간단 매핑
-      // (engine이 side 기준으로 처리하므로 팀이 많아도 2팀으로 집계됨)
-      // 완전한 4팀 지원하려면 battleEngine 수정 필요, 여기서는 2팀 확장 먼저
-      const side = p.team_id === 1 ? 'atk' : 'def';
-      
-      await client.query(`
-        INSERT INTO fleet_battle_participants (
-          battle_id, fleet_id, wallet_address, side, team_id, alliance_id
-        ) VALUES ($1, $2, $3, $4, $5, $6)
-      `, [battleId, p.fleet_id, p.wallet, side, p.team_id, p.alliance_id || null]);
-    }
-    
-    await client.query('COMMIT');
-    return { battle_id: battleId };
-  } catch (err) {
-    await client.query('ROLLBACK');
-    throw err;
-  } finally {
-    client.release();
-  }
+async function createTeamBattle() {
+  // No persisted multi-owner acceptance exists for this legacy entry point.
+  // Do not enroll or reserve any fleet; use fleet duel invitations instead.
+  throw new Error('TEAM_BATTLE_CONSENT_REQUIRED');
 }
 
 // ═══════════════════════════════════════════════════════════════

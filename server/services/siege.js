@@ -302,7 +302,7 @@ async function resolveSiege(siegeId, opts = {}) {
         const b = (await pool.query('SELECT status, winner_side FROM fleet_battles WHERE id = $1', [siege.fleet_battle_id])).rows[0];
         // [QA fix] 진행 중(preparing/active)만 보류. cancelled/소실은 무승부(수비자 유지)로 해결 — dead-lock 방지.
         if (b && (b.status === 'preparing' || b.status === 'active')) return { success: true, pending: true, reason: 'battle_not_ended' };
-        winnerSide = b ? b.winner_side : null; // ended → winner_side / cancelled·없음 → null(수비자 유지)
+        winnerSide = b?.status === 'ended' ? b.winner_side : null; // ended → winner_side / cancelled·없음 → null(수비자 유지)
       }
       return await resolveCommanderSiege(siegeId, { winnerSide });
     }
@@ -329,9 +329,8 @@ async function resolveSiege(siegeId, opts = {}) {
           return { success: true, pending: true, reason: 'battle_not_ended' };
         }
         if (!b || b.status === 'cancelled') {
-          // [QA fix] 전투 취소/소실 → 픽셀 폴백으로 해결 진행(섹터 dead-lock 방지). 링크/모드 리셋.
-          await client.query("UPDATE governor_sieges SET fleet_battle_id = NULL, resolution_mode = 'pixel_fallback' WHERE id = $1", [siegeId]);
-          // battleWinnerWallet 미설정 → 아래 픽셀 비교로 승자 결정
+          // A cancelled/missing battle cannot grant a political victory.
+          battleWinnerWallet = siege.defender_wallet || null;
         } else {
           battleWinnerWallet = b.winner_side === 'atk' ? siege.challenger_wallet
                              : (siege.defender_wallet || null); // ended: def/draw → 수비자 유지
@@ -342,12 +341,14 @@ async function resolveSiege(siegeId, opts = {}) {
     // ── 도전자 / 수비자 영토 수 비교 (픽셀 폴백) ──
     const [chalRes, defRes] = await Promise.all([
       client.query(
-        'SELECT COUNT(*) AS cnt FROM claims WHERE LOWER(owner) = LOWER($1) AND sector_code = $2 AND deleted_at IS NULL',
+        `SELECT COUNT(*) AS cnt FROM pixels p JOIN sector_governance sg ON sg.sector_id = p.sector_id
+         WHERE LOWER(p.owner) = LOWER($1) AND sg.sector_code = $2`,
         [siege.challenger_wallet, code]
       ),
       siege.defender_wallet
         ? client.query(
-            'SELECT COUNT(*) AS cnt FROM claims WHERE LOWER(owner) = LOWER($1) AND sector_code = $2 AND deleted_at IS NULL',
+            `SELECT COUNT(*) AS cnt FROM pixels p JOIN sector_governance sg ON sg.sector_id = p.sector_id
+         WHERE LOWER(p.owner) = LOWER($1) AND sg.sector_code = $2`,
             [siege.defender_wallet, code]
           )
         : Promise.resolve({ rows: [{ cnt: 0 }] })

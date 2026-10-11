@@ -24,6 +24,7 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
+const { requireAdmin } = require('../middleware/adminAuth');
 const { pool } = require('../db');
 
 const aiFleetManager = require('../services/aiFleetManager');
@@ -230,12 +231,13 @@ router.get('/tournaments/:id', async (req, res, next) => {
   }
 });
 
-router.post('/tournaments', requireAuth, async (req, res) => {
+router.post('/tournaments', requireAuth, requireAdmin, async (req, res) => {
   try {
     const result = await tournament.createTournament(req.body || {});
     res.json(result);
   } catch (err) {
     if (err.message === 'NAME_REQUIRED') return res.status(400).json({ error: err.message });
+    if (err.message === 'INVALID_PRIZE') return res.status(400).json({ error: err.message });
     if (err.message === 'INVALID_SIZE') return res.status(400).json({ error: err.message });
     console.error('[phaseC] tournament create error:', err);
     res.status(500).json({ error: 'SERVER_ERROR' });

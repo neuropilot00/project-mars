@@ -857,30 +857,9 @@ async function openGuildWarFight(warId, guildId){
     if(myFleets.length===0){
       showToast(t('fleet_no_combat_fleet'),'error'); return;
     }
-    // 적 함대 없음 → 자동 승리
+    // No enemy fleet is not a combat result and never awards war points.
     if(enemiesWithFleet.length===0){
-      var ok = await gameConfirm({
-        title:t('gw_auto_win_title'),icon:'🏆',
-        body:'<div style="text-align:center;padding:8px 0">'
-          +'<div style="font-size:13px;color:var(--tx);margin-bottom:8px">'+t('gw_auto_win_body')+'</div>'
-          +'<div style="font-size:11px;color:var(--gold)">'+t('gw_auto_win_pts')+'</div>'
-          +'<div style="font-size:10px;color:var(--tx3);margin-top:4px">'+t('gw_auto_win_limit')+'</div>'
-          +'</div>',
-        confirmText:t('gw_auto_win_btn')
-      });
-      if(!ok) return;
-      var r = await fetch('/api/guild/war/auto-win',{
-        method:'POST',
-        headers:{'Content-Type':'application/json',...getAuthHeaders()},
-        body:JSON.stringify({war_id:warId,guild_id:guildId,wallet:walletState.address})
-      });
-      var rd = await r.json();
-      if(!r.ok){
-        var errMap={'AUTO_WIN_COOLDOWN':t('gw_auto_win_cooldown'),'ENEMY_HAS_FLEETS':t('gw_enemy_has_fleets')};
-        showToast(errMap[rd.error]||('Error: '+rd.error),'error'); return;
-      }
-      showToast(t('gw_auto_win_toast').replace('{pts}',rd.points),'success');
-      try{ renderGuildWars(guildId); }catch(_){}
+      showToast(tl('No eligible enemy fleet. War points require an actual battle.','전투 가능한 적 함대가 없습니다. 길드전 점수에는 실제 전투가 필요합니다.','戦闘可能な敵艦隊がありません。ギルド戦ポイントには実戦が必要です。','没有可战斗的敌方舰队，公会战积分需要实际战斗。'));
       return;
     }
 
@@ -959,7 +938,7 @@ function openOpsLauncher(type){
     setTimeout(function(){
       var tab=document.getElementById('baseTabOps');
       if(tab){ switchBaseTab('ops', tab); try{clearBaseTabDot('ops')}catch(_e){} loadOpsTab(); }
-      setTimeout(function(){ if(typeof setOpsType==='function') setOpsType(type||'invasion'); }, 80);
+      setTimeout(function(){ if(typeof setOpsType==='function') setOpsType(type==='invasion'?'exploration':(type||'exploration')); }, 80);
     }, 120);
   }catch(e){ console.warn('openOpsLauncher failed', e); }
 }
@@ -967,18 +946,22 @@ function openOpsLauncher(type){
 // ══════════════════════════════════════════════════════════
 //  OPS (Missions) — launch / list / claim / canvas routes
 // ══════════════════════════════════════════════════════════
-window._opsType = 'invasion';
+window._opsType = 'exploration';
 window._opsMissions = [];
 window._opsSlotCap = 0;
 var _opsTimer = window._opsTimer = null;
 
 function setOpsType(t){
+  if(t==='invasion'){
+    showToast(tl('Timed invasions have retired. Use fleet battles for territory operations.','시간형 침공은 종료되었습니다. 영토 작전은 함대전에서 진행하세요.','時間制侵攻は終了しました。領土作戦は艦隊戦で行ってください。','计时入侵已停止，领土行动请使用舰队战。'));
+    t='exploration';
+  }
   window._opsType = t;
   var inv = document.getElementById('opsTypeInvasion');
   var exp = document.getElementById('opsTypeExplore');
   var targetW = document.getElementById('opsTargetWallet');
   var browseBtn = document.getElementById('opsBrowseTargetsBtn');
-  if(inv) inv.classList.toggle('active', t==='invasion');
+  if(inv){inv.hidden=true;inv.style.display='none';inv.disabled=true;}
   if(exp) exp.classList.toggle('active', t==='exploration');
   if(targetW) targetW.style.display = (t==='invasion') ? '' : 'none';
   if(browseBtn) browseBtn.style.display = (t==='invasion') ? '' : 'none';
@@ -1171,7 +1154,7 @@ function updateOpsLaunchPreview(){
   // For invasion, pass the target wallet so the preview can include the
   // defender-size factor in the multiplier + duration
   var tgtParam = '';
-  if((window._opsType||'invasion')==='invasion'){
+  if((window._opsType||'exploration')==='invasion'){
     var twEl = document.getElementById('opsTargetWallet');
     var tw = twEl ? (twEl.value||'').trim() : '';
     if(/^0x[a-fA-F0-9]{40}$/.test(tw)) tgtParam = '&targetWallet='+encodeURIComponent(tw.toLowerCase());
@@ -1179,7 +1162,7 @@ function updateOpsLaunchPreview(){
   _opsPreviewTimer=_setActiveTimeout(function(){
     _opsPreviewTimer=null;
     var w=walletState&&walletState.address; if(!w) return;
-    fetch('/api/missions/preview?type='+encodeURIComponent(window._opsType||'invasion')
+    fetch('/api/missions/preview?type='+encodeURIComponent(window._opsType||'exploration')
       +'&originClaimId='+encodeURIComponent(padId)
       +'&lat='+encodeURIComponent(lat)+'&lng='+encodeURIComponent(lng)+tgtParam, { headers: getAuthHeaders() })
       .then(function(r){return r.json()})
@@ -1217,6 +1200,7 @@ document.addEventListener('input', function(e){
 });
 
 function loadOpsTab(){
+  setOpsType('exploration');
   var w = walletState.address; if(!w) return;
   loadOpsPads();
   _guildReadJson('missions-active', '/api/missions/active', 10000)
@@ -1254,10 +1238,7 @@ function renderOpsMissionList(){
       ? ('VS '+(m.targetWallet||'').slice(0,8)+'...')
       : (t('ops_explore_label')+' '+m.targetLat.toFixed(1)+'°, '+m.targetLng.toFixed(1)+'°');
     var btn;
-    if(ready && m.status!=='failed'){
-      btn = '<button onclick="playMissionMinigame('+m.id+',\''+m.type+'\')" style="padding:6px 10px;border-radius:5px;background:linear-gradient(135deg,#00E676,#00C853);border:none;color:#000;font-family:var(--fn);font-size:9px;font-weight:700;cursor:pointer;margin-right:4px">🎮 '+tl('PLAY','플레이','プレイ','开玩')+'</button>'+
-        '<button onclick="claimOpsMission('+m.id+')" style="padding:6px 10px;border-radius:5px;background:linear-gradient(135deg,var(--gold),#FFA040);border:none;color:#000;font-family:var(--fn);font-size:9px;font-weight:700;cursor:pointer">'+t('ops_claim')+' (1x)</button>';
-    } else if(ready){
+    if(ready){
       btn = '<button onclick="claimOpsMission('+m.id+')" style="padding:6px 10px;border-radius:5px;background:linear-gradient(135deg,var(--gold),#FFA040);border:none;color:#000;font-family:var(--fn);font-size:9px;font-weight:700;cursor:pointer">'+t('ops_claim')+'</button>';
     } else {
       btn = '<button onclick="cancelOpsMission('+m.id+')" style="padding:4px 8px;border-radius:5px;background:rgba(255,255,255,.05);border:1px solid var(--bdr);color:var(--tx3);font-family:var(--fn);font-size:8px;cursor:pointer">'+t('ops_abort')+'</button>';
@@ -1283,6 +1264,7 @@ function _opsFormatTime(ms){
   return s+'s';
 }
 function launchOpsMission(){
+  if(window._opsType==='invasion'){setOpsType('invasion');return;}
   var w = walletState.address; if(!w){ showAlert(t('ops_connect_first')); return; }
   if(!window._opsSelectedPad){ showAlert(t('ops_pick_pad')); return; }
   var lat = parseFloat(document.getElementById('opsTargetLat').value);
@@ -1321,7 +1303,8 @@ function claimOpsMission(id){
     if(d.error){ showAlert(d.error); return; }
     var r = d.mission.reward || {};
     var parts = [];
-    if(r.pp>0) parts.push(r.pp.toFixed(3)+' PP');
+    if(r.ppAsGp>0) parts.push(r.ppAsGp.toFixed(3)+' GP');
+    else if(r.pp>0) parts.push(r.pp.toFixed(3)+' PP');
     if(r.gp>0) parts.push(r.gp+' GP');
     if(r.xp>0) parts.push(r.xp+' XP');
     if(r.item) parts.push(r.item.name);

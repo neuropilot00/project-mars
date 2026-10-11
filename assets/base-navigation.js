@@ -419,8 +419,6 @@ function _cancelQuestAuxLoads(){
 function _scheduleQuestAuxLoads(){
   _cancelQuestAuxLoads();
   [
-    'loadAchievements',
-    'loadWeeklyChallenges',
     'loadBountyBoard',
     'loadContestSection',
     'loadDuelPanel',
@@ -435,8 +433,9 @@ function _scheduleQuestAuxLoads(){
   ].forEach(function(fnName,idx){
     var id=_setActiveTimeout(function(){
       _questAuxLoadTimers=_questAuxLoadTimers.filter(function(tid){return tid!==id;});
-      var pane=document.getElementById('basePane_quests');
-      if(!pane||!pane.classList.contains('active')) return;
+      var pane=document.getElementById('basePane_records');
+      var details=document.getElementById('coreLegacyCommunity');
+      if(!pane||!pane.classList.contains('active')||!details||!details.open) return;
       var fn=window[fnName];
       if(typeof fn!=='function') return;
       try{ fn(); }catch(_e){}
@@ -471,7 +470,7 @@ function stopBaseTransientWork(nextTab){
       if(typeof _lotteryCountdownTimer!=='undefined' && _lotteryCountdownTimer){ _clearActiveInterval(_lotteryCountdownTimer); _lotteryCountdownTimer=null; }
     }catch(_e){}
   }
-  if(nextTab!=='quests'){
+  if(nextTab!=='records'){
     _cancelQuestAuxLoads();
     try{
       if(typeof _dailyTimerInterval!=='undefined' && _dailyTimerInterval){ _clearActiveInterval(_dailyTimerInterval); _dailyTimerInterval=null; }
@@ -521,7 +520,7 @@ function switchBaseTab(tab,el){
     locked.querySelector('.base-lock-help').textContent=tl('Check your level progress in Territory and available missions in Mission.','영토에서 레벨 진행도를, 임무에서 지금 가능한 과제를 확인하세요.','領土でレベルの進行状況を、任務で今できる課題を確認できます。','在领土中查看等级进度，在任务中查看当前可做的任务。','Lihat progres level di Wilayah dan tugas yang tersedia di Misi.','Xem tiến độ cấp trong Lãnh thổ và nhiệm vụ có sẵn trong Nhiệm vụ.','ดูความคืบหน้าเลเวลในดินแดน และภารกิจที่ทำได้ในเมนูภารกิจ');
     var next=locked.querySelector('button');
     next.textContent=tl('View missions','임무 확인','任務を見る','查看任务','Lihat misi','Xem nhiệm vụ','ดูภารกิจ');
-    next.onclick=function(){ switchBaseTab('quests'); };
+    next.onclick=function(){ switchBaseTab('mission'); };
     locked.classList.add('active');
     return;
   }
@@ -530,15 +529,19 @@ function switchBaseTab(tab,el){
   // Quest tracking for tab views
   if(tab==='sectors') { try{trackQuestAction('view_sectors',1)}catch(e){} if(!_newsPanelOpen){toggleNewsPanel();} try{ if(typeof loadBaseSectorList==='function') loadBaseSectorList(); }catch(e){} }
   if(tab==='rank'){try{trackQuestAction('view_leaderboard',1)}catch(e){} try{loadSeasonLeaderboard()}catch(e){}}
-  if(tab==='quests'){var w=walletState.address;if(w)loadQuests(w); _scheduleQuestAuxLoads(); }
+  if(tab==='mission'&&typeof loadCoreMission==='function') loadCoreMission();
+  if(tab==='quests'){try{loadCampaignStatus();}catch(_e){}}
+  if(tab==='records'&&typeof loadCoreRecords==='function') loadCoreRecords();
   if(tab==='mining'){ try{ _renderShipMining(); }catch(_e){} }
   if(tab==='govern') loadGovernanceData();
   if(tab==='guild') loadGuildTab();
   if(tab==='pvp') { try{loadDuelPanel()}catch(_e){} try{loadBattlePanel()}catch(_e){} try{if(typeof pvpHubSwitchTab==='function')pvpHubSwitchTab('rec');}catch(_e){} try{if(typeof kbSwitchTab==='function')kbSwitchTab('board');}catch(_e){} }
   if(tab==='fleet') { try{_loadFleetTabSummary();}catch(_e){} }
-  if(tab==='territory'){ try{loadWeeklyChallengesV2();}catch(_e){} try{loadSectorSurgeBanner();}catch(_e){} }
+  if(tab==='territory'){ try{loadWeeklyChallengesV2();}catch(_e){} try{loadSectorSurgeBanner();}catch(_e){} try{loadOpsCommandBoard();}catch(_e){} }
   try{ clearBaseTabDot(tab); }catch(_e){}
-  try{ applyGoldenPathGlow(); }catch(_e){}
+  if(typeof refreshCoreLabels==='function') refreshCoreLabels();
+  if(tab!=='mission'&&tab!=='quests'&&tab!=='records'){try{ applyGoldenPathGlow(); }catch(_e){}}else{_clearGoldenPathDecor();}
+  var baseBody=document.querySelector('#baseModal .base-body');if(baseBody)baseBody.scrollTop=0;
 }
 
 // ── [first-session] BASE 골든패스 글로우/딤 ──────────────────

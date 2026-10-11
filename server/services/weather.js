@@ -17,9 +17,9 @@ const { sendTelegramNotification } = require('./telegram');
 
 const WEATHER_TYPES = {
   sandstorm:     { miningMod: 50,  defenseMod: -30, attackMod: 0,  claimCostMod: 0,   shieldMod: 0,   icon: '🌪️', label: 'Sandstorm',     label_ko: '모래폭풍' },
-  solar_flare:   { miningMod: 100, defenseMod: 0,   attackMod: 0,  claimCostMod: 0,   shieldMod: -50, icon: '☀️', label: 'Solar Flare',    label_ko: '태양 폭발' },
+  solar_flare:   { miningMod: 100, defenseMod: 0,   attackMod: 0,  claimCostMod: 0,   shieldMod: 0, icon: '☀️', label: 'Solar Flare',    label_ko: '태양 폭발' },
   meteor_shower: { miningMod: 30,  defenseMod: 0,   attackMod: 0,  claimCostMod: 0,   shieldMod: 0,   icon: '☄️', label: 'Meteor Shower',  label_ko: '유성우' },
-  dust_devil:    { miningMod: 0,   defenseMod: 0,   attackMod: 15, claimCostMod: -20, shieldMod: 0,   icon: '🌀', label: 'Dust Devil',     label_ko: '먼지 악마' },
+  dust_devil:    { miningMod: 0,   defenseMod: 0,   attackMod: 15, claimCostMod: 0, shieldMod: 0,   icon: '🌀', label: 'Dust Devil',     label_ko: '먼지 악마' },
 };
 
 // ─── 기존 함수: 랜덤 생성 (weather_random_enabled=false면 스킵) ───
@@ -249,7 +249,11 @@ async function getActiveWeather(sectorId) {
     sectorId: r.sector_id,
     sectorName: r.sector_name,
     weatherType: r.weather_type,
-    effects: r.effects,
+    effects: {
+      miningMod: Number(r.effects?.miningMod) || 0,
+      attackMod: Number(r.effects?.attackMod) || 0,
+      defenseMod: Number(r.effects?.defenseMod) || 0,
+    },
     startsAt: r.starts_at,
     endsAt: r.ends_at,
     isStrategic: r.is_strategic,
@@ -326,10 +330,10 @@ async function cancelForecast(forecastId) {
 
 function buildDefaultDescription(weatherType, sectorName) {
   const descs = {
-    sandstorm:     `${sectorName}에 대규모 모래폭풍이 예보됩니다. Miner는 자원 채굴에 유리하지만 방어력이 약해집니다.`,
-    solar_flare:   `${sectorName}에 태양 폭발이 예보됩니다. Mining 수익이 2배가 되지만 Shield 효과가 감소합니다.`,
-    meteor_shower: `${sectorName}에 유성우가 예보됩니다. 희귀 자원 드롭률이 증가합니다.`,
-    dust_devil:    `${sectorName}에 먼지 악마가 예보됩니다. 공격 성공률 증가, 영토 구매 비용 감소.`,
+    sandstorm:     `${sectorName}에 모래폭풍이 예보됩니다. 영토 수확량 +50%, 영토 방어 확률 -30%.`,
+    solar_flare:   `${sectorName}에 태양 폭발이 예보됩니다. 이 지역 영토 수확량 +100%.`,
+    meteor_shower: `${sectorName}에 유성우가 예보됩니다. 이 지역 영토 수확량 +30%.`,
+    dust_devil:    `${sectorName}에 먼지 악마가 예보됩니다. 이 지역 영토 공격 확률 +15%.`,
   };
   return descs[weatherType] || `${sectorName}에 날씨 이벤트가 예보됩니다.`;
 }
@@ -339,8 +343,6 @@ function buildForecastMessage(def, sectorName, hoursUntil, durationHours, effect
   if (effects.miningMod)    effectLines.push(`⛏️ Mining ${effects.miningMod > 0 ? '+' : ''}${effects.miningMod}%`);
   if (effects.defenseMod)   effectLines.push(`🛡 방어 ${effects.defenseMod > 0 ? '+' : ''}${effects.defenseMod}%`);
   if (effects.attackMod)    effectLines.push(`⚔️ 공격 ${effects.attackMod > 0 ? '+' : ''}${effects.attackMod}%`);
-  if (effects.claimCostMod) effectLines.push(`💰 영토 비용 ${effects.claimCostMod > 0 ? '+' : ''}${effects.claimCostMod}%`);
-  if (effects.shieldMod)    effectLines.push(`🔮 Shield ${effects.shieldMod > 0 ? '+' : ''}${effects.shieldMod}%`);
 
   return (
     `<b>⚠️ ${def.icon} ${def.label_ko} 예보</b>\n\n` +

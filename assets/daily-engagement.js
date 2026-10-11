@@ -1264,24 +1264,25 @@ function loadRentalPanel() {
 }
 
 function renderRentalPanel(content, listings, myRentals, cfg, wallet) {
+  var salesEnabled = cfg && cfg.enabled === true;
   var tabBtns = '<div style="display:flex;gap:4px;margin-bottom:8px">'
     +'<button onclick="switchRentalTab(\'browse\')" id="rntabBrowse" style="font-size:8px;padding:3px 8px;border-radius:4px;background:rgba(129,212,250,.18);border:1px solid rgba(129,212,250,.45);color:#81d4fa;cursor:pointer;font-weight:700" data-i18n="rental_tab_browse">BROWSE</button>'
     +'<button onclick="switchRentalTab(\'my\')"     id="rntabMy"    style="font-size:8px;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--tx3);cursor:pointer" data-i18n="rental_tab_my">MY RENTALS</button>'
-    +'<button onclick="openListForRentModal()" style="margin-left:auto;font-size:8px;padding:3px 10px;border-radius:4px;background:rgba(129,212,250,.15);border:1px solid rgba(129,212,250,.35);color:#81d4fa;cursor:pointer;font-weight:700" data-i18n="rental_list_btn">+ LIST TERRITORY</button>'
+    +(salesEnabled?'<button onclick="openListForRentModal()" style="margin-left:auto;font-size:8px;padding:3px 10px;border-radius:4px;background:rgba(129,212,250,.15);border:1px solid rgba(129,212,250,.35);color:#81d4fa;cursor:pointer;font-weight:700" data-i18n="rental_list_btn">+ LIST TERRITORY</button>':'')
     +'</div>';
 
   var browseHtml = listings.length
     ? listings.map(function(l){
         var hoursLeft = l.status==='rented' && l.expires_at
           ? Math.max(0, Math.ceil((new Date(l.expires_at)-Date.now())/3600000))+'h' : '—';
-        var canRent = wallet && l.owner !== wallet.toLowerCase() && l.status==='listed';
+        var canRent = salesEnabled && wallet && l.owner !== wallet.toLowerCase() && l.status==='listed';
         return '<div style="background:rgba(129,212,250,.04);border:1px solid rgba(129,212,250,.12);border-radius:8px;padding:10px;margin-bottom:6px">'
           +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">'
             +'<div style="font-size:10px;font-weight:700;color:#81d4fa">🏘️ Claim #'+l.claim_id+' ('+l.pixel_count+' px)</div>'
             +'<span style="font-size:9px;color:'+(l.status==='listed'?'#ffb74d':'#a0e8a0')+';font-weight:700">'+l.status.toUpperCase()+'</span>'
           +'</div>'
           +'<div style="font-size:9px;color:var(--tx3);margin-bottom:4px">'+tl('Owner:','소유자:','所有者:','拥有者:')+' '+(l.owner_nick||l.owner.slice(0,10)+'…')+'</div>'
-          +'<div style="font-size:9px;color:var(--gold);margin-bottom:4px">💰 '+l.gp_per_period+' GP/'+l.period_hours+'h · +'+l.boost_pct+'% '+tl('mining boost','채굴 보너스','採掘ブースト','采矿加成')+'</div>'
+          +'<div style="font-size:9px;color:var(--gold);margin-bottom:4px">💰 '+l.gp_per_period+' GP/'+l.period_hours+'h'+(salesEnabled?' · +'+l.boost_pct+'% '+tl('mining boost','채굴 보너스','採掘ブースト','采矿加成'):'')+'</div>'
           +(l.status==='rented'?'<div style="font-size:9px;color:#888">'+tl('Rented','임대됨','レンタル中','已租用')+' · '+hoursLeft+' '+tl('left','남음','残り','剩余')+'</div>':'')
           +(canRent
             ?'<button onclick="openRentModal('+l.id+','+l.gp_per_period+','+l.period_hours+')" style="width:100%;margin-top:6px;padding:5px;font-size:9px;font-family:var(--fn);font-weight:700;background:rgba(129,212,250,.18);border:1px solid rgba(129,212,250,.45);color:#81d4fa;border-radius:5px;cursor:pointer" data-i18n="rental_rent_btn">🏘️ RENT</button>'
@@ -1309,7 +1310,7 @@ function renderRentalPanel(content, listings, myRentals, cfg, wallet) {
       }).join('')
     : '<div style="color:var(--tx3);font-size:10px;text-align:center;padding:12px" data-i18n="rental_no_my">No rental activity yet</div>';
 
-  content.innerHTML = tabBtns
+  content.innerHTML = (salesEnabled?'':'<p role="status" style="font-size:10px;color:var(--tx3);margin-bottom:8px">'+tl('New rentals are unavailable because production bonuses are not connected. Existing contracts remain in My Rentals.','생산 보너스가 연결되지 않아 신규 임대를 중단했습니다. 기존 계약은 내 임대에서 확인할 수 있습니다.','生産ボーナスが未接続のため新規レンタルを停止しています。既存契約はマイレンタルで確認できます。','生产加成尚未连接，已暂停新租赁。现有合同可在我的租赁中查看。')+'</p>')+tabBtns
     +'<div id="rentalBrowseView">'+browseHtml+'</div>'
     +'<div id="rentalMyView" style="display:none">'+myHtml+'</div>';
 }
@@ -5602,11 +5603,14 @@ function _updateBaseBtnDot(){
 }
 
 function openDailyPanel(){
-  // Open base modal to quests tab which contains daily missions
+  // Keep existing reward notifications linked to the optional records pane.
   try{
     openBaseModal();
-    var qt = document.getElementById('baseTabQuests');
-    if(qt) switchBaseTab('quests', qt);
+    var recordsTab = document.getElementById('baseTabRecords');
+    if(recordsTab) switchBaseTab('records', recordsTab);
+    var rewards = document.getElementById('coreRewardRecords');
+    if(rewards) rewards.open = true;
+    if(typeof loadCoreRecords === 'function') loadCoreRecords();
   }catch(e){
     console.error('[Daily] openDailyPanel error:', e);
   }

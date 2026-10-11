@@ -20,7 +20,10 @@ async function getSettings() {
   const m = {};
   rows.forEach(r => { m[r.key] = String(r.value); });
   return {
-    enabled:       (m.rental_enabled || 'true') === 'true',
+    // No production path consumes the advertised tenant boost yet.
+    // Keep existing contracts readable/cancellable; do not sell new unsupported rights.
+    enabled:       false,
+    unavailableReason: 'RENTAL_PRODUCTION_UNAVAILABLE',
     minGp:         parseFloat(m.rental_min_gp          || '5'),
     maxGp:         parseFloat(m.rental_max_gp          || '10000'),
     minPeriods:    parseInt(m.rental_min_periods        || '1',  10),
@@ -36,7 +39,7 @@ async function getSettings() {
 async function listForRent(owner, claimId, gpPerPeriod, periodHours, boostPct) {
   const oLower = owner.toLowerCase();
   const cfg = await getSettings();
-  if (!cfg.enabled) throw new Error('Rental market is currently disabled');
+  if (!cfg.enabled) throw new Error(cfg.unavailableReason);
   if (gpPerPeriod < cfg.minGp) throw new Error(`Minimum rent is ${cfg.minGp} GP/period`);
   if (gpPerPeriod > cfg.maxGp) throw new Error(`Maximum rent is ${cfg.maxGp} GP/period`);
   if (!cfg.periodOptions.includes(periodHours)) {
@@ -89,7 +92,7 @@ async function listForRent(owner, claimId, gpPerPeriod, periodHours, boostPct) {
 async function rentClaim(tenant, rentalId, periods) {
   const tLower = tenant.toLowerCase();
   const cfg = await getSettings();
-  if (!cfg.enabled) throw new Error('Rental market is currently disabled');
+  if (!cfg.enabled) throw new Error(cfg.unavailableReason);
   if (periods < cfg.minPeriods) throw new Error(`Minimum rental is ${cfg.minPeriods} period(s)`);
   if (periods > cfg.maxPeriods) throw new Error(`Maximum prepayment is ${cfg.maxPeriods} periods`);
 
