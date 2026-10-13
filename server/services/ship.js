@@ -111,6 +111,7 @@ async function getMyShips(walletAddress, options = {}) {
       COALESCE(s.is_market_listed, false) AS is_market_listed,
       s.shield_hp, s.shield_max,
       s.upgrade_level, s.bonus_atk, s.bonus_def, s.bonus_hp,
+      (SELECT COUNT(*) FROM ship_stat_upgrade_log sul WHERE sul.ship_id = s.id AND sul.success = true) AS successful_upgrade_count,
       COALESCE(s.bonus_speed, 0) AS bonus_speed,
       s.quality,
       s.kills_dealt, s.damage_dealt,
@@ -895,7 +896,7 @@ async function getRepairQuote(walletAddress, shipId, targetHpPct = 100, clientOv
     const { rows: shipRows } = await client.query(`
       SELECT s.id, s.fleet_id, s.current_hp, s.max_hp, s.bonus_hp,
              COALESCE(s.is_market_listed, false) AS is_market_listed,
-             st.name_ko, st.build_gp_cost
+             st.name_ko, st.build_gp_cost, st.recipe_minerals
       FROM ships s
       JOIN ship_types st ON st.code = s.ship_type_code
       WHERE s.id = $1 AND LOWER(s.owner_wallet) = LOWER($2) AND s.is_alive = true
@@ -939,13 +940,37 @@ async function getRepairQuote(walletAddress, shipId, targetHpPct = 100, clientOv
     const capPct      = parseInt(await getSetting('ship_repair_cost_cap_pct_of_build', '60')) || 60;
 
     let gpCost   = Math.ceil(healAmount * gpPerHp);
-    const ironNeed = Math.ceil((healAmount / 10) * ironPer10hp);
+    let ironNeed = Math.ceil((healAmount / 10) * ironPer10hp);
 
     // 신조 비용 대비 수리비 캡: 항상 신조보다 싸야 유의미
     const buildCost = parseInt(ship.build_gp_cost) || 0;
     if (buildCost > 0 && capPct > 0) {
       const maxRepairGp = Math.floor(buildCost * capPct / 100);
       if (gpCost > maxRepairGp) gpCost = maxRepairGp;
+    }
+    // Ordinary repair uses iron_ore. A non-ore blueprint uses its total material
+    // units as a maintenance budget (not a currency/resource conversion).
+    // Scale the ceiling by restored effective HP, including quality/upgrades.
+    const buildIron = Number(ship.recipe_minerals?.iron_ore);
+    let materialBudget = Number.isFinite(buildIron) && buildIron > 0 ? buildIron
+      : Object.values(ship.recipe_minerals || {}).reduce((sum, value) => {
+        const quantity = Number(value);
+        return sum + (Number.isFinite(quantity) && quantity > 0 ? quantity : 0);
+      }, 0);
+    if (materialBudget <= 0) {
+      // Assembly hulls have no mineral recipe/class analogue. Bound maintenance
+      // by the largest active authored recipe, rather than their huge HP pool.
+      const { rows: budgetRows } = await client.query(`
+        SELECT COALESCE(MAX((SELECT SUM(CASE WHEN jsonb_typeof(value)='number'
+          THEN GREATEST(0, value::text::numeric) ELSE 0 END)
+          FROM jsonb_each(st.recipe_minerals))), 0) AS budget
+        FROM ship_types st WHERE st.is_active=true
+      `);
+      materialBudget = Number(budgetRows[0].budget);
+    }
+    if (materialBudget > 0 && capPct > 0) {
+      const maxRepairIron = Math.max(1, Math.ceil(materialBudget * capPct / 100 * healAmount / effectiveMax));
+      ironNeed = Math.min(ironNeed, maxRepairIron);
     }
 
     return {
@@ -1201,13 +1226,10 @@ function toNum(v, fallback = 0) {
   return Number.isFinite(n) ? n : fallback;
 }
 
-function upgradePoints(ship, steps) {
-  const atk = Math.max(0, Math.floor(toNum(ship.bonus_atk) / Math.max(1, steps.atk)));
-  const def = Math.max(0, Math.floor(toNum(ship.bonus_def) / Math.max(1, steps.def)));
-  const hp = Math.max(0, Math.floor(toNum(ship.bonus_hp) / Math.max(1, steps.hp)));
-  const speedStep = Math.max(0.01, steps.speed);
-  const speed = Math.max(0, Math.floor(toNum(ship.bonus_speed) / speedStep));
-  return atk + def + hp + speed;
+function upgradePoints(ship) {
+  // Quality rolls and other granted stats share bonus_* with paid reinforcements.
+  // Count successful investments instead; logs retain older upgrades whose level may lag.
+  return Math.max(0, Math.floor(toNum(ship.upgrade_level)), Math.floor(toNum(ship.successful_upgrade_count)));
 }
 
 async function getShipUpgradeSteps(client) {
@@ -1230,7 +1252,7 @@ async function getShipUpgradeEconomy(client) {
 function calcShipUpgradeCost(ship, stat, economy) {
   const cfg = SHIP_UPGRADE_STATS[stat];
   if (!cfg) throw new Error('INVALID_STAT');
-  const points = Math.min(180, upgradePoints(ship, economy.steps));
+  const points = Math.min(180, upgradePoints(ship));
   return Math.max(1, Math.ceil(economy.base * Math.pow(economy.growth, points) * cfg.multiplier));
 }
 
@@ -1308,21 +1330,21 @@ function getUpgradeMaterialTier(upgradeLevel) {
 
 async function calcShipUpgradeOffer(client, ship, stat) {
   const economy = await getShipUpgradeEconomy(client);
-  const totalPoints = upgradePoints(ship, economy.steps);
+  const totalPoints = upgradePoints(ship);
   const baseChance = await getSettingNumber(client, 'ship_upgrade_success_base_pct', 92);
   const decay = await getSettingNumber(client, 'ship_upgrade_success_decay_pct', 1.8);
   const floor = await getSettingNumber(client, 'ship_upgrade_success_floor_pct', 35);
   const chance = Math.max(floor, Math.min(99, +(baseChance - totalPoints * decay).toFixed(2)));
 
-  // 티어 계산 — upgrade_level 기준
-  const tierIdx = getUpgradeMaterialTier(ship.upgrade_level);
+  // Material tiers follow the same successful reinforcement count as GP and chance.
+  const tierIdx = getUpgradeMaterialTier(totalPoints);
   const tierMaterials = UPGRADE_MATERIAL_TIERS[stat] || UPGRADE_MATERIAL_TIERS.atk;
   const materialCode = tierMaterials[tierIdx];
 
   // 수량: 기본 + (티어 내 5회마다 +1)
   const baseQty    = UPGRADE_MATERIAL_BASE_QTY[tierIdx];
   const growthUnit = UPGRADE_MATERIAL_GROWTH[tierIdx];
-  const lv = Math.max(0, parseInt(ship.upgrade_level) || 0);
+  const lv = totalPoints;
   const tierOffset = tierIdx === 0 ? lv : tierIdx === 1 ? lv - 5 : lv - 10;
   const materialQty = Math.max(1, baseQty + Math.floor(Math.max(0, tierOffset) / 5) * growthUnit);
 
@@ -1388,6 +1410,13 @@ async function upgradeShipStat(walletAddress, shipId, stat) {
     if (!shipRows[0]) throw new Error('SHIP_NOT_FOUND');
     const ship = shipRows[0];
     if (ship.is_market_listed) throw new Error('SHIP_LISTED_FOR_SALE');
+
+    // Read history after acquiring the ship lock so concurrent upgrades see the latest success.
+    const { rows: progressRows } = await client.query(
+      `SELECT COUNT(*) AS count FROM ship_stat_upgrade_log WHERE ship_id = $1 AND success = true`,
+      [shipId]
+    );
+    ship.successful_upgrade_count = progressRows[0].count;
 
     // (v7.374) 전투(preparing/active) 중 강화 차단 — 공유 헬퍼 사용(유령 'pending'→실제
     // 'preparing'/'active' + SAVEPOINT 격리). 전투 직전 스탯 강화로 결과를 흔드는 조작 방지.
@@ -1481,7 +1510,10 @@ async function upgradeShipStat(walletAddress, shipId, stat) {
       materials_used: materialsUsed,
     });
 
-    const nextOffer = await calcShipUpgradeOffer(pool, updatedShip, stat);
+    const nextOffer = await calcShipUpgradeOffer(pool, {
+      ...updatedShip,
+      successful_upgrade_count: toNum(ship.successful_upgrade_count) + (success ? 1 : 0),
+    }, stat);
     return {
       success: true,
       upgraded: success,

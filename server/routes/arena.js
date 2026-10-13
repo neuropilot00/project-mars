@@ -17,6 +17,17 @@ function getAuthWallet(req) {
   return (req.user?.wallet_address || req.user?.wallet || req.user?.walletAddress || '').toLowerCase().trim();
 }
 
+// Retire new stakes before configuration or ledger access. Existing rounds may
+// still start, reveal, guess and cash out so already-funded games can settle.
+const retiredStakePaths = new Set(['/crash/bet', '/mines/start', '/coinflip/play', '/dice/play', '/hilo/start']);
+router.use((req, res, next) => {
+  if (req.method !== 'POST' || !retiredStakePaths.has(req.path.toLowerCase().replace(/\/$/, ''))) return next();
+  return requireAuth(req, res, () => res.status(410).json({
+    error: 'CASINO_NEW_STAKES_RETIRED', code: 'CASINO_NEW_STAKES_RETIRED',
+    message: 'New casino stakes are retired. Existing games can still settle.', alternative: 'guild_frontier'
+  }));
+});
+
 // ── Cantina 비활성화 미들웨어 (BIBLE Migration 080) ──
 // cantina_enabled = false 이면 모든 /api/arena/* 요청에 503 반환
 router.use(async (req, res, next) => {

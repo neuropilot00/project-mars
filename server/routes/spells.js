@@ -43,7 +43,7 @@ router.post('/spells/cast', requireAuth, async (req, res) => {
   const { claimId, spellType } = req.body || {};
   if (!wallet || !claimId || !spellType) return res.status(400).json({ error: 'wallet, claimId, spellType required' });
   try { res.json(await svc.castSpell(wallet, claimId, spellType)); }
-  catch (e) { res.status(400).json({ error: e.message }); }
+  catch (e) { res.status(e.code === 'SPELL_EFFECTS_UNAVAILABLE' ? 410 : 400).json({ error: e.message, code: e.code }); }
 });
 
 module.exports = router;

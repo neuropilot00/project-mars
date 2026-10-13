@@ -1958,7 +1958,9 @@ function simulateCh4(progress) {
   const difficulty = tension ? 1.15 : 1.0;
   const effectivePower = (0.66 + (compliment ? 0.08 : 0) + (challengedLi ? 0.04 : 0) - (difficulty - 1) * 0.18);
   const successChance = clampNumber(effectivePower + (1 - roll) * 0.18, 0, 1);
-  const destroyed = Math.min(14, Math.floor(9 + successChance * 5));
+  // At strong outcomes all 14 escorts can be cleared; the previous base 9
+  // capped every available choice at 13 and made this prerequisite impossible.
+  const destroyed = Math.min(14, Math.floor(10 + successChance * 5));
   const escapes = Math.max(0, 14 - destroyed);
   const elapsed = Math.round(650 + roll * 420 + (tension ? 90 : 0));
   const lifangSurvives = successChance > 0.45;
@@ -2652,6 +2654,7 @@ function calculateHiddenChapterRewards(progress, sim) {
 
 function simulateChapter(progress) {
   if (isPrologueQuest(progress.quest_id)) return simulatePrologue(progress);
+  if (progress.quest_id === CH1_ID) return simulateCh1(progress);
   if (progress.quest_id === CH2_ID) return simulateCh2(progress);
   if (progress.quest_id === CH3_ID) return simulateCh3(progress);
   if (progress.quest_id === CH4_ID) return simulateCh4(progress);
@@ -3480,8 +3483,8 @@ function simulateCvCh10(progress) {
 function calculateCvChapterRewards(progress, sim) {
   const chNum = parseInt((progress.quest_id || '').replace('cv_campaign_ch', ''), 10) || 1;
   if (!sim.success) {
-    const nextQuestId = chNum < 9 ? `cv_campaign_ch${chNum + 1}` : null;
-    return { GP: 0, XP: 80 + chNum * 20, reputationDelta: { cv: -5 }, items: [], tags: [], loreFlags: [], masteries: [], branchModifiers: [], unlocks: nextQuestId ? [nextQuestId] : [] }; // [v7.69] BUGFIX: was `? [] : []` — CV 챕터 실패 시 다음 챕터 잠금 해제 안 됨
+    // Admission requires completed/claimed prerequisite progress; failure grants no next-chapter unlock.
+    return { GP: 0, XP: 80 + chNum * 20, reputationDelta: { cv: -5 }, items: [], tags: [], loreFlags: [], masteries: [], branchModifiers: [], unlocks: [] };
   }
   const metrics = sim.metrics || {};
   const gp = 9000 + chNum * 2500 + (metrics.raid_success_percent >= 90 ? 5000 : metrics.raid_success_percent >= 75 ? 2000 : 0);
@@ -3719,6 +3722,7 @@ async function applyClaimedInboxReward(client, wallet, reward) {
 function campaignShipRewardPlan(code, quantity) {
   const q = Math.max(1, parseInt(quantity || 1, 10) || 1);
   const single = {
+    mcc_int: ['mcc_int'],
     shard_frigate: ['mcc_frg'],
     longeye_sniper: ['mcc_snp'],
     fsp_sequoia_borrowed: ['fsp_bs'],
@@ -3807,6 +3811,7 @@ async function claimReward(wallet, rewardId) {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+    await client.query('SELECT wallet_address FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE', [w]);
     const rewardRes = await client.query(
       `SELECT id, wallet, quest_id, reward_type, reward_code, quantity, payload, created_at
        FROM campaign_reward_inbox
@@ -3872,6 +3877,21 @@ async function validateStartConditions(client, wallet, chapter, options = {}) {
   );
   const rank = parseInt(userRows.rows[0]?.rank_level || 1, 10);
   if (rank < chapter.requiredLevel) return { error: 'LEVEL_REQUIRED', requiredLevel: chapter.requiredLevel };
+
+  if (!options.skipUnlockCondition && chapter.unlockCondition === 'all_routes_ch1_complete') {
+    const requiredChapters = [CH1_ID, FSP_CH1_ID, CV_CH1_ID];
+    const completed = await client.query(
+      `SELECT quest_id FROM player_campaign_progress
+       WHERE wallet = $1 AND quest_id = ANY($2) AND status IN ('completed','claimed')`,
+      [wallet, requiredChapters]
+    );
+    const completedSet = new Set(completed.rows.map(row => row.quest_id));
+    const missingChapters = requiredChapters.filter(id => !completedSet.has(id));
+    if (missingChapters.length) return {
+      error: 'PREREQUISITE_NOT_MET', prerequisiteChapter: missingChapters[0],
+      unlockCondition: chapter.unlockCondition, requiredChapters, missingChapters,
+    };
+  }
 
   if (chapter.prerequisiteChapter) {
     const prereq = await client.query(
@@ -4093,14 +4113,27 @@ async function startChapter(wallet, questId) {
   try {
     await client.query('BEGIN');
     await ensureUser(client, w);
+    // Serialize account writes before reading progress, including concurrent first starts.
+    await client.query('SELECT wallet_address FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE', [w]);
     await ensureReputationRows(client, w);
     const existing = await client.query(
       'SELECT * FROM player_campaign_progress WHERE wallet = $1 AND quest_id = $2 FOR UPDATE',
       [w, chapter.questId]
     );
     const existingProgress = existing.rows[0] || null;
+    if (existingProgress && ['in_progress', 'completed', 'claimed'].includes(existingProgress.status)) {
+      await client.query('COMMIT');
+      const objectiveState = await getObjectiveState(w);
+      return {
+        alreadyCompleted: existingProgress.status !== 'in_progress',
+        sessionId: existingProgress.session_id,
+        chapter: publicChapter(chapter, existingProgress, objectiveState),
+        progress: formatProgress(existingProgress),
+      };
+    }
     const retryingFailedChapter = existingProgress && existingProgress.status === 'failed';
     const startError = await validateStartConditions(client, w, chapter, {
+      skipUnlockCondition: retryingFailedChapter,
       skipReputation: retryingFailedChapter,
       skipBlockingTags: retryingFailedChapter,
       skipRequiredBranchAny: retryingFailedChapter,
@@ -4109,11 +4142,7 @@ async function startChapter(wallet, questId) {
       await client.query('ROLLBACK');
       return startError;
     }
-    if (existingProgress && ['completed', 'claimed'].includes(existingProgress.status)) {
-      await client.query('COMMIT');
-      const objectiveState = await getObjectiveState(w);
-      return { alreadyCompleted: true, chapter: publicChapter(chapter, existingProgress, objectiveState), progress: formatProgress(existingProgress) };
-    }
+    const committedChoices = existingProgress ? await getCommittedChapterChoices(client, w, existingProgress) : [];
 
     const sessionId = crypto.randomBytes(16).toString('hex');
     const randomSeed = crypto.randomBytes(8).readBigInt64BE().toString();
@@ -4129,7 +4158,7 @@ async function startChapter(wallet, questId) {
        ON CONFLICT (wallet, quest_id) DO UPDATE SET
          session_id = EXCLUDED.session_id,
          status = 'in_progress',
-         choices_payload = '[]'::jsonb,
+         choices_payload = $7::jsonb,
          metrics_payload = '{}'::jsonb,
          outcome_payload = '{}'::jsonb,
          rewards_payload = '{}'::jsonb,
@@ -4140,7 +4169,7 @@ async function startChapter(wallet, questId) {
          started_at = NOW(),
          updated_at = NOW()
        RETURNING *`,
-      [w, chapter.questId, chapter.campaignId, chapter.chapterNumber, sessionId, chapter.battleResolution]
+      [w, chapter.questId, chapter.campaignId, chapter.chapterNumber, sessionId, chapter.battleResolution, JSON.stringify(committedChoices)]
     );
     await client.query(
       `INSERT INTO campaign_sessions (session_id, wallet, chapter_id, expires_at, random_seed, status)
@@ -4165,6 +4194,17 @@ async function startChapter(wallet, questId) {
   }
 }
 
+async function getCommittedChapterChoices(client, wallet, progress) {
+  if (Array.isArray(progress.choices_payload) && progress.choices_payload.length) return progress.choices_payload;
+  // Older restarts cleared the progress payload but left this durable receipt.
+  const { rows } = await client.query(
+    `SELECT choice_id, chosen_at, effects_applied FROM player_chapter_choices
+     WHERE wallet = $1 AND quest_id = $2 ORDER BY chosen_at ASC, id ASC LIMIT 1`,
+    [wallet, progress.quest_id]
+  );
+  return rows.map(row => ({ choice_id: row.choice_id, ts: row.chosen_at, effects_applied: row.effects_applied || {} }));
+}
+
 async function choose(wallet, sessionId, choiceId) {
   const w = normalizeWallet(wallet);
   const client = await pool.connect();
@@ -4172,6 +4212,7 @@ async function choose(wallet, sessionId, choiceId) {
     await client.query('BEGIN');
     // 평판 INSERT 가 첫 시도에 깨지지 않도록 행을 보장한다.
     await ensureUser(client, w);
+    await client.query('SELECT wallet_address FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE', [w]);
     await ensureReputationRows(client, w);
     const { rows } = await client.query(
       `SELECT * FROM player_campaign_progress WHERE wallet = $1 AND session_id = $2 AND status = 'in_progress' FOR UPDATE`,
@@ -4195,15 +4236,19 @@ async function choose(wallet, sessionId, choiceId) {
       await client.query('ROLLBACK');
       return { error: 'INVALID_CHOICE' };
     }
+    const existingChoices = await getCommittedChapterChoices(client, w, progress);
+    if (existingChoices.length > 0) {
+      if (!Array.isArray(progress.choices_payload) || !progress.choices_payload.length) {
+        await client.query('UPDATE player_campaign_progress SET choices_payload = $1, updated_at = NOW() WHERE id = $2', [JSON.stringify(existingChoices), progress.id]);
+        progress.choices_payload = existingChoices;
+      }
+      await client.query('COMMIT');
+      return { effectsApplied: existingChoices[0].effects_applied || {}, progress: formatProgress(progress) };
+    }
     const choiceError = await validateChapterChoice(client, w, progress, choiceId);
     if (choiceError) {
       await client.query('ROLLBACK');
       return choiceError;
-    }
-    const existingChoices = Array.isArray(progress.choices_payload) ? progress.choices_payload : [];
-    if (existingChoices.length > 0) {
-      await client.query('COMMIT');
-      return { effectsApplied: existingChoices[0].effects_applied || {}, progress: formatProgress(progress) };
     }
     const payload = [{ choice_id: choice.id, ts: new Date().toISOString(), effects_applied: choice.effects }];
     await applyReputation(client, w, choice.effects.reputationDelta || {}, 'choice', choice.id);
@@ -4362,6 +4407,7 @@ async function complete(wallet, sessionId) {
     await client.query('BEGIN');
     // ensureUser 는 트랜잭션 시작 직후 한 번 실행한다 — 보상 INSERT 의 FK 위반을 미연에 방지한다.
     await ensureUser(client, w);
+    await client.query('SELECT wallet_address FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE', [w]);
     const { rows } = await client.query(
       `SELECT * FROM player_campaign_progress WHERE wallet = $1 AND session_id = $2 AND status = 'in_progress' FOR UPDATE`,
       [w, sessionId]

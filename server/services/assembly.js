@@ -203,6 +203,9 @@ async function getState(wallet, unitCode) {
     `SELECT pulls_since_new FROM user_assembly_gacha WHERE wallet = $1 AND unit_code = $2`, [w, u.unit_code]
   );
   const pulls = parseInt(pityRows[0]?.pulls_since_new, 10) || 0;
+  const recovered = await pool.query(`SELECT 1 FROM assembly_events WHERE wallet=$1 AND unit_code=$2
+    AND action='disassemble' AND detail ? 'hull_state' AND NOT (detail ? 'reassembled_ship_id')
+    AND detail->'hull_state'->>'ship_type_code'=$3 LIMIT 1`, [w, u.unit_code, u.ship_type_code]);
 
   return Object.assign(unitNames(u), {
     unit_code: u.unit_code,
@@ -218,6 +221,7 @@ async function getState(wallet, unitCode) {
     shards,
     shard_exchange_cost: u.shard_exchange_cost,
     assemble_gp_cost: u.assemble_gp_cost,
+    pending_reassembly: recovered.rowCount > 0,
     disassemble_enabled: u.disassemble_enabled,
     gacha_enabled: u.gacha_enabled,
     gacha_price_gp: u.gacha_price_gp,
@@ -371,10 +375,21 @@ async function assemble(wallet, unitCode) {
       hp: parseInt(st[0]?.base_hp, 10) || 1,
       speed: Number(st[0]?.base_speed) || 0,
     };
-    const quality = await rollAssemblyQuality();
+    // Recovered sets retain their hull identity; dismantling is not a quality roll or repair.
+    const { rows: recoveredRows } = await client.query(
+      `SELECT id, ship_id, detail->'hull_state' AS hull_state FROM assembly_events
+       WHERE wallet=$1 AND unit_code=$2 AND action='disassemble'
+         AND detail ? 'hull_state' AND NOT (detail ? 'reassembled_ship_id')
+         AND detail->'hull_state'->>'ship_type_code'=$3
+       ORDER BY id ASC LIMIT 1 FOR UPDATE`, [w, u.unit_code, u.ship_type_code]
+    );
+    const recovered = recoveredRows[0];
+    const hullState = recovered?.hull_state;
+    const quality = hullState ? hullState.quality : await rollAssemblyQuality();
     const qualityMeta = ASSEMBLY_QUALITY[quality] || ASSEMBLY_QUALITY.common;
-    const bonus = rollAssemblyBonusStats(quality, baseStats);
-    const fullHp = baseStats.hp + (bonus.hp || 0);
+    const bonus = hullState ? hullState.bonus : rollAssemblyBonusStats(quality, baseStats);
+    const currentHp = hullState ? hullState.current_hp : baseStats.hp + (bonus.hp || 0);
+    const maxHp = hullState ? hullState.max_hp : baseStats.hp;
     const fleetId = await getOrCreateFleet(client, w);
     const { rows: flagRows } = await client.query(
       `SELECT COUNT(*) AS c FROM ships WHERE fleet_id = $1 AND is_flagship = true AND is_alive = true`, [fleetId]
@@ -382,17 +397,22 @@ async function assemble(wallet, unitCode) {
     const isFlagship = parseInt(flagRows[0]?.c || 0, 10) === 0 && !!st[0]?.is_flagship_capable;
     const { rows: shipRows } = await client.query(
       `INSERT INTO ships (fleet_id, ship_type_code, owner_wallet, current_hp, max_hp, is_flagship, is_alive, built_at, built_by_wallet,
-                          quality, bonus_atk, bonus_def, bonus_hp, bonus_speed)
-       VALUES ($1, $2, $3, $4, $5, $6, true, NOW(), $3, $7, $8, $9, $10, $11) RETURNING id`,
+                          quality, bonus_atk, bonus_def, bonus_hp, bonus_speed, upgrade_level, shield_hp, shield_max)
+       VALUES ($1, $2, $3, $4, $5, $6, true, NOW(), $3, $7, $8, $9, $10, $11, $12, $13, $14) RETURNING id`,
       [
-        fleetId, u.ship_type_code, w, fullHp, baseStats.hp, isFlagship,
+        fleetId, u.ship_type_code, w, currentHp, maxHp, isFlagship,
         quality, bonus.atk, bonus.def, bonus.hp, bonus.speed,
+        hullState?.upgrade_level || 0, hullState?.shield_hp || 0, hullState?.shield_max || 0,
       ]
     );
     const shipId = shipRows[0].id;
+    if (recovered) {
+      await client.query(`UPDATE assembly_events SET detail=detail || jsonb_build_object('reassembled_ship_id',$1::text)
+        WHERE id=$2`, [String(shipId), recovered.id]);
+    }
     await client.query(
       `INSERT INTO assembly_events (wallet, unit_code, action, ship_id, detail) VALUES ($1, $2, 'assemble', $3, $4)`,
-      [w, u.unit_code, shipId, JSON.stringify({ gpCost, parts: partRows.map(p => p.part_code), quality, quality_mult: qualityMeta.mult, bonus })]
+      [w, u.unit_code, shipId, JSON.stringify({ gpCost, parts: partRows.map(p => p.part_code), quality, quality_mult: qualityMeta.mult, bonus, source_ship_id: recovered ? String(recovered.ship_id) : null, source_event_id: recovered ? String(recovered.id) : null })]
     );
     await client.query('COMMIT');
     try {
@@ -404,6 +424,13 @@ async function assemble(wallet, unitCode) {
       unit_code: u.unit_code,
       ship_id: String(shipId),
       is_flagship: isFlagship,
+      reassembled: !!recovered,
+      source_ship_id: recovered ? String(recovered.ship_id) : null,
+      current_hp: currentHp,
+      max_hp: maxHp,
+      upgrade_level: hullState?.upgrade_level || 0,
+      shield_hp: hullState?.shield_hp || 0,
+      shield_max: hullState?.shield_max || 0,
       quality,
       quality_mult: qualityMeta.mult,
       quality_stars: qualityMeta.stars || 0,
@@ -437,7 +464,9 @@ async function disassemble(shipId, wallet) {
       await assertFleetsNotMining(client, [initial.rows[0].fleet_id]);
     }
     const { rows: shipRows } = await client.query(
-      `SELECT id, fleet_id, ship_type_code, owner_wallet, is_market_listed, is_alive, current_hp, destroyed_at FROM ships WHERE id = $1 FOR UPDATE`, [sid]
+      `SELECT id, fleet_id, ship_type_code, owner_wallet, is_market_listed, is_alive, current_hp, destroyed_at,
+              max_hp, quality, bonus_atk, bonus_def, bonus_hp, bonus_speed, upgrade_level, shield_hp, shield_max
+       FROM ships WHERE id = $1 FOR UPDATE`, [sid]
     );
     const ship = shipRows[0];
     if (!ship) { await client.query('ROLLBACK'); return { error: 'SHIP_NOT_FOUND' }; }
@@ -447,6 +476,14 @@ async function disassemble(shipId, wallet) {
     if (ship.is_market_listed) { await client.query('ROLLBACK'); return { error: 'SHIP_LISTED_FOR_SALE' }; }
     const starter = await client.query('SELECT 1 FROM starter_fleet_grant_ships WHERE ship_id=$1', [sid]);
     if (starter.rowCount) { await client.query('ROLLBACK'); return { error: 'STARTER_HULL_LOCKED' }; }
+    const fittings = await client.query('SELECT id FROM ship_part_cards WHERE ship_id=$1 LIMIT 1 FOR UPDATE', [sid]);
+    if (fittings.rowCount) { await client.query('ROLLBACK'); return { error: 'PARTS_EQUIPPED' }; }
+    // Older paid upgrades can predate the level counter. Carry their progress to
+    // the replacement hull, whose new ID will not have the source upgrade logs.
+    const { rows: progressRows } = await client.query(
+      'SELECT COUNT(*) AS count FROM ship_stat_upgrade_log WHERE ship_id=$1 AND success=true', [sid]
+    );
+    const upgradeLevel = Math.max(Number(ship.upgrade_level || 0), Number(progressRows[0].count));
 
     // 이 함선이 어떤 합체 유닛인지
     const { rows: unitRows } = await client.query(`SELECT unit_code, disassemble_enabled FROM assembly_units WHERE ship_type_code = $1`, [ship.ship_type_code]);
@@ -467,7 +504,11 @@ async function disassemble(shipId, wallet) {
     await client.query(`UPDATE ships SET is_alive=false,current_hp=0,destroyed_at=NOW(),destroyed_reason='scrapped' WHERE id=$1`, [sid]);
     await client.query(
       `INSERT INTO assembly_events (wallet, unit_code, action, ship_id, detail) VALUES ($1, $2, 'disassemble', $3, $4)`,
-      [w, unitCode, sid, JSON.stringify({ parts_returned: partRows.map(p => p.part_code) })]
+      [w, unitCode, sid, JSON.stringify({ parts_returned: partRows.map(p => p.part_code), hull_state: {
+        ship_type_code: ship.ship_type_code, quality: ship.quality || 'common', current_hp: Number(ship.current_hp), max_hp: Number(ship.max_hp),
+        bonus: { atk: Number(ship.bonus_atk || 0), def: Number(ship.bonus_def || 0), hp: Number(ship.bonus_hp || 0), speed: Number(ship.bonus_speed || 0) },
+        upgrade_level: upgradeLevel, shield_hp: Number(ship.shield_hp || 0), shield_max: Number(ship.shield_max || 0),
+      } })]
     );
     await client.query('COMMIT');
     return { success: true, unit_code: unitCode, parts_returned: partRows.map(p => p.part_code) };

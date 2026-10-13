@@ -508,7 +508,7 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
             <div class="mines-info-row"><span class="mines-info-label">HOUSE EDGE</span><span class="mines-info-val" style="color:var(--tx2)">2%</span></div>
           </div>
           <div class="divider"></div>
-          <button class="btn-mines start" id="cfPlayBtn" onclick="playCoinflip()">PLAY</button>
+          <button class="btn-mines start" id="cfPlayBtn" disabled onclick="playCoinflip()">PLAY</button>
           <div class="divider"></div>
           <div style="font-size:var(--fs-xs);color:var(--tx3);letter-spacing:1px">HISTORY</div>
           <div class="cg-history" id="cfHistory"></div>
@@ -564,7 +564,7 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
             <div class="mines-info-row"><span class="mines-info-label">HOUSE EDGE</span><span class="mines-info-val" style="color:var(--tx2)">2%</span></div>
           </div>
           <div class="divider"></div>
-          <button class="btn-mines start" id="dicePlayBtn" onclick="playDice()">ROLL</button>
+          <button class="btn-mines start" id="dicePlayBtn" disabled onclick="playDice()">ROLL</button>
           <div class="divider"></div>
           <div style="font-size:var(--fs-xs);color:var(--tx3);letter-spacing:1px">HISTORY</div>
           <div class="cg-history" id="diceHistory"></div>
@@ -622,7 +622,7 @@ html,body{width:100%;height:100%;background:var(--bg);overflow:hidden;font-famil
             <div class="mines-info-row"><span class="mines-info-label">CARDS DRAWN</span><span class="mines-info-val" id="hiloCardsDrawn">0</span></div>
           </div>
           <div class="divider"></div>
-          <button class="btn-mines start" id="hiloStartBtn" onclick="startHilo()">START SURVEY</button>
+          <button class="btn-mines start" id="hiloStartBtn" disabled onclick="startHilo()">START SURVEY</button>
           <button class="btn-mines cashout" id="hiloCashBtn" onclick="hiloCashout()" style="display:none">CASHOUT</button>
           <div class="divider"></div>
           <div style="font-size:var(--fs-xs);color:var(--tx3);letter-spacing:1px">HOUSE EDGE: 2%</div>
@@ -976,9 +976,9 @@ function updateCrashBtn() {
     btn.onclick = null;
   } else {
     btn.className = 'btn-bet place';
-    btn.textContent = 'PLACE BET';
-    btn.disabled = !wallet;
-    btn.onclick = placeCrashBet;
+    btn.textContent = 'NEW GAMES RETIRED';
+    btn.disabled = true;
+    btn.onclick = null;
   }
 }
 
@@ -1006,6 +1006,7 @@ function qCrash(v) { document.getElementById('crashBetInput').value = v; }
 
 // ── API calls ──
 async function placeCrashBet() {
+  return toast('New stakes are retired. Existing games can still settle.', true);
   if (!wallet) return toast('Connect wallet first', true);
   if (crashState !== 'waiting') return toast('Wait for next round', true);
   const amount = parseFloat(document.getElementById('crashBetInput').value);
@@ -1267,8 +1268,8 @@ function updateMinesInfo() {
     btn.disabled = minesRevealed.length === 0;
   } else {
     btn.className = 'btn-mines start';
-    btn.textContent = 'START GAME';
-    btn.disabled = !wallet;
+    btn.textContent = 'NEW GAMES RETIRED';
+    btn.disabled = true;
   }
 }
 
@@ -1281,6 +1282,7 @@ function minesAction() {
 }
 
 async function startMines() {
+  return toast('New stakes are retired. Existing games can still settle.', true);
   if (!wallet) return toast('Connect wallet first', true);
   const amount = parseFloat(document.getElementById('minesBetInput').value);
   if (!amount || amount <= 0) return toast('Enter bet amount', true);
@@ -1593,6 +1595,7 @@ function setCfCur(cur) {
 function qCf(v) { document.getElementById('cfBetInput').value = v; }
 
 async function playCoinflip() {
+  return toast('New stakes are retired. Existing games can still settle.', true);
   if (!wallet) return toast('Connect wallet first', true);
   if (!cfChoice) return toast('Choose SURVIVE or PERISH', true);
   const amount = parseFloat(document.getElementById('cfBetInput').value);
@@ -1682,6 +1685,7 @@ function updateDiceSlider() {
 }
 
 async function playDice() {
+  return toast('New stakes are retired. Existing games can still settle.', true);
   if (!wallet) return toast('Connect wallet first', true);
   const amount = parseFloat(document.getElementById('diceBetInput').value);
   if (!amount || amount <= 0) return toast('Enter bet amount', true);
@@ -1781,13 +1785,15 @@ function updateHiloUI() {
   } else {
     startBtn.style.display = '';
     cashBtn.style.display = 'none';
-    startBtn.disabled = !wallet;
+    startBtn.disabled = true;
+    startBtn.textContent = 'NEW GAMES RETIRED';
     highBtn.disabled = true;
     lowBtn.disabled = true;
   }
 }
 
 async function startHilo() {
+  return toast('New stakes are retired. Existing games can still settle.', true);
   if (!wallet) return toast('Connect wallet first', true);
   const amount = parseFloat(document.getElementById('hiloBetInput').value);
   if (!amount || amount <= 0) return toast('Enter bet amount', true);

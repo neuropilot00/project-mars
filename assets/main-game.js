@@ -517,6 +517,9 @@ function setLang(lang){
   });
   _syncProfileLangBtns();
   applyI18n();
+  try{ if(typeof refreshCoreLabels==='function') refreshCoreLabels(); }catch(_e){}
+  try{ if(typeof refreshCommandCenterLocale==='function') refreshCommandCenterLocale(); }catch(_e){}
+  try{ if(typeof refreshShipCardWorkshopLocale==='function') refreshShipCardWorkshopLocale(); }catch(_e){}
   // Re-render JS-driven tab content so dynamically-built text updates
   try{ if(typeof loadGuildTab==='function' && _myGuildData) loadGuildTab(); }catch(_e){}
   try{ if(typeof showSeasonGuide==='function' && _seasonData) showSeasonGuide(_seasonData); }catch(_e){}

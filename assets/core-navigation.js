@@ -17,7 +17,7 @@
     fleet_ready: ['Repair or inspect the fleet', '전력 정비 또는 점검'],
     node_defended: ['Save the defense formation', '방어 편성 저장']
   };
-  function label(en, ko) { return typeof tl === 'function' ? tl(en, ko, en, en, en, en, en) : en; }
+  function label(en, ko) { return typeof gameUiText === 'function' ? gameUiText(en, ko) : typeof tl === 'function' ? tl(en, ko) : en; }
   function identity() {
     var wallet = window.walletState && window.walletState.address || '';
     return String(wallet).toLowerCase() + '|' + (localStorage.getItem('pw_token') || '');

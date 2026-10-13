@@ -98,7 +98,7 @@ function renderQuests(quests, container){
   container.innerHTML=html;
   // Update quest dot when any quest is claimable
   var hasClaimableQuest = quests.some(function(q){ return q.status==='completed'; });
-  if(hasClaimableQuest) { setBaseTabDot('quests', true); _updateBaseBtnDot(); }
+  if(hasClaimableQuest) { setBaseTabDot('records', true); _updateBaseBtnDot(); }
 }
 
 function renderClaimedQuests(claimed, container){

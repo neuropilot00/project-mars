@@ -414,8 +414,8 @@
   .fleetcmd-modal { min-height: 0; max-height: calc(100dvh - 20px); }
   .fleetcmd-header { flex-shrink: 0; gap: 8px; padding: 10px 12px; }
   .fleetcmd-title { min-width: 0; overflow-wrap: anywhere; }
-  #fleetCmdModal .fleetcmd-body { min-height: 0; min-width: 0; grid-template-columns: minmax(0,1fr); padding: 12px; }
-  .fleet-list { max-height: 30dvh; overflow-y: auto; border-right: 0; padding-right: 0; }
+  #fleetCmdModal .fleetcmd-body { min-height: 0; min-width: 0; grid-template-columns: minmax(0,1fr); grid-auto-rows: max-content; align-content: start; padding: 12px; }
+  #fleetCmdModal .fleet-list { max-height: 30dvh; overflow-y: auto; border-right: 0; padding-right: 0; }
   .fleet-detail,.tactics-group { min-width: 0; }
   .fleet-detail-header,.fleet-ships-header,.fs-selected-panel { flex-wrap: wrap; gap: 8px; }
   .fleet-detail-name { flex: 1 1 160px; min-width: 0; overflow-wrap: anywhere; }

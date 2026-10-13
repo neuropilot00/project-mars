@@ -55,10 +55,10 @@ function _checkGuildNewMember(guildId, wallet){
         try{
           if(typeof showToast==='function'){
             showToast('🎉 '+tl(
-              'Welcome to the guild! Join your first guild battle.',
-              '길드 입단 환영! 첫 길드전에 참여해보세요.',
-              'ギルド加入おめでとう!初のギルド戦に参加しよう。',
-              '欢迎加入公会!参与你的首场公会战吧。'
+              'Welcome to the guild! Produce, deliver and repair on your shared front.',
+              '길드 입단 환영! 공동 전선에서 생산·운송·정비에 참여하세요.',
+              'ギルドへようこそ！共同前線で生産・輸送・整備に参加しましょう。',
+              '欢迎加入公会！在共同前线参与生产、运输与维修。'
             ),'success');
           }
         }catch(_){}
@@ -79,11 +79,11 @@ function _renderGuildWelcomeBanner(isNew, guildId){
   }
   el.style.display='';
   var title=tl('Welcome aboard, recruit!','신규 단원 환영합니다!','新メンバーようこそ!','欢迎新成员!');
-  var body=tl('Jump into your first guild battle to start contributing.',
-    '첫 길드전에 참여해 길드에 기여를 시작하세요.',
-    '初のギルド戦に参加して貢献を始めましょう。',
-    '参与你的首场公会战,开始为公会贡献。');
-  var cta=tl('Join first guild battle','첫 길드전 참여','初のギルド戦に参加','参与首场公会战');
+  var body=tl('Collect production, escort cargo and repair your fleets using shared depots.',
+    '공동 창고를 사용해 생산품 수령·화물 호위·함대 정비에 참여하세요.',
+    '共同倉庫を使い生産品回収・貨物護衛・艦隊整備に参加しましょう。',
+    '使用共同仓库收取产出、护送货物并维修舰队。');
+  var cta=tl('Open shared front','공동 전선 열기','共同前線を開く','打开共同前线');
   el.innerHTML='<div style="display:flex;align-items:center;gap:8px;background:linear-gradient(135deg,rgba(91,184,232,.14),rgba(91,184,232,.04));border:1px solid rgba(91,184,232,.32);border-radius:6px;padding:8px 10px">'
     +'<span style="font-size:16px">🎉</span>'
     +'<div style="flex:1;min-width:0">'
@@ -104,23 +104,19 @@ function _renderGuildWelcomeBanner(isNew, guildId){
   }
 }
 
-// Navigate to the PVP / Battle Hub flow so the new member can play their
-// first guild battle (mirrors the campaign fleet_battle objective routing).
+// Guild contribution starts on the shared production / cargo / repair front.
+// Existing PvP and Battle Hub entries remain in their own panels.
 function _guildGotoFirstBattle(){
-  try{
-    if(typeof switchBaseTab==='function'){
-      switchBaseTab('pvp', document.getElementById('baseTabPvp'));
-    }
-  }catch(_){}
-  try{
-    if(typeof openBattleHub==='function'){ openBattleHub(); return; }
-  }catch(_){}
+  if(typeof openCommandCenter==='function'){
+    openCommandCenter('front');
+    return;
+  }
   if(typeof showToast==='function'){
     showToast(tl(
-      'Open Battle Hub and start your first guild battle.',
-      '배틀 허브를 열어 첫 길드전을 시작하세요.',
-      'バトルハブを開いて初のギルド戦を始めましょう。',
-      '打开战斗中心,开始你的首场公会战。'
+      'Open Operations → Front production and cargo to contribute.',
+      '작전 → 전선 생산·운송에서 길드 기여를 시작하세요.',
+      '作戦 → 前線の生産・輸送でギルドに貢献しましょう。',
+      '打开行动 → 前线生产与运输，开始为公会贡献。'
     ),'info');
   }
 }

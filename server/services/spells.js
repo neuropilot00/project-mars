@@ -29,7 +29,8 @@ async function getCfg() {
   const m = {};
   res.rows.forEach(r => { m[r.key] = r.value; });
   return {
-    enabled:         String(m.spell_enabled ?? 'true') === 'true',
+    enabled:         false,
+    retiredReason:   'SPELL_EFFECTS_UNAVAILABLE',
     durationH:       parseInt(m.spell_duration_h || '2', 10),
     maxPerTarget:    parseInt(m.spell_max_per_target || '1', 10),
     selfCastAllowed: (m.spell_self_cast_allowed || 'true') === 'true',
@@ -50,6 +51,10 @@ function getSpellInfo() {
 }
 
 async function castSpell(wallet, claimId, spellType) {
+  // No production/defense/shield consumer exists for these purchased effects.
+  // Preserve historical records; do not charge for a new unfulfilled effect.
+  throw Object.assign(new Error('SPELL_EFFECTS_UNAVAILABLE'), { code: 'SPELL_EFFECTS_UNAVAILABLE' });
+
   const spell = SPELLS[spellType];
   if (!spell) throw new Error(`Unknown spell: ${spellType}`);
   const cfg = await getCfg();

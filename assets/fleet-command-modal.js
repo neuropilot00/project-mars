@@ -26,11 +26,11 @@ function openFleetCmd() {
   if (!isLoggedIn()) { showFactionToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'),'error'); return; }
   // Update i18n text for static HTML spans
   var subtitle = document.getElementById('fleetCmdSubtitle');
-  if (subtitle) subtitle.textContent = LANG==='ko'?'함대 지휘':LANG==='ja'?'艦隊指揮':LANG==='zh'?'舰队指挥':'Command';
+  if (subtitle) subtitle.textContent = t('fleet_cmd_subtitle');
   var newBtn = document.getElementById('fleetCmdNewBtn');
-  if (newBtn) newBtn.textContent = LANG==='ko'?'새 함대':LANG==='ja'?'新艦隊':LANG==='zh'?'新建舰队':'New Fleet';
+  if (newBtn) newBtn.textContent = t('fleet_cmd_new');
   var hint = document.getElementById('fleetCmdSelectHint');
-  if (hint) hint.textContent = LANG==='ko'?'함대를 선택하세요':LANG==='ja'?'艦隊を選択してください':LANG==='zh'?'请选择舰队':'Select a fleet';
+  if (hint) hint.textContent = t('fleet_cmd_select');
   document.getElementById('fleetCmdModal').classList.add('active');
   loadFleetOptions().then(function(){ refreshFleetList(); });
 }

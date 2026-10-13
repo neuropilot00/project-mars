@@ -5577,9 +5577,10 @@ function updateDailyHudDot(){
       });
     }
   }
-  // QUESTS tab dot inside BASE modal
-  var questsDot = document.getElementById('questsDot');
-  if(questsDot) questsDot.style.display = hasClaimable ? 'block' : 'none';
+  // Existing quest and daily claims live in Records; campaign has its own dot.
+  var questClaims = typeof _pollDotState !== 'undefined' && Number(_pollDotState.quests_claimable) > 0;
+  var recordsDot = document.getElementById('recordsDot');
+  if(recordsDot) recordsDot.style.display = hasClaimable || questClaims ? 'block' : 'none';
   // Update main BASE button dot — shows if ANY tab has a dot active
   _updateBaseBtnDot();
 }
@@ -5587,7 +5588,7 @@ function _updateBaseBtnDot(){
   var anyDot = false;
   // [v7.189 fix] 누락된 economy/fleet/mission 신규 카테고리 추가 — 이전엔 marketDot/itemsDot 등 켜져도
   //   상단 OPEN BASE 버튼이 안 빛나 sub-tab 알림을 놓치는 문제.
-  var dotIds = ['territoryDot','sectorsDot','rankDot','miningDot','questsDot','guildDot','opsDot','governDot',
+  var dotIds = ['territoryDot','sectorsDot','rankDot','miningDot','questsDot','recordsDot','guildDot','opsDot','governDot',
                 'shopDot','marketDot','itemsDot','pvpDot','transportDot','fleetDot'];
   dotIds.forEach(function(id){
     var el = document.getElementById(id);

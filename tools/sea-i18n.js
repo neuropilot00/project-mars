@@ -10,7 +10,7 @@
  *   ⚠️ assets/i18n-sea.js 는 이 도구의 산출물이다 — 수동 편집 금지.
  *
  * 새 tl()/data-i18n 문자열을 추가하면 재생성 전까지 en 폴백된다. 사용법:
- *   node tools/sea-i18n.js check              # 현재 커버리지/누수 리포트 (미커버 있으면 exit 1 — CI용)
+ *   node tools/sea-i18n.js check              # 미커버/영문 누수/토큰 불일치 있으면 exit 1 — CI용
  *   node tools/sea-i18n.js extract [outdir]   # 미커버(신규) 문자열만 청크로 추출 → 번역 대상
  *   node tools/sea-i18n.js assemble [dir]     # dir 의 out-*.json + 기존 번역 병합 → i18n-sea.js 재작성
  *
@@ -24,7 +24,8 @@ const ROOT = path.resolve(__dirname, '..');
 const SEA_FILE = path.join(ROOT, 'assets', 'i18n-sea.js');
 const CHUNK = 90;
 // 번역 불필요(브랜드/통화/약어) — TL_SEA 조회 시 en 그대로여도 정상인 토큰
-const SKIP_LEAK = new Set(['GP', 'PP', 'USDT', 'HP', 'XP', 'PvP', 'AI', 'VIP', 'POI', 'APY', 'NFT', 'ID', 'OK', 'OFF', 'ON', 'MAX']);
+const SKIP_LEAK = new Set(['GP', 'PP', 'USDT', 'HP', 'XP', 'PvP', 'AI', 'VIP', 'POI', 'APY', 'NFT', 'ID', 'OK', 'OFF', 'ON', 'MAX',
+  'GP!', '💫 VIP']); // Currency-only fragment and decorated membership acronym contain no translatable prose.
 
 function unesc(s) { return s.replace(/\\'/g, "'").replace(/\\"/g, '"').replace(/\\\\/g, '\\'); }
 function hasAlpha(s) { return /[A-Za-z]{2,}/.test(s); }
@@ -34,27 +35,28 @@ function collectTargets() {
   const items = []; // {t:'tl'|'key', k, en}
   const seenTl = new Set();
   // 1) tl() 1st arg
-  const patTl = /tl\(\s*'((?:[^'\\]|\\.)*)'/g;
+  const patTl = /\btl\(\s*(['"])((?:\\.|(?!\1)[^\\])*)\1/g;
   for (const f of fs.readdirSync(path.join(ROOT, 'assets')).filter(f => f.endsWith('.js'))) {
     const src = fs.readFileSync(path.join(ROOT, 'assets', f), 'utf8');
     let m;
     while ((m = patTl.exec(src))) {
-      const en = unesc(m[1]);
+      const en = require('vm').runInNewContext(m[1] + m[2] + m[1]);
       if (hasAlpha(en) && !seenTl.has(en)) { seenTl.add(en); items.push({ t: 'tl', k: en, en }); }
     }
   }
   // 2) index.html data-i18n 키 → I18N.en 값
   const i18n = fs.readFileSync(path.join(ROOT, 'assets', 'i18n.js'), 'utf8');
-  const enStart = i18n.indexOf('en:');
-  const koStart = i18n.search(/\bko\s*:\s*\{/);
-  const enBlock = i18n.slice(enStart, koStart);
-  const kv = {};
-  const patKv = /([a-z_][a-z0-9_]*)\s*:\s*'((?:[^'\\]|\\.)*)'/g;
-  let mk;
-  while ((mk = patKv.exec(enBlock))) kv[mk[1]] = unesc(mk[2]);
+  // Read the actual English dictionary, including later explicit label overrides.
+  const sandbox = { window: {}, localStorage: { getItem: () => 'en' } };
+  require('vm').runInNewContext(i18n, sandbox);
+  const kv = sandbox.I18N.en;
   const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
-  const keys = [...new Set([...html.matchAll(/data-i18n="([a-z_]+)"/g)].map(x => x[1]))].sort();
-  for (const k of keys) { const v = kv[k]; if (v && hasAlpha(v)) items.push({ t: 'key', k, en: v }); }
+  const keys = [...new Set([...html.matchAll(/data-i18n="([a-z_][a-z0-9_]*)"/g)].map(x => x[1]))].sort();
+  for (const k of keys) {
+    const v = kv[k];
+    if (v == null) items.push({ t: 'key', k, en: k, missingEnglish: true });
+    else if (v && hasAlpha(v)) items.push({ t: 'key', k, en: v });
+  }
   return items;
 }
 
@@ -70,34 +72,43 @@ function loadExisting() {
 }
 
 function tokens(s) { return (s.match(/\{[a-zA-Z0-9_]+\}/g) || []).sort(); }
-function ltCount(s) { return (s.match(/</g) || []).length; }
+function htmlTags(s) { return s.match(/<[^>]+>/g) || []; }
 
 // ── check ──────────────────────────────────────────────────────
-function check() {
-  const items = collectTargets();
-  const ex = loadExisting();
-  let missing = [], leak = 0, tokBad = 0;
+function audit(items, ex) {
+  const missing = [], leaks = [], tokenFailures = [];
   for (const it of items) {
+    if (it.missingEnglish) { missing.push(it); continue; }
     const tr = it.t === 'tl' ? ex.TL_SEA[it.k] : { id: ex.id[it.k], vi: ex.vi[it.k], th: ex.th[it.k] };
     const covered = tr && ['id', 'vi', 'th'].every(L => tr[L] != null && tr[L] !== '');
     if (!covered) { missing.push(it); continue; }
     for (const L of ['id', 'vi', 'th']) {
       const v = tr[L];
-      if (v === it.en && hasAlpha(it.en) && !SKIP_LEAK.has(it.en.trim())) leak++;
-      if (tokens(v).join('|') !== tokens(it.en).join('|') || ltCount(v) !== ltCount(it.en)) tokBad++;
+      if (v === it.en && hasAlpha(it.en) && !SKIP_LEAK.has(it.en.trim())) leaks.push({ ...it, lang: L });
+      if (tokens(v).join('|') !== tokens(it.en).join('|') || htmlTags(v).join('|') !== htmlTags(it.en).join('|')) tokenFailures.push({ ...it, lang: L });
     }
   }
+  return { items, ex, missing, leaks, tokenFailures };
+}
+function check(targetItems = collectTargets(), existing = loadExisting()) {
+  const result = audit(targetItems, existing);
+  const { items, missing, leaks, tokenFailures } = result;
   const total = items.length, cov = total - missing.length;
   console.log(`[SEA i18n] 대상 ${total} | 커버 ${cov} (${(cov / total * 100).toFixed(1)}%) | 미커버 ${missing.length}`);
-  console.log(`  영문 누수(id/vi/th==en): ${leak} | 토큰(플레이스홀더+태그수) 불일치: ${tokBad}`);
+  console.log(`  영문 누수(id/vi/th==en): ${leaks.length} | 토큰(플레이스홀더+HTML 태그) 불일치: ${tokenFailures.length}`);
   if (missing.length) {
     console.log('  미커버 샘플:');
     for (const it of missing.slice(0, 10)) console.log(`    [${it.t}] ${JSON.stringify(it.en).slice(0, 70)}`);
-    process.exitCode = 1;
-  } else {
+  }
+  if (leaks.length || tokenFailures.length) {
+    for (const it of leaks.slice(0, 5)) console.log(`  영문 누수 [${it.lang}]: ${JSON.stringify(it.en)}`);
+    for (const it of tokenFailures.slice(0, 5)) console.log(`  토큰 불일치 [${it.lang}]: ${JSON.stringify(it.en)}`);
+  }
+  if (missing.length || leaks.length || tokenFailures.length) process.exitCode = 1;
+  else {
     console.log('  ✅ 전체 커버 (신규 문자열 없음)');
   }
-  return { items, ex, missing };
+  return result;
 }
 
 // ── extract (미커버만) ─────────────────────────────────────────
@@ -150,12 +161,15 @@ function assemble(dir) {
   console.log(`재작성: assets/i18n-sea.js | TL_SEA ${Object.keys(TL_SEA).length} | keys ${Object.keys(K.id).length} | out 청크에서 +${added}`);
 }
 
+if (require.main === module) {
 const mode = process.argv[2];
 if (mode === 'check') check();
 else if (mode === 'extract') extract(process.argv[3]);
 else if (mode === 'assemble') assemble(process.argv[3]);
 else if (mode === 'repair') repairSea();
 else { console.log('usage: node tools/sea-i18n.js <check|extract|assemble|repair> [dir]'); process.exit(2); }
+}
+module.exports = { audit, check, collectTargets, loadExisting, tokens, htmlTags };
 
 // ── repair: 값 내 불완전 mojibake 복구 (v7.473) ─────────────────
 // 번역 파이프라인에서 C1 제어문자가 소실돼 lone 'ð '/'â ' 잔해만 남은 경우 라운드트립 복구가 불가능하다.

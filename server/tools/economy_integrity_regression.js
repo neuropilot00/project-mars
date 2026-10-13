@@ -9,7 +9,7 @@ if (!['localhost', '127.0.0.1'].includes(url.hostname) || url.pathname !== '/cod
 const schema = 'economy_qa_' + crypto.randomBytes(6).toString('hex');
 const admin = new Pool({ connectionString: url.href });
 const pool = new Pool({ connectionString: url.href, options: '-c search_path=' + schema + ',public', application_name: schema, max: 10 });
-const tables = ['users','fleets','ships','ship_types','assembly_units','assembly_parts','user_assembly_parts','assembly_events','starter_fleet_grant_ships','fleet_battle_participants','fleet_battles','ship_mining_jobs','frontier_cargo','marketplace_listings','resources','user_resource_inventory','item_instances','claims','transactions','game_settings','territory_rentals','rental_log'];
+const tables = ['users','fleets','ships','ship_part_cards','ship_types','assembly_units','assembly_parts','user_assembly_parts','assembly_events','starter_fleet_grant_ships','fleet_battle_participants','fleet_battles','ship_mining_jobs','frontier_cargo','marketplace_listings','resources','user_resource_inventory','item_instances','claims','transactions','game_settings','territory_rentals','rental_log'];
 const wallet = '0x' + crypto.randomBytes(20).toString('hex');
 let server, locker, pending;
 async function insertListing(qty, code='iron_dust', status='active') {

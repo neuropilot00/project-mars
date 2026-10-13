@@ -661,7 +661,7 @@ function _syncBcatDots(){
 window._syncBcatDots = _syncBcatDots;
 
 window.clearBaseTabDot = function(tab){
-  var map = {territory:'territoryDot',sectors:'sectorsDot',rank:'rankDot',mining:'miningDot',quests:'questsDot',guild:'guildDot',ops:'opsDot',govern:'governDot',shop:'shopDot',market:'marketDot',pvp:'pvpDot',transport:'transportDot',fleet:'fleetDot',items:'itemsDot'};
+  var map = {territory:'territoryDot',sectors:'sectorsDot',rank:'rankDot',mining:'miningDot',quests:'questsDot',records:'recordsDot',guild:'guildDot',ops:'opsDot',govern:'governDot',shop:'shopDot',market:'marketDot',pvp:'pvpDot',transport:'transportDot',fleet:'fleetDot',items:'itemsDot'};
   var id = map[tab]; if(!id) return;
   var el = document.getElementById(id); if(el) el.style.display='none';
   window._baseDotSeen[tab] = Date.now();
@@ -692,7 +692,7 @@ window.clearBaseTabDot = function(tab){
   _syncBcatDots(); // [v7.183] 부모 .bcat dot 동기화
 };
 window.setBaseTabDot = function(tab, on){
-  var map = {territory:'territoryDot',sectors:'sectorsDot',rank:'rankDot',mining:'miningDot',quests:'questsDot',guild:'guildDot',ops:'opsDot',govern:'governDot',shop:'shopDot',market:'marketDot',pvp:'pvpDot',transport:'transportDot',fleet:'fleetDot',items:'itemsDot'};
+  var map = {territory:'territoryDot',sectors:'sectorsDot',rank:'rankDot',mining:'miningDot',quests:'questsDot',records:'recordsDot',guild:'guildDot',ops:'opsDot',govern:'governDot',shop:'shopDot',market:'marketDot',pvp:'pvpDot',transport:'transportDot',fleet:'fleetDot',items:'itemsDot'};
   var id = map[tab]; if(!id) return;
   var el = document.getElementById(id); if(el) el.style.display = on ? 'block' : 'none';
   if(typeof _updateBaseBtnDot==='function') _updateBaseBtnDot();
@@ -794,7 +794,7 @@ function _pollBaseTabDots(force){
       var claimable = quests.filter(function(q){ return q.status==='completed'; }).length;
       _pollDotState.quests_claimable = claimable;
       // ACTION: claimable quests → dot persists until claimed
-      if(claimable > 0) setBaseTabDot('quests', true);
+      if(claimable > 0) setBaseTabDot('records', true);
     }catch(_e){}
   }).catch(function(){});
   // OPS: only dot if claimable count INCREASED since user last viewed
@@ -908,7 +908,7 @@ function _pollBaseTabDots(force){
         var tgt = m.target != null ? m.target : 999;
         return !m.claimed && cur >= tgt;
       }).length;
-      if(dailyClaimable > 0) setBaseTabDot('quests', true);
+      if(dailyClaimable > 0) setBaseTabDot('records', true);
     }
   }catch(_e){}
 }
