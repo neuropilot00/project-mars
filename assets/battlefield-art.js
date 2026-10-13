@@ -34,5 +34,14 @@
     var art = resolve(key), w = width/art.columns, h = height/art.rows;
     return {x:art.column*w,y:art.row*h,width:w,height:h};
   }
-  window.BattlefieldArt = Object.freeze({resolve:resolve,thumbnailStyle:thumbnailStyle,sourceRect:sourceRect,backgrounds:Object.freeze(backgrounds),keys:Object.freeze(Object.keys(registry))});
+  // Clip the atlas in its own square coordinate system before fitting the cell
+  // into a thumbnail. CSS background percentages stretch cells in wide slots.
+  function thumbnailMarkup(key) {
+    var art = resolve(key);
+    if (art.columns === 1) return '<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" aria-hidden="true" focusable="false" style="display:block"><image href="'+art.path+'" x="0" y="0" width="100%" height="100%" preserveAspectRatio="xMidYMid meet"/></svg>';
+    var cell = '<svg x="0" y="0" width="1" height="1" viewBox="'+art.column+' '+art.row+' 1 1" preserveAspectRatio="none" overflow="hidden">';
+    return '<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 1 1" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false" style="display:block">'+cell+
+      '<image href="'+art.path+'" x="0" y="0" width="'+art.columns+'" height="'+art.rows+'" preserveAspectRatio="'+(cell?'none':'xMidYMid meet')+'"/>'+(cell?'</svg>':'')+'</svg>';
+  }
+  window.BattlefieldArt = Object.freeze({resolve:resolve,thumbnailStyle:thumbnailStyle,thumbnailMarkup:thumbnailMarkup,sourceRect:sourceRect,backgrounds:Object.freeze(backgrounds),keys:Object.freeze(Object.keys(registry))});
 })();

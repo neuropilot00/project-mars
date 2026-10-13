@@ -43,7 +43,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="fleet-field-guide.css">
 <script src="fleet-field-guide.js" defer></script>
-<script src="battlefield-art.js"></script>
+<script src="battlefield-art.js?v=image28-release"></script>
 <title>OCCUPY MARS — Tactical Lab v11.1 + VFX (v7.229)</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
@@ -1132,7 +1132,8 @@ const SHIP_SPRITE_CODES=[
   'mcc_int','mcc_frg','mcc_ewar','mcc_dst','mcc_crs','mcc_snp','mcc_bs','mcc_titan',
   'fsp_int','fsp_logi','fsp_dst','fsp_crs','fsp_logi_crs','fsp_bs','fsp_titan',
   'cv_int','cv_frg','cv_bomb','cv_dst','cv_crs','cv_bs','cv_titan',
-  'pilgrim_voltaris','pilgrim_ignis','pilgrim_glacius','pilgrim_umbra','pilgrim_aurum',
+  'pilgrim_voltaris','pilgrim_ignis','pilgrim_glacius','pilgrim_umbra','pilgrim_aurum','pilgrim_tempest',
+  'alien_devourer','alien_hive','alien_leviathan','alien_voidmaw',
 ];
 const SHIP_SPRITES={};
 const SHIP_SPRITE_STATUS={};
@@ -1140,18 +1141,21 @@ const SHIP_SPRITE_STATUS={};
 //   됐는데 여기엔 ?v= 가 없어 브라우저가 초기 "검정배경 구버전"을 영구 캐시 → 전투에서 검은 박스로
 //   보이던 버그. index.html(ASSET_VER)과 동일하게 버스트. 부모 ASSET_VER 우선, 없으면 상수.
 const _SPR_VER=(function(){try{if(window.parent&&window.parent!==window&&window.parent.ASSET_VER)return window.parent.ASSET_VER;}catch(_){}return '7407';})();
-// [v7.403] 스프라이트 로딩 그레이스 — 32개 PNG(~2MB)+화성 텍스처가 iframe마다 새로 동시 로드되어
+// [v7.403] 스프라이트 로딩 그레이스 — 함선 PNG와 화성 텍스처가 iframe마다 새로 로드되어
 //   로딩 윈도우 동안 함선이 전부 투명해지던("AI 연습전 안 보임") 버그 방지. 이 시간 이후엔 PNG가
 //   아직 로딩 중이어도 벡터 폴백을 그려 항상 보이게 한다(로딩 빠르면 기존처럼 PNG 직행).
 const _SPRITE_GATE_UNTIL_MS = 700;
-SHIP_SPRITE_CODES.forEach(code=>{
+function loadShipSprite(code){
+  if(!hasShipSpriteAsset(code)||SHIP_SPRITE_STATUS[code])return;
   const img=new Image();
   img.decoding='async';
   SHIP_SPRITE_STATUS[code]='loading';
-  img.onload=()=>{SHIP_SPRITES[code]=trimShipSprite(img);SHIP_SPRITE_STATUS[code]='ready';};
+  img.onload=()=>{SHIP_SPRITES[code]=trimShipSprite(img);SHIP_SPRITE_STATUS[code]='ready';refreshRegistryShip(code);};
   img.onerror=()=>{SHIP_SPRITE_STATUS[code]='failed';};
   img.src=`ships/top/${code}.png?v=${_SPR_VER}`;
-});
+}
+// Standard hulls stay eager; assembled units load when battle or registry first draws them.
+SHIP_SPRITE_CODES.filter(code=>!code.startsWith('pilgrim_')&&!code.startsWith('alien_')).forEach(loadShipSprite);
 const MARS_BATTLE_BG=new Image();
 let marsBattleBgReady=false;
 MARS_BATTLE_BG.decoding='async';
@@ -2448,7 +2452,8 @@ function drawCVShip(ctx,s){
 }
 
 function drawShipSprite(ctx,s){
-  const img=SHIP_SPRITES[s.code];
+  loadShipSprite(s.code);
+  const img=hasShipSpriteAsset(s.code)&&SHIP_SPRITES[s.code];
   if(!img)return false;
   const finalLong={frigate:7,destroyer:11,cruiser:17,battleship:29,titan:43}[s.size]||14;
   const long=finalLong/({frigate:.9,destroyer:1.25,cruiser:1.8,battleship:2.65,titan:3.6}[s.size]||1);
@@ -3424,6 +3429,13 @@ function showFaction(fid,btn){
   btn.classList.add('on');
   renderRegistry();
 }
+function refreshRegistryShip(code){
+  const panel=document.getElementById('panel-registry');
+  if(!panel||!panel.classList.contains('on'))return;
+  const grid=document.getElementById('ship-grid');
+  const canvas=grid&&grid.querySelector(`canvas[data-id="${code}"]`);
+  if(canvas&&SHIPS[code])drawRegistryShip(canvas,SHIPS[code]);
+}
 function renderRegistry(){
   const grid=document.getElementById('ship-grid');
   const f=FACTIONS[currentFaction];
@@ -3450,6 +3462,10 @@ function renderRegistry(){
   list.forEach(([id,s])=>{
     const canvas=grid.querySelector(`canvas[data-id="${id}"]`);
     if(!canvas)return;
+    drawRegistryShip(canvas,s);
+  });
+}
+function drawRegistryShip(canvas,s){
     const cx=canvas.getContext('2d');
     cx.fillStyle='#02030a';cx.fillRect(0,0,canvas.width,canvas.height);
     cx.strokeStyle='rgba(255,255,255,.03)';cx.lineWidth=.5;
@@ -3464,7 +3480,6 @@ function renderRegistry(){
     const drawn=drawShipByFaction(cx,s);
     if(drawn)drawEngineFlame(cx,0,0,-Math.PI/2,s,.8);
     cx.restore();
-  });
 }
 
 function renderMinerals(){

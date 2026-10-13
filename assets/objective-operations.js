@@ -23,7 +23,7 @@
   }
   function mastery(mode){return (state.data.mastery||[]).find(function(m){return m.mode===mode;})||{clears:0,reward:{status:'locked'}};}
   var briefBattlefields={hold:'crater_relay',escort:'convoy_route',flagship:'orbital_blockade'};
-  function briefArt(mode){var key=briefBattlefields[mode];return key&&window.BattlefieldArt?'<div class="objective-field-art" data-battlefield="'+key+'" style="'+esc(window.BattlefieldArt.thumbnailStyle(key))+'" aria-hidden="true"></div>':'';}
+  function briefArt(mode){var key=briefBattlefields[mode];return key&&window.BattlefieldArt?'<div class="objective-field-art" data-battlefield="'+key+'" aria-hidden="true">'+window.BattlefieldArt.thumbnailMarkup(key)+'</div>':'';}
   function rewardArt(){return ['iron_dust','hull_plate'].map(function(code){var name=code==='iron_dust'?tl('Iron dust','철 분말','鉄粉','铁尘'):tl('Hull plate','함체 판재','船体プレート','舰体板');return '<span class="objective-material">'+(window.ItemArt?window.ItemArt.render(code,{size:32,decorative:true}):'')+'<span>'+esc(name)+' ×'+(code==='iron_dust'?10:1)+'</span></span>';}).join('');}
   function rewardText(){return tl('Iron dust ×10 + hull plate ×1','철 분말 ×10 + 함체 판재 ×1','鉄粉×10 + 船体プレート×1','铁尘×10 + 舰体板×1');}
   function render(){var modal=ensureModal();modal.querySelector('h2').textContent=tl('Operation mastery','작전 숙련','作戦習熟','行动精通');

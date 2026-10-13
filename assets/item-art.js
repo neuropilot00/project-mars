@@ -10,11 +10,13 @@
  // Measured against the 1254px source, not the requested generation grid.
  // Clip each cell before fitting it into a square so neighbouring art cannot bleed in.
  var cosmeticRows = [0,302,580,858,1196], cosmeticColumns = [0,314,628,942,1254];
- function cosmeticCrop(art) {
-  var x=cosmeticColumns[art.column], y=cosmeticRows[art.row];
-  var width=cosmeticColumns[art.column+1]-x, height=cosmeticRows[art.row+1]-y;
-  return '<svg class="item-art-atlas-image" viewBox="0 0 360 360" aria-hidden="true" focusable="false">'
-   +'<svg x="'+((360-width)/2)+'" y="'+((360-height)/2)+'" width="'+width+'" height="'+height+'" viewBox="'+x+' '+y+' '+width+' '+height+'" overflow="hidden">'
+ function atlasCrop(art) {
+  var cosmetic=art.atlas==='d', cell=1254/4;
+  var x=cosmetic?cosmeticColumns[art.column]:art.column*cell, y=cosmetic?cosmeticRows[art.row]:art.row*cell;
+  var width=cosmetic?cosmeticColumns[art.column+1]-x:cell, height=cosmetic?cosmeticRows[art.row+1]-y:cell;
+  var frame=cosmetic?360:cell;
+  return '<svg class="item-art-atlas-image" viewBox="0 0 '+frame+' '+frame+'" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">'
+   +'<svg x="'+((frame-width)/2)+'" y="'+((frame-height)/2)+'" width="'+width+'" height="'+height+'" viewBox="'+x+' '+y+' '+width+' '+height+'" overflow="hidden">'
    +'<image href="'+art.path+'" width="1254" height="1254"/></svg></svg>';
  }
  function esc(value) { return String(value == null ? '' : value).replace(/[&<>"']/g, function (char) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]; }); }
@@ -35,8 +37,7 @@
   var label = (options.name == null ? art.name : String(options.name))+(art.packQuantity?' ×'+art.packQuantity:''), style = '--item-art-size:'+size+'px;', content = '';
   if (art.atlas) {
    classes.push('item-art-atlas');
-   if (art.atlas === 'd') content = cosmeticCrop(art);
-   else style += 'background-image:url('+art.path+');background-size:400% 400%;background-position:'+(art.column/3*100)+'% '+(art.row/3*100)+'%;';
+   content = atlasCrop(art);
   } else if (art.known) {
    content = '<img class="item-art-image" loading="lazy" decoding="async" src="'+esc(art.path)+'" alt="">'+neutral;
   } else { classes.push('item-art-unknown'); content = neutral; }

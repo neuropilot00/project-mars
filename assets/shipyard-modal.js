@@ -471,8 +471,8 @@ function renderAssembly(units) {
     var pct = total ? Math.min(100, Math.round(owned / total * 100)) : 0;
     var complete = owned >= total && total > 0;
     return '<div class="bp-card" data-action="asm-unit-open" data-unit-code="'+escapeHtmlSafe(u.unit_code||'')+'" style="cursor:pointer;padding:0;overflow:hidden;border:1px solid '+(complete?'rgba(179,136,255,.55)':'rgba(179,136,255,.18)')+';border-radius:14px;background:#0a0e1a;position:relative;transition:transform .15s,box-shadow .15s" onmouseover="this.style.transform=\'translateY(-3px)\';this.style.boxShadow=\'0 8px 28px rgba(179,136,255,.28)\'" onmouseout="this.style.transform=\'\';this.style.boxShadow=\'\'">' +
-      '<div style="position:relative;aspect-ratio:3/4;overflow:hidden;background:radial-gradient(circle at 50% 35%,rgba(179,136,255,.18),#05060c 72%)">' +
-        '<img src="assets/assembly/portrait/'+(u.unit_code||'')+'.png?v='+ASSET_VER+'" alt="" style="width:100%;height:100%;object-fit:cover;object-position:center top;display:block" onerror="this.style.display=\'none\'">' +
+      '<div style="position:relative;aspect-ratio:1/1;overflow:hidden;background:radial-gradient(circle at 50% 35%,rgba(179,136,255,.18),#05060c 72%)">' +
+        '<img src="assets/assembly/portrait/'+(u.unit_code||'')+'.png?v='+ASSET_VER+'" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center;display:block" onerror="this.style.display=\'none\'">' +
         '<div style="position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(5,6,12,.92))"></div>' +
         '<div style="position:absolute;top:9px;left:9px;display:flex;gap:5px">' +
           '<span style="font-size:8px;padding:2px 7px;border-radius:999px;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.8);backdrop-filter:blur(4px)">'+escapeHtmlSafe(_asmKindLabel(u.kind||''))+'</span>' +
@@ -1279,9 +1279,9 @@ function showCrateReveal(d, code, priceGp){
     +     '<span style="font-size:10px;font-weight:800;color:'+qm.col+';background:'+qm.col+'1f;border:1px solid '+qm.col+'55;padding:2px 9px;border-radius:20px">'+_qLabel(s.quality)+(stars?(' '+stars):'')+'</span>'
     +     (d.was_pity?'<span style="font-size:10px;font-weight:800;color:var(--gold);background:rgba(255,209,102,.14);border:1px solid rgba(255,209,102,.5);padding:2px 9px;border-radius:20px">🎯 '+tl('PITY','천장','天井','保底')+'</span>':'')
     +   '</div>'
-    +   '<div style="margin:12px auto 4px;width:100%;height:172px;border-radius:12px;overflow:hidden;position:relative;border:1px solid '+glow+'66;box-shadow:inset 0 0 26px '+glow+'33">'
+    +   '<div style="margin:12px auto 4px;width:100%;aspect-ratio:4/3;border-radius:12px;overflow:hidden;position:relative;border:1px solid '+glow+'66;box-shadow:inset 0 0 26px '+glow+'33">'
     +     '<div style="position:absolute;inset:0;background:radial-gradient(circle at 50% 45%, '+glow+'33, #06080f 72%)"></div>'
-    +     '<img src="assets/ships/reveal/'+s.code+'.jpg" alt="" style="width:100%;height:100%;object-fit:cover;display:block;position:relative;animation:crHeroIn .5s ease" onerror="this.onerror=null;this.src=\'assets/ships/top/'+s.code+'.png\';this.style.objectFit=\'contain\';this.style.padding=\'12px\';this.style.filter=\'drop-shadow(0 0 16px '+glow+'cc)\';this.style.animation=\'crFloat 3s ease-in-out infinite\'">'
+    +     '<img src="assets/ships/reveal/'+s.code+'.jpg" alt="" style="width:100%;height:100%;object-fit:contain;display:block;position:absolute;inset:0;box-sizing:border-box;animation:crHeroIn .5s ease" onerror="this.onerror=null;this.src=\'assets/ships/top/'+s.code+'.png\';this.style.objectFit=\'contain\';this.style.padding=\'12px\';this.style.filter=\'drop-shadow(0 0 16px '+glow+'cc)\';this.style.animation=\'crFloat 3s ease-in-out infinite\'">'
     +     '<div style="position:absolute;left:0;right:0;bottom:0;height:42%;background:linear-gradient(180deg,transparent,rgba(6,8,15,.62));pointer-events:none"></div>'
     +   '</div>'
     +   '<div style="font-size:17px;font-weight:900;color:#fff;text-shadow:0 2px 8px #000;letter-spacing:.4px">'+name+'</div>'
@@ -3060,14 +3060,14 @@ function renderShipMarket() {
     var effectiveMaxHp = parseFloat(s.effective_max_hp || (parseFloat(s.max_hp || 0) + parseFloat(s.bonus_hp || 0)) || s.max_hp || 1);
     var hpPct = Math.max(0, Math.min(100, (s.current_hp / effectiveMaxHp) * 100));
     // [v7.175 Task 3c] 마켓 카드 시각 업그레이드 — 가챠 리빌 포트레이트(800x600 실사풍) 활용.
-    //   기존 SVG silhouette 은 fallback (포트레이트 미존재 시). object-fit:cover 로 깔끔.
+    //   기존 SVG silhouette 은 fallback (포트레이트 미존재 시). 원본 4:3 구도 보존.
     var portraitSrc = 'assets/ships/reveal/' + (s.ship_type_code||'') + '.jpg';
     var silhouette = shipVisual(s.size_class, s.faction_code, { role: s.role, code: s.ship_type_code });
     var seller = s.seller_name || s.seller_short || 'UNKNOWN';
     return '<div class="ship-market-card">' +
       '<span class="ship-sale-sticker">'+(LANG==="ko"?"판매중":LANG==="ja"?"販売中":LANG==="zh"?"在售":"For Sale")+'</span>' +
-      '<div class="bp-visual" style="position:relative;overflow:hidden;border-radius:8px">' +
-        '<img src="'+portraitSrc+'" alt="" style="width:100%;height:100%;object-fit:cover;display:block;border-radius:8px" ' +
+      '<div class="bp-visual" style="position:relative;overflow:hidden;border-radius:8px;height:auto;aspect-ratio:4/3">' +
+        '<img src="'+portraitSrc+'" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;border-radius:8px" ' +
         'onerror="this.onerror=null;this.style.display=\'none\';this.parentNode.innerHTML=\''+silhouette.replace(/'/g,"\\'")+'\'">' +
         '<div style="position:absolute;left:0;right:0;bottom:0;height:42%;background:linear-gradient(180deg,transparent,rgba(6,8,15,.7));pointer-events:none"></div>' +
       '</div>' +

@@ -800,7 +800,7 @@ function renderBattleCard(b, tab) {
   const battlefieldMods = formatBattlefieldModifiers(b.environment_modifiers);
   const battlefieldObjective = b.environment_objective || '';
   const battlefieldSalvage = formatBattlefieldSalvageHint(b.environment_salvage_hint);
-  const battlefieldImageStyle = window.BattlefieldArt.thumbnailStyle(battlefieldKey);
+  const battlefieldImage = window.BattlefieldArt.thumbnailMarkup(battlefieldKey);
   const economyTags = renderBattleEconomyTags(b, battlefieldKey);
   const rewardGp = Math.round(parseFloat(b.my_reward_gp != null ? b.my_reward_gp : b.reward_total_gp) || 0);
   const rewardCount = parseInt(b.reward_count, 10) || 0;
@@ -812,7 +812,7 @@ function renderBattleCard(b, tab) {
   
   return `
     <div class="battle-card ${isLive ? 'active-battle' : ''} ${resultClass}">
-      <div class="bc-field-thumb" style="${escapeAttr(battlefieldImageStyle)}" title="${escapeAttr(battlefieldLabel || battlefieldKey)}"></div>
+      <div class="bc-field-thumb" title="${escapeAttr(battlefieldLabel || battlefieldKey)}">${battlefieldImage}</div>
       <div class="bc-status ${statusCls}">${statusLabel}</div>
       <div class="bc-info">
         <div class="bc-info-title">
