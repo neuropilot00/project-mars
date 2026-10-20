@@ -2,8 +2,12 @@
 // ─────────────────────────────────────────────────────────────
 // USDT 담보(collateral) 원장 헬퍼 — 뱅크런 구조적 차단(migration 230).
 //
-// 불변식: SUM(users.usdt_balance) ≤ treasury_ledger.collateral_usdt
-//   room = collateral - SUM(usdt_balance) = "담보 없이 추가 발행 가능한 USDT".
+// Reservations debit accounting collateral by net and user balance by gross.
+// Pending gross remains a refundable customer claim until final settlement.
+// Tracked reserve before reservations = accounting collateral + pending net;
+// total customer claims = available USDT balances + pending gross.
+// room is the difference, including a hold for refundable pending fees.
+// This ledger is NOT a measurement of physical on-chain token custody.
 //   PP→USDT 환금(/swap, /withdraw-all 의 PP유래분)은 room 이내만 허용.
 //
 // 모든 함수는 호출자의 트랜잭션 client 를 받아 같은 BEGIN/COMMIT 안에서 동작한다.
@@ -20,27 +24,49 @@ async function lockRoom(client, lockedWallet) {
     await client.query('SELECT 1 FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE', [lockedWallet]);
   }
   const col = await client.query('SELECT collateral_usdt FROM treasury_ledger WHERE id = 1 FOR UPDATE');
-  const collateral = parseFloat(col.rows[0]?.collateral_usdt ?? 0) || 0;
+  if (col.rows.length !== 1) throw new Error('Treasury ledger unavailable');
+  const collateral = financialNumber(col.rows[0].collateral_usdt, 'collateral');
   const liab = await client.query('SELECT COALESCE(SUM(usdt_balance), 0) AS s FROM users');
-  const liability = parseFloat(liab.rows[0]?.s ?? 0) || 0;
-  return { collateral, liability, room: Math.round((collateral - liability) * 1000000) / 1000000 };
+  const liability = financialNumber(liab.rows[0]?.s, 'available USDT claims');
+  const pending = await client.query(`SELECT COALESCE(SUM(gross), 0) AS gross, COALESCE(SUM(net), 0) AS net FROM pending_withdrawals WHERE status = 'pending'`);
+  const pendingGross = financialNumber(pending.rows[0]?.gross, 'pending gross');
+  const pendingNet = financialNumber(pending.rows[0]?.net, 'pending net');
+  const trackedReserve = collateral + pendingNet;
+  const customerClaims = liability + pendingGross;
+  return { collateral, liability, pendingGross, pendingNet, trackedReserve, customerClaims,
+    pendingPayoutClaims: pendingNet, totalPayoutClaims: liability + pendingNet, pendingFeeHold: pendingGross - pendingNet,
+    physicalReserve: null, // No RPC/custody measurement is performed by this DB helper.
+    room: Math.round((trackedReserve - customerClaims) * 1000000) / 1000000 };
+}
+
+function financialNumber(raw, name, { min = 0, max = Infinity } = {}) {
+  if (raw == null || typeof raw === 'boolean' || String(raw).trim() === '') throw new Error('Invalid financial configuration: ' + name);
+  const value = Number(raw);
+  if (!Number.isFinite(value) || value < min || value > max) throw new Error('Invalid financial configuration: ' + name);
+  return value;
+}
+
+function financialBoolean(raw, name) {
+  if (String(raw) !== 'true' && String(raw) !== 'false') throw new Error('Invalid financial configuration: ' + name);
+  return String(raw) === 'true';
 }
 
 // 담보 가감(deposit=+amount, withdraw=-amount, operator topup=+amount).
 async function adjustCollateral(client, delta) {
-  const d = Number(delta) || 0;
+  const d = financialNumber(delta, 'collateral adjustment', { min: -Infinity });
   if (d === 0) return;
-  await client.query(
+  const result = await client.query(
     'UPDATE treasury_ledger SET collateral_usdt = collateral_usdt + $1, updated_at = NOW() WHERE id = 1',
     [d]
   );
+  if (result.rowCount !== 1) throw new Error('Treasury ledger unavailable');
 }
 
 // 솔벤시 가드 on/off (기본 on). settings.swap_solvency_guard_enabled
 async function guardEnabled(getSetting) {
   try {
     const v = await getSetting('swap_solvency_guard_enabled', 'true');
-    return String(v) === 'true';
+    return financialBoolean(v, 'swap_solvency_guard_enabled');
   } catch (_) {
     return true; // 안전 기본값: 켜짐
   }
@@ -61,11 +87,14 @@ const REDEEM_SUM_EXPR = `COALESCE(SUM(
 
 async function checkRedemptionLimits(client, opts, getSetting) {
   const wallet = (opts && opts.wallet ? String(opts.wallet) : '').toLowerCase();
-  const redeemUsdt = Math.max(0, Number(opts && opts.redeemUsdt) || 0);
+  const redeemUsdt = financialNumber(opts && opts.redeemUsdt, 'redemption amount');
   if (redeemUsdt <= 0) return { ok: true };
 
   // ── 유저 일일 한도 ──
-  const dailyLimit = parseFloat(await getSetting('redemption_daily_limit_usdt', '0')) || 0;
+  // Serialize global weekly-cap check + transaction insertion even if the
+  // collateral guard is disabled. User locks are already held by callers.
+  await client.query("SELECT pg_advisory_xact_lock(hashtext('redemption_limits'))");
+  const dailyLimit = financialNumber(await getSetting('redemption_daily_limit_usdt', '0'), 'redemption_daily_limit_usdt');
   if (dailyLimit > 0 && wallet) {
     const dr = await client.query(
       `SELECT ${REDEEM_SUM_EXPR} AS used FROM transactions
@@ -79,10 +108,10 @@ async function checkRedemptionLimits(client, opts, getSetting) {
   }
 
   // ── 주간 글로벌 한도 (게이트 off 면 스킵) ──
-  const weeklyEnabled = String(await getSetting('redemption_weekly_cap_enabled', 'false')) === 'true';
+  const weeklyEnabled = financialBoolean(await getSetting('redemption_weekly_cap_enabled', 'false'), 'redemption_weekly_cap_enabled');
   if (weeklyEnabled) {
-    const pct = parseFloat(await getSetting('redemption_weekly_cap_pct', '30')) || 0;
-    const floorUsdt = parseFloat(await getSetting('redemption_weekly_cap_floor_usdt', '100')) || 0;
+    const pct = financialNumber(await getSetting('redemption_weekly_cap_pct', '30'), 'redemption_weekly_cap_pct');
+    const floorUsdt = financialNumber(await getSetting('redemption_weekly_cap_floor_usdt', '100'), 'redemption_weekly_cap_floor_usdt');
     const dep = await client.query(
       `SELECT COALESCE(SUM(COALESCE(usdt_amount, 0)), 0) AS s FROM transactions
        WHERE type = 'deposit' AND created_at > NOW() - INTERVAL '7 days'`
@@ -105,10 +134,10 @@ async function checkRedemptionLimits(client, opts, getSetting) {
 // redeemable_pp 게이팅 on/off (기본 on). settings.redeemable_pp_gating_enabled
 async function redeemableGatingEnabled(getSetting) {
   try {
-    return String(await getSetting('redeemable_pp_gating_enabled', 'true')) === 'true';
+    return financialBoolean(await getSetting('redeemable_pp_gating_enabled', 'true'), 'redeemable_pp_gating_enabled');
   } catch (_) {
     return true; // 안전 기본값: 켜짐(채굴 PP USDT 직행 차단)
   }
 }
 
-module.exports = { lockRoom, adjustCollateral, guardEnabled, checkRedemptionLimits, redeemableGatingEnabled };
+module.exports = { lockRoom, adjustCollateral, guardEnabled, checkRedemptionLimits, redeemableGatingEnabled, financialNumber, financialBoolean };

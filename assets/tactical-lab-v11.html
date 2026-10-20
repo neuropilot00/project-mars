@@ -1662,6 +1662,7 @@ function initBattle(){
   fleets=[];ships=[];bullets=[];lasers=[];exps=[];shockwaves=[];repairBeams=[];muzzles=[];battleOver=false;
   _homingCount=0;
   _wsPrevShips = new Map();
+  syncServerCombatEvents.seen=new Set();syncServerCombatEvents.lastTick=null;
   beamCharge=0;missileCharge=20;empCharge=0;overdriveCharge=0;
   const atkPos = centeredPos(ATK_FLEETS.length, 'atk');
   const defPos = centeredPos(DEF_FLEETS.length, 'def');
@@ -1686,6 +1687,7 @@ function initBattle(){
   const ac=ships.filter(s=>s.side==='atk').length;
   const dc=ships.filter(s=>s.side==='def').length;
   addLog('ev',`▶ v11.1 COALITION WAR — ATK ${ac}척 vs DEF ${dc}척`);
+  if(TL_MODE==='battle')clearUnconfirmedBattleHud();
 }
 
 function mkFleet(def,side,cx,cy){
@@ -1721,7 +1723,7 @@ function mkShip(tid,side,x,y,fleet,isFlagship){
   const t=SHIPS[tid]||SHIPS.mcc_int;
   if(!t.code)t.code=tid;
   // (실드 연출 v7.388) 함급별 실드풀 — 대형함일수록 두껍게. 미사일/레이저를 흡수(버블에 막힘).
-  const _shMax = t.hp * (t.size==='titan'?0.6 : t.size==='battleship'?0.45 : t.size==='cruiser'?0.3 : t.size==='destroyer'?0.2 : 0.12);
+  const _shMax = TL_MODE==='battle'?0:t.hp * (t.size==='titan'?0.6 : t.size==='battleship'?0.45 : t.size==='cruiser'?0.3 : t.size==='destroyer'?0.2 : 0.12);
   return {tid,type:t,side,fleet,x,y,
     slotAngle:Math.atan2(y-fleet.cy,x-fleet.cx),
     slotDist:Math.hypot(x-fleet.cx,y-fleet.cy),
@@ -1759,6 +1761,12 @@ function autoTactics(f,dt){
 }
 
 function updateFleets(dt){
+  // Battles and recorded frames use server positions, including during a WS
+  // reconnect. Only the sandbox advances the local movement simulation.
+  if(TL_MODE==='battle'){
+    for(const sh of ships){sh.engF=(sh.engF||0)+1;if(sh.flash>0)sh.flash=Math.max(0,sh.flash-dt);if(sh.shieldFlash>0)sh.shieldFlash=Math.max(0,sh.shieldFlash-dt*.004);}
+    return;
+  }
   const cfg=battleScaleConfig();
   fleets.forEach(f=>{
     if(f.dead)return;
@@ -3010,10 +3018,15 @@ function resumeBattleLoop(){
   lt=performance.now();
   requestBattleLoop();
 }
+function clearUnconfirmedBattleHud(){
+  for(const id of ['ai','di','tn','tm']){const el=document.getElementById(id);if(el)el.textContent='—';}
+  for(const id of ['ah','dh']){const el=document.getElementById(id);if(el)el.style.width='0%';}
+}
 function loop(ts){
   loopFrame=null;
   if(tlDisposed||document.hidden)return;
   const rawDt=ts-lt;lt=ts;
+  if(TL_MODE==='battle'&&!_wsLastFrame){drawBG();clearUnconfirmedBattleHud();requestBattleLoop();return;}
   // WS 모드엔 서버가 8x 속도로 frame을 쏘므로 로컬 speed 배수 미적용
   const _wsOn = _wsBattle && _wsBattle.readyState === 1;
   // [v7.179 VFX] 미니 슬로모 — 대형함 격침 직후 시뮬 속도 일시 감속 (WS/메인 슬로모 제외)
@@ -3041,7 +3054,7 @@ function loop(ts){
   _frameLiving=0; for(let _i=0;_i<ships.length;_i++) if(!ships[_i].dead) _frameLiving++;
   // [v7.335 perf] 대규모전에서 프레임당 발사 수 상한 (비-PERF도 무제한 금지)
   let fireBudget=PERF_MODE?72:(_frameLiving>200?120:_frameLiving>100?180:9999);
-  ships.forEach(sh=>{
+  if(TL_MODE!=='battle')ships.forEach(sh=>{
     if(sh.dead)return;
     sh.shootT+=dt;
     const fi=empMs>0?sh.type.fireInt*5:sh.type.fireInt;
@@ -3140,7 +3153,7 @@ function loop(ts){
     if(document.getElementById('panel-fleet').classList.contains('on'))renderFleetStatus();
   }
 
-  if(!battleOver&&!(_wsLastFrame&&_wsLastFrame.objective)&&(af===0||df===0)&&btMs>3000){
+  if(TL_MODE==='sandbox'&&!battleOver&&(af===0||df===0)&&btMs>3000){
     battleOver=true;
     const winner=af>0?'ATK':'DEF';
     addLog('wn',`🏆 ${winner} COALITION 승리 — ${mm}:${String(ss).padStart(2,'0')}`);
@@ -3390,6 +3403,7 @@ function togglePanel(name,btn){
 function renderFleetStatus(){
   const el=document.getElementById('fs-grid');
   if(!el)return;
+  if(TL_MODE==='battle'&&!_wsLastFrame){el.textContent=commandText('connecting');return;}
   const sorted=[...fleets.filter(f=>f.side==='atk'),...fleets.filter(f=>f.side==='def')];
   el.innerHTML=sorted.map(f=>{
     const isAtk=f.side==='atk';
@@ -3558,17 +3572,44 @@ function renderAnalysis(){
    같은 origin(iframe 부모 server)에서 제공 → 별도 CORS 불필요
    데이터 로드 실패 시 위에 정의된 하드코딩 폴백 유지
    ═══════════════════════════════════════════════════════════ */
+function showBattleLoadError(){
+  ATK_FLEETS=[];DEF_FLEETS=[];fleets=[];ships=[];_battleUiReady=false;
+  closeBattleWs('battle-load-failed');stopBattleLoop();
+  const canvas=document.getElementById('c');if(canvas)canvas.hidden=true;
+  document.querySelectorAll('.command-row select,.command-row button,.advanced-controls button').forEach(e=>{e.disabled=true;});
+  let root=document.getElementById('battleLoadError');
+  if(root)return;
+  const copy={
+    en:['Could not load battle details. Please retry.','Retry'],
+    ko:['전투 정보를 불러오지 못했습니다. 다시 시도하세요.','다시 시도'],
+    ja:['戦闘情報を読み込めませんでした。再試行してください。','再試行'],
+    zh:['无法加载战斗信息，请重试。','重试'],
+    id:['Detail pertempuran tidak dapat dimuat. Silakan coba lagi.','Coba lagi'],
+    vi:['Không tải được thông tin trận chiến. Vui lòng thử lại.','Thử lại'],
+    th:['โหลดรายละเอียดการรบไม่ได้ โปรดลองอีกครั้ง','ลองอีกครั้ง']
+  }[TLANG]||['Could not load battle details. Please retry.','Retry'];
+  root=document.createElement('section');root.id='battleLoadError';root.setAttribute('role','alert');
+  root.style.cssText='position:fixed;inset:0;z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:#08121f;color:#f1f3f5;padding:24px;text-align:center;font:16px/1.6 system-ui';
+  const message=document.createElement('p');message.textContent=copy[0];root.appendChild(message);
+  const retry=document.createElement('button');retry.type='button';retry.textContent=copy[1];retry.style.cssText='min-height:44px;min-width:120px;padding:10px 18px;font:inherit;color:#08121f;background:#ffd166;border:0;border-radius:6px';
+  retry.addEventListener('click',()=>location.reload());root.appendChild(retry);document.body.appendChild(root);
+}
+
 async function loadCatalog(){
+  const realBattle=TL_MODE==='battle';
   try {
     // ?bid={battleId} 쿼리스트링 전달 → 그 battle 의 실제 함대 구성으로 시뮬
     const bid = tlQuery('bid');
+    if(realBattle&&!bid)throw new Error('BATTLE_ID_REQUIRED');
     const fleetUrl = '/api/tactical-lab/fleet-presets' + (bid ? ('?bid=' + encodeURIComponent(bid)) : '');
     const [catRes, fltRes] = await Promise.all([
       fetch('/api/tactical-lab/catalog', { cache: 'no-cache' }),
       fetch(fleetUrl, { cache: 'no-cache' }),
     ]);
+    if(realBattle&&(!catRes.ok||!fltRes.ok))throw new Error('BATTLE_DATA_HTTP_ERROR');
     if (catRes.ok) {
       const cat = await catRes.json();
+      if(realBattle&&(!Array.isArray(cat.ships)||!cat.ships.length))throw new Error('BATTLE_CATALOG_UNAVAILABLE');
       // 광물 (13종)
       if (cat.resources && cat.resources.length) {
         const m = {};
@@ -3676,13 +3717,20 @@ async function loadCatalog(){
     }
     if (fltRes.ok) {
       const flt = await fltRes.json();
+      if(realBattle){
+        if(flt.source!=='battle:'+bid||!Array.isArray(flt.atk)||!Array.isArray(flt.def)||!flt.atk.concat(flt.def).length||
+           flt.atk.concat(flt.def).some(f=>!f.dbFleetId||!f.ownerWallet||!SHIPS[f.flagship]))throw new Error('BATTLE_FLEETS_UNAVAILABLE');
+        ATK_FLEETS=flt.atk;DEF_FLEETS=flt.def;
+      }
       if (flt.atk && flt.atk.length) ATK_FLEETS = flt.atk;
       if (flt.def && flt.def.length) DEF_FLEETS = flt.def;
       if (TL_DEBUG) console.log('[TacticalLab] fleet presets loaded:', {atk: ATK_FLEETS.length, def: DEF_FLEETS.length});
     }
   } catch (e) {
-    console.warn('[TacticalLab] catalog fetch failed, using hardcoded fallback:', e && e.message);
+    if(realBattle){console.warn('[TacticalLab] battle data load failed:',e&&e.message);showBattleLoadError();return false;}
+    console.warn('[TacticalLab] sandbox catalog fetch failed, using demo fallback:', e && e.message);
   }
+  return true;
 }
 
 // This view reads only authoritative objective fields; it never advances a timer or decides a winner.
@@ -3834,11 +3882,49 @@ function syncServerShips(frame){
   const fleet=fleets.find(f=>String(f.dbFleetId)===String(live.fid));if(!fleet)continue;
   let ship=fleet.ships.find(s=>String(s.dbShipId)===String(live.id));
   if(!ship)ship=fleet.ships.find(s=>!s.dbShipId&&(s.tid===live.code||s.type.code===live.code)&&!!s.isFlagship===!!live.ff);
+  if(!ship&&TL_MODE==='battle'&&SHIPS[live.code]){
+   const pos=objectiveMapPoint(live.x,live.y,W,H);
+   ship=mkShip(live.code,fleet.side,pos.x,pos.y,fleet,!!live.ff);
+   fleet.ships.push(ship);ships.push(ship);
+  }
   if(!ship)continue;
+  const previousHp=ship.hp;
   ship.dbShipId=live.id;ship.dead=false;ship.hp=Math.max(0,Number(live.hp)||0);
+  if(TL_MODE==='battle'&&Number.isFinite(live.x)&&Number.isFinite(live.y)){
+   const pos=objectiveMapPoint(live.x,live.y,W,H);ship.x=pos.x;ship.y=pos.y;
+   if(Number.isFinite(live.facing))ship.facing=live.facing;
+   if(ship.hp<previousHp)ship.flash=100;
+   const previousShield=Number(ship.shield)||0;
+   const maxShield=Number(live.shield_max),shield=Number(live.shield_hp);
+   ship.shieldMax=Number.isFinite(maxShield)?Math.max(0,maxShield):0;
+   ship.shield=Number.isFinite(shield)?Math.max(0,Math.min(ship.shieldMax,shield)):0;
+   if(ship.shield<previousShield)ship.shieldFlash=1;
+  }
   if(Number(live.maxHp)>0)ship.maxHp=Number(live.maxHp);
  }
- for(const fleet of fleets)for(const ship of fleet.ships){if(ship.dbShipId&&!ids.has(String(ship.dbShipId))){ship.dead=true;ship.hp=0;}}
+ for(const fleet of fleets)for(const ship of fleet.ships){if((ship.dbShipId&&!ids.has(String(ship.dbShipId)))||(TL_MODE==='battle'&&!ship.dbShipId)){ship.dead=true;ship.hp=0;}}
+}
+// Resolved server hits supply both endpoints. This effect never performs local
+// target selection, hit detection or damage, and is absent on old recordings.
+function syncServerCombatEvents(frame){
+ if(TL_MODE!=='battle'||!Array.isArray(frame.combat_events))return;
+ const seen=syncServerCombatEvents.seen||(syncServerCombatEvents.seen=new Set());
+ const tick=frame.t??frame.tick;
+ if(Number.isFinite(tick)){
+  if(Number.isFinite(syncServerCombatEvents.lastTick)&&tick<syncServerCombatEvents.lastTick){seen.clear();lasers.length=0;}
+  syncServerCombatEvents.lastTick=tick;
+ }
+ for(const event of frame.combat_events.slice(0,128)){
+  if(!event||event.type!=='shot_hit'||typeof event.id!=='string'||event.id.length>128||!event.id||seen.has(event.id))continue;
+  if(!event.from||!event.to||![event.from.x,event.from.y,event.to.x,event.to.y].every(Number.isFinite)||!['atk','def'].includes(event.source_side))continue;
+  seen.add(event.id);if(seen.size>512)seen.delete(seen.values().next().value);
+  if(lasers.length>=256)continue;
+  const from=objectiveMapPoint(event.from.x,event.from.y,W,H),to=objectiveMapPoint(event.to.x,event.to.y,W,H);
+  const source=ships.find(s=>String(s.dbShipId)===String(event.source_ship_id));
+  const type=source&&source.type||{fireType:event.fire_type,faction:event.source_side==='atk'?'mcc':'cv'};
+  const beam=event.fire_type==='laser'||event.fire_type==='mixed';
+  lasers.push({x1:from.x,y1:from.y,x2:to.x,y2:to.y,color:weaponColor(type),width:beam?1.5:.7,alpha:beam?.85:.6,ttl:beam?16:8,age:0,dmg:0,applied:true,visual:true,side:event.source_side});
+ }
 }
 function fleetRoleText(f){
  const counts={};
@@ -3855,6 +3941,14 @@ function updateCommandDeck(){
  set('battleModeStatus',commandText(mode));
  const enabled=TL_MODE==='sandbox'?!battleOver:canCommandBattle();
  document.querySelectorAll('.command-row select,.command-row button,.advanced-controls button').forEach(e=>{e.disabled=!enabled;});
+ if(TL_MODE==='battle'&&!_wsLastFrame){
+  const target=document.getElementById('focusChoice'),option=document.createElement('option');
+  target.replaceChildren();option.value='';option.textContent=commandText('connecting');target.appendChild(option);
+  for(const id of ['targetNote','compactFleetStatus','manualHoldStatus'])set(id,commandText('connecting'));
+  const skill=document.getElementById('skillApply');skill.textContent='—';skill.disabled=true;
+  document.getElementById('focusApply').disabled=true;document.getElementById('cmdEMP').disabled=true;document.getElementById('cmdRetreatBtn').disabled=true;document.getElementById('speedCycle').hidden=true;
+  return;
+ }
  const ef=fleets.filter(f=>f.side!==commandSide()&&!f.retreated&&f.hp>0&&f.ships.some(s=>!s.dead));
  const sel=document.getElementById('focusChoice');const old=sel.value;
  const choices=ef.map(f=>({id:String(f.dbFleetId||f.userId),text:f.userId+' · HP '+Math.max(0,Math.round(f.hp/f.maxHp*100))+'%'}));
@@ -3904,6 +3998,7 @@ function receiveObjectiveReplayMessage(ev){
   if(!_battleUiReady){if(d.cmd==='replay_frame')_queuedReplayFrame=d;else _queuedReplayEnd=d;return;}
   _parentReplay=true;_wsRealtime=false;closeBattleWs('recorded-objective-replay');
   if(d.cmd==='replay_frame'){
+    _wsEndPayload=null;battleOver=false;
     const seconds=d.payload.objective&&d.payload.objective.elapsed_seconds;
     if(seconds!=null&&Number.isFinite(Number(seconds)))btMs=Number(seconds)*1000;
     else if(Number.isFinite(Number(d.payload.tick))&&Number(d.payload.tick_ms)>0)btMs=Number(d.payload.tick)*Number(d.payload.tick_ms);
@@ -3913,7 +4008,7 @@ function receiveObjectiveReplayMessage(ev){
 window.addEventListener('message',receiveObjectiveReplayMessage);
 function connectBattleWs() {
   try {
-    if (tlDisposed || document.hidden || _parentReplay) return;
+    if (tlDisposed || document.hidden || _parentReplay || (TL_MODE==='battle'&&!_battleUiReady)) return;
     const bid = tlQuery('bid');
     if (!bid) return;
     if (_wsBattle && (_wsBattle.readyState === 0 || _wsBattle.readyState === 1)) return;
@@ -3960,8 +4055,9 @@ function processBattleMessage(m,bid){
             for (const wsF of m.fleets) {
               const f = fleets.find(x => x.dbFleetId && String(x.dbFleetId) === String(wsF.id));
               if (!f) continue;
-              if (typeof wsF.cx === 'number') f.cx = wsF.cx;
-              if (typeof wsF.cy === 'number') f.cy = wsF.cy;
+              if (Number.isFinite(wsF.cx) && Number.isFinite(wsF.cy)) {
+                const pos=objectiveMapPoint(wsF.cx,wsF.cy,W,H);f.cx=pos.x;f.cy=pos.y;
+              }
               if (typeof wsF.hp === 'number') f.hp = Math.max(0, wsF.hp);
               if (typeof wsF.maxHp === 'number') f.maxHp = wsF.maxHp;
               // wsF.dead=true 는 서버에서 더 이상 보내지 않음 (cascade 제거)
@@ -3985,6 +4081,7 @@ function processBattleMessage(m,bid){
           }
         } catch (syncErr) { /* silent */ }
         syncServerShips(m);
+        syncServerCombatEvents(m);
         // Phase 2-D+: 함선 단위 정밀 폭발 — 이전 프레임 대비 사라진 함선 감지
         try {
           if (m.ships && Array.isArray(m.ships)) {
@@ -3998,9 +4095,10 @@ function processBattleMessage(m,bid){
                 const shipName = shipDef ? (shipDef.name || info.code) : info.code;
                 const radMap = { frigate:1.2, destroyer:1.8, cruiser:2.8, battleship:4.0, titan:6.0 };
                 const r = radMap[sz] || 1.5;
-                mkExp(info.x, info.y, r);
+                const pos=objectiveMapPoint(info.x,info.y,W,H);
+                mkExp(pos.x, pos.y, r);
                 if (sz === 'battleship' || sz === 'titan') {
-                  mkShockwave(info.x, info.y, r * 25);
+                  mkShockwave(pos.x, pos.y, r * 25);
                   addLog('kl', `☠ ${shipName} 격침`);
                 }
               }
@@ -4011,13 +4109,12 @@ function processBattleMessage(m,bid){
         } catch (_se) { /* silent */ }
         updateCommandDeck();
       } else if (m.type === 'end') {
-        _wsEndPayload = m;advanceBattleClock(0);
+        _wsEndPayload = m;battleOver=true;advanceBattleClock(0);
         renderActionSummary(true);loadPersistedActionSummary();
-        if(_wsLastFrame&&_wsLastFrame.objective){
-          battleOver=true;
-          if(m.objective_result){_wsLastFrame.objective=m.objective_result;renderObjectiveBanner(_wsLastFrame);}
-          setTimeout(()=>{if(!tlDisposed)notifyParent('battle_final_done',{winner_side:m.winner_side,objectiveResult:_wsLastFrame.objective},bid);},1800);
-        }
+        if(_wsLastFrame&&_wsLastFrame.objective&&m.objective_result){_wsLastFrame.objective=m.objective_result;renderObjectiveBanner(_wsLastFrame);}
+        // Every real server/recorded end can finish the viewer. Local simulation
+        // never supplies the winner, including ordinary first-sortie replays.
+        setTimeout(()=>{if(!tlDisposed&&_wsEndPayload===m)notifyParent('battle_final_done',{winner_side:m.winner_side,objectiveResult:_wsLastFrame&&_wsLastFrame.objective||null},bid);},1800);
         updateCommandDeck();
         addLog('wn', '🏁 실시간 종료 수신: ' + (m.winner_side || '?'));
         try { notifyParent('ws_end', Object.assign({},m,{objectiveResult:m.objective_result||(_wsLastFrame&&_wsLastFrame.objective)||null,confirmedCommands:Array.from(_confirmedActions.values()).sort((a,b)=>Number(a.tick)-Number(b.tick)).slice(-2)}), bid); } catch (_) {}
@@ -4061,7 +4158,7 @@ async function boot(){
   syncCompactCommandLayout();
   notifyParent('ready',{ mode:TL_MODE, lang:TLANG });
   localizeStaticUI();
-  await loadCatalog();
+  if(!await loadCatalog())return;
   localizeStaticUI();
   renderRegistry();
   renderMinerals();

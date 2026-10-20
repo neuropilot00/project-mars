@@ -617,7 +617,9 @@ async function refundFailedBuildJob(client, job, cause) {
       return { refunded: false, reason: 'NOT_BUILDING' };
     }
 
-    const refundPct = await getSettingInt(client, 'ship_build_fail_refund_pct', 100);
+    const refundRaw = await getSetting('ship_build_fail_refund_pct', 100);
+    const refundPct = Number(refundRaw);
+    if (refundRaw == null || String(refundRaw).trim() === '' || !Number.isFinite(refundPct) || refundPct < 0 || refundPct > 100) throw new Error('INVALID_REFUND_PERCENTAGE');
 
     // GP 환불
     const refundedGp = Math.floor((cur.gp_cost || 0) * refundPct / 100);
@@ -742,7 +744,9 @@ async function cancelBuildJob(jobId, walletAddress) {
     }
     
     // 환불율 (기본 50%)
-    const refundPct = await getSettingInt(client, 'ship_build_cancel_refund_pct', 50);
+    const refundRaw = await getSetting('ship_build_cancel_refund_pct', 50);
+    const refundPct = Number(refundRaw);
+    if (refundRaw == null || String(refundRaw).trim() === '' || !Number.isFinite(refundPct) || refundPct < 0 || refundPct > 100) throw new Error('INVALID_REFUND_PERCENTAGE');
     
     // GP 환불
     const refundedGp = Math.floor((job.gp_cost || 0) * refundPct / 100);
@@ -1912,7 +1916,9 @@ async function scrapShip(walletAddress, shipId) {
       // 스키마 차이 등 — 전투 체크만 건너뜀(해체 자체는 진행)
     }
 
-    const refundPct = parseInt(await getSetting('ship_scrap_refund_pct', '40')) || 40;
+    const refundRaw = await getSetting('ship_scrap_refund_pct', '40');
+    const refundPct = Number(refundRaw);
+    if (refundRaw == null || String(refundRaw).trim() === '' || !Number.isFinite(refundPct) || refundPct < 0 || refundPct > 100) throw new Error('INVALID_REFUND_PERCENTAGE');
     const gpRefund = Math.floor((parseInt(ship.build_gp_cost) || 0) * refundPct / 100);
 
     // 광물 환불/소각 로그

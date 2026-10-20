@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Cache-Control" content="no-store">
+  <title>OCCUPY MARS · Authenticator</title>
+  <link rel="stylesheet" href="/assets/authenticator.css">
+  <script src="/assets/lib/qrcode-generator.js" defer></script>
+  <script src="/assets/authenticator-copy.js" defer></script>
+  <script src="/assets/authenticator.js" defer></script>
+</head>
+<body>
+<main class="auth-card">
+  <a class="brand" href="/">OCCUPY MARS</a>
+  <label class="language" for="authLanguage"><span data-copy="language">Language</span> <select id="authLanguage"><option value="en">English</option><option value="ko">한국어</option><option value="ja">日本語</option><option value="zh">中文</option><option value="id">Bahasa Indonesia</option><option value="vi">Tiếng Việt</option><option value="th">ไทย</option></select></label>
+  <h1 data-copy="title">Sign in with an authenticator</h1>
+  <p data-copy="intro">Choose a username. No email is needed for this account.</p>
+  <p id="authenticatorStatus" role="status" aria-live="polite">Checking availability…</p>
+  <button id="authAvailabilityRetry" type="button" class="secondary" data-copy="requestRetry" hidden>Try again</button>
+  <nav id="authenticatorTabs" hidden aria-label="Account actions">
+    <button type="button" data-mode="login" data-copy="login">Sign in</button><button type="button" data-mode="signup" data-copy="signup">Create account</button><button type="button" data-mode="recover" data-copy="recover">Lost phone</button>
+  </nav>
+  <form id="authenticatorForm" hidden>
+    <label for="totpUsername" data-copy="username">Username</label>
+    <input id="totpUsername" name="username" aria-describedby="usernameHint" autocomplete="username" autocapitalize="none" spellcheck="false" minlength="4" maxlength="24" pattern="[a-zA-Z0-9_]{4,24}" required>
+    <p id="usernameHint" class="note" data-copy="usernameHint">4–24 letters, numbers or underscores. Keep your username for recovery.</p>
+    <div id="loginCodeGroup"><label for="totpLoginCode" data-copy="code">Current 6-digit authenticator code</label><input id="totpLoginCode" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6"></div>
+    <div id="recoveryLoginGroup" hidden><label for="totpRecoveryLoginCode" data-copy="recoveryCode">One unused recovery code</label><input id="totpRecoveryLoginCode" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="64"><p class="warning" data-copy="recoverWarning">A recovery code is used once. Previous authenticator logins and sessions are stopped while you register a replacement.</p></div>
+    <label id="signupTerms" class="confirm" hidden><input id="totpTos" type="checkbox"><span><span data-copy="terms">I accept the Terms of Service and Privacy Policy.</span> <a href="/?legal=terms" target="_blank" rel="noopener" data-copy="viewTerms">Terms</a> · <a href="/?legal=privacy" target="_blank" rel="noopener" data-copy="viewPrivacy">Privacy</a></span></label>
+    <button id="totpSubmit" type="submit" data-copy="login">Sign in</button>
+  </form>
+  <p id="enrollmentCountdown" hidden aria-live="off"></p>
+  <section id="enrollmentPanel" hidden>
+    <h2 data-copy="setupTitle">1. Add this account to Google Authenticator</h2>
+    <p data-copy="setupHelp">Scan the QR with your authenticator app, or enter the setup key manually.</p>
+    <canvas id="totpQr" role="img" aria-label="Authenticator setup QR"></canvas>
+    <label for="totpSetupKey" data-copy="setupKey">Setup key — keep private</label><input id="totpSetupKey" readonly autocomplete="off" spellcheck="false">
+    <button id="totpCopyKey" type="button" class="secondary" data-copy="copyKey">Copy setup key</button>
+    <p class="note" data-copy="setupSamePhone">On this phone, copy the key and add it manually in your authenticator app.</p>
+    <form id="enrollmentVerifyForm"><label for="totpFirstCode" data-copy="firstCode">Enter the first 6-digit code to prove setup</label><input id="totpFirstCode" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6}" maxlength="6" required><button id="totpVerify" type="submit" data-copy="verify">Verify authenticator</button></form>
+    <p class="note" data-copy="setupWarning">Do not share the key or QR. Closing this page cancels the unfinished setup; no account is created before completion.</p>
+  </section>
+  <button id="totpRestart" type="button" class="secondary" hidden>Restart / return to sign in</button>
+  <section id="recoveryPanel" tabindex="-1" hidden>
+    <h2 data-copy="saveTitle">2. Save your recovery codes</h2>
+    <p class="warning" data-copy="saveHelp">Store these offline before continuing. They are shown once. No email recovery is added by this login method.</p>
+    <label for="recoveryCodes" data-copy="codesLabel">Private recovery codes</label><textarea id="recoveryCodes" readonly rows="10" autocomplete="off" spellcheck="false"></textarea>
+    <button id="recoveryDownload" type="button" class="secondary" data-copy="download">Download locally</button>
+    <form id="enrollmentActivateForm">
+      <label class="confirm"><input id="recoverySaved" type="checkbox" required><span data-copy="saved">I saved the codes somewhere separate from my phone.</span></label>
+      <label for="recoveryConfirmCode" data-copy="confirmCode">Re-enter one saved recovery code to finish (that code will be used)</label><input id="recoveryConfirmCode" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="64" required>
+      <button id="totpActivate" type="submit" data-copy="finish">Finish and sign in</button>
+    </form>
+  </section>
+  <p id="authenticatorFootnote" class="note" data-copy="existingHelp">Existing email/password accounts keep their current login. This page creates a separate username account; it does not move existing assets or enroll an existing account.</p>
+  <a href="/?login=1" data-copy="existing">Use existing login / return to game</a>
+</main>
+</body>
+</html>

@@ -578,28 +578,39 @@ showContinueOverlay = function(score){
 };
 
 async function confirmWithdraw(){
-  var amt=parseFloat(document.getElementById('wdrAmount').value);
-  if(!amt||amt<=0){showToast(tl('ENTER AMOUNT','금액을 입력하세요','金額を入力','请输入金额'));return}
+  var amt=Number(document.getElementById('wdrAmount').value);
+  if(!Number.isFinite(amt)||amt<=0){showToast(tl('ENTER AMOUNT','금액을 입력하세요','金額を入力','请输入金额'));return}
   if(amt>walletState.gameUsdt){showToast(tl('INSUFFICIENT BALANCE','잔액 부족','残高不足','余额不足'));return}
 
   var btn=document.getElementById('wdrConfirmBtn');
+  if(btn.disabled)return;
+  var requestToken=emailAuth.token;
   btn.textContent=tl('REQUESTING...','요청 중...','リクエスト中...','请求中...');btn.disabled=true;
 
   try{
     var resp=await fetch('/api/withdraw',{
       method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+emailAuth.token},
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+requestToken},
       body:JSON.stringify({amount:amt,chain:walletState.chain||'base'})
     });
     var d=await resp.json();
-    if(!resp.ok){showToast(srvErr(d.error)||tl('WITHDRAW FAILED','출금 실패','出金失敗','提现失败'),'error');return}
+    if(emailAuth.token!==requestToken)return;
+    if(!resp.ok){
+      var message=d.error==='withdrawal_pending_reconciliation'
+        ?tl('Previous withdrawal is still reserved while settlement is checked.','이전 출금은 정산 확인 중이며 금액은 예약되어 있습니다.','前回の出金は決済確認中のため予約されています。','上一笔提现仍在核对结算，金额保持预留。')
+        :srvErr(d.error)||tl('WITHDRAW FAILED','출금 실패','出金失敗','提现失败');
+      showToast(message,'error');return;
+    }
+    if(d.success!==true||!d.signature){showToast(tl('WITHDRAW FAILED','출금 실패','出金失敗','提现失败'),'error');return}
 
-    walletState.gameUsdt=d.usdtBalance!=null?d.usdtBalance:walletState.gameUsdt-amt;
-    refreshEmailBalances();
+    // A server signature reserves funds; it is not an on-chain payment receipt.
+    // Reissuing the same reservation must never subtract the amount again locally.
+    if(d.usdtBalance!=null&&Number.isFinite(Number(d.usdtBalance))&&Number(d.usdtBalance)>=0){
+      walletState.gameUsdt=Number(d.usdtBalance);
+    }
+    if(typeof refreshBalance==='function')refreshBalance();
     closeWithdrawModal();
-    showToast(tl('WITHDRAWAL REQUESTED:','출금 요청됨:','出金リクエスト済み:','提现已请求:')+' '+amt.toFixed(2)+' USDT');
-    try{_sfx.purchase()}catch(e){}
-    addFeed('💸 '+shortAddr(walletState.address)+' '+tl('withdrew','출금함','出金','提现了')+' $'+amt.toFixed(2));
+    showToast(tl('Withdrawal reserved. On-chain payment is not yet confirmed.','출금 예약됨. 온체인 지급은 아직 확인되지 않았습니다.','出金を予約しました。オンチェーンでの支払いは未確認です。','提现已预留，链上支付尚未确认。'));
   }catch(e){
     showToast(tl('WITHDRAW FAILED','출금 실패','出金失敗','提现失败'));
     console.error(e);

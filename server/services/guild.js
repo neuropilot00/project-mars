@@ -726,11 +726,11 @@ async function disbandGuild(leaderWallet, guildId) {
 // ═══════════════════════════════════════
 async function withdrawTreasury(wallet, guildId, amount) {
   const amt = Math.floor(parseFloat(amount) || 0);
-  if (amt <= 0) return { error: 'Invalid amount' };
+  if (!Number.isSafeInteger(amt) || amt <= 0) return { error: 'Invalid amount' };
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    const mem = await client.query('SELECT role FROM guild_members WHERE guild_id = $1 AND wallet = $2', [guildId, wallet]);
+    const mem = await client.query('SELECT role FROM guild_members WHERE guild_id = $1 AND wallet = $2 FOR SHARE', [guildId, wallet]);
     if (!mem.rows.length || !['leader', 'officer'].includes(mem.rows[0].role)) {
       await client.query('ROLLBACK'); return { error: 'Only leader/officer can withdraw' };
     }

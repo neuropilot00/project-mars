@@ -9,10 +9,40 @@ function notifyOpsProgress(wallet, types) {
   } catch (_) {}
 }
 
-// ── Create a listing (item/cosmetic or claim) ──
-async function createListing(client, seller, type, params) {
-  const w = seller.toLowerCase();
+// This protects registration cash flow only, not material cost or buyer demand.
+// Keep the check shared by the free quote and the locked, pre-charge write path.
+function resourceListingSafety(terms, sale, quantity) {
+  if (terms.currency !== 'GP') return { blocked: false, status: 'separate_currencies' };
+  const scale = 1000000;
+  const netMicro = Math.round(terms.price * scale) - Math.round(sale.fee * scale) - Math.round(terms.listingFeeGp * scale);
+  let minimumTotalPriceGp = null;
+  if (Number.isFinite(sale.feePct) && sale.feePct >= 0 && sale.feePct < 100) {
+    const feeMicro = Math.round(terms.listingFeeGp * scale);
+    let candidate = Math.max(Math.ceil(terms.minPrice * scale), Math.floor(feeMicro / (1 - sale.feePct / 100)));
+    // Use the same micro-floor order as computeSaleFee, including seller buffs.
+    for (let i = 0; i < 16 && Number.isSafeInteger(candidate) && candidate <= terms.maxPrice * scale; i++, candidate++) {
+      const saleMicro = Math.floor((candidate / scale) * sale.feePct / 100 * scale);
+      if (candidate - saleMicro - feeMicro > 0) { minimumTotalPriceGp = candidate / scale; break; }
+    }
+  }
+  const unitPrice = terms.price / quantity;
+  let suggestedQuantity = minimumTotalPriceGp != null && unitPrice > 0 ? Math.ceil(minimumTotalPriceGp / unitPrice) : null;
+  let suggestedTotalPrice = null;
+  if (Number.isSafeInteger(suggestedQuantity) && suggestedQuantity > 0) {
+    suggestedTotalPrice = Math.round(suggestedQuantity * unitPrice * scale) / scale;
+    // Do not suggest a bundle that rounds back onto the zero-net boundary.
+    const fee = Math.floor(suggestedTotalPrice * sale.feePct / 100 * scale) / scale;
+    if (Math.round((suggestedTotalPrice - fee - terms.listingFeeGp) * scale) <= 0) {
+      suggestedQuantity++;
+      suggestedTotalPrice = Math.round(suggestedQuantity * unitPrice * scale) / scale;
+    }
+  } else { suggestedQuantity = null; }
+  return { blocked: netMicro <= 0, status: netMicro <= 0 ? 'no_positive_gp_proceeds' : 'positive_before_tariff_and_material_cost',
+    minimumTotalPriceGp, suggestedQuantity, suggestedTotalPrice, unitPrice };
+}
 
+// Shared by the read-only seller preview and the actual registration charge.
+async function getListingTerms(client, w, params) {
   // Check marketplace enabled
   const enabled = (await getSetting('marketplace_enabled') || 'true') === 'true';
   if (!enabled) throw new Error('Marketplace is currently disabled');
@@ -36,6 +66,7 @@ async function createListing(client, seller, type, params) {
 
   // Listing fee — dynamic based on current active listing count
   let listingFee = parseFloat(await getSetting('marketplace_listing_fee_gp') || '2');
+  const baseListingFeeGp = listingFee;
   const currentListings = parseInt(activeRes.rows[0].cnt) || 0;
   if (currentListings >= 10) {
     const mult10 = parseFloat(await getSetting('marketplace_dynamic_fee_10') || '2.0');
@@ -44,18 +75,66 @@ async function createListing(client, seller, type, params) {
     const mult5 = parseFloat(await getSetting('marketplace_dynamic_fee_5') || '1.5');
     listingFee = Math.ceil(listingFee * mult5);
   }
+  const dynamicListingFeeGp = listingFee;
   // ✅ [Job System] Merchant fee discount buff + Crafter -10%
+  let listingDiscountsVerified = !!jobService;
   try {
     if (jobService) {
       const disc = await jobService.getJobBuff(w, 'merchant_fee_discount', 1.0);
       const craftDisc = await jobService.getJobBuff(w, 'crafter_market_fee', 1.0);
       listingFee = Math.max(0, Math.floor(listingFee * disc * craftDisc));
     }
-  } catch (_je) {}
+  } catch (_je) { listingDiscountsVerified = false; }
+  return { price, currency, minPrice, maxPrice, activeListings: currentListings, baseListingFeeGp,
+    dynamicListingFeeGp, listingFeeGp: listingFee, listingDiscountsVerified };
+}
+
+async function resolveListingSector(client, w, type, claimId) {
+  let sectorId = null;
+  try {
+    if (type === 'claim' && claimId) {
+      const sr = await client.query(
+        `SELECT sector_id FROM pixels WHERE claim_id = $1 AND sector_id IS NOT NULL
+          GROUP BY sector_id ORDER BY COUNT(*) DESC LIMIT 1`, [claimId]);
+      sectorId = sr.rows[0]?.sector_id ?? null;
+    }
+    if (sectorId == null) {
+      const sr = await client.query(
+        `SELECT sector_id FROM pixels WHERE owner = $1 AND sector_id IS NOT NULL
+          GROUP BY sector_id ORDER BY COUNT(*) DESC LIMIT 1`, [w]);
+      sectorId = sr.rows[0]?.sector_id ?? null;
+    }
+    return { sectorId, verified: true };
+  } catch (_) { return { sectorId: null, verified: false }; }
+}
+
+// ── Create a listing (item/cosmetic or claim) ──
+async function createListing(client, seller, type, params) {
+  const w = seller.toLowerCase();
+  // Serialize every registration for this seller, including zero-fee listings.
+  // Read the count/discounts only after a competing registration has committed.
+  const balRes = await client.query('SELECT gp_balance FROM users WHERE wallet_address = $1 FOR UPDATE', [w]);
+  if (!balRes.rows.length) throw new Error('User not found');
+  const terms = await getListingTerms(client, w, params);
+  const { price, currency, listingFeeGp: listingFee, activeListings: currentListings } = terms;
+  // Optional preview guards leave existing clients compatible. No quote reserves a fee.
+  if (params.listingQuoteExpiresAt != null &&
+      (!Number.isFinite(Date.parse(params.listingQuoteExpiresAt)) || Date.parse(params.listingQuoteExpiresAt) <= Date.now())) {
+    throw new Error('LISTING_QUOTE_EXPIRED: Review current costs again');
+  }
+  if (params.expectedListingFeeGp != null && Number(params.expectedListingFeeGp) !== listingFee) {
+    throw new Error('LISTING_FEE_CHANGED: Review current costs again');
+  }
+  if (type === 'resource') {
+    const sale = await computeSaleFee(w, price);
+    const safety = resourceListingSafety(terms, sale, parseInt(params.resourceQuantity) || 1);
+    if (safety.blocked) throw new Error('RESOURCE_LISTING_NO_NET_PROCEEDS: Increase the bundle quantity or total price and review current costs');
+  }
   if (listingFee > 0) {
-    const balRes = await client.query('SELECT gp_balance FROM users WHERE wallet_address = $1 FOR UPDATE', [w]);
-    if (!balRes.rows.length) throw new Error('User not found');
     if (parseFloat(balRes.rows[0].gp_balance) < listingFee) throw new Error(`Insufficient GP for listing fee (${listingFee} GP)`);
+    if (params.listingQuoteExpiresAt != null && Date.parse(params.listingQuoteExpiresAt) <= Date.now()) {
+      throw new Error('LISTING_QUOTE_EXPIRED: Review current costs again');
+    }
     await client.query('UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2) AND gp_balance >= $1', [listingFee, w]);
     await client.query(
       `INSERT INTO transactions (type, from_wallet, pp_amount, fee, meta) VALUES ('marketplace_listing_fee', $1, 0, 0, $2)`,
@@ -109,11 +188,11 @@ async function createListing(client, seller, type, params) {
     claimId = parseInt(params.claimId);
     if (!claimId) throw new Error('claimId required');
     const claimRes = await client.query(
-      'SELECT * FROM claims WHERE id = $1 AND owner = $2 AND deleted_at IS NULL', [claimId, w]
+      'SELECT * FROM claims WHERE id = $1 AND owner = $2 AND deleted_at IS NULL FOR UPDATE', [claimId, w]
     );
     if (!claimRes.rows.length) throw new Error('Claim not found or not owned');
     const claim = claimRes.rows[0];
-    if (claim.marketplace_locked) throw new Error('This territory is already listed');
+    if (claim.marketplace_locked || claim.auction_locked) throw new Error('This territory is already listed');
 
     // Escrow: lock claim
     await client.query('UPDATE claims SET marketplace_locked = true WHERE id = $1', [claimId]);
@@ -166,21 +245,7 @@ async function createListing(client, seller, type, params) {
   //   - claim 리스팅: 해당 claim 픽셀의 최빈 섹터.
   //   - 그 외(item/cosmetic/resource): 판매자 보유 픽셀의 최빈 섹터(거점).
   // 섹터를 못 찾으면 null(무관세, 기존 동작) — 안전.
-  let sectorId = null;
-  try {
-    if (type === 'claim' && claimId) {
-      const sr = await client.query(
-        `SELECT sector_id FROM pixels WHERE claim_id = $1 AND sector_id IS NOT NULL
-          GROUP BY sector_id ORDER BY COUNT(*) DESC LIMIT 1`, [claimId]);
-      sectorId = sr.rows[0]?.sector_id ?? null;
-    }
-    if (sectorId == null) {
-      const sr = await client.query(
-        `SELECT sector_id FROM pixels WHERE owner = $1 AND sector_id IS NOT NULL
-          GROUP BY sector_id ORDER BY COUNT(*) DESC LIMIT 1`, [w]);
-      sectorId = sr.rows[0]?.sector_id ?? null;
-    }
-  } catch (_) { sectorId = null; }
+  const { sectorId } = await resolveListingSector(client, w, type, claimId);
 
   // Create listing (resource type includes resource_code + resource_quantity)
   const isResource = type === 'resource';
@@ -229,27 +294,81 @@ async function cancelListing(client, listingId, wallet) {
   return { success: true };
 }
 
-async function computePurchaseSettlement(listing, buyer) {
-  const b = String(buyer || '').toLowerCase();
-  const price = parseFloat(listing.price);
-  const currency = listing.currency;
-
+async function computeSaleFee(seller, price) {
   // Calculate fee
   let feePct = parseFloat(await getSetting('marketplace_fee_pct') || '5');
+  const baseSaleFeePct = feePct;
+  let saleDiscountsVerified = !!jobService;
   // ✅ [Job System] Merchant -30% + Crafter -10% (applied to seller)
   try {
     if (jobService) {
-      feePct = Math.max(0, feePct * await jobService.getJobBuff(listing.seller, 'merchant_market_fee', 1.0));
-      feePct = Math.max(0, feePct * await jobService.getJobBuff(listing.seller, 'crafter_market_fee', 1.0));
+      feePct = Math.max(0, feePct * await jobService.getJobBuff(seller, 'merchant_market_fee', 1.0));
+      feePct = Math.max(0, feePct * await jobService.getJobBuff(seller, 'crafter_market_fee', 1.0));
     }
-  } catch (_je) {}
+  } catch (_je) { saleDiscountsVerified = false; }
   // [영토 등급 v7.140] 판매자 최고 등급 영토 → 마켓 수수료 할인(가격 왜곡 없이 등급 효용 부여)
-  try { feePct = Math.max(0, feePct * await require('./territoryCondition').marketFeeMultiplier(listing.seller)); } catch (_ge) {}
+  try { feePct = Math.max(0, feePct * await require('./territoryCondition').marketFeeMultiplier(seller)); } catch (_ge) { saleDiscountsVerified = false; }
   // [v7.165] 곱연산 누적으로 feePct 가 0 까지 떨어지면 referral/dividend base 도 0 → 수익 누락.
   // 운영자 보호용 최소 수수료 floor(기본 0.5%). marketplace_fee_min_pct 로 admin 조정 가능.
   const feeMinPct = parseFloat(await getSetting('marketplace_fee_min_pct') || '0.5');
   if (feePct < feeMinPct) feePct = feeMinPct;
   const fee = Math.floor(price * feePct / 100 * 1000000) / 1000000;
+  return { fee, feePct, baseSaleFeePct, saleDiscountsVerified };
+}
+
+// Seller preview: buyer-dependent tariff exemptions cannot be known before a sale.
+async function quoteListing(seller, type, params) {
+  if (!['item', 'cosmetic', 'claim', 'resource'].includes(type)) throw new Error('Invalid listing type');
+  const w = String(seller || '').toLowerCase();
+  const terms = await getListingTerms(pool, w, params);
+  const sale = await computeSaleFee(w, terms.price);
+  const sector = await resolveListingSector(pool, w, type, parseInt(params.claimId));
+  let tariffStatus = sector.verified ? 'known' : 'unknown';
+  let tariffMax = sector.verified ? 0 : null;
+  if (sector.verified && sector.sectorId != null) {
+    try {
+      // Empty buyer receives no personal/guild exemption. Actual buyer may pay less.
+      const tariff = await require('./sector').computeSectorTariff(sector.sectorId, '', terms.price);
+      tariffMax = Number(tariff.tariffAmount);
+      if (!Number.isFinite(tariffMax) || tariffMax < 0) throw new Error('Invalid tariff quote');
+      tariffStatus = tariffMax > 0 ? 'range' : 'known';
+    } catch (_) { tariffStatus = 'unknown'; tariffMax = null; }
+  }
+  const receivesMax = terms.price - sale.fee;
+  const receivesMin = tariffMax == null || !sale.saleDiscountsVerified ? null : receivesMax - tariffMax;
+  let npcCompetition = null;
+  if (type === 'resource') {
+    const qty = parseInt(params.resourceQuantity) || 1;
+    if (!params.resourceCode || qty < 1) throw new Error('Invalid resource quantity or code');
+    try {
+      const r = await pool.query(
+        `SELECT COUNT(*)::int AS listing_count,
+                MIN(ml.price / NULLIF(ml.resource_quantity, 0)) AS min_unit_price
+           FROM marketplace_listings ml JOIN users u ON u.wallet_address = ml.seller
+          WHERE ml.status = 'active' AND ml.expires_at > NOW() AND u.is_ai = TRUE
+            AND ml.listing_type = 'resource' AND ml.resource_code = $1 AND ml.currency = $2`,
+        [params.resourceCode, terms.currency]);
+      npcCompetition = { available: true, listingCount: Number(r.rows[0]?.listing_count || 0),
+        minUnitPrice: r.rows[0]?.min_unit_price == null ? null : Number(r.rows[0].min_unit_price) };
+    } catch (_) { npcCompetition = { available: false }; }
+  }
+  const now = Date.now();
+  return { ...terms, saleFee: sale.fee, saleFeePct: sale.feePct, baseSaleFeePct: sale.baseSaleFeePct,
+    saleDiscountsVerified: sale.saleDiscountsVerified, sectorId: sector.sectorId,
+    tariffStatus, tariffMax, receivesMin, receivesMax,
+    // Never add/subtract PP proceeds and a GP registration fee.
+    netAfterListingFeeMin: terms.currency === 'GP' && receivesMin != null ? receivesMin - terms.listingFeeGp : null,
+    netAfterListingFeeMax: terms.currency === 'GP' ? receivesMax - terms.listingFeeGp : null,
+    resourceQuantity: type === 'resource' ? parseInt(params.resourceQuantity) || 1 : null,
+    resourceRegistration: type === 'resource' ? resourceListingSafety(terms, sale, parseInt(params.resourceQuantity) || 1) : null,
+    npcCompetition, quotedAt: new Date(now).toISOString(), expiresAt: new Date(now + 60000).toISOString() };
+}
+
+async function computePurchaseSettlement(listing, buyer) {
+  const b = String(buyer || '').toLowerCase();
+  const price = parseFloat(listing.price);
+  const currency = listing.currency;
+  const { fee, feePct } = await computeSaleFee(listing.seller, price);
 
   // ── M-156 Phase A: 섹터 관세 (거버너 수수료) ──
   // listing.sector_id가 채워져 있으면 그 섹터 거버너에게 관세를 송금.
@@ -469,6 +588,7 @@ async function buyListing(client, listingId, buyer) {
 
   // ── Migration 173: 마켓 수수료의 일부를 레퍼럴 트리로 분배 ──
   // referral_market_fee_pct setting으로 트리거 비율 조정 가능
+  let referralPaid = 0;
   try {
     if (fee > 0) {
       const { creditReferralCommission } = require('../db');
@@ -479,11 +599,13 @@ async function buyListing(client, listingId, buyer) {
         const refBase = Math.floor(fee * refSharePct / 100 * 1000000) / 1000000;
         if (refBase > 0) {
           const cur = (currency || 'GP').toLowerCase();
-          await creditReferralCommission(client, b, 'market_fee', refBase, cur);
+          const credited = await creditReferralCommission(client, b, 'market_fee', refBase, cur);
+          referralPaid = (Array.isArray(credited) ? credited : []).reduce((sum, reward) => sum + (Number(reward.amount) || 0), 0);
         }
       }
     }
   } catch (_rfe) { /* referral failure non-fatal */ }
+  if (!Number.isFinite(referralPaid) || referralPaid < 0 || referralPaid > fee + 1e-6) throw new Error('INVALID_FEE_ALLOCATION');
 
   // Price history
   const meta = listing.meta || {};
@@ -523,10 +645,8 @@ async function buyListing(client, listingId, buyer) {
 
   // ✅ Dividend pool: route portion of marketplace fee
   if (fee > 0 && currency === 'GP') {
-    try {
-      const divSvc = require('./dividends');
-      divSvc.addToPool(fee, 'marketplace').catch(() => {});
-    } catch (_dv) {}
+    const divSvc = require('./dividends');
+    await divSvc.addToPool(fee, 'marketplace', client, Math.max(0, fee - referralPaid));
   }
 
   // 🏆 Achievement triggers (buyer + seller)
@@ -573,7 +693,7 @@ async function getListings(filters = {}) {
   const limit = Math.min(parseInt(filters.limit) || 40, 100);
   const offset = parseInt(filters.offset) || 0;
 
-  const q = `SELECT ml.*, u.nickname AS seller_name
+  const q = `SELECT ml.*, u.nickname AS seller_name, u.is_ai AS seller_is_npc
     FROM marketplace_listings ml
     LEFT JOIN users u ON u.wallet_address = ml.seller
     WHERE ${conditions.join(' AND ')}
@@ -592,7 +712,7 @@ async function getListings(filters = {}) {
 // ── Get single listing detail ──
 async function getListingDetail(listingId) {
   const res = await pool.query(
-    `SELECT ml.*, u.nickname AS seller_name
+    `SELECT ml.*, u.nickname AS seller_name, u.is_ai AS seller_is_npc
      FROM marketplace_listings ml
      LEFT JOIN users u ON u.wallet_address = ml.seller
      WHERE ml.id = $1`, [listingId]
@@ -725,6 +845,7 @@ async function adminCancelListing(client, listingId) {
 
 module.exports = {
   createListing,
+  quoteListing,
   cancelListing,
   buyListing,
   quotePurchase,

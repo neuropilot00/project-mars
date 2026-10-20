@@ -5,7 +5,8 @@
   "scripts": {
     "start": "cd server && node index.js",
     "dev": "cd server && node --watch index.js",
-    "install:server": "cd server && npm install"
+    "install:server": "cd server && npm install",
+    "test:isolated": "node --require ./server/tests/isolation-guard.cjs --test ./tests/*.test.js ./server/tests/*.test.js"
   },
   "engines": {
     "node": "22.x"

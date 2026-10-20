@@ -1,5 +1,6 @@
 (function() {
   let confirmResolver = null;
+  let confirmValidator = null;
   let inputResolver = null;
   let pickerResolver = null;
 
@@ -22,6 +23,7 @@
   window.gameConfirm = function(opts) {
     return new Promise(function(resolve) {
       confirmResolver = resolve;
+      confirmValidator = typeof opts.validate === 'function' ? opts.validate : null;
       const dlg = document.getElementById('gameConfirm');
       if (!dlg) return resolve(false);
 
@@ -48,10 +50,12 @@
   };
 
   window.gameConfirmResolve = function(value) {
+    if (value && confirmValidator && !confirmValidator()) return;
     const dlg = document.getElementById('gameConfirm');
     if (dlg) dlg.classList.remove('open');
     const resolver = confirmResolver;
     confirmResolver = null;
+    confirmValidator = null;
     if (resolver) resolver(value);
   };
 

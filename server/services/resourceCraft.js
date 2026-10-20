@@ -62,11 +62,12 @@ async function getMyJobs(walletAddress) {
 async function startCraft(walletAddress, resourceCode, quantity = 1) {
   // 수량 상한은 settings에서 (하드코딩 금지)
   const maxQty = parseInt(await getSetting('resource_craft_max_quantity_per_job', '50')) || 50;
-  if (quantity < 1 || quantity > maxQty) {
+  if (!Number.isSafeInteger(Number(quantity)) || Number(quantity) < 1 || Number(quantity) > maxQty) {
     const err = new Error('INVALID_QUANTITY');
     err.meta = { min: 1, max: maxQty };
     throw err;
   }
+  quantity = Number(quantity);
 
   const client = await pool.connect();
   try {
@@ -120,6 +121,7 @@ async function startCraft(walletAddress, resourceCode, quantity = 1) {
     const totalNeeded = {};
     for (const [code, need] of recipeEntries) {
       const totalNeed = need * quantity;
+      if (!Number.isSafeInteger(Number(need)) || Number(need) <= 0 || !Number.isSafeInteger(totalNeed)) throw new Error('INVALID_RECIPE');
       totalNeeded[code] = totalNeed;
       const have = inv[code]?.qty || 0;
       if (have < totalNeed) missing.push({ code, need: totalNeed, have });
@@ -197,6 +199,7 @@ async function claimJob(jobId, walletAddress) {
     const job = jobRows[0];
 
     if (job.status !== 'crafting') {
+      await client.query('ROLLBACK');
       return { already_claimed: true, job };
     }
     if (new Date(job.completes_at) > new Date()) {
@@ -252,7 +255,8 @@ async function cancelJob(jobId, walletAddress) {
     if (job.status !== 'crafting') throw new Error('JOB_NOT_CANCELLABLE');
 
     // 환불율은 settings에서 (하드코딩 금지)
-    const refundPct = parseInt(await getSetting('resource_craft_cancel_refund_pct', '50')) || 50;
+    const refundPct = Number(await getSetting('resource_craft_cancel_refund_pct', '50'));
+    if (!Number.isFinite(refundPct) || refundPct < 0 || refundPct > 100) throw new Error('INVALID_REFUND_CONFIGURATION');
     const materials = job.materials_used || {};
     const refunded = {};
     for (const [code, qty] of Object.entries(materials)) {

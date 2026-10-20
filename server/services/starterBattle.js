@@ -3,6 +3,28 @@ const crypto = require('crypto');
 const { pool } = require('../db');
 const { assertFleetsNotMining } = require('./fleetOccupancy');
 
+const OPENING_TACTICS = Object.freeze({
+  breakthrough: Object.freeze({ formation: 'wedge', movement: 'advance' }),
+  flank: Object.freeze({ formation: 'screen', movement: 'flank' }),
+});
+
+function validateOpeningTactic(value) {
+  if (value === undefined) return null; // preserve legacy starts
+  if (typeof value !== 'string' || !Object.hasOwn(OPENING_TACTICS, value)) throw new Error('INVALID_OPENING_TACTIC');
+  return value;
+}
+
+// A summary alone cannot enable opening control on an arbitrary battle.
+async function loadOpeningTactic(db, battle) {
+  const summary = battle.battle_summary;
+  if (summary?.trusted_source !== 'starter_ops' || summary?.is_starter_battle !== true || summary?.starter_training !== true || summary?.missionId !== 'first_sortie' || !Object.hasOwn(OPENING_TACTICS, summary.opening_tactic)) return null;
+  const registered = await db.query(`SELECT p.fleet_id FROM fleet_battle_participants p
+    JOIN starter_fleet_grants g ON g.fleet_id=p.fleet_id AND LOWER(g.wallet_address)=LOWER(p.wallet_address) AND g.grant_code='starter_ops_v1'
+    JOIN users u ON LOWER(u.wallet_address)=LOWER(p.wallet_address) AND u.is_ai=false
+    WHERE p.battle_id=$1 AND p.side='atk' AND LOWER(p.wallet_address)=$2`, [battle.id, summary.starter_wallet]);
+  return registered.rows[0] ? { fleetId: String(registered.rows[0].fleet_id), ...OPENING_TACTICS[summary.opening_tactic] } : null;
+}
+
 function fleetKey(value) {
   if (typeof value === 'number' && !Number.isSafeInteger(value)) throw new Error('INVALID_FLEET_ID');
   if (!['string', 'number', 'bigint'].includes(typeof value)) throw new Error('INVALID_FLEET_ID');
@@ -13,7 +35,8 @@ function fleetKey(value) {
   return id.toString();
 }
 
-async function createInTransaction(client, { wallet, fleetId, missionId }) {
+async function createInTransaction(client, { wallet, fleetId, missionId, openingTactic }) {
+  openingTactic = validateOpeningTactic(openingTactic);
   if (missionId !== 'first_sortie') throw new Error('INVALID_STARTER_MISSION');
   const address = String(wallet || '').trim().toLowerCase();
   const { rows: users } = await client.query('SELECT wallet_address,faction_code,is_ai FROM users WHERE LOWER(wallet_address)=$1 FOR UPDATE', [address]);
@@ -44,7 +67,7 @@ async function createInTransaction(client, { wallet, fleetId, missionId }) {
     VALUES($1,$2,$3,$4,$4,true,true,$3)`, [npc.rows[0].id, catalog.rows[0].code, npcWallet, catalog.rows[0].base_hp]);
   const summary = { is_starter_battle: true, is_ai_battle: true, starter_training: true,
     trusted_source: 'starter_ops', missionId, starter_wallet: address,
-    objective: 'first_sortie', risk_policy: { permanent_loss: false, hull_floor_pct: 15, generic_rewards: false } };
+    objective: 'first_sortie', ...(openingTactic ? { opening_tactic: openingTactic } : {}), risk_policy: { permanent_loss: false, hull_floor_pct: 15, generic_rewards: false } };
   const battle = await client.query(`INSERT INTO fleet_battles(battle_type,status,sector_id,scheduled_start_at,battle_summary)
     VALUES('event','preparing',$1,NOW(),$2::jsonb) RETURNING id`, [fleet.sector_id, JSON.stringify(summary)]);
   const battleId = String(battle.rows[0].id);
@@ -63,17 +86,17 @@ function dispatchBattle(result) {
   return result;
 }
 
-async function createFirstSortie({ client, wallet, fleetId, missionId = 'first_sortie' }) {
-  if (client) return createInTransaction(client, { wallet, fleetId, missionId });
+async function createFirstSortie({ client, wallet, fleetId, missionId = 'first_sortie', openingTactic }) {
+  if (client) return createInTransaction(client, { wallet, fleetId, missionId, openingTactic });
   const connection = await pool.connect();
   let result;
   try {
     await connection.query('BEGIN');
-    result = await createInTransaction(connection, { wallet, fleetId, missionId });
+    result = await createInTransaction(connection, { wallet, fleetId, missionId, openingTactic });
     await connection.query('COMMIT');
   } catch (error) { await connection.query('ROLLBACK'); throw error; }
   finally { connection.release(); }
   return dispatchBattle(result);
 }
 
-module.exports = { createFirstSortie, dispatchBattle };
+module.exports = { createFirstSortie, dispatchBattle, validateOpeningTactic, loadOpeningTactic };

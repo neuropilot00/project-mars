@@ -15,9 +15,9 @@
 // ─────────────────────────────────────────────────────────────
 
 const { WebSocketServer } = require('ws');
-const jwt = require('jsonwebtoken');
 const url = require('url');
 const { randomUUID } = require('crypto');
+const totpSessionBoundary = require('./utils/totpSessionBoundary');
 
 function _commandAck(ws, cmd, commandId, error, extra) {
   _safeSendOrTerminate(ws, JSON.stringify({
@@ -67,20 +67,12 @@ function _releaseConn(ip) {
   if (c <= 0) _ipConns.delete(ip); else _ipConns.set(ip, c);
 }
 
-function _verifyToken(token) {
-  if (!token || !process.env.JWT_SECRET) return null;
-  try {
-    const p = jwt.verify(token, process.env.JWT_SECRET);
-    return (p.wallet_address || p.wallet || p.walletAddress || '').toLowerCase().trim();
-  } catch (_) { return null; }
-}
-
 function attachWsServer(httpServer) {
   if (_wss) return _wss;
   _wss = new WebSocketServer({ noServer: true });
   _initRedisPubSub();  // 멀티 인스턴스 팬아웃 (REDIS_URL 있을 때만; 없으면 로컬 전용)
 
-  httpServer.on('upgrade', (req, socket, head) => {
+  httpServer.on('upgrade', async (req, socket, head) => {
     const parsed = url.parse(req.url, true);
     const path = parsed.pathname || '';
     const isBattle = /^\/ws\/battle\/(\d+)$/.exec(path);
@@ -101,22 +93,32 @@ function attachWsServer(httpServer) {
     };
     socket.once('close', _socketRelease);
     socket.once('error', _socketRelease);
+    let session;
+    try { session = await totpSessionBoundary.validateToken(parsed.query.token); }
+    catch (_) { _socketRelease(); socket.destroy(); return; }
+    if (socket.destroyed) { _socketRelease(); return; }
+    if (session.revoked) {
+      try { socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n'); } catch (_) {}
+      _socketRelease(); socket.destroy(); return;
+    }
     if (isBattle) {
       const battleId = _battleKey(isBattle[1]);
       if (!battleId) { socket.destroy(); return; }
-      const wallet = _verifyToken(parsed.query.token); // 인증 실패해도 read-only 허용 (관전 모드)
+      const wallet = session.wallet; // Invalid legacy tokens retain spectator access.
       _wss.handleUpgrade(req, socket, head, (ws) => {
         _upgradeGuard.upgraded = true; // [v7.189] socket-level release 비활성화 — ws.close 가 release 담당
         ws.battleId = battleId; ws.wallet = wallet; ws._ip = ip;
+        ws.totpToken = session.totp ? parsed.query.token : null;
         _wss.emit('connection', ws, req);
       });
       return;
     }
     // 라이브 채널: /ws/live (채팅 + 활동피드 푸시)
-    const wallet = _verifyToken(parsed.query.token);
+    const wallet = session.wallet;
     _wss.handleUpgrade(req, socket, head, (ws) => {
       _upgradeGuard.upgraded = true; // [v7.189] 동일 — ws.close release 로 이관
       ws.isLive = true; ws.wallet = wallet; ws.subs = new Set(); ws._ip = ip;
+      ws.totpToken = session.totp ? parsed.query.token : null;
       _wss.emit('connection', ws, req);
     });
   });
@@ -129,13 +131,20 @@ function attachWsServer(httpServer) {
 
     ws.send(JSON.stringify({ type: 'hello', battleId: bid, wallet: ws.wallet || null }));
 
-    ws.on('message', (raw) => {
+    ws.on('message', async (raw) => {
       let msg = null;
       try { msg = JSON.parse(raw.toString()); } catch (_) { return; }
       if (!msg || !msg.type) return;
       if (msg.type === 'cmd') {
         const commandId = typeof msg.commandId === 'string' && /^[A-Za-z0-9._:-]{1,80}$/.test(msg.commandId)
           ? msg.commandId : randomUUID();
+        if (ws.totpToken) {
+          const current = await totpSessionBoundary.validateToken(ws.totpToken);
+          if (current.revoked || !current.wallet) {
+            try { ws.close(1008, 'session_expired'); } catch (_) {}
+            return;
+          }
+        }
         // 부모 (commander_actions) 로 전달 — 인증된 wallet 만
         if (!ws.wallet) {
           _commandAck(ws, msg.cmd, commandId, 'wallet_required');
@@ -305,13 +314,28 @@ function routeBattleCommandResult(battleId, command) {
   return { accepted: false, reason: 'not_authority' };
 }
 
+async function _sendBattleCommandResult(ws, payload) {
+  if (ws.readyState !== 1) return;
+  if (ws.totpToken) {
+    let current;
+    try { current = await totpSessionBoundary.validateToken(ws.totpToken); } catch (_) {}
+    if (!current || current.revoked || !current.wallet ||
+        current.wallet.toLowerCase() !== ws.wallet.toLowerCase()) {
+      try { ws.close(1008, 'session_expired'); } catch (_) {}
+      return;
+    }
+  }
+  _safeSendOrTerminate(ws, payload);
+}
+
 function _localBattleCommandResult(battleId, result) {
   const set = _channels.get(_battleKey(battleId));
   if (!set || !result || !result.wallet) return;
   const { wallet, ...publicResult } = result;
   const payload = JSON.stringify({ type: 'cmd_result', battleId: _battleKey(battleId), ...publicResult });
   for (const ws of set) {
-    if (ws.wallet && ws.wallet.toLowerCase() === String(wallet).toLowerCase()) _safeSendOrTerminate(ws, payload);
+    // Owner-scoped results must recheck idle TOTP sessions after recovery too.
+    if (ws.wallet && ws.wallet.toLowerCase() === String(wallet).toLowerCase()) _sendBattleCommandResult(ws, payload);
   }
 }
 

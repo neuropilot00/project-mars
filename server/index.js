@@ -89,6 +89,9 @@ const { requireAdmin } = require('./middleware/adminAuth');
 // ══════════════════════════════════════════════════════════════
 const apiRoutes = require('./routes/api');
 const authRoutes = require('./routes/auth');
+const totpAuthRoutes = require('./routes/totpAuthRoutes').createRouter();
+const totpSessionBoundary = require('./utils/totpSessionBoundary');
+totpSessionBoundary.setSessionChecker(totpAuthRoutes.checkSession);
 const adminRoutes = require('./routes/admin');
 const arenaRoutes = require('./routes/arena');
 const governanceRoutes = require('./routes/governance');
@@ -401,6 +404,8 @@ app.use((req, res, next) => {
 // ── API Routes ──
 // Auth must bypass the general /api router stack; otherwise login/register can
 // be blocked by broad gameplay API limiters before authRoutes sees the request.
+app.use('/api', totpSessionBoundary.middleware);
+app.use('/api/auth/totp', totpAuthRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api', apiWriteLimiter); // Write rate limit for all POST/PUT/PATCH/DELETE under /api
 // ⚠️ job/resource/onboarding/sector routes must come BEFORE apiRoutes to avoid /user/:wallet wildcard conflict
@@ -646,7 +651,7 @@ app.use((req, res, next) => {
 app.get('/favicon.ico', (_req, res) => res.status(204).end());
 // Publish only game client files, never the repository/server/tooling tree.
 app.use('/assets', express.static(path.join(__dirname, '..', 'assets'), { index: false }));
-for (const file of ['index.html', 'admin.html', 'arena.html', 'manifest.json', 'sw.js', 'map.png', 'PIXELWAR_landing.html', 'PIXELWAR_concept.html']) {
+for (const file of ['index.html', 'authenticator.html', 'admin.html', 'arena.html', 'manifest.json', 'sw.js', 'map.png', 'PIXELWAR_landing.html', 'PIXELWAR_concept.html']) {
   app.get('/' + file, (_req, res) => res.sendFile(path.join(__dirname, '..', file)));
 }
 

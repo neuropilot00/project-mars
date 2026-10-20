@@ -118,4 +118,33 @@ async function getOnchainWithdrawNonce(userAddress, chainKey) {
   return ethers.BigNumber.from(n).toNumber();
 }
 
-module.exports = { init, generateWithdrawSignature, getAvailableLiquidity, getOnchainWithdrawNonce, getDepositAddress, getSignerAddress, CHAINS };
+// A latest nonce/local clock cannot prove an expired signature was never mined.
+// Unsupported finality tags, missing blocks and inconsistent canonical hashes
+// must throw: callers keep the reservation until a later successful observation.
+async function getFinalizedBlock(chainKey) {
+  const block = await getProvider(chainKey).getBlock('finalized');
+  if (!block || !Number.isSafeInteger(block.number) || block.number < 0 || !Number.isSafeInteger(block.timestamp) || block.timestamp < 0 || !block.hash) {
+    throw new Error('Finalized chain state unavailable');
+  }
+  return block;
+}
+
+async function getFinalizedWithdrawState(userAddress, chainKey) {
+  const block = await getFinalizedBlock(chainKey);
+  const provider = getProvider(chainKey);
+  const contract = new ethers.Contract(getDepositAddress(chainKey), DEPOSIT_ABI, provider);
+  const nonce = ethers.BigNumber.from(await contract.withdrawNonce(userAddress, { blockTag: block.number })).toNumber();
+  const canonical = await provider.getBlock(block.number);
+  if (!canonical || canonical.hash !== block.hash) throw new Error('Finalized block changed during observation');
+  return { nonce, timestamp: block.timestamp, blockNumber: block.number, blockHash: block.hash };
+}
+
+async function verifyFinalizedEvent(chainKey, blockNumber, blockHash) {
+  if (!Number.isSafeInteger(blockNumber) || blockNumber < 0 || !blockHash) throw new Error('Missing event block identity');
+  const finalized = await getFinalizedBlock(chainKey);
+  if (blockNumber > finalized.number) throw new Error('Event is not finalized');
+  const block = await getProvider(chainKey).getBlock(blockNumber);
+  if (!block || block.hash !== blockHash) throw new Error('Event is not canonical');
+}
+
+module.exports = { init, generateWithdrawSignature, getAvailableLiquidity, getOnchainWithdrawNonce, getFinalizedBlock, getFinalizedWithdrawState, verifyFinalizedEvent, getDepositAddress, getSignerAddress, CHAINS };

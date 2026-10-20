@@ -43,7 +43,8 @@ async function getState(wallet){
  const current=missions.find(x=>x.id===currentMissionId);if(current&&current.status==='locked')current.status='available';
  return {success:true,currentMissionId,missions,starterFleet};
 }
-async function start(wallet,id){
+async function start(wallet,id,options={}){
+ const openingTactic=id==='first_sortie'?require('./starterBattle').validateOpeningTactic(options.openingTactic):null;
  const m=mission(id);if(!m)throw Error('INVALID_MISSION');const w=low(wallet),c=await pool.connect();
  let battle=null, starterFleet=null, recovery=null;
  try{await c.query('BEGIN');await c.query('SELECT pg_advisory_xact_lock(hashtext($1))',['starter_ops:'+w]);const canonical=await ensureProgress(c,w);
@@ -57,7 +58,7 @@ async function start(wallet,id){
    if(existing&&['preparing','active'].includes(existing.status))battle={battleId:String(existing.id),status:existing.status,reused:true};
    else if(!existing||['ended','cancelled'].includes(existing.status)){
      if(existing&&existing.status==='ended'&&existing.winner_side==='atk')throw Error('MISSION_ALREADY_COMPLETE');
-     const factory=require('./starterBattle');battle=await factory.createFirstSortie({client:c,wallet:w,fleetId:starterFleet.fleetId,missionId:id});
+     const factory=require('./starterBattle');battle=await factory.createFirstSortie({client:c,wallet:w,fleetId:starterFleet.fleetId,missionId:id,...(openingTactic?{openingTactic}:{})});
    } else throw Error('BATTLE_IN_PROGRESS');
  }
  await c.query('COMMIT');

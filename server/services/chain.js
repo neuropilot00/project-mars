@@ -1,5 +1,6 @@
 const { ethers } = require('ethers');
 const { pool, ensureUser, awardXP, creditReferralCommission } = require('../db');
+const { financialNumber } = require('./treasury');
 
 const DEPOSIT_ABI = [
   'event Deposited(address indexed user, uint256 amount, uint256 timestamp, uint256 chainId)',
@@ -52,15 +53,12 @@ async function getPpBonusPct() {
       `SELECT value FROM settings WHERE key = 'deposit_pp_bonus'`
     );
     if (res.rows.length && res.rows[0].value != null) {
-      cachedPpBonusPct = parseFloat(res.rows[0].value);
-      if (isNaN(cachedPpBonusPct)) cachedPpBonusPct = DEFAULT_PP_BONUS_PCT;
+      cachedPpBonusPct = financialNumber(res.rows[0].value, 'deposit_pp_bonus');
     } else {
       cachedPpBonusPct = DEFAULT_PP_BONUS_PCT;
     }
   } catch (e) {
-    // Table may not exist yet — fall back silently
-    if (cachedPpBonusPct === null) cachedPpBonusPct = DEFAULT_PP_BONUS_PCT;
-    console.warn(`[Chain] Could not read deposit_pp_bonus from settings: ${e.message}`);
+    throw new Error('Deposit bonus configuration unavailable: ' + e.message);
   }
   ppBonusFetchedAt = now;
   return cachedPpBonusPct;
@@ -90,13 +88,7 @@ async function connectChain(key, cfg) {
     // Listen for new Deposited events
     contract.on('Deposited', async (user, amount, timestamp, chainId, event) => {
       try {
-        await processDeposit({
-          wallet: user.toLowerCase(),
-          amount: ethers.utils.formatUnits(amount, cfg.decimals),
-          chain: key,
-          txHash: event.transactionHash,
-          blockNumber: event.blockNumber
-        });
+        await backfillEvents(key, contract, provider, cfg.decimals);
       } catch (e) {
         console.error(`[Chain] ${cfg.name} deposit processing error:`, e.message);
       }
@@ -192,6 +184,7 @@ function startHealthCheck() {
         try {
           const blockNumber = await provider.getBlockNumber();
           console.log(`[Chain] Health: ${CHAIN_CONFIGS[key].name} latest block #${blockNumber}`);
+          await backfillEvents(key, listeners[key].contract, provider, CHAIN_CONFIGS[key].decimals);
         } catch (e) {
           console.error(`[Chain] Health: ${CHAIN_CONFIGS[key].name} unreachable — ${e.message}`);
           handleDisconnect(key, CHAIN_CONFIGS[key]);
@@ -243,68 +236,71 @@ async function startListeners() {
 
 // ── [P0] 출금 예약 정산/환불 ──
 
-// Withdrawn 이벤트로 pending → settled (차감 확정, 환불 없음).
+// An observed event is only a hint. Settlement also requires finalized nonce
+// advancement; a latest event can disappear in a reorg.
 async function settleWithdrawal({ wallet, nonce, chain }) {
-  await pool.query(
-    `UPDATE pending_withdrawals SET status='settled', settled_at=NOW()
-      WHERE chain=$1 AND LOWER(wallet_address)=LOWER($2) AND nonce=$3 AND status='pending'`,
-    [chain, wallet, nonce]
-  );
+  const state = await require('./signer').getFinalizedWithdrawState(wallet, chain);
+  if (state.nonce <= nonce) return;
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    await client.query('SELECT 1 FROM users WHERE LOWER(wallet_address)=LOWER($1) FOR UPDATE', [wallet]);
+    await client.query("SELECT pg_advisory_xact_lock(hashtext('withdraw_liquidity:' || $1))", [chain]);
+    await client.query(
+      `UPDATE pending_withdrawals SET status='settled', settled_at=NOW()
+        WHERE chain=$1 AND LOWER(wallet_address)=LOWER($2) AND nonce=$3 AND status='pending'`,
+      [chain, wallet, nonce]
+    );
+    await client.query('COMMIT');
+  } catch (e) {
+    await client.query('ROLLBACK');
+    throw e;
+  } finally { client.release(); }
 }
 
-// deadline+grace 경과한 pending 을 점검: 온체인 nonce 가 미증가(=미실행)면 reserve 환불, 증가했으면 settled.
-//   이벤트 누락(워커 다운 등) 보완 + 미청구 자금 자동 복구. 온체인 조회 실패 시 절대 환불하지 않음(이중환불 차단).
+// Only a finalized block strictly AFTER deadline with the SAME nonce proves
+// non-execution: the contract accepts block.timestamp == deadline. Unknown RPC,
+// nonce behind the reservation, or finality before expiry leaves funds reserved.
 async function reconcilePendingWithdrawals() {
-  const grace = parseInt(process.env.WITHDRAW_RECONCILE_GRACE_SEC || '120', 10) || 120;
-  let rows;
-  try {
-    rows = (await pool.query(
-      `SELECT id, wallet_address, chain, nonce, gross, net FROM pending_withdrawals
-        WHERE status='pending' AND deadline + $1 < EXTRACT(EPOCH FROM NOW())::bigint
-        ORDER BY id ASC LIMIT 100`,
-      [grace]
-    )).rows;
-  } catch (e) {
-    // 테이블 미생성(마이그 전) 등 — 조용히 패스.
-    return;
-  }
-  if (!rows.length) return;
-
-  const signer = require('./signer');
+  const grace = financialNumber(process.env.WITHDRAW_RECONCILE_GRACE_SEC ?? 120, 'WITHDRAW_RECONCILE_GRACE_SEC');
+  const rows = (await pool.query(
+    `SELECT id, wallet_address, chain, nonce, gross, net, deadline FROM pending_withdrawals
+      WHERE status='pending' AND deadline + $1 < EXTRACT(EPOCH FROM NOW())::bigint
+      ORDER BY id ASC LIMIT 100`, [grace]
+  )).rows;
   for (const r of rows) {
-    let onchainNonce;
-    try {
-      onchainNonce = await signer.getOnchainWithdrawNonce(r.wallet_address, r.chain);
-    } catch (_) {
-      continue; // RPC/컨트랙트 조회 불가 → 다음 주기에 재시도. 환불 금지.
-    }
+    let state;
+    try { state = await require('./signer').getFinalizedWithdrawState(r.wallet_address, r.chain); }
+    catch (_) { continue; }
+    if (!Number.isSafeInteger(state.nonce) || !Number.isSafeInteger(state.timestamp)) continue;
+    const executed = state.nonce > Number(r.nonce);
+    const expired = state.nonce === Number(r.nonce) && state.timestamp > Number(r.deadline);
+    if (!executed && !expired) continue;
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
-      const cur = await client.query(`SELECT status FROM pending_withdrawals WHERE id=$1 FOR UPDATE`, [r.id]);
-      if (!cur.rows.length || cur.rows[0].status !== 'pending') { await client.query('ROLLBACK'); client.release(); continue; }
-      if (onchainNonce > Number(r.nonce)) {
-        // 이미 실행됨 → 정산만(환불 금지).
+      // Match withdraw lock order: user -> chain reservation -> pending -> treasury.
+      const user = await client.query('SELECT 1 FROM users WHERE LOWER(wallet_address)=LOWER($1) FOR UPDATE', [r.wallet_address]);
+      if (!user.rows.length) throw new Error('Pending withdrawal user missing');
+      await client.query("SELECT pg_advisory_xact_lock(hashtext('withdraw_liquidity:' || $1))", [r.chain]);
+      const cur = await client.query('SELECT status FROM pending_withdrawals WHERE id=$1 FOR UPDATE', [r.id]);
+      if (!cur.rows.length || cur.rows[0].status !== 'pending') { await client.query('ROLLBACK'); continue; }
+      if (executed) {
         await client.query(`UPDATE pending_withdrawals SET status='settled', settled_at=NOW() WHERE id=$1`, [r.id]);
       } else {
-        // 미실행 + 만료 → reserve 환불.
-        await client.query(`SELECT 1 FROM users WHERE LOWER(wallet_address)=LOWER($1) FOR UPDATE`, [r.wallet_address]);
-        await client.query(`UPDATE users SET usdt_balance = usdt_balance + $1 WHERE LOWER(wallet_address)=LOWER($2)`, [r.gross, r.wallet_address]);
+        await client.query('UPDATE users SET usdt_balance=usdt_balance+$1 WHERE LOWER(wallet_address)=LOWER($2)', [r.gross, r.wallet_address]);
         await require('./treasury').adjustCollateral(client, Number(r.net));
         await client.query(`UPDATE pending_withdrawals SET status='expired', settled_at=NOW() WHERE id=$1`, [r.id]);
         await client.query(
           `INSERT INTO transactions (type, from_wallet, usdt_amount, meta) VALUES ('withdraw_refund', $1, $2, $3)`,
-          [String(r.wallet_address).toLowerCase(), r.gross, JSON.stringify({ chain: r.chain, nonce: Number(r.nonce), reason: 'expired_unclaimed_reconciler' })]
+          [String(r.wallet_address).toLowerCase(), r.gross, JSON.stringify({ chain: r.chain, nonce: Number(r.nonce), reason: 'finalized_expired_unclaimed', blockNumber: state.blockNumber, blockHash: state.blockHash })]
         );
-        console.log(`[Chain] withdraw refund (expired): ${String(r.wallet_address).slice(0,8)}… +${r.gross} USDT (${r.chain} nonce ${r.nonce})`);
       }
       await client.query('COMMIT');
     } catch (e) {
       try { await client.query('ROLLBACK'); } catch (_) {}
-      console.error('[Chain] reconcile refund error:', e.message);
-    } finally {
-      client.release();
-    }
+      console.error('[Chain] reconcile withdrawal error:', e.message);
+    } finally { client.release(); }
   }
 }
 
@@ -315,13 +311,13 @@ async function backfillEvents(chainKey, contract, provider, decimals) {
     [chainKey]
   );
   const lastBlock = res.rows[0].last_block || 0;
-  const currentBlock = await provider.getBlockNumber();
-  // 커서: deposits.MAX(block_number) 가 곧 커서다. 이전 입금이 있으면 그 다음 블록부터
+  const currentBlock = (await require('./signer').getFinalizedBlock(chainKey)).number;
+  // 커서: deposits.MAX(block_number) 가 곧 커서다. 이전 입금이 있으면 그 블록부터(같은 블록의 다른 로그 재처리 포함)
   // "전부" 스캔(누락 0). 과거의 currentBlock-1000 floor 는 워커 장기 다운 시 그 사이 블록을
   // 통째로 건너뛰어 입금이 영구 유실되던 CRITICAL 결함 → 제거.
   // 최초(입금 이력 0)에만 cold-start 로 최근 BACKFILL_BLOCKS 블록만 본다.
   const BACKFILL_BLOCKS = parseInt(process.env.BACKFILL_BLOCKS || '1000', 10) || 1000;
-  let fromBlock = lastBlock > 0 ? (lastBlock + 1) : Math.max(0, currentBlock - BACKFILL_BLOCKS);
+  let fromBlock = lastBlock > 0 ? Number(lastBlock) : Math.max(0, currentBlock - BACKFILL_BLOCKS);
   if (fromBlock > currentBlock) return;
 
   // RPC 블록범위 제한(보통 ~1만 블록) 대응: 큰 공백은 청크로 나눠 조회.
@@ -333,8 +329,7 @@ async function backfillEvents(chainKey, contract, provider, decimals) {
     try {
       events = await contract.queryFilter('Deposited', start, end);
     } catch (qe) {
-      console.error(`[Chain] backfill queryFilter ${start}~${end} 실패(다음 청크 계속):`, qe.message);
-      continue;
+      throw new Error(`Finalized backfill gap ${start}~${end}: ${qe.message}`);
     }
     for (const event of events) {
       try {
@@ -343,19 +338,20 @@ async function backfillEvents(chainKey, contract, provider, decimals) {
           amount: ethers.utils.formatUnits(event.args.amount, decimals),
           chain: chainKey,
           txHash: event.transactionHash,
-          blockNumber: event.blockNumber
+          blockNumber: event.blockNumber, blockHash: event.blockHash, logIndex: event.logIndex
         });
       } catch (e) {
-        if (!e.message.includes('duplicate')) {
-          console.error(`[Chain] Backfill error:`, e.message);
-        }
+        // Never advance the deposit-derived cursor past an unprocessed event.
+        throw e;
       }
     }
   }
 }
 
-async function processDeposit({ wallet, amount, chain, txHash, blockNumber }) {
-  const amountNum = parseFloat(amount);
+async function processDeposit({ wallet, amount, chain, txHash, blockNumber, blockHash, logIndex }) {
+  if (!CHAIN_CONFIGS[chain] || !Number.isSafeInteger(logIndex) || logIndex < 0 || !/^0x[0-9a-fA-F]{64}$/.test(txHash || '')) throw new Error('Missing deposit log identity');
+  await require('./signer').verifyFinalizedEvent(chain, blockNumber, blockHash);
+  const amountNum = financialNumber(amount, 'deposit amount');
   // [v7.163 hotfix] 음수/0/NaN amount 차단(외부 RPC/admin replay 오염 방지 — 음수 시 잔액 차감 가능).
   if (!(amountNum > 0) || !isFinite(amountNum)) {
     console.warn('[chain] processDeposit refused — invalid amount:', amount, 'tx:', txHash);
@@ -366,26 +362,13 @@ async function processDeposit({ wallet, amount, chain, txHash, blockNumber }) {
 
   // [경제v2 P4] 출금 한도 — 입금 origin PP 의 일정 %만 USDT 환매(redeemable)로 적립. 나머지는 영구 버퍼.
   //   PP=입금 발행 전용(무료 faucet 없음)이라 redeemable 버킷이 곧 입금 담보분의 출금 가능 한도.
-  let withdrawablePct = 80;
-  try {
-    const wr = await pool.query(`SELECT value FROM settings WHERE key = 'pp_withdrawable_pct'`);
-    if (wr.rows.length && wr.rows[0].value != null) {
-      const v = parseFloat(wr.rows[0].value);
-      if (!isNaN(v) && v >= 0 && v <= 100) withdrawablePct = v;
-    }
-  } catch (_) { /* 설정 부재 시 기본 80 */ }
+  const wr = await pool.query(`SELECT value FROM settings WHERE key = 'pp_withdrawable_pct'`);
+  const withdrawablePct = financialNumber(wr.rows[0]?.value ?? 80, 'pp_withdrawable_pct', { max: 100 });
   const redeemableBonus = Math.round(ppBonus * (withdrawablePct / 100) * 1000000) / 1000000;
 
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-
-    // Check duplicate tx_hash
-    const dup = await client.query('SELECT id FROM deposits WHERE tx_hash = $1', [txHash]);
-    if (dup.rows.length > 0) {
-      await client.query('ROLLBACK');
-      return; // Already processed
-    }
 
     // Ensure user exists
     await ensureUser(client, wallet);
@@ -394,6 +377,17 @@ async function processDeposit({ wallet, amount, chain, txHash, blockNumber }) {
     //   prior deposits 0건 SELECT ↔ deposits INSERT 사이에 다른 워커가 같은 wallet 처리 시
     //   양쪽 모두 prior 0 → 보너스 중복 지급 가능 위험 차단.
     await client.query(`SELECT 1 FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`, [wallet]);
+
+    // Legacy rows lack log identity: conservatively treat their transaction as
+    // already credited. New receipts identify each log independently across chains.
+    const legacy = await client.query('SELECT id FROM deposits WHERE chain=$1 AND tx_hash=$2 AND log_index=-1', [chain, txHash]);
+    if (legacy.rows.length) { await client.query('ROLLBACK'); return; }
+    const inserted = await client.query(
+      `INSERT INTO deposits (wallet_address, amount, pp_bonus, chain, tx_hash, block_number, block_hash, log_index)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT (chain, tx_hash, log_index) DO NOTHING RETURNING id`,
+      [wallet, amountNum, ppBonus, chain, txHash, blockNumber, blockHash, logIndex]
+    );
+    if (!inserted.rowCount) { await client.query('ROLLBACK'); return; }
 
     // Update user balances
     // [경제정책 W2-4 / v2 P4] 입금 보너스 PP 전액은 pp_balance 에, 그 중 withdrawablePct(기본 80%)만
@@ -409,13 +403,13 @@ async function processDeposit({ wallet, amount, chain, txHash, blockNumber }) {
     await require('./treasury').adjustCollateral(client, amountNum);
 
     // [첫 결제 후크] 첫 입금이면 추가 PP 보너스(first_deposit_bonus_pct, 기본 20%). PP만 추가 → 담보 불변식 무관.
-    //   이 deposit row INSERT 전에 조회하므로 prior 0건 = 진짜 첫 입금.
+    //   Exclude the newly inserted log when checking for a prior deposit.
     let firstDepBonus = 0;
     try {
-      const prior = await client.query('SELECT 1 FROM deposits WHERE LOWER(wallet_address) = LOWER($1) LIMIT 1', [wallet]);
+      const prior = await client.query('SELECT 1 FROM deposits WHERE LOWER(wallet_address) = LOWER($1) AND id <> $2 LIMIT 1', [wallet, inserted.rows[0].id]);
       if (prior.rows.length === 0) {
         const fr = await client.query(`SELECT value FROM settings WHERE key = 'first_deposit_bonus_pct'`);
-        const firstPct = fr.rows.length ? (parseFloat(fr.rows[0].value) || 0) : 0;
+        const firstPct = financialNumber(fr.rows[0]?.value ?? 0, 'first_deposit_bonus_pct');
         if (firstPct > 0) {
           firstDepBonus = Math.round(amountNum * (firstPct / 100) * 1000000) / 1000000;
           // [경제정책 W2-4 / v2 P4] 첫 입금 보너스도 입금 origin → withdrawablePct 만 redeemable 적립.
@@ -424,19 +418,13 @@ async function processDeposit({ wallet, amount, chain, txHash, blockNumber }) {
           console.log(`[Chain] First-deposit bonus +${firstDepBonus} PP (${firstPct}%) to ${wallet.slice(0,8)}…`);
         }
       }
-    } catch (_) {}
-
-    // Insert deposit record
-    await client.query(
-      `INSERT INTO deposits (wallet_address, amount, pp_bonus, chain, tx_hash, block_number) VALUES ($1,$2,$3,$4,$5,$6)`,
-      [wallet, amountNum, ppBonus, chain, txHash, blockNumber]
-    );
+    } catch (e) { throw e; }
 
     // Insert transaction
     await client.query(
       `INSERT INTO transactions (type, from_wallet, usdt_amount, pp_amount, meta)
        VALUES ('deposit', $1, $2, $3, $4)`,
-      [wallet, amountNum, ppBonus, JSON.stringify({ chain, txHash, blockNumber })]
+      [wallet, amountNum, ppBonus, JSON.stringify({ chain, txHash, blockNumber, blockHash, logIndex, finalized: true })]
     );
 
     // Award XP for deposit ($1 = 1 XP)

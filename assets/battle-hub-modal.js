@@ -79,20 +79,20 @@ const SECTOR_BATTLEFIELD_BY_CODE = {
 };
 const battleContextById = Object.create(null);
 
-function battleHubReadFetch(key, url, minGap) {
+function battleHubReadFetch(key, url, minGap, signal) {
   const walletKey = (typeof getMyWallet === 'function' && getMyWallet()) || 'public';
   if (typeof _guardedJsonFetch === 'function') {
     return _guardedJsonFetch('battle-hub:' + key + ':' + String(walletKey).toLowerCase(), url, {
       minGap: minGap || 10000,
       backoffMs: 90000,
-      fetchOptions: { headers: getAuthHeaders() }
+      fetchOptions: { headers: getAuthHeaders(), signal: signal }
     });
   }
-  return fetch(url, { headers: getAuthHeaders() }).then(function(r){ return r.json(); });
+  return fetch(url, { headers: getAuthHeaders(), signal: signal }).then(function(r){ return r.ok ? r.json() : null; });
 }
 
-function battleHubReadKeyed(key, url, minGap) {
-  return battleHubReadFetch(key, url, minGap).then(function(data){ return data || null; });
+function battleHubReadKeyed(key, url, minGap, signal) {
+  return battleHubReadFetch(key, url, minGap, signal).then(function(data){ return data || null; });
 }
 
 function normalizeBattleSummary(summary) {
@@ -2103,6 +2103,9 @@ async function openTournaments() {
 }
 
 function closeTournaments() {
+  clearInterval(tnState.retryTimer);
+  tnState.loadRequest = (tnState.loadRequest || 0) + 1;
+  if (tnState.loadController) tnState.loadController.abort();
   document.getElementById('tournamentModal').classList.remove('active');
 }
 
@@ -2117,6 +2120,16 @@ function tnSwitchTab(tab) {
 async function tnLoad() {
   const tab = tnState.currentTab;
   const container = document.getElementById('tnListContent');
+  if (!container) return;
+  clearInterval(tnState.retryTimer);
+  const request = tnState.loadRequest = (tnState.loadRequest || 0) + 1;
+  const controller = new AbortController();
+  tnState.loadController = controller;
+  const wallet = (typeof getMyWallet === 'function' && getMyWallet()) || '';
+  function isCurrent() {
+    return request === tnState.loadRequest && tab === tnState.currentTab && wallet === ((typeof getMyWallet === 'function' && getMyWallet()) || '');
+  }
+  const timeout = setTimeout(function(){ controller.abort(); }, 8000);
   container.innerHTML = '<div class="bh-empty">' + (LANG==='ko'?'로딩 중...':LANG==='ja'?'読み込み中...':LANG==='zh'?'加载中...':'Loading...') + '</div>';
 
   try {
@@ -2125,9 +2138,13 @@ async function tnLoad() {
     else if (tab === 'running') statusParam = '?status=running';
     else statusParam = '?status=completed';
 
-    const data = await battleHubReadKeyed('tournaments:' + tab, '/api/tournaments' + statusParam, 30000);
-    if (!data) return;
-    const list = data.tournaments || [];
+    const data = await battleHubReadKeyed('tournaments:' + tab, '/api/tournaments' + statusParam, 30000, controller.signal);
+    if (!isCurrent()) return;
+    if (!data || data.error || !Array.isArray(data.tournaments)) {
+      tnRenderLoadError(container, tab);
+      return;
+    }
+    const list = data.tournaments;
 
     if (list.length === 0) {
       container.innerHTML = `<div class="bh-empty">${tab === 'open' ? (LANG==='ko'?'모집 중인 토너먼트 없음':LANG==='ja'?'募集中のトーナメントなし':LANG==='zh'?'没有招募中的锦标赛':'No open tournaments') : tab === 'running' ? (LANG==='ko'?'진행 중인 토너먼트 없음':LANG==='ja'?'進行中のトーナメントなし':LANG==='zh'?'没有进行中的锦标赛':'No running tournaments') : (LANG==='ko'?'완료된 토너먼트 없음':LANG==='ja'?'完了したトーナメントなし':LANG==='zh'?'没有已完成的锦标赛':'No completed tournaments')}</div>`;
@@ -2136,9 +2153,35 @@ async function tnLoad() {
 
     container.innerHTML = list.map(t => renderTournamentCard(t)).join('');
   } catch (err) {
+    if (!isCurrent()) return;
     console.error('tnLoad:', err);
-    container.innerHTML = '<div class="bh-empty">' + (LANG==='ko'?'로딩 실패':LANG==='ja'?'読み込み失敗':LANG==='zh'?'加载失败':'Load failed') + '</div>';
+    tnRenderLoadError(container, tab);
+  } finally {
+    clearTimeout(timeout);
   }
+}
+
+function tnRenderLoadError(container, tab) {
+  const wallet = (typeof getMyWallet === 'function' && getMyWallet()) || 'public';
+  const guard = typeof _apiFetchGuards !== 'undefined' && _apiFetchGuards['battle-hub:tournaments:' + tab + ':' + String(wallet).toLowerCase()];
+  const endpoint = typeof _apiEndpointGuards !== 'undefined' && _apiEndpointGuards['GET /api/tournaments'];
+  const now = Date.now();
+  const backoff = Math.max((guard && guard.backoffUntil) || 0, (endpoint && endpoint.backoffUntil) || 0);
+  const retryAt = Math.max(backoff, guard ? guard.lastAt + 30000 : 0);
+  const wait = Math.max(0, Math.ceil((retryAt - now) / 1000));
+  const message = backoff > now
+    ? tl('Too many requests. Please wait before retrying.', '요청이 많습니다. 잠시 후 다시 시도하세요.', 'リクエストが多すぎます。しばらくしてから再試行してください。', '请求过多，请稍后重试。')
+    : tl('Could not load tournaments.', '토너먼트를 불러오지 못했습니다.', 'トーナメントを読み込めませんでした。', '无法加载锦标赛。');
+  const delayText = tl('Retry after {seconds}s.', '{seconds}초 후 다시 시도하세요.', '{seconds}秒後に再試行してください。', '请在{seconds}秒后重试。');
+  container.innerHTML = '<div class="bh-empty" role="status">' + message + '<div id="tnRetryDelay">' + (wait ? delayText.replace('{seconds}', String(wait)) : '') + '</div><button id="tnRetryButton" type="button" class="bc-btn" style="min-height:44px;margin-top:12px" onclick="tnLoad()"' + (wait ? ' disabled' : '') + '>' + tl('Retry', '다시 시도', '再試行', '重试') + '</button></div>';
+  if (wait) tnState.retryTimer = setInterval(function(){
+    const label = document.getElementById('tnRetryDelay'), button = document.getElementById('tnRetryButton');
+    if (!label || !button) { clearInterval(tnState.retryTimer); return; }
+    const remaining = Math.max(0, Math.ceil((retryAt - Date.now()) / 1000));
+    label.textContent = remaining ? delayText.replace('{seconds}', String(remaining)) : '';
+    button.disabled = remaining > 0;
+    if (!remaining) clearInterval(tnState.retryTimer);
+  }, 1000);
 }
 
 function renderTournamentCard(t) {
@@ -2562,6 +2605,7 @@ async function openBattleViewer(battleId, startTick) {
   const viewerSeq = ++bv._viewerSeq;
   if (bv.animHandle) { cancelAnimationFrame(bv.animHandle); bv.animHandle = null; }
   bv.playing = false;
+  bv.timeline = null;bv.battle = null;bv.events = [];
   var viewerWallet = (walletState && walletState.address) ? String(walletState.address).toLowerCase() : '';
   bv.wallet = viewerWallet;
 
@@ -2639,16 +2683,18 @@ async function openBattleViewer(battleId, startTick) {
       const bStatus = infoData.battle && (infoData.battle.status || '');
       battleDone = (bStatus === 'ended' || bStatus === 'done');
       if (!bv._battleStatusSeen) {
-        bv._objectiveReplay = battleDone && isObjectiveBattle(bv.battle);
+        // Any completed battle replays its authoritative stored frames.
+        bv._objectiveReplay = battleDone;
         bv._battleStatusSeen = true;
       }
 
       // 타임라인
       const tlData = await battleHubReadKeyed('battle-timeline:' + battleId, `/api/battles/${battleId}/timeline`, 1500);
       if (viewerSeq !== bv._viewerSeq) return;
-      if (tlData && !tlData.error) {
+      if (tlData && !tlData.error && Array.isArray(tlData.timeline?.frames) && tlData.timeline.frames.length) {
         if (viewerSeq !== bv._viewerSeq) return;
         bv.timeline = tlData.timeline;
+        bv._objectiveReplay = battleDone;
         loaded = true;
         break;
       } else {
@@ -2666,7 +2712,7 @@ async function openBattleViewer(battleId, startTick) {
   if (viewerSeq !== bv._viewerSeq) return;
 
   if (!loaded) {
-    if (battleDone) {
+    if (battleDone || !bv.battle || (lastErr && lastErr.startsWith('info:'))) {
       // 전투 종료됐는데 타임라인 없음 — 에러 표시하되 viewer 유지
       showFactionToast((LANG==='ko'?'전투 데이터 로딩 실패':LANG==='ja'?'戦闘データ読み込み失敗':LANG==='zh'?'战斗数据加载失败':'Battle data load failed') + (lastErr ? ' (' + lastErr + ')' : ''), 'error');
       console.error('[battle] openBattleViewer timeline missing for ended battle', battleId, ':', lastErr);
@@ -2674,22 +2720,15 @@ async function openBattleViewer(battleId, startTick) {
       // 전투 진행 중 — iframe WS가 처리 중, 조용히 대기
       console.log('[battle] openBattleViewer: battle', battleId, 'still in progress, iframe WS handling');
     }
-    // viewer 닫지 않음 — iframe 이 WS로 라이브 뷰 처리 중
+    // No recorded result or timeline exists here. The live iframe may keep
+    // waiting, but a pending/error response must never become an instant win.
+    return;
   }
 
-  // 자동승리 케이스 — viewer 는 정상적으로 풀 시각화 띄우되, frames 가 비정상적으로 짧으면
-  // (시뮬레이션 누락 의심) 결과 오버레이 즉시 표시. 1:1 등 정상 전투는 아래 일반 흐름으로 진행.
-  const framesN = bv.timeline?.frames?.length || 0;
-  if (framesN < 2) {
-    const winner = bv.battle?.winner_side;
-    const msg = winner === 'atk' ? (LANG==='ko'?'⚔ 자동 승리 — 즉시 점령 (시뮬 frames 없음)':LANG==='ja'?'⚔ 自動勝利 — 即時占領 (シムフレームなし)':LANG==='zh'?'⚔ 自动胜利 — 立即占领 (无模拟帧)':'⚔ Auto-win — instant capture (no sim frames)')
-              : winner === 'def' ? (LANG==='ko'?'🛡 자동 패배 (시뮬 frames 없음)':LANG==='ja'?'🛡 自動敗北 (シムフレームなし)':LANG==='zh'?'🛡 自动失败 (无模拟帧)':'🛡 Auto-loss (no sim frames)')
-              : (LANG==='ko'?'⚡ 전투 즉시 종료 (시뮬 frames 없음)':LANG==='ja'?'⚡ 戦闘即時終了 (シムフレームなし)':LANG==='zh'?'⚡ 战斗立即结束 (无模拟帧)':'⚡ Battle ended instantly (no sim frames)');
-    showFactionToast(msg, 'warn');
-    console.warn('[battle] only', framesN, 'frame(s) for battle', battleId, 'winner=', winner);
-    // viewer 는 닫지 않음 — 사용자가 결과 확인 후 ✕ 로 닫게 함
-  }
-  
+  // A short recording does not imply territory capture or automatic victory.
+  const framesN = bv.timeline.frames.length;
+  if (battleDone && framesN < 2) console.warn('[battle] limited stored timeline', battleId, framesN);
+
   // HUD 업데이트
   renderHudSides();
 

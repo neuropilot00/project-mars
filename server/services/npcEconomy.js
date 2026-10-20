@@ -8,7 +8,8 @@
 //   carve 정신 유지: 리스팅이 팔리면 GP 는 실제 구매자 → NPC 로 carve(발행 아님).
 //   NPC 재고/수수료 GP 는 콜드스타트 스캐폴딩으로 bounded seed(자원은 환금 불가).
 //
-//   게이트: settings.npc_economy_enabled (기본 false). leader 스케줄러에서 호출.
+//   게이트: settings.npc_economy_enabled (조회 실패 fallback=false; migration 329 시드=true).
+//   migration 354의 일회성 발행 원장이 없으면 발행/등록 모두 실패한다.
 // ═══════════════════════════════════════════════════════════════
 
 const { pool } = require('../db');
@@ -33,21 +34,61 @@ const NPC_RES = [
   { code: 'plasma_crystal', price: 36 },
 ];
 
-// bounded seed: NPC 에게 수수료용 GP 최소치 + 등록할 자원 소량을 보장(이미 충분하면 건드리지 않음).
-async function ensureNpcStock(npcWallet) {
-  await pool.query(
-    `UPDATE users SET gp_balance = GREATEST(COALESCE(gp_balance, 0), 200) WHERE LOWER(wallet_address) = LOWER($1)`,
-    [npcWallet]
+// Must share the listing transaction: a failed listing cannot consume or issue seed.
+// The owner lock serializes ticks; the normalized ledger PK also survives user deletion.
+async function ensureNpcStock(client, npcWallet) {
+  const w = npcWallet.toLowerCase();
+  const { rows: owners } = await client.query(
+    'SELECT wallet_address, is_ai, gp_balance FROM users WHERE LOWER(wallet_address) = $1 ORDER BY wallet_address FOR UPDATE', [w]
   );
-  for (const r of NPC_RES) {
-    await pool.query(
-      `INSERT INTO user_resource_inventory (wallet_address, resource_id, quantity, updated_at)
-       SELECT $1, id, 40, NOW() FROM resources WHERE code = $2 AND is_active = TRUE AND is_tradeable = TRUE
-       ON CONFLICT (wallet_address, resource_id)
-         DO UPDATE SET quantity = GREATEST(user_resource_inventory.quantity, 40), updated_at = NOW()`,
-      [npcWallet, r.code]
-    );
+  if (owners.length !== 1 || owners[0].is_ai !== true || owners[0].wallet_address !== w) {
+    throw new Error('NPC seed requires exactly one normalized AI owner');
   }
+  const balance = owners[0].gp_balance;
+  if (balance == null || String(balance).trim() === '' || !Number.isFinite(Number(balance)) || Number(balance) < 0) {
+    throw new Error('Invalid NPC GP balance');
+  }
+  const { rows: stock } = await client.query(
+    `SELECT id, code FROM resources
+      WHERE code = ANY($1::text[]) AND is_active = TRUE AND is_tradeable = TRUE
+      ORDER BY id`, [NPC_RES.map(r => r.code)]
+  );
+  // Lock existing stock before reading it; do not turn malformed quantities/debt into gifts.
+  const { rows: inventory } = await client.query(
+    `SELECT resource_id, quantity FROM user_resource_inventory
+      WHERE wallet_address = $1 AND resource_id = ANY($2::int[]) FOR UPDATE`, [w, stock.map(r => r.id)]
+  );
+  const quantities = new Map(inventory.map(r => [r.resource_id, r.quantity]));
+  for (const quantity of quantities.values()) {
+    if (quantity == null || String(quantity).trim() === '' || !Number.isSafeInteger(Number(quantity)) || Number(quantity) < 0) {
+      throw new Error('Invalid NPC resource quantity');
+    }
+  }
+  const { rows: seeded } = await client.query('SELECT wallet_address FROM npc_economy_seed_ledger WHERE wallet_address = $1', [w]);
+  if (seeded.length) return;
+
+  const resourcesIssued = {};
+  for (const r of stock) {
+    const issued = Math.max(0, 40 - Number(quantities.get(r.id) ?? 0));
+    resourcesIssued[r.code] = issued;
+    if (issued > 0) {
+      await client.query(
+        `INSERT INTO user_resource_inventory (wallet_address, resource_id, quantity, updated_at)
+         VALUES ($1, $2, $3, NOW()) ON CONFLICT (wallet_address, resource_id)
+         DO UPDATE SET quantity = user_resource_inventory.quantity + EXCLUDED.quantity, updated_at = NOW()`,
+        [w, r.id, issued]
+      );
+    }
+  }
+  // Compute GP delta in PostgreSQL to preserve the actual numeric amount in the audit.
+  const { rows: [issued] } = await client.query(
+    `UPDATE users SET gp_balance = GREATEST(gp_balance, 200) WHERE wallet_address = $1
+      RETURNING gp_balance - $2::numeric AS gp_issued`, [w, balance]
+  );
+  await client.query(
+    `INSERT INTO npc_economy_seed_ledger (wallet_address, seed_kind, gp_issued, resources_issued)
+     VALUES ($1, 'initial_seed', $2, $3::jsonb)`, [w, issued.gp_issued, JSON.stringify(resourcesIssued)]
+  );
 }
 
 // 활성 NPC 마켓 리스팅 수를 target 이상으로 유지(부족하면 채운다).
@@ -78,10 +119,10 @@ async function runMarketTick() {
     if (created >= need) break;
     const w = npc.wallet_address;
     const r = NPC_RES[Math.floor(Math.random() * NPC_RES.length)];
-    try { await ensureNpcStock(w); } catch (_) { /* seed 실패 시 해당 NPC 스킵 */ continue; }
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
+      await ensureNpcStock(client, w);
       await marketplace.createListing(client, w, 'resource', {
         resourceCode: r.code,
         resourceQuantity: 10,

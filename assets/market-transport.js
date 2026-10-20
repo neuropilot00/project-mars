@@ -893,7 +893,7 @@ function renderMarketCard(l){
     +claimInfo
     +'<div style="display:flex;justify-content:space-between;align-items:center;margin-top:auto">'
     +'<div><span style="font-size:12px;font-weight:800;color:var(--gold)">'+price+'</span> <span style="font-size:9px;color:var(--tx3)">'+_ecoEsc(currency)+'</span></div>'
-    +'<div style="font-size:8px;color:var(--tx3)">'+_ecoEsc(seller)+' · '+timeStr+'</div>'
+    +'<div style="font-size:8px;color:var(--tx3)">'+(l.seller_is_npc===true?'[NPC] ':'')+_ecoEsc(seller)+' · '+timeStr+'</div>'
     +'</div>'
     +'<div style="display:flex;justify-content:flex-end;gap:4px;margin-top:4px">'
     +(isOwn?'<button onclick="cancelMarketListing('+_ecoNum(l.id)+')" style="font-size:9px;font-weight:700;padding:4px 10px;border-radius:4px;border:1px solid rgba(232,72,85,.4);background:rgba(232,72,85,.1);color:var(--red);cursor:pointer;font-family:var(--fn)">'+(t('mkt_cancel')||'CANCEL')+'</button>'
@@ -1298,6 +1298,161 @@ function openShipSellModal(shipId, shipName){
   });
 }
 
+// Fixed-price listings use a fresh server preview before any charge or escrow.
+var _marketQuoteSequence=0;
+var _resourceListingDrafts={};
+function _resourceListingDraftKey(code){return ((walletState&&walletState.address)||'').toLowerCase()+'|'+code;}
+function _saveResourceListingDraft(code,qty,price,currency){
+  _resourceListingDrafts[_resourceListingDraftKey(code)]={quantity:String(qty),price:String(price),currency:currency==='PP'?'PP':'GP'};
+}
+function confirmMarketListing(body,onListed){
+  var sequence=++_marketQuoteSequence;
+  var sourceBody=document.getElementById('gcBody');
+  var sourceNode=sourceBody&&sourceBody.firstChild;
+  var sourceWallet=(walletState&&walletState.address||'').toLowerCase();
+  var registrationSubmitted=false;
+  function walletUnchanged(){return sourceWallet===(walletState&&walletState.address||'').toLowerCase();}
+  function fmt(n){return Number(n).toLocaleString(undefined,{maximumFractionDigits:6});}
+  function range(lo,hi,currency){
+    return lo==null?tl('Estimate before unverified adjustments: ','미확정 조정 전 추정: ','未確認調整前の予想: ','未核实调整前估算: ')+fmt(hi)+' '+currency
+      :(lo===hi?fmt(hi):fmt(lo)+' – '+fmt(hi))+' '+currency;
+  }
+  showToast(tl('Checking current listing costs…','현재 등록 비용 확인 중…','現在の出品費用を確認中…','正在核实当前上架费用…'),'info');
+  return new Promise(function(resolve,reject){
+    var controller=typeof AbortController==='function'?new AbortController():null;
+    var timer=setTimeout(function(){
+      if(controller) controller.abort();
+      reject(new Error('LISTING_QUOTE_TIMEOUT'));
+    },8000);
+    try {
+      fetch('/api/marketplace/listing-quote',{
+        method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify(body),
+        signal:controller?controller.signal:undefined
+      }).then(function(r){if(!r.ok) return r.json().then(function(d){throw new Error(d.error||'QUOTE_UNAVAILABLE');});return r.json();})
+      .then(function(q){clearTimeout(timer);resolve(q);},function(e){clearTimeout(timer);reject(e);});
+    }catch(e){clearTimeout(timer);reject(e);}
+  })
+  .then(function(q){
+    var modal=document.getElementById('gameConfirm');
+    var currentBody=document.getElementById('gcBody');
+    // gameConfirm has one resolver. A late quote must not replace another dialog.
+    if(sequence!==_marketQuoteSequence||!walletUnchanged()||
+        (modal&&modal.classList.contains('open'))||
+        (sourceBody&&(currentBody!==sourceBody||currentBody.firstChild!==sourceNode))) return;
+    if(q.error||!['GP','PP'].includes(q.currency)||!Number.isFinite(q.listingFeeGp)||!Number.isFinite(q.saleFee)||!Number.isFinite(q.receivesMax)||!Number.isFinite(Date.parse(q.expiresAt))){
+      throw new Error(q.error||'QUOTE_UNAVAILABLE');
+    }
+    var resource=body.type==='resource'&&typeof _resourceInventory!=='undefined'&&_resourceInventory.find(function(r){return r.code===body.resourceCode;});
+    var safety=q.resourceRegistration||{};
+    var resourceBlocked=body.type==='resource'&&q.currency==='GP'&&(safety.blocked===true||Number(q.netAfterListingFeeMax)<=0);
+    var editUnit=body.price/body.resourceQuantity;
+    function readReview(showError){
+      if(body.type!=='resource') return body;
+      var qtyEl=document.getElementById('mktReviewResourceQty'),priceEl=document.getElementById('mktReviewResourcePrice');
+      var qtyText=qtyEl?qtyEl.value:String(body.resourceQuantity),priceText=priceEl?priceEl.value:String(body.price);
+      _saveResourceListingDraft(body.resourceCode,qtyText,priceText,body.currency);
+      var qty=Number(qtyText),price=Number(priceText),max=resource?Number(resource.quantity):Number.MAX_SAFE_INTEGER;
+      var valid=/^\d+$/.test(qtyText.trim())&&Number.isSafeInteger(qty)&&qty>0&&qty<=max&&Number.isFinite(price)&&price>0;
+      var changed=qty!==Number(body.resourceQuantity)||price!==Number(body.price);
+      var error=document.getElementById('mktReviewResourceError');
+      var message=!valid?tl('Enter an available whole quantity and a positive total price.','보유 수량 안의 정수와 올바른 총가격을 입력하세요.','保有数以内の整数と正の合計価格を入力してください。','请输入库存内的整数数量和正的总价。','Masukkan jumlah bulat sesuai stok dan harga total positif.','Nhập số lượng nguyên trong kho và tổng giá dương.','กรอกจำนวนเต็มที่มีและราคารวมมากกว่าศูนย์'):
+        (resourceBlocked&&!changed?tl('Increase the bundle or total price, then review costs again.','묶음 수량이나 총가격을 조정한 뒤 비용을 다시 확인하세요.','数量または合計価格を調整し費用を再確認してください。','请调整整组数量或总价后重新确认费用。','Ubah jumlah atau harga total lalu periksa biaya lagi.','Điều chỉnh số lượng hoặc tổng giá rồi xem lại phí.','ปรับจำนวนหรือราคารวมแล้วตรวจค่าธรรมเนียมอีกครั้ง'):'');
+      if(error&&showError){error.textContent=message;error.hidden=!message;}
+      if(!valid||resourceBlocked&&!changed){if(showError&&!error)showToast(message,'error');return null;}
+      return Object.assign({},body,{resourceQuantity:qty,price:price});
+    }
+    var resourceEditor='';
+    if(body.type==='resource'){
+      var suggested=Number(safety.suggestedQuantity),canSuggest=Number.isSafeInteger(suggested)&&suggested>0&&resource&&suggested<=Number(resource.quantity);
+      resourceEditor='<div class="res-list-form" style="margin:12px 0"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'
+        +'<label>'+tl('Quantity','수량','数量','数量','Jumlah','Số lượng','จำนวน')+'<input id="mktReviewResourceQty" type="number" inputmode="numeric" min="1" step="1" value="'+_ecoEsc(body.resourceQuantity)+'" style="width:100%;min-height:44px;padding:10px 12px;font-size:16px;line-height:1.3;box-sizing:border-box;background:#161013;color:#f5e6d8;border:1px solid rgba(193,129,83,.65);border-radius:8px;color-scheme:dark"></label>'
+        +'<label>'+tl('Bundle total','묶음 총가격','合計価格','整组总价','Harga total','Tổng giá','ราคารวม')+' ('+_ecoEsc(body.currency)+')<input id="mktReviewResourcePrice" type="number" inputmode="decimal" min="0" step="any" value="'+_ecoEsc(body.price)+'" style="width:100%;min-height:44px;padding:10px 12px;font-size:16px;line-height:1.3;box-sizing:border-box;background:#161013;color:#f5e6d8;border:1px solid rgba(193,129,83,.65);border-radius:8px;color-scheme:dark"></label></div>'
+        +'<p id="mktReviewResourceError" role="alert" hidden></p>';
+      if(resourceBlocked&&Number.isFinite(safety.minimumTotalPriceGp)){
+        resourceEditor+='<p>'+tl('Current fees require a bundle total above the zero-net boundary. This excludes material costs and does not guarantee a buyer.','현재 비용에서 등록비 회수 경계를 넘는 총가격이 필요합니다. 재료 원가는 제외하며 구매자를 보장하지 않습니다.','現在の費用で出品料回収境界を超える合計価格が必要です。材料費は含まず購入者も保証しません。','总价需超过当前费用的零净额界限，不含材料成本，也不保证买家。','Total harus melewati batas biaya saat ini; biaya bahan dan pembeli tidak dijamin.','Tổng giá cần vượt mức hòa phí hiện tại; chưa tính vật liệu và không đảm bảo người mua.','ราคารวมต้องเกินจุดคืนค่าธรรมเนียม ไม่รวมต้นทุนวัสดุและไม่รับประกันผู้ซื้อ')+'</p>'
+          +'<button id="mktUseSuggestedBundle" type="button" '+(canSuggest?'':'disabled')+' style="width:100%;min-height:44px;margin:4px 0;padding:10px 12px;font-size:16px;line-height:1.4;white-space:normal;overflow-wrap:anywhere;background:#2c1c15;color:#f2c69b;border:1px solid #9d6844;border-radius:8px">'+tl('Use suggested quantity: ','제안 묶음 수량 적용: ','推奨数量を使う: ','使用建议数量：','Gunakan jumlah saran: ','Dùng số lượng gợi ý: ','ใช้จำนวนที่แนะนำ: ')+_ecoEsc(suggested||'—')+'</button>'
+          +'<button id="mktUseMinimumTotal" type="button" style="width:100%;min-height:44px;margin:4px 0;padding:10px 12px;font-size:16px;line-height:1.4;white-space:normal;overflow-wrap:anywhere;background:#2c1c15;color:#f2c69b;border:1px solid #9d6844;border-radius:8px">'+tl('Use fee-covering total: ','등록비 회수 총가격 적용: ','出品料を回収する合計額: ','使用可回收上架费的总价：','Gunakan total penutup biaya: ','Dùng tổng giá đủ bù phí: ','ใช้ราคารวมที่คืนค่าธรรมเนียม: ')+fmt(safety.minimumTotalPriceGp)+' GP</button>';
+        if(!canSuggest)resourceEditor+='<p>'+tl('Suggested quantity exceeds your stock. Edit the total or wait until you have more resources.','제안 수량이 보유량을 넘습니다. 총가격을 조정하거나 자원을 더 모은 뒤 등록하세요.','推奨数量が保有数を超えます。合計額を調整するか資源を増やしてください。','建议数量超过库存，请调整总价或等待更多资源。','Jumlah saran melebihi stok. Ubah total atau kumpulkan sumber daya lagi.','Số lượng gợi ý vượt kho. Đổi tổng giá hoặc tích thêm tài nguyên.','จำนวนที่แนะนำเกินที่มี ปรับราคารวมหรือรวบรวมทรัพยากรเพิ่ม')+'</p>';
+      }
+      resourceEditor+='<p>'+tl('Changing quantity keeps the current unit price. Changes always need a fresh cost review before listing.','수량을 바꾸면 현재 단가를 유지해 총가격도 바뀝니다. 변경 후 새 견적을 확인해야 등록됩니다.','数量変更時は現在単価で合計額も変わります。出品前に新しい見積もりを確認します。','改数量会按当前单价调整总价，上架前必须重新确认报价。','Mengubah jumlah mempertahankan harga satuan. Tinjau biaya baru sebelum mendaftar.','Đổi số lượng sẽ giữ đơn giá. Cần xem lại phí mới trước khi đăng.','เปลี่ยนจำนวนจะคงราคาต่อหน่วย ต้องตรวจราคาใหม่ก่อนลงขาย')+'</p></div>';
+    }
+    var info=[
+      {k:tl('Asset','판매 자산','出品資産','出售资产'),v:body.type==='resource'?(resource&&resource.name||body.resourceCode)+' ×'+body.resourceQuantity:
+        (body.type==='claim'?tl('Territory #','영토 #','領土 #','领地 #')+body.claimId:tl('Item #','아이템 #','アイテム #','物品 #')+body.instanceId)},
+      {k:tl('Bundle sale price','묶음 판매 총가격','合計販売価格','整组售价'),v:fmt(q.price)+' '+q.currency},
+      {k:tl('Charged now, once listed','등록 성공 즉시 차감','出品成功時に支払い','上架成功即扣'),v:fmt(q.listingFeeGp)+' GP'},
+      {k:tl('Sale fee, only if sold','판매 성공 시 수수료','売却時のみ手数料','售出才收手续费'),v:fmt(q.saleFee)+' '+q.currency+' ('+fmt(q.saleFeePct)+'%)'},
+      {k:tl('Received only if sold','판매 성공 시 예상 수령','売却時の受取予想','售出后预计到账'),v:range(q.receivesMin,q.receivesMax,q.currency)}
+    ];
+    if(Number.isFinite(q.baseListingFeeGp)&&Number.isFinite(q.dynamicListingFeeGp)){
+      info.push({k:tl('Registration: base → count → discount','등록비: 기본 → 매물수 → 할인','出品料: 基本→件数→割引','上架费: 基础→数量→折扣'),
+        v:fmt(q.baseListingFeeGp)+' → '+fmt(q.dynamicListingFeeGp)+' → '+fmt(q.listingFeeGp)+' GP'});
+    }
+    if(Number.isFinite(q.baseSaleFeePct)) info.push({k:tl('Sale fee: base → seller rate','판매세: 기본 → 판매자 적용','販売料: 基本→適用','销售费: 基础→卖家适用'),v:fmt(q.baseSaleFeePct)+'% → '+fmt(q.saleFeePct)+'%'});
+    var notes=[tl('The GP registration fee is not refunded if this listing expires or you cancel it. Nothing is charged for this preview.','미판매 만료·취소에도 GP 등록비는 반환되지 않습니다. 견적 확인은 무료입니다.','未売却の期限切れ・取消でもGP出品料は返金されません。見積もりは無料です。','未售出到期或取消也不退GP上架费。查看报价免费。'),
+      tl('Proceeds are estimates using current settings; sale fees and buyer exemptions may change before purchase.','수령액은 현재 설정 기준 추정입니다. 판매 시점의 수수료·구매자 면제에 따라 달라집니다.','受取額は現在設定での予想です。売却時の手数料・購入者免除で変動します。','到账为当前设置估算，出售时手续费与买家减免可能变化。')];
+    if(q.tariffStatus==='unknown') notes.push(tl('Sector tariff could not be verified. The amount shown is before any unknown tariff.','섹터 관세를 확인하지 못했습니다. 표시액은 미확정 관세 차감 전입니다.','関税を確認できません。表示額は未確定関税の控除前です。','无法核实扇区关税，显示金额未扣未知关税。'));
+    else info.push({k:tl('Buyer-dependent sector tariff','구매자별 섹터 관세','購入者別関税','买家相关扇区关税'),v:range(0,q.tariffMax||0,q.currency)});
+    if(!q.listingDiscountsVerified||!q.saleDiscountsVerified) notes.push(tl('Some discounts could not be verified; these are estimates using the available fee calculation.','일부 할인을 확인하지 못해 확인 가능한 산식으로 추정했습니다.','一部割引を確認できず、利用可能な計算による予想です。','部分折扣无法核实，按可用计费规则估算。'));
+    var warning='';
+    if(q.currency==='GP'&&Number.isFinite(q.netAfterListingFeeMax)){
+      info.push({k:tl('After registration fee (excludes production cost)','등록비 차감 후 (제작원가 제외)','出品料差引後（製造費除く）','扣上架费后（不含生产成本）'),v:range(q.netAfterListingFeeMin,q.netAfterListingFeeMax,'GP')});
+      if(resourceBlocked) warning=tl('This resource bundle cannot leave positive GP after sale and registration fees. Adjust it before paying any registration fee.','이 자원 묶음은 판매세와 등록비를 빼면 양수의 GP가 남지 않습니다. 등록비를 내기 전에 조정하세요.','この資源は販売料と出品料を引くとGPが残りません。支払い前に調整してください。','这组资源扣除销售费和上架费后不剩正的GP，请先调整。','Bundel ini tidak menyisakan GP positif setelah biaya. Sesuaikan sebelum membayar.','Gói này không còn GP dương sau phí. Hãy chỉnh trước khi trả phí đăng.','ชุดนี้ไม่เหลือ GP บวกหลังหักค่าธรรมเนียม กรุณาปรับก่อนจ่าย');
+      else if(q.netAfterListingFeeMax<0) warning=tl('At the current estimate, even a sale will not recover the GP registration fee.','현재 추정상 판매되어도 GP 등록비를 회수하지 못합니다.','現在の予想では売れてもGP出品料を回収できません。','按当前估算即使售出也无法收回GP上架费。');
+      else if(q.netAfterListingFeeMin!=null&&q.netAfterListingFeeMin<0) warning=tl('Depending on the tariff, a sale may not recover the registration fee.','관세에 따라 판매되어도 등록비를 회수하지 못할 수 있습니다.','関税により売れても出品料を回収できない場合があります。','视关税而定，售出也可能无法收回上架费。');
+    }else notes.push(tl('PP proceeds and the GP registration fee are shown separately; no exchange rate or combined profit is assumed.','PP 수령액과 GP 등록비는 별도입니다. 환율이나 통화 간 합산 손익을 가정하지 않습니다.','PP受取とGP出品料は別表示です。換算・合算損益は計算しません。','PP到账与GP上架费分列，不假定汇率或合并盈亏。'));
+    if(q.resourceQuantity) info.push({k:tl('Your price per unit','내 개당 가격','自分の単価','你的单价'),v:fmt(q.price/q.resourceQuantity)+' '+q.currency});
+    if(q.npcCompetition){
+      if(!q.npcCompetition.available) notes.push(tl('NPC supply could not be checked.','NPC 공급을 확인하지 못했습니다.','NPC供給を確認できません。','无法检查NPC供应。'));
+      else if(q.npcCompetition.listingCount>0) info.push({k:tl('Current NPC supply (not player demand)','현재 NPC 공급 (유저 수요 아님)','現在のNPC供給（需要ではない）','当前NPC供应（非玩家需求）'),
+        v:q.npcCompetition.listingCount+' '+tl('listings · from ','매물 · 개당 최저 ','件 · 最低単価 ','组 · 最低单价 ')+fmt(q.npcCompetition.minUnitPrice)+' '+q.currency});
+      else notes.push(tl('No current NPC listing for this resource and currency. This does not guarantee player demand.','이 자원·통화의 현재 NPC 매물은 없습니다. 유저 수요를 보장하지 않습니다.','この資源・通貨のNPC出品はありません。需要を保証しません。','该资源与币种暂无NPC上架，不保证玩家需求。'));
+    }
+    var reviewAgainText=tl('Review adjusted costs','조정한 비용 다시 확인','変更後の費用を確認','重新确认调整费用','Tinjau biaya baru','Xem lại phí đã chỉnh','ตรวจค่าธรรมเนียมที่ปรับ');
+    var reviewPromise=gameConfirm({title:tl('Review listing costs','판매 등록 비용 확인','出品費用の確認','确认上架费用'),icon:'💰',info:info,
+      body:(warning?'<p style="color:var(--red)">'+warning+'</p>':'')+resourceEditor+notes.map(function(n){return '<p style="font-size:10px">'+n+'</p>';}).join(''),
+      validate:function(){return !!readReview(true);},
+      confirmText:resourceBlocked?reviewAgainText:tl('List with these costs','비용 확인 후 등록','費用を確認して出品','确认费用并上架')
+    });
+    function changedReview(){
+      var qtyEl=document.getElementById('mktReviewResourceQty'),priceEl=document.getElementById('mktReviewResourcePrice');
+      if(qtyEl&&priceEl)_saveResourceListingDraft(body.resourceCode,qtyEl.value,priceEl.value,body.currency);
+      var button=document.getElementById('gcConfirmBtn');if(button)button.textContent=reviewAgainText;
+    }
+    var editQty=document.getElementById('mktReviewResourceQty'),editPrice=document.getElementById('mktReviewResourcePrice');
+    if(editQty&&editQty.addEventListener)editQty.addEventListener('input',function(){if(editPrice&&Number.isFinite(editUnit))editPrice.value=String(Math.round(Number(editQty.value)*editUnit*1000000)/1000000);changedReview();});
+    if(editPrice&&editPrice.addEventListener)editPrice.addEventListener('input',function(){if(editQty&&Number(editQty.value)>0)editUnit=Number(editPrice.value)/Number(editQty.value);changedReview();});
+    var useQuantity=document.getElementById('mktUseSuggestedBundle');
+    if(useQuantity&&useQuantity.addEventListener)useQuantity.addEventListener('click',function(){if(!canSuggest||!editQty||!editPrice)return;editQty.value=String(safety.suggestedQuantity);editPrice.value=String(safety.suggestedTotalPrice);editUnit=Number(safety.unitPrice);changedReview();});
+    var useTotal=document.getElementById('mktUseMinimumTotal');
+    if(useTotal&&useTotal.addEventListener)useTotal.addEventListener('click',function(){if(!editPrice)return;editPrice.value=String(safety.minimumTotalPriceGp);if(editQty&&Number(editQty.value)>0)editUnit=Number(editPrice.value)/Number(editQty.value);changedReview();});
+    return reviewPromise.then(function(ok){
+      if(sequence!==_marketQuoteSequence||!walletUnchanged())return;
+      var edited=readReview(!!ok);
+      if(!ok||!edited) return;
+      if(body.type==='resource'&&(edited.resourceQuantity!==Number(body.resourceQuantity)||edited.price!==Number(body.price)))return confirmMarketListing(edited,onListed);
+      if(sequence!==_marketQuoteSequence||!walletUnchanged()) throw new Error('LISTING_CONTEXT_CHANGED');
+      if(Date.parse(q.expiresAt)<=Date.now()) throw new Error('LISTING_QUOTE_EXPIRED');
+      var request=Object.assign({},body,{expectedListingFeeGp:q.listingFeeGp,listingQuoteExpiresAt:q.expiresAt});
+      registrationSubmitted=true;
+      return fetch('/api/marketplace/list',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify(request)})
+      .then(function(r){return r.json();}).then(function(d){
+        if(d.error) throw new Error(d.error);
+        if(onListed) onListed(d);
+        return d;
+      });
+    });
+  }).catch(function(e){
+    if(/RESOURCE_LISTING_NO_NET_PROCEEDS/.test(e.message||'')){
+      showToast(tl('Current fees leave no positive resource proceeds. Your draft is saved; adjust it and review again.','현재 수수료에서는 양수의 수령액이 남지 않습니다. 입력값은 저장됐습니다. 조정 후 다시 확인하세요.','現在の費用では受取額が残りません。入力は保存済みです。調整して再確認してください。','当前费用下没有正的到账额，草稿已保存，请调整后重试。','Biaya saat ini tidak menyisakan hasil positif. Draf tersimpan; ubah dan tinjau lagi.','Phí hiện tại không còn khoản nhận dương. Bản nháp đã lưu, hãy chỉnh và xem lại.','ค่าธรรมเนียมปัจจุบันไม่เหลือยอดรับบวก บันทึกฉบับร่างแล้ว กรุณาปรับและตรวจใหม่'),'error');return;
+    }
+    var changed=/LISTING_(QUOTE_EXPIRED|FEE_CHANGED|CONTEXT_CHANGED)/.test(e.message||'');
+    showToast(changed?tl('Costs changed or preview expired. Open the listing again to review current costs.','비용이 변경되었거나 견적이 만료되었습니다. 다시 판매창을 열어 현재 비용을 확인하세요.','費用変更または期限切れです。出品画面を開き直して確認してください。','费用已变或报价到期，请重新打开上架窗口确认。'):
+      (registrationSubmitted?tl('Listing failed or its result could not be confirmed. Check My Listings and your balance before retrying.','등록에 실패했거나 결과를 확인하지 못했습니다. 재시도 전 내 매물과 잔액을 확인하세요.','出品失敗または結果未確認です。再試行前に自分の出品と残高を確認してください。','上架失败或结果未确认，重试前请检查我的上架与余额。'):
+        tl('Costs unavailable. No listing request was sent and no registration fee was charged. Try again to review current costs.','비용 확인에 실패했습니다. 등록 요청과 등록비 차감은 없었습니다. 다시 현재 비용을 확인하세요.','費用を確認できません。出品リクエスト・出品料請求はありません。再度確認してください。','费用不可用，未发送上架请求也未收上架费，请重试。')),'error');
+  });
+}
+
 function openListModal(type,idVal,name,icon,enhLv){
   var instance=(type==='cosmetic'||type==='item')?_mktSellInstances.concat(_enhInstances||[]).find(function(i){return String(i.id)===String(idVal);}):null;
   if(type==='cosmetic'&&instance)name=instance.name||name;
@@ -1333,8 +1488,8 @@ function openListModal(type,idVal,name,icon,enhLv){
       +'<select id="mktAuctionDur" style="flex:1;font-size:10px;padding:6px;background:rgba(0,0,0,.3);border:1px solid rgba(255,213,79,.25);color:#fff;border-radius:6px;font-family:var(--fn)"><option value="1">1'+(LANG==='ko'?'시간':LANG==='ja'?'時間':LANG==='zh'?'小时':'h')+'</option><option value="6">6'+(LANG==='ko'?'시간':LANG==='ja'?'時間':LANG==='zh'?'小时':'h')+'</option><option value="12">12'+(LANG==='ko'?'시간':LANG==='ja'?'時間':LANG==='zh'?'小时':'h')+'</option><option value="24" selected>24'+(LANG==='ko'?'시간':LANG==='ja'?'時間':LANG==='zh'?'小时':'h')+'</option><option value="48">48'+(LANG==='ko'?'시간':LANG==='ja'?'時間':LANG==='zh'?'小时':'h')+'</option><option value="72">72'+(LANG==='ko'?'시간':LANG==='ja'?'時間':LANG==='zh'?'小时':'h')+'</option></select>'
       +'</div>'
       +'</div>'
-      +'<div style="font-size:8px;color:var(--tx3)">'+(LANG==='ko'?'수수료: 낙찰가의 5%':LANG==='ja'?'手数料: 落札額の5%':LANG==='zh'?'手续费: 成交价5%':'Fee: 5% of sale')+'</div></div>',
-    info:[], confirmText:LANG==='ko'?'등록하기':LANG==='ja'?'出品する':LANG==='zh'?'发布':'List Item'
+      +'<div style="font-size:8px;color:var(--tx3)">'+tl('Fixed-price costs are reviewed before listing. Auction fees are calculated separately.','고정가 등록 비용은 다음 단계에서 확인합니다. 경매 수수료는 별도 적용됩니다.','固定価格の費用は次に確認します。競売手数料は別計算です。','固定价费用将在下一步确认，拍卖费用另行计算。')+'</div></div>',
+    info:[], confirmText:tl('Continue','계속','続ける','继续')
   }).then(function(ok){
     if(!ok) return;
     var priceVal=parseFloat(document.getElementById('mktListPrice').value);
@@ -1366,14 +1521,12 @@ function openListModal(type,idVal,name,icon,enhLv){
       // 고정가 등록
       var body={wallet:w,type:type,price:priceVal,currency:curr};
       if(type==='claim') body.claimId=idVal; else body.instanceId=idVal;
-      fetch('/api/marketplace/list',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify(body)})
-      .then(function(r){return r.json()}).then(function(d){
-        if(d.error){showToast(srvErr(d.error),'error');return;}
+      confirmMarketListing(body,function(d){
         var _mktListedMsg=type==='claim'?(LANG==='ko'?'영토를 마켓에 등록했습니다!':LANG==='ja'?'領土をマーケットに登録しました!':LANG==='zh'?'领地已上架市场!':'Territory listed on market!'):(LANG==='ko'?'아이템을 마켓에 등록했습니다!':LANG==='ja'?'アイテムをマーケットに登録しました!':LANG==='zh'?'物品已上架市场!':'Item listed on market!');
         showToast('✅ '+_mktListedMsg);
         refreshBalance(); loadSellView();
         if(type==='claim'){try{loadForSaleOverlay();}catch(_){}try{_updateMyTerritories();}catch(_){}}
-      }).catch(function(){showToast(LANG==='ko'?'등록 실패':LANG==='ja'?'登録失敗':LANG==='zh'?'登记失败':'Registration failed','error');});
+      });
     }
   });
 }
@@ -1385,35 +1538,64 @@ function openResourceMarketListing(resourceCode){
   var resItem=(_resourceInventory||[]).find(function(r){return r.code===resourceCode;});
   if(!resItem||resItem.quantity<=0){showToast(tl('No resources to sell','판매할 자원이 없습니다','売却する資源がありません','没有可出售的资源'),'error');return;}
   var maxQty=_ecoNum(resItem.quantity);
-  gameConfirm({
+  var draftKey=_resourceListingDraftKey(resourceCode),draft=_resourceListingDrafts[draftKey]||{};
+  function saveInputs(){
+    if(w.toLowerCase()!==((walletState&&walletState.address)||'').toLowerCase())return;
+    var qty=document.getElementById('resListQty'),price=document.getElementById('resListPrice'),currency=document.getElementById('resListCurrency');
+    if(qty&&price&&currency)_saveResourceListingDraft(resourceCode,qty.value,price.value,currency.value);
+  }
+  function readListingInputs(){
+    var qtyInput=document.getElementById('resListQty'),priceInput=document.getElementById('resListPrice');
+    var currencyInput=document.getElementById('resListCurrency');
+    if(!qtyInput||!priceInput||!currencyInput) return null;
+    saveInputs();
+    var qtyText=qtyInput.value.trim(),qty=Number(qtyText),price=Number(priceInput.value);
+    var invalidQty=!/^\d+$/.test(qtyText)||!Number.isSafeInteger(qty)||qty<1||qty>maxQty;
+    var invalidPrice=!Number.isFinite(price)||price<=0;
+    var message=invalidQty?tl('Enter a whole quantity from 1 to {max}.','수량은 1~{max} 사이의 정수로 입력하세요.','数量は1～{max}の整数で入力してください。','请输入1到{max}之间的整数数量。').replace('{max}',String(maxQty)):(invalidPrice?tl('Enter a valid price','올바른 가격을 입력하세요','有効な価格を入力してください','请输入有效价格'):'');
+    var error=document.getElementById('resListError');
+    if(error){error.textContent=message;error.hidden=!message;}
+    if(qtyInput.setAttribute) qtyInput.setAttribute('aria-invalid',String(invalidQty));
+    if(priceInput.setAttribute) priceInput.setAttribute('aria-invalid',String(invalidPrice));
+    if(message){
+      if(!error) showToast(message,'error');
+      var target=invalidQty?qtyInput:priceInput;
+      if(target.focus) target.focus();
+      return null;
+    }
+    return {wallet:w,type:'resource',resourceCode:resourceCode,resourceQuantity:qty,price:price,currency:currencyInput.value};
+  }
+  var inputPromise=gameConfirm({
     title:'⛏️ '+(t('res_sell_title')||'Sell Resource'), icon:'⛏️',
-    body:'<div class="eco-item-card" style="background:none!important;border:0!important"><div class="eco-confirm-art">'+_ecoCardArt(resItem,96)+'</div><div style="margin-bottom:8px;font-size:11px;color:#5cbbff;font-weight:700">'+_ecoEsc(resItem.name||resItem.code)+'</div>'
+    validate:function(){return !!readListingInputs();},
+    body:'<div class="eco-item-card res-list-form" style="background:none!important;border:0!important"><div class="eco-confirm-art">'+_ecoCardArt(resItem,96)+'</div><div style="margin-bottom:8px;font-size:11px;color:#5cbbff;font-weight:700">'+_ecoEsc(resItem.name||resItem.code)+'</div>'
       +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:4px">'
       +'<div>'
-      +'<label style="font-size:9px;color:var(--tx3)">'+tl('QTY','수량','数量','数量')+' ('+tl('max','최대','最大','最多')+' '+maxQty+')</label>'
-      +'<input id="resListQty" type="number" min="1" max="'+maxQty+'" value="'+Math.min(maxQty,10)+'" style="width:100%;font-size:11px;padding:4px 8px;background:rgba(0,0,0,.3);border:1px solid rgba(92,187,255,.3);color:#fff;border-radius:4px;font-family:var(--fn);box-sizing:border-box">'
+      +'<label for="resListQty">'+tl('QTY','수량','数量','数量')+' ('+tl('max','최대','最大','最多')+' '+maxQty+')</label>'
+      +'<input id="resListQty" aria-describedby="resListError" type="number" inputmode="numeric" step="1" min="1" max="'+maxQty+'" value="'+_ecoEsc(draft.quantity==null?Math.min(maxQty,10):draft.quantity)+'" style="width:100%;padding:4px 8px;background:rgba(0,0,0,.3);border:1px solid rgba(92,187,255,.3);color:#fff;border-radius:4px;font-family:var(--fn);box-sizing:border-box">'
       +'</div>'
       +'<div>'
-      +'<label style="font-size:9px;color:var(--tx3)">'+tl('PRICE EACH','개당 가격','単価','单价')+'</label>'
-      +'<input id="resListPrice" type="number" min="1" placeholder="'+_ecoNum(resItem.base_pp_value)+'" style="width:100%;font-size:11px;padding:4px 8px;background:rgba(0,0,0,.3);border:1px solid rgba(92,187,255,.3);color:#fff;border-radius:4px;font-family:var(--fn);box-sizing:border-box">'
+      +'<label for="resListPrice">'+tl('TOTAL BUNDLE PRICE','묶음 총가격','合計価格','整组总价')+'</label>'
+      +'<input id="resListPrice" value="'+_ecoEsc(draft.price||'')+'" aria-describedby="resListError" type="number" inputmode="decimal" min="0" step="any" placeholder="'+_ecoNum(resItem.base_pp_value)+'" style="width:100%;padding:4px 8px;background:rgba(0,0,0,.3);border:1px solid rgba(92,187,255,.3);color:#fff;border-radius:4px;font-family:var(--fn);box-sizing:border-box">'
       +'</div>'
       +'</div>'
-      +'<select id="resListCurrency" style="width:100%;font-size:10px;padding:4px 6px;background:rgba(0,0,0,.3);border:1px solid rgba(92,187,255,.3);color:#fff;border-radius:4px;font-family:var(--fn);box-sizing:border-box"><option value="GP">GP</option><option value="PP">PP</option></select>'
-      +'<div style="font-size:8px;color:var(--tx3);margin-top:4px">'+(t('mkt_fee_note')||'Listing fee: 2 GP · Sale fee: 5%')+'</div></div>',
-    info:[], confirmText:t('mkt_list_confirm')||'LIST FOR SALE'
-  }).then(function(ok){
+      +'<label for="resListCurrency">'+tl('Currency','통화','通貨','货币')+'</label><select id="resListCurrency" style="width:100%;padding:4px 6px;background:rgba(0,0,0,.3);border:1px solid rgba(92,187,255,.3);color:#fff;border-radius:4px;font-family:var(--fn);box-sizing:border-box"><option value="GP"'+(draft.currency!=='PP'?' selected':'')+'>GP</option><option value="PP"'+(draft.currency==='PP'?' selected':'')+'>PP</option></select>'
+      +'<p id="resListError" role="alert" hidden></p><div class="res-list-help">'+tl('Enter the price for the whole quantity. Review current fees before listing.','수량 전체의 총가격을 입력하세요. 다음 단계에서 현재 수수료를 확인합니다.','全数量の合計価格を入力。次に現在の手数料を確認します。','输入全部数量总价，下一步确认当前费用。')+'</div></div>',
+    info:[], confirmText:tl('Review costs','비용 확인','費用を確認','确认费用')
+  });
+  ['resListQty','resListPrice','resListCurrency'].forEach(function(id){var input=document.getElementById(id);if(input&&input.addEventListener){input.addEventListener('input',saveInputs);input.addEventListener('change',saveInputs);}});
+  return inputPromise.then(function(ok){
+    saveInputs();
     if(!ok) return;
-    var qty=parseInt(document.getElementById('resListQty').value)||1;
-    var price=parseFloat(document.getElementById('resListPrice').value);
-    var curr=document.getElementById('resListCurrency').value;
-    if(!price||price<=0){showToast(tl('Enter a valid price','올바른 가격을 입력하세요','有効な価格を入力してください','请输入有效价格'),'error');return;}
-    if(qty<1||qty>maxQty){showToast(tl('Invalid quantity','수량이 올바르지 않습니다','数量が無効です','数量无效'),'error');return;}
-    fetch('/api/marketplace/list',{method:'POST',headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),body:JSON.stringify({wallet:w,type:'resource',resourceCode:resourceCode,resourceQuantity:qty,price:price,currency:curr})})
-    .then(function(r){return r.json()}).then(function(d){
-      if(d.error){showToast(srvErr(d.error),'error');return;}
+    var listing=readListingInputs();
+    if(!listing) return;
+    return confirmMarketListing(listing,function(d){
+      var qty=Number((_resourceListingDrafts[draftKey]||{}).quantity)||listing.resourceQuantity;
+      delete _resourceListingDrafts[draftKey];
       showToast('✅ '+(qty)+'× '+(resItem.name||resItem.code)+' '+tl('listed!','등록 완료!','出品しました！','已上架！'));
       loadBaseInventory();
-    }).catch(function(){showToast(tl('Listing failed','등록 실패','出品失敗','上架失败'),'error')});
+      refreshBalance();
+    });
   });
 }
 
@@ -1449,6 +1631,25 @@ function loadMyListings(){
 // AUCTION SYSTEM
 // ══════════════════════════════════════
 var _auctionTimers=[];
+var _marketAuctionRecords={};
+function _auctionReadOnly(a){
+  a=a&&a.auction||a||{};
+  return a.escrow_review_required===true||a.read_only===true||((a.status==='active'||a.status==null)&&a.escrow_version!=null&&Number(a.escrow_version)===0);
+}
+function _auctionReviewNotice(){
+  return tl('Read-only: assets are preserved pending escrow review. Bidding, buyout and cancellation are unavailable.','읽기 전용: 자산을 보존한 채 예치 검토를 기다립니다. 입찰·즉시구매·취소할 수 없습니다.','読取専用：資産を保全し預託確認を待っています。入札・即決・取消はできません。','只读：资产保留并等待托管审查，不能竞价、立即购买或取消。','Hanya baca: aset disimpan sambil menunggu tinjauan escrow. Tawaran, beli langsung dan pembatalan tidak tersedia.','Chỉ đọc: tài sản được giữ nguyên để chờ rà soát ký quỹ. Không thể đấu giá, mua ngay hoặc hủy.','อ่านอย่างเดียว: เก็บรักษาทรัพย์สินระหว่างรอตรวจสอบเอสโครว์ ไม่สามารถเสนอราคา ซื้อทันที หรือยกเลิกได้');
+}
+function _marketAuctionWritable(id){
+  if(_auctionReadOnly(_marketAuctionRecords[id])){showToast(_auctionReviewNotice(),'error');return Promise.resolve(false);}
+  return fetch('/api/auctions/'+encodeURIComponent(id),{headers:getAuthHeaders()}).then(function(r){return r.json();}).then(function(d){
+    if(d.error)throw new Error(d.error);
+    var a=d.auction||d;
+    if(a.id==null)throw new Error('AUCTION_STATUS_UNAVAILABLE');
+    _marketAuctionRecords[id]=a;
+    if(_auctionReadOnly(a)){showToast(_auctionReviewNotice(),'error');return false;}
+    return true;
+  }).catch(function(){showToast(tl('Auction status unavailable. Reopen the market and try again.','경매 상태를 확인할 수 없습니다. 마켓을 다시 열어 확인하세요.','競売状態を確認できません。マーケットを開き直してください。','无法确认拍卖状态，请重新打开市场。','Status lelang tidak tersedia. Buka pasar lagi dan coba kembali.','Không xem được trạng thái đấu giá. Hãy mở lại chợ và thử lại.','ตรวจสอบสถานะประมูลไม่ได้ กรุณาเปิดตลาดใหม่แล้วลองอีกครั้ง'),'error');return false;});
+}
 
 function clearAuctionTimers(){
   if(!_auctionTimers.length) return;
@@ -1486,6 +1687,8 @@ function loadAuctions(){
     auctions.forEach(function(a){
       var w=(walletState&&walletState.address)||'';
       var isSelf=(w&&a.seller_wallet&&w.toLowerCase()===a.seller_wallet.toLowerCase());
+      _marketAuctionRecords[a.id]=a;
+      var frozen=_auctionReadOnly(a);
       var hasBid=a.current_bid>0;
       var minBid=hasBid?Math.ceil(a.current_bid*1.05):Math.ceil(parseFloat(a.current_price||a.start_price||0)+1);
       var itemLabel=_ecoEsc(_mktName(a));
@@ -1495,11 +1698,13 @@ function loadAuctions(){
         +'<div style="font-size:10px;font-weight:700;color:var(--gold)">'+itemLabel+(enhLv>0?_enhBadge(enhLv):'')+'</div>'
         +'<div style="font-size:9px;color:var(--tx3)">'+(t('auc_current_bid')||'Bid')+': <span style="color:#fff;font-weight:700">'+_ecoNum(hasBid?a.current_bid:a.start_price)+' '+_ecoEsc(a.currency)+'</span></div>'
         +(a.buyout_price?'<div style="font-size:8px;color:#4cd89a">'+(t('auc_buyout')||'Buyout')+': '+_ecoNum(a.buyout_price)+' '+_ecoEsc(a.currency)+'</div>':'')
-        +'<div class="auc-timer-'+_ecoNum(a.id)+'" style="font-size:8px;color:var(--tx3)">⏱ '+_ecoEsc(_auctionTimeLeft(a.ends_at))+'</div>'
+        +'<div class="auc-timer-'+_ecoNum(a.id)+'" style="font-size:8px;color:var(--tx3)">⏱ '+_ecoEsc(frozen?tl('Review required','검토 대기','確認待ち','待审查','Perlu tinjauan','Chờ rà soát','รอตรวจสอบ'):_auctionTimeLeft(a.ends_at))+'</div>'
+        +(frozen?'<p class="auction-review-notice" role="status" style="font-size:10px;color:var(--gold)">'+_ecoEsc(_auctionReviewNotice())+'</p>':'')
         +'<div style="display:flex;gap:4px;margin-top:auto">'
-        +(!isSelf?'<button onclick="govPlaceAuctionBid('+_ecoNum(a.id)+','+minBid+',\''+_ecoInline(a.currency)+'\')" style="flex:1;font-size:8px;font-weight:700;padding:5px 4px;border-radius:4px;border:1px solid rgba(255,165,0,.4);background:rgba(255,165,0,.1);color:var(--gold);cursor:pointer;font-family:var(--fn)">🔨 '+(t('auc_bid')||'BID')+'</button>':'')
-        +(a.buyout_price&&!isSelf?'<button onclick="govAuctionBuyout('+_ecoNum(a.id)+',\''+_ecoInline(a.currency)+'\')" style="flex:1;font-size:8px;font-weight:700;padding:5px 4px;border-radius:4px;border:1px solid rgba(76,216,154,.4);background:rgba(76,216,154,.1);color:#4cd89a;cursor:pointer;font-family:var(--fn)">⚡ '+(t('auc_buy_now')||'BUY')+'</button>':'')
-        +(isSelf&&!hasBid?'<button onclick="govCancelAuction('+_ecoNum(a.id)+')" style="flex:1;font-size:8px;padding:4px;border-radius:4px;border:1px solid rgba(232,72,85,.3);background:rgba(232,72,85,.08);color:var(--red);cursor:pointer;font-family:var(--fn)">'+(t('auc_cancel')||'CANCEL')+'</button>':'')
+        +(frozen?'<button type="button" disabled aria-disabled="true" style="min-height:44px;flex:1">'+tl('Read-only','읽기 전용','読取専用','只读','Hanya baca','Chỉ đọc','อ่านอย่างเดียว')+'</button>':'')
+        +(!frozen&&!isSelf?'<button onclick="govPlaceAuctionBid('+_ecoNum(a.id)+','+minBid+',\''+_ecoInline(a.currency)+'\')" style="flex:1;font-size:8px;font-weight:700;padding:5px 4px;border-radius:4px;border:1px solid rgba(255,165,0,.4);background:rgba(255,165,0,.1);color:var(--gold);cursor:pointer;font-family:var(--fn)">🔨 '+(t('auc_bid')||'BID')+'</button>':'')
+        +(!frozen&&a.buyout_price&&!isSelf?'<button onclick="govAuctionBuyout('+_ecoNum(a.id)+',\''+_ecoInline(a.currency)+'\')" style="flex:1;font-size:8px;font-weight:700;padding:5px 4px;border-radius:4px;border:1px solid rgba(76,216,154,.4);background:rgba(76,216,154,.1);color:#4cd89a;cursor:pointer;font-family:var(--fn)">⚡ '+(t('auc_buy_now')||'BUY')+'</button>':'')
+        +(!frozen&&isSelf&&!hasBid?'<button onclick="govCancelAuction('+_ecoNum(a.id)+')" style="flex:1;font-size:8px;padding:4px;border-radius:4px;border:1px solid rgba(232,72,85,.3);background:rgba(232,72,85,.08);color:var(--red);cursor:pointer;font-family:var(--fn)">'+(t('auc_cancel')||'CANCEL')+'</button>':'')
         +'</div>'
         +'</div>';
     });
@@ -1508,6 +1713,7 @@ function loadAuctions(){
     // live timers
     clearAuctionTimers();
     auctions.forEach(function(a){
+      if(_auctionReadOnly(a))return;
       // Cache span ref once — avoids querySelector on every tick
       var span=el.querySelector('.auc-timer-'+a.id);
       if(!span) return;
@@ -1523,7 +1729,9 @@ function loadAuctions(){
 window.govPlaceAuctionBid=function(auctionId,minBid,currency){
   var w=(walletState&&walletState.address)||'';
   if(!w){showToast(t('connect_wallet')||'Connect wallet first','error');return;}
-  gameConfirm({
+  return _marketAuctionWritable(auctionId).then(function(writable){
+    if(!writable)return;
+    return gameConfirm({
     title:t('auc_bid_title')||'Place Bid',icon:'🔨',
     body:'<div style="margin-bottom:8px;font-size:10px;color:var(--gold)">'+(t('auc_min_bid')||'Minimum bid')+': <strong>'+minBid+' '+_ecoEsc(currency)+'</strong></div>'
       +'<div style="display:flex;gap:6px;align-items:center">'
@@ -1543,12 +1751,15 @@ window.govPlaceAuctionBid=function(auctionId,minBid,currency){
       refreshBalance();loadAuctions();
     }).catch(function(){showToast(tl('Bid failed','입찰 실패','入札失敗','竞价失败'),'error')});
   });
+  });
 };
 
 window.govAuctionBuyout=function(auctionId,currency){
   var w=(walletState&&walletState.address)||'';
   if(!w){showToast(t('connect_wallet')||'Connect wallet first','error');return;}
-  gameConfirm({
+  return _marketAuctionWritable(auctionId).then(function(writable){
+    if(!writable)return;
+    return gameConfirm({
     title:t('auc_buyout_title')||'Buy Now',icon:'⚡',
     body:'<div style="font-size:10px;color:#4cd89a">'+(t('auc_buyout_confirm')||'Purchase this item at the buyout price?')+'</div>',
     info:[],confirmText:t('auc_confirm_buyout')||'BUY NOW'
@@ -1561,12 +1772,15 @@ window.govAuctionBuyout=function(auctionId,currency){
       refreshBalance();loadAuctions();loadItemInstances();
     }).catch(function(){showToast(tl('Buyout failed','즉시구매 실패','即決失敗','立即购买失败'),'error')});
   });
+  });
 };
 
 window.govCancelAuction=function(auctionId){
   var w=(walletState&&walletState.address)||'';
   if(!w) return;
-  gameConfirm({
+  return _marketAuctionWritable(auctionId).then(function(writable){
+    if(!writable)return;
+    return gameConfirm({
     title:t('auc_cancel_title')||'Cancel Auction',icon:'❌',
     body:'<div style="font-size:10px;color:var(--tx3)">'+(t('auc_cancel_confirm')||'Cancel this auction? (Only allowed with no bids)')+'</div>',
     info:[],confirmText:t('auc_confirm_cancel')||'CANCEL AUCTION'
@@ -1578,6 +1792,7 @@ window.govCancelAuction=function(auctionId){
       showToast('✅ '+(t('auc_cancelled')||'Auction cancelled'));
       refreshBalance();loadAuctions();
     }).catch(function(){showToast(tl('Cancel failed','취소 실패','キャンセル失敗','取消失败'),'error')});
+  });
   });
 };
 

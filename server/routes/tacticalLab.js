@@ -109,8 +109,10 @@ router.get('/fleet-presets', async (req, res) => {
 
     // ── battleId 쿼리 분기: 실제 hijack/fleet_battle 의 attacker/defender 함대 구성 반환 ──
     // tactical-lab v11 가 ?bid=N 으로 호출하면 그 battle 의 진짜 함대를 시뮬에 사용.
-    const battleId = parseInt(req.query.bid || req.query.battleId);
-    if (battleId && battleId > 0) {
+    const requestedBattle = req.query.bid !== undefined || req.query.battleId !== undefined;
+    const battleId = String(req.query.bid ?? req.query.battleId ?? '');
+    if (requestedBattle && (!/^[1-9]\d{0,18}$/.test(battleId) || BigInt(battleId) > 9223372036854775807n)) return res.status(400).json({ error: 'INVALID_BATTLE_ID' });
+    if (requestedBattle) {
       try {
         const partRes = await pool.query(`
           SELECT fbp.fleet_id, fbp.side, f.name AS fleet_name, f.owner_wallet,
@@ -122,6 +124,8 @@ router.get('/fleet-presets', async (req, res) => {
           WHERE fbp.battle_id = $1
         `, [battleId]);
 
+        if (!partRes.rows.length) return res.status(404).json({ error: 'BATTLE_FLEETS_NOT_FOUND' });
+        if (partRes.rows.some(p => !p.owner_wallet || !['atk', 'def'].includes(p.side))) return res.status(409).json({ error: 'BATTLE_FLEETS_UNAVAILABLE' });
         const partsBySide = { atk: [], def: [] };
         for (const p of partRes.rows) {
           const shipsRes = await pool.query(
@@ -169,8 +173,10 @@ router.get('/fleet-presets', async (req, res) => {
         if (partsBySide.atk.length || partsBySide.def.length) {
           return res.json({ atk: partsBySide.atk, def: partsBySide.def, source: 'battle:' + battleId });
         }
+        return res.status(409).json({ error: 'BATTLE_FLEETS_UNAVAILABLE' });
       } catch (battleErr) {
-        console.warn('[tactical-lab] battleId fetch failed, falling back to demo:', battleErr.message);
+        console.warn('[tactical-lab] requested battle fleet load failed:', battleErr.message);
+        return res.status(500).json({ error: 'BATTLE_FLEETS_UNAVAILABLE' });
       }
     }
 

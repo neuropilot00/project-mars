@@ -654,6 +654,11 @@ router.post('/link-wallet', async (req, res) => {
 
   const oldWallet = decoded.wallet;
 
+  // Legacy wallet linking reissues an unversioned token, bypassing recovery revocation.
+  if (decoded.auth_kind === 'totp') {
+    return res.status(403).json({ error: 'authenticator_wallet_link_unavailable' });
+  }
+
   // Cannot link to the same address
   if (newWallet === oldWallet.toLowerCase()) {
     return res.status(400).json({ error: 'New wallet address is the same as current' });

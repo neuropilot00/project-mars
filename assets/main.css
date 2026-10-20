@@ -2279,6 +2279,32 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .gc-confirm:disabled{background:rgba(80,40,30,.3);border-color:rgba(120,60,40,.3);color:rgba(200,120,80,.4);
   cursor:not-allowed;box-shadow:none}
 
+/* Long sale quotes remain readable and actionable on short mobile viewports. */
+.gc-card{max-height:calc(100vh - 40px);max-height:calc(100dvh - 40px);overflow-y:auto;overscroll-behavior:contain}
+.gc-title,.gc-body,.gc-info{overflow-wrap:anywhere;min-width:0}
+.gc-info .gc-row{align-items:flex-start;font-size:12px;line-height:1.5}
+.gc-info .gc-row .gc-k{color:#cbbdb5;letter-spacing:0;flex:1;min-width:0}
+.gc-info .gc-row .gc-v{color:#f1e7de;flex:1;min-width:0;text-align:right;overflow-wrap:anywhere}
+.gc-actions{position:sticky;bottom:0;z-index:1;background:#1a1220;padding-top:12px;border-top:1px solid rgba(255,120,60,.15)}
+.gc-btn{min-height:44px;letter-spacing:.5px;font-size:12px}
+.gc-confirm{color:#160c0a}
+.gc-cancel{color:#d2c2b7}
+.gc-card input,.gc-card select{font-size:16px;min-height:44px;max-width:100%;box-sizing:border-box}
+.res-list-form label{display:block;font-size:12px;color:#d4c3b5;margin:6px 0 4px}
+.res-list-form .res-list-help{font-size:12px;line-height:1.6;color:#cbbdb5;margin-top:8px}
+#resListError{font-size:13px;line-height:1.5;color:#ffb3a6;margin:8px 0}
+.res-list-form [aria-invalid="true"]{border-color:#ff927d!important;outline:1px solid #ff927d}
+#tournamentModal .tn-modal{background:var(--bg);border-color:var(--bdr2)}
+#tournamentModal .bh-empty{font:14px/1.7 var(--font-body,system-ui);color:var(--tx);padding:28px 12px}
+#tournamentModal .tn-list{flex:1;min-height:0}
+#tournamentModal .bh-header,#tournamentModal .tn-tabs,#tournamentModal .bh-declare-area{flex-shrink:0}
+#tournamentModal .tn-tab,#tournamentModal .bc-btn,#tournamentModal .bh-declare-btn{min-height:44px;font-size:12px;letter-spacing:.3px}
+#tournamentModal .bc-btn:disabled{opacity:.5;cursor:wait}
+#tournamentModal .tn-tab.active{color:var(--gold)}
+#campaignPanel button{min-height:44px}
+#campaignPanel .base-section-title{gap:8px}
+@media(max-width:420px){.game-confirm{padding:12px}.gc-card{max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px)}.gc-header,.gc-body{padding-left:16px;padding-right:16px}.gc-body{font-size:14px}.gc-info{margin-left:12px;margin-right:12px;padding:8px}.gc-actions{padding-left:12px;padding-right:12px}}
+
 /* ══ Open Beta Notice (first-entry, one-time) — 반투명 + 화성 오렌지 외곽 ══ */
 .beta-notice{display:none;position:fixed;inset:0;z-index:10800;
   background:rgba(8,4,2,.55);backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);
@@ -2357,7 +2383,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 /* ══════════════════════════════════════════════════
    Lore / Story Popup (Star Wars crawl style)
    ══════════════════════════════════════════════════ */
-.lore-bg{display:none;position:fixed;inset:0;z-index:9999;background:#000;overflow:hidden}
+.lore-trigger{background:none;border:0;padding:0;min-height:44px;font-family:inherit;cursor:pointer}
+.lore-trigger:focus-visible,.lore-bg button:focus-visible{outline:2px solid #DDA27E;outline-offset:3px}
+.lore-bg{display:none;position:fixed;inset:0;z-index:9999;background:var(--bg,#0D0B14);overflow:hidden}
 .lore-bg.open{display:block}
 /* Twinkling stars background */
 .lore-stars{position:absolute;inset:0;overflow:hidden}
@@ -2366,13 +2394,13 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 @keyframes loreTwinkle{0%{opacity:.2}100%{opacity:.9}}
 /* Intro text: "A long time from now..." */
 .lore-intro{position:absolute;top:40%;left:50%;transform:translate(-50%,-50%);
-  text-align:center;color:var(--cyan);font-size:16px;font-family:var(--fn);
+  width:90%;max-width:650px;text-align:center;color:#A5AFBB;font-size:16px;font-family:var(--fn);
   letter-spacing:2px;opacity:0;animation:loreIntroAnim 6s ease-in-out forwards}
 @keyframes loreIntroAnim{0%{opacity:0}8%{opacity:1}42%{opacity:1}50%{opacity:0}100%{opacity:0}}
 /* Big title: "OCCUPY MARS" */
 .lore-big-title{position:absolute;top:42%;left:50%;transform:translate(-50%,-50%) scale(1);
-  text-align:center;font-size:52px;font-weight:900;font-family:var(--fn);letter-spacing:8px;
-  color:#FFD700;opacity:0;white-space:nowrap;
+  text-align:center;font-size:clamp(20px,7vw,52px);font-weight:900;font-family:var(--fn);letter-spacing:clamp(1px,1vw,8px);
+  width:max-content;max-width:calc(100% - 64px);overflow-wrap:anywhere;color:#F4EEE8;opacity:0;
   animation:loreTitleAnim 10s linear forwards;animation-delay:4s}
 @keyframes loreTitleAnim{0%{opacity:0;transform:translate(-50%,-50%) scale(1.2)}
   5%{opacity:1;transform:translate(-50%,-50%) scale(1)}
@@ -2387,24 +2415,58 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .lore-crawl{position:absolute;top:100%;left:0;right:0;text-align:center;
   transform-origin:50% 100%;transform:rotateX(22deg);
   animation:loreCrawl 60s linear forwards;animation-delay:8s;
-  color:#FFD700;font-family:var(--fn);font-size:22px;line-height:1.8;
+  color:var(--tx,#E8E0D8);font-family:var(--fn);font-size:22px;line-height:1.8;
   letter-spacing:1px;font-weight:700}
 @keyframes loreCrawl{0%{top:100%}100%{top:-280%}}
 .lore-crawl p{margin-bottom:28px}
-.lore-crawl .lore-highlight{color:#fff}
+.lore-crawl .lore-highlight{color:#F4EEE8}
 .lore-crawl .lore-red{color:#FF4444}
 .lore-crawl .lore-cyan{color:#5BB8E8}
-.lore-crawl .lore-chapter{font-size:15px;letter-spacing:4px;color:rgba(255,215,0,.6);
+.lore-crawl .lore-chapter{font-size:15px;letter-spacing:4px;color:#A5AFBB;
   margin-bottom:6px;font-weight:400}
 .lore-crawl .lore-subtitle{font-size:34px;letter-spacing:6px;margin-bottom:32px}
 /* Close/skip button */
-.lore-skip{position:absolute;bottom:24px;right:24px;z-index:10;
-  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);
-  color:rgba(255,255,255,.5);font-size:10px;font-family:var(--fn);
-  padding:8px 18px;border-radius:6px;cursor:pointer;letter-spacing:2px;transition:all .3s}
-.lore-skip:hover{background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.4)}
+.lore-skip{position:absolute;bottom:max(16px,env(safe-area-inset-bottom));right:16px;z-index:10;min-width:44px;min-height:44px;
+  background:rgba(180,108,70,.1);border:1px solid rgba(210,143,105,.45);
+  color:var(--tx,#E8E0D8);font-size:11px;font-family:var(--fn);
+  padding:10px 18px;border-radius:6px;cursor:pointer;letter-spacing:2px;transition:all .3s}
+.lore-skip:hover{background:rgba(180,108,70,.18);color:#F4EEE8;border-color:rgba(210,143,105,.7)}
+.lore-finale{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  z-index:10;padding:24px;overflow-y:auto;text-align:center;
+  animation:loreFadeInFinale 2s ease-out forwards}
+.lore-finale-title{font-size:clamp(20px,7vw,42px);font-weight:900;font-family:var(--fn);color:#F4EEE8;
+  letter-spacing:clamp(1px,1vw,8px);max-width:100%;overflow-wrap:anywhere;margin-bottom:24px;text-shadow:none}
+.lore-finale-tagline{font-size:12px;color:#A5AFBB;letter-spacing:3px;font-family:var(--fn);margin-bottom:24px;max-width:100%;overflow-wrap:anywhere}
+.lore-enter{background:linear-gradient(135deg,rgba(180,108,70,.16),rgba(98,56,41,.2));border:1px solid rgba(210,143,105,.7);
+  color:#F4EEE8;font-size:13px;font-family:var(--fn);padding:12px 32px;min-height:44px;max-width:100%;border-radius:8px;cursor:pointer;
+  letter-spacing:3px;transition:all .3s;animation:lorePulseBtn 2s ease-in-out infinite}
+/* Auto margins keep the finale centered until optional chatter needs scrolling. */
+.lore-finale{justify-content:flex-start}
+.lore-finale>*{flex-shrink:0}
+.lore-finale>:first-child{margin-top:auto}
+.lore-finale>:last-child{margin-bottom:auto}
+.lore-bonus{width:100%;max-width:480px;margin-top:20px;border:1px solid var(--bdr2,rgba(255,180,60,.3));
+  border-radius:10px;background:var(--surface1,#191119);color:var(--tx,#eee7df);text-align:left;font:14px/1.6 system-ui;letter-spacing:normal;overflow-wrap:anywhere}
+.lore-bonus summary{min-height:44px;padding:10px 14px;box-sizing:border-box;cursor:pointer;color:#DDA27E}
+.lore-bonus summary:focus-visible{outline:2px solid #DDA27E;outline-offset:2px;border-radius:6px}
+.lore-bonus p{margin:0;padding:0 14px 14px;font-size:15px;line-height:1.7}
+.lore-bonus .lore-bonus-note{font-size:13px;color:var(--tx2,#cbbdb4)}
+.lore-bonus-entry{border-top:1px solid var(--bdr,rgba(255,180,60,.16))}
+/* Motion preference gives readers a scrollable, complete story and an always-visible exit. */
+.lore-bg.lore-static{padding:24px 20px 84px;overflow-y:auto}
+.lore-static *{animation:none!important;transition:none!important}
+.lore-static .lore-stars span{opacity:.35}
+.lore-static .lore-intro,.lore-static .lore-big-title{position:relative;top:auto;left:auto;transform:none;opacity:1;width:100%;max-width:650px;margin:0 auto 24px}
+.lore-static .lore-crawl-wrap{position:relative;bottom:auto;left:auto;width:100%;height:auto;transform:none;perspective:none;
+  overflow:visible;-webkit-mask-image:none;mask-image:none;margin:0 auto}
+.lore-static .lore-crawl{position:relative;top:auto;transform:none;font-size:clamp(16px,4.8vw,22px)}
+.lore-static .lore-skip{position:fixed;background:var(--surface1,#161422)}
+@media(max-height:450px){
+  .lore-finale{justify-content:flex-start;padding-top:24px}
+  .lore-finale-title,.lore-finale-tagline{margin-bottom:16px}
+}
 @keyframes loreFadeInFinale{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
-@keyframes lorePulseBtn{0%,100%{box-shadow:0 0 15px rgba(255,180,60,.2)}50%{box-shadow:0 0 30px rgba(255,180,60,.4)}}
+@keyframes lorePulseBtn{0%,100%{box-shadow:0 0 0 rgba(210,143,105,0)}50%{box-shadow:0 0 6px rgba(210,143,105,.08)}}
 
 /* ══════════════════════════════════════════════════
    Tutorial / Onboarding Overlay

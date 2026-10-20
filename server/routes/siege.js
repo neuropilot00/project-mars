@@ -157,6 +157,21 @@ router.post('/siege/:siegeId/commit-fleet', requireAuth, async (req, res) => {
 // ─────────────────────────────────────────────────────────────
 // [Phase1] GET /api/siege/:siegeId/roster — 양측 함대 커밋/연결 전투 미리보기
 // ─────────────────────────────────────────────────────────────
+router.get('/siege/:siegeId/participation', requireAuth, async (req, res) => {
+  const id = String(req.params.siegeId);
+  const wallet = req.user.wallet_address || req.user.wallet || req.user.walletAddress;
+  if (!/^[1-9]\d{0,18}$/.test(id) || BigInt(id) > 9223372036854775807n) return res.status(400).json({ error: 'invalid siege id' });
+  if (!wallet) return res.status(401).json({ error: 'UNAUTHORIZED' });
+  try {
+    const participation = await siegeService.getSiegeParticipation(id, String(wallet).toLowerCase().trim());
+    if (!participation) return res.status(404).json({ error: 'siege not found' });
+    res.json({ participation });
+  } catch (err) {
+    console.error('[SIEGE] participation error:', err.message);
+    res.status(500).json({ error: 'internal error' });
+  }
+});
+
 router.get('/siege/:siegeId/roster', async (req, res) => {
   const id = parseInt(req.params.siegeId);
   if (isNaN(id)) return res.status(400).json({ error: 'invalid siege id' });

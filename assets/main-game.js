@@ -517,6 +517,7 @@ function setLang(lang){
   });
   _syncProfileLangBtns();
   applyI18n();
+  try{ if(typeof refreshAuthenticatorEntry==='function') refreshAuthenticatorEntry(); }catch(_e){}
   try{ if(typeof refreshCoreLabels==='function') refreshCoreLabels(); }catch(_e){}
   try{ if(typeof refreshCommandCenterLocale==='function') refreshCommandCenterLocale(); }catch(_e){}
   try{ if(typeof refreshShipCardWorkshopLocale==='function') refreshShipCardWorkshopLocale(); }catch(_e){}
@@ -746,9 +747,113 @@ function closeHelpTip(){
 /* ══════════════════════════════════════════════════
    Lore / Story Popup
    ══════════════════════════════════════════════════ */
-var _loreTimer = null;
+var _loreReturnFocus = null;
+var _loreInertBackground = [];
+var _loreMotionQuery = null;
+function _removeLoreFinale(){
+  var bg = document.getElementById('loreBg');
+  bg.querySelectorAll('.lore-finale').forEach(function(finale){ finale.remove(); });
+}
+function _loreFocusable(){
+  return Array.from(document.getElementById('loreBg').querySelectorAll(
+    'button, summary, a[href], input, select, textarea, [tabindex]'
+  )).filter(function(el){
+    return !el.disabled && el.tabIndex >= 0 && el.getClientRects().length && !el.closest('[inert]');
+  });
+}
+function _loreKeydown(ev){
+  if(ev.key === 'Escape'){
+    ev.preventDefault();
+    ev.stopImmediatePropagation();
+    closeLorePopup();
+  }else if(ev.key === 'Tab'){
+    var items = _loreFocusable();
+    var at = items.indexOf(document.activeElement);
+    var next = ev.shiftKey ? (at <= 0 ? items.length - 1 : at - 1) : (at + 1) % items.length;
+    ev.preventDefault();
+    ev.stopImmediatePropagation();
+    (items[next] || document.getElementById('loreBg')).focus();
+  }
+}
+function _loreFocusin(ev){
+  var bg = document.getElementById('loreBg');
+  if(!bg.contains(ev.target)) (_loreFocusable()[0] || bg).focus();
+}
+function _loreMotionChanged(){
+  var bg = document.getElementById('loreBg');
+  var reduced = !!(_loreMotionQuery && _loreMotionQuery.matches);
+  bg.classList.toggle('lore-static', reduced);
+  // Switching preference after the finale must reveal the full static story too.
+  if(reduced && bg.querySelector('.lore-finale')){
+    _removeLoreFinale();
+    document.getElementById('loreCrawl').parentElement.removeAttribute('aria-hidden');
+    var skip = document.getElementById('loreSkipBtn');
+    skip.style.display = '';
+    skip.focus();
+  }
+  var crawl = document.getElementById('loreCrawl');
+  var bonus = crawl.querySelector('.lore-bonus');
+  if(reduced && !bonus) crawl.appendChild(_createLoreBonus());
+  else if(!reduced && bonus) bonus.remove();
+}
+// Optional, original crew chatter. It never grants rewards or changes game state.
+function _createLoreBonus(){
+  var bonus = document.createElement('details');
+  bonus.className = 'lore-bonus';
+  var heading = document.createElement('summary');
+  heading.textContent = tl('Crew channel · optional', '승무원 비공식 통신 · 선택', '乗員の雑談通信 · 任意', '船员闲聊频道 · 可选');
+  bonus.appendChild(heading);
+  var note = document.createElement('p');
+  note.className = 'lore-bonus-note';
+  note.textContent = tl('Off-duty chatter. No mission progress or rewards.', '휴식용 통신입니다. 임무 진행이나 보상에는 영향이 없습니다.', '休憩中の雑談です。任務の進行や報酬には影響しません。', '休息时的闲聊，不影响任务进度或奖励。');
+  bonus.appendChild(note);
+  [
+    [tl('Autopilot note', '자동항법 기록', '自動航行の記録', '自动导航记录'),
+      tl('The autopilot has confirmed our destination is Mars. It has asked us to stop pressing the Mars button.', '자동항법이 목적지를 화성으로 확인했습니다. 이제 화성 버튼을 그만 눌러 달라고 요청했습니다.', '自動航行装置は目的地が火星であると確認しました。火星ボタンの連打は控えてほしいそうです。', '自动导航确认目的地为火星，并请求大家不要再连按火星按钮了。')],
+    [tl('Supply report', '보급 담당 보고', '補給担当の報告', '补给员报告'),
+      tl('All supplies arrived safely. The quartermaster has quietly removed coffee from the definition of supplies.', '모든 보급품이 무사히 도착했습니다. 보급 담당은 조용히 커피를 보급품의 정의에서 제외했습니다.', '補給品はすべて無事に到着しました。補給担当はそっと、コーヒーを補給品の定義から外しました。', '所有补给均已安全送达。补给员悄悄把咖啡从补给的定义中删掉了。')],
+    [tl('Mechanic’s diagnosis', '정비사의 진단', '整備士の診断', '维修师的诊断'),
+      tl('We removed one suspicious rattle. A second rattle has applied for the vacancy.', '수상한 잡소리 하나를 잡았습니다. 다른 잡소리가 그 빈자리에 지원했습니다.', '怪しい異音を一つ取り除きました。別の異音が、その空席に応募してきました。', '我们消除了一处可疑异响。另一处异响申请填补这个空缺。')]
+  ].forEach(function(record){
+    var entry = document.createElement('details');
+    entry.className = 'lore-bonus-entry';
+    var label = document.createElement('summary');
+    label.textContent = record[0];
+    var text = document.createElement('p');
+    text.textContent = record[1];
+    entry.appendChild(label);
+    entry.appendChild(text);
+    bonus.appendChild(entry);
+  });
+  return bonus;
+}
+function _loreCrawlEnded(ev){
+  if(ev.target === document.getElementById('loreCrawl') && ev.animationName === 'loreCrawl') _showLoreFinale();
+}
 function showLorePopup(){
   var bg = document.getElementById('loreBg');
+  var wasOpen = bg.classList.contains('open');
+  if(!wasOpen){
+    _loreReturnFocus = document.activeElement;
+    // Preserve pre-existing inert state, including backgrounds of another open modal.
+    for(var branch = bg; branch.parentElement; branch = branch.parentElement){
+      Array.from(branch.parentElement.children).forEach(function(sibling){
+        if(sibling !== branch && !sibling.hasAttribute('inert')){
+          sibling.setAttribute('inert', '');
+          _loreInertBackground.push(sibling);
+        }
+      });
+      if(branch.parentElement === document.body) break;
+    }
+    document.addEventListener('keydown', _loreKeydown, true);
+    document.addEventListener('focusin', _loreFocusin, true);
+    _loreMotionQuery = window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+    if(_loreMotionQuery){
+      if(_loreMotionQuery.addEventListener) _loreMotionQuery.addEventListener('change', _loreMotionChanged);
+      else if(_loreMotionQuery.addListener) _loreMotionQuery.addListener(_loreMotionChanged);
+    }
+  }
+  _removeLoreFinale();
   // Generate stars
   var starsEl = document.getElementById('loreStars');
   starsEl.innerHTML = '';
@@ -769,49 +874,74 @@ function showLorePopup(){
   var crawlHtml = '<div class="lore-chapter">' + (cd ? cd.tagline : t('lore_tagline')) + '</div>';
   crawlHtml += (cd && cd.body_html) ? cd.body_html : t('lore_body');
   document.getElementById('loreCrawl').innerHTML = crawlHtml;
-  document.getElementById('loreSkipBtn').textContent = (cd ? cd.close_text : t('lore_close')) + ' ▸';
-  // Reset animations
+  _loreMotionChanged();
+  var skip = document.getElementById('loreSkipBtn');
+  skip.textContent = (cd ? cd.close_text : t('lore_close')) + ' ▸';
+  skip.style.display = '';
+  // Reset animations and start only after the overlay is visible.
   bg.classList.remove('open');
+  bg.style.display = 'block';
+  bg.scrollTop = 0;
   void bg.offsetWidth;
   bg.classList.add('open');
-  bg.style.display = 'block';
-  // Remove inline styles that might block animation restarts
   var intro = document.getElementById('loreIntro');
   var title = document.getElementById('loreBigTitle');
   var crawl = document.getElementById('loreCrawl');
+  crawl.parentElement.removeAttribute('aria-hidden');
   intro.style.animation = 'none'; void intro.offsetWidth; intro.style.animation = '';
   title.style.animation = 'none'; void title.offsetWidth; title.style.animation = '';
   crawl.style.animation = 'none'; void crawl.offsetWidth; crawl.style.animation = '';
-  // Show ENTER MARS button after crawl finishes (~50s)
-  if(_loreTimer) _clearActiveTimeout(_loreTimer);
-  _loreTimer = _setActiveTimeout(function(){
-    _loreTimer = null;
-    _showLoreFinale();
-  }, 55000);
+  crawl.removeEventListener('animationend', _loreCrawlEnded);
+  crawl.addEventListener('animationend', _loreCrawlEnded);
+  // Static reading has no auto-close; animated reading ends with the actual CSS crawl.
+  skip.focus();
 }
 function _showLoreFinale(){
+  var bg = document.getElementById('loreBg');
+  if(!bg.classList.contains('open') || bg.classList.contains('lore-static') || bg.querySelector('.lore-finale')) return;
   var crawl = document.getElementById('loreCrawl');
-  crawl.style.animation = 'none';
-  crawl.innerHTML = '';
-  // Show centered ENTER MARS
+  crawl.parentElement.setAttribute('aria-hidden', 'true');
+  var cd = (_loreCrawlData && _loreCrawlData[LANG]) || (_loreCrawlData && _loreCrawlData['en']) || null;
   var finale = document.createElement('div');
-  finale.style.cssText = 'position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;animation:loreFadeInFinale 2s ease-out forwards';
-  finale.innerHTML = '<div style="font-size:42px;font-weight:900;font-family:var(--fn);color:#FFD700;letter-spacing:8px;margin-bottom:32px;text-shadow:0 0 40px rgba(255,215,0,.4)">' + t('lore_title') + '</div>' +
-    '<div style="font-size:12px;color:rgba(255,215,0,.6);letter-spacing:4px;font-family:var(--fn);margin-bottom:28px">' + t('lore_tagline') + '</div>' +
-    '<button onclick="closeLorePopup()" style="background:linear-gradient(135deg,rgba(255,180,60,.2),rgba(255,120,60,.1));border:1px solid rgba(255,180,60,.5);color:#FFD700;font-size:13px;font-family:var(--fn);padding:12px 40px;border-radius:8px;cursor:pointer;letter-spacing:3px;transition:all .3s;animation:lorePulseBtn 2s ease-in-out infinite">' + t('lore_close') + '</button>';
-  document.getElementById('loreBg').appendChild(finale);
+  finale.className = 'lore-finale';
+  var title = document.createElement('div');
+  title.className = 'lore-finale-title';
+  title.textContent = cd ? cd.title_text : t('lore_title');
+  var tagline = document.createElement('div');
+  tagline.className = 'lore-finale-tagline';
+  tagline.textContent = cd ? cd.tagline : t('lore_tagline');
+  var enter = document.createElement('button');
+  enter.type = 'button';
+  enter.className = 'lore-enter';
+  enter.textContent = cd ? cd.close_text : t('lore_close');
+  enter.addEventListener('click', closeLorePopup);
+  finale.appendChild(title);
+  finale.appendChild(tagline);
+  finale.appendChild(enter);
+  finale.appendChild(_createLoreBonus());
+  bg.appendChild(finale);
   document.getElementById('loreSkipBtn').style.display = 'none';
+  enter.focus();
 }
 function closeLorePopup(){
-  if(_loreTimer) _clearActiveTimeout(_loreTimer);
-  _loreTimer = null;
   var bg = document.getElementById('loreBg');
   bg.classList.remove('open');
   bg.style.display = 'none';
-  // Clean up finale if exists
-  var finale = bg.querySelector('div[style*="position:fixed"]');
-  if(finale) finale.remove();
+  _removeLoreFinale();
+  bg.querySelectorAll('.lore-bonus').forEach(function(bonus){ bonus.remove(); });
   document.getElementById('loreSkipBtn').style.display = '';
+  document.getElementById('loreCrawl').removeEventListener('animationend', _loreCrawlEnded);
+  document.removeEventListener('keydown', _loreKeydown, true);
+  document.removeEventListener('focusin', _loreFocusin, true);
+  if(_loreMotionQuery){
+    if(_loreMotionQuery.removeEventListener) _loreMotionQuery.removeEventListener('change', _loreMotionChanged);
+    else if(_loreMotionQuery.removeListener) _loreMotionQuery.removeListener(_loreMotionChanged);
+  }
+  _loreMotionQuery = null;
+  _loreInertBackground.forEach(function(el){ el.removeAttribute('inert'); });
+  _loreInertBackground = [];
+  if(_loreReturnFocus && _loreReturnFocus.isConnected && !_loreReturnFocus.closest('[inert]')) _loreReturnFocus.focus();
+  _loreReturnFocus = null;
 }
 
 /* ══════════════════════════════════════════════════

@@ -17,10 +17,10 @@ try { newsService = require('./news'); } catch (_) {}
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-async function getSettings() {
+async function getSettings(queryable = pool) {
   const keys = ['lottery_enabled','lottery_ticket_price_gp','lottery_max_tickets_per_user',
                  'lottery_round_hours','lottery_house_cut_pct','lottery_min_tickets','lottery_jackpot_rollover'];
-  const res = await pool.query(`SELECT key, value FROM settings WHERE key = ANY($1)`, [keys]);
+  const res = await queryable.query(`SELECT key, value FROM settings WHERE key = ANY($1)`, [keys]);
   const map = {};
   res.rows.forEach(r => { map[r.key] = String(r.value); });
   return {
@@ -76,7 +76,7 @@ async function getCurrentRound(wallet) {
 
   return {
     ...round,
-    ticket_price: round.ticket_price_gp,
+    ticket_price: cfg.ticketPrice,
     user_tickets: userTickets,
     max_per_user: cfg.maxPerUser,
     recent_winners: recentRes.rows,
@@ -84,16 +84,26 @@ async function getCurrentRound(wallet) {
 }
 
 async function createRound(cfg) {
-  const lastRound = (await pool.query(`SELECT MAX(round_number) AS n FROM lottery_rounds`)).rows[0];
-  const nextNum = (parseInt(lastRound?.n) || 0) + 1;
-  const endsAt = new Date(Date.now() + cfg.roundHours * 3600 * 1000);
-
-  const ins = await pool.query(
-    `INSERT INTO lottery_rounds (round_number, ticket_price_gp, ends_at)
-     VALUES ($1, $2, $3) RETURNING *`,
-    [nextNum, cfg.ticketPrice, endsAt]
-  );
-  return ins.rows[0];
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    await client.query("SELECT pg_advisory_xact_lock(hashtext('lottery_round_create'))");
+    const open = await client.query("SELECT * FROM lottery_rounds WHERE status='open' ORDER BY id DESC LIMIT 1");
+    if (open.rows.length) { await client.query('COMMIT'); return open.rows[0]; }
+    const lastRound = (await client.query(`SELECT MAX(round_number) AS n FROM lottery_rounds`)).rows[0];
+    const nextNum = (parseInt(lastRound?.n) || 0) + 1;
+    const endsAt = new Date(Date.now() + cfg.roundHours * 3600 * 1000);
+    const ins = await client.query(
+      `INSERT INTO lottery_rounds (round_number, ticket_price_gp, ends_at)
+       VALUES ($1, $2, $3) RETURNING *`,
+      [nextNum, cfg.ticketPrice, endsAt]
+    );
+    await client.query('COMMIT');
+    return ins.rows[0];
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally { client.release(); }
 }
 
 // ── Ticket Purchase ───────────────────────────────────────────────────────────
@@ -108,7 +118,7 @@ async function createRound(cfg) {
 async function buyTickets(client, wallet, count) {
   const w = wallet.toLowerCase();
   count = Math.max(1, Math.min(100, parseInt(count) || 1));
-  const cfg = await getSettings();
+  const cfg = await getSettings(client);
   if (!cfg.enabled) throw new Error('Lottery is disabled');
 
   // Get current round
@@ -129,7 +139,11 @@ async function buyTickets(client, wallet, count) {
     throw new Error(`Max ${cfg.maxPerUser} tickets per round`);
   }
 
-  const totalCost = cfg.ticketPrice * count;
+  const totalCost = +(cfg.ticketPrice * count).toFixed(6);
+  const paidUnits = Math.round(totalCost * 1e6);
+  if (!(totalCost > 0) || !Number.isSafeInteger(paidUnits) || !Number.isFinite(cfg.houseCutPct) || cfg.houseCutPct < 0 || cfg.houseCutPct > 100) {
+    throw new Error('Invalid lottery purchase configuration');
+  }
 
   // Check balance
   const userRes = await client.query(
@@ -157,19 +171,20 @@ async function buyTickets(client, wallet, count) {
     const tn = startTicket + i;
     ticketNumbers.push(tn);
     await client.query(
-      `INSERT INTO lottery_tickets (round_id, wallet, ticket_number) VALUES ($1, $2, $3)`,
-      [round.id, w, tn]
+      `INSERT INTO lottery_tickets (round_id, wallet, ticket_number, paid_gp) VALUES ($1, $2, $3, $4)`,
+      [round.id, w, tn, (Math.floor(paidUnits / count) + (i < paidUnits % count ? 1 : 0)) / 1e6]
     );
   }
 
-  // Update round totals — [v7.320] house_gp 컬럼은 실제 스키마에 없음(complete buy가 500나던 원인).
-  // 프라이즈 풀에 totalCost 전액 반영, 하우스컷은 추첨 시점에 분리.
+  // Persist this purchase's actual split in the same transaction as its debit.
+  // Migration 358 leaves unverifiable historical house amounts at zero.
   await client.query(
     `UPDATE lottery_rounds
         SET ticket_count   = ticket_count + $2,
-            prize_pool_gp  = prize_pool_gp + $3
+            prize_pool_gp  = prize_pool_gp + $3,
+            house_gp       = house_gp + $4
       WHERE id = $1`,
-    [round.id, count, prizeGp]
+    [round.id, count, prizeGp, houseGp]
   );
 
   const newRound = (await client.query(`SELECT * FROM lottery_rounds WHERE id = $1`, [round.id])).rows[0];
@@ -202,20 +217,24 @@ async function drawExpiredRounds() {
     }
     throw e;
   }
-  if (!expired.rows.length) return 0;
-
   const cfg = await getSettings();
   let drawn = 0;
 
   for (const round of expired.rows) {
-    await drawRound(round, cfg);
-    drawn++;
+    if (await drawRound(round, cfg)) drawn++;
+  }
+  // New-round creation is separate from money settlement. A later scheduler
+  // call retries it even when there are no expired rounds left to draw.
+  if (cfg.enabled) {
+    try { await createRound(cfg); }
+    catch (error) { console.error('[LOTTERY] next round creation failed; will retry:', error.message); }
   }
   return drawn;
 }
 
 async function drawRound(round, cfg) {
   const client = await pool.connect();
+  let committed = false;
   try {
     await client.query('BEGIN');
 
@@ -224,7 +243,7 @@ async function drawRound(round, cfg) {
       `SELECT * FROM lottery_rounds WHERE id = $1 AND status = 'open' FOR UPDATE`,
       [round.id]
     );
-    if (!lockRes.rows.length) { await client.query('ROLLBACK'); return; }
+    if (!lockRes.rows.length) { await client.query('ROLLBACK'); return false; }
 
     // Use fresh locked values — round param may be stale snapshot from scheduler SELECT
     const lockedRound = lockRes.rows[0];
@@ -238,17 +257,19 @@ async function drawRound(round, cfg) {
       );
       // Refund all tickets
       const ticks = await client.query(
-        `SELECT wallet, COUNT(*) AS n FROM lottery_tickets WHERE round_id = $1 GROUP BY wallet`,
-        [lockedRound.id]
+        `SELECT wallet, SUM(COALESCE(paid_gp, $2)) AS refund_gp FROM lottery_tickets WHERE round_id = $1 GROUP BY wallet`,
+        [lockedRound.id, lockedRound.ticket_price_gp]
       );
       for (const r of ticks.rows) {
-        const refund = parseFloat(lockedRound.ticket_price_gp) * parseInt(r.n);
+        const refund = Number(r.refund_gp);
+        if (!Number.isFinite(refund) || refund < 0) throw new Error('Invalid lottery refund');
         await client.query(
           `UPDATE users SET gp_balance = gp_balance + $2 WHERE LOWER(wallet_address) = LOWER($1)`,
           [r.wallet, refund]
         );
       }
       await client.query('COMMIT');
+      committed = true;
       console.log(`[LOTTERY] Round #${lockedRound.round_number} cancelled (not enough tickets), refunded`);
     } else {
       // Pick random winner — [v7.64] crypto.randomInt for unpredictable draw
@@ -284,15 +305,18 @@ async function drawRound(round, cfg) {
         [lockedRound.id, winnerWallet || null, winnerTicket]
       );
 
-      await client.query('COMMIT');
-
-      console.log(`[LOTTERY] Round #${lockedRound.round_number} drawn — winner: ${winnerWallet?.slice(0,8)}... prize: ${prize} GP`);
-
-      // Dividend pool: route portion of house cut
+      // A captured house cut must settle with the prize and round status.
+      // Do not infer absent house_gp from ticket counts or change prize amounts.
       const houseGp = parseFloat(lockedRound.house_gp) || 0;
       if (houseGp > 0) {
-        try { const divSvc = require('./dividends'); divSvc.addToPool(houseGp, 'lottery').catch(() => {}); } catch (_dv) {}
+        const divSvc = require('./dividends');
+        await divSvc.addToPool(houseGp, 'lottery', client, houseGp, { requireSchema: true });
       }
+
+      await client.query('COMMIT');
+      committed = true;
+
+      console.log(`[LOTTERY] Round #${lockedRound.round_number} drawn — winner: ${winnerWallet?.slice(0,8)}... prize: ${prize} GP`);
 
       // Notifications fire-and-forget
       if (winnerWallet && notifyPlayer) {
@@ -309,19 +333,11 @@ async function drawRound(round, cfg) {
       }
     }
 
-    // Create next round immediately after closing current one
-    if (cfg.enabled) {
-      const newRound = await createRound(cfg);
-      // Optionally roll over prize pool for jackpot_rollover setting
-      if (cfg.jackpotRollover && lockedRound.status === 'cancelled') {
-        // Already handled by refund above — no rollover needed when cancelled
-      }
-      console.log(`[LOTTERY] New round #${newRound.round_number} created, ends ${newRound.ends_at}`);
-    }
-
+    return committed;
   } catch (e) {
-    await client.query('ROLLBACK');
+    if (!committed) await client.query('ROLLBACK');
     console.error(`[LOTTERY] drawRound error for round #${round.round_number}:`, e.message);
+    return committed;
   } finally {
     client.release();
   }
@@ -363,7 +379,7 @@ async function getAdminStats() {
       SELECT COUNT(DISTINCT id)                      AS total_rounds,
              COALESCE(SUM(ticket_count), 0)          AS total_tickets,
              COALESCE(SUM(prize_pool_gp), 0)         AS total_prizes_given,
-             0                                       AS total_house_gp,
+             COALESCE(SUM(house_gp) FILTER (WHERE status='completed'), 0) AS total_house_gp,
              COUNT(*) FILTER (WHERE status='completed' AND winner_wallet IS NOT NULL) AS rounds_with_winner
         FROM lottery_rounds
     `).catch(() => ({ rows: [{}] })),

@@ -54,7 +54,7 @@ function _economyReadFetch(key, url, auth, minGap) {
   var walletKey = (walletState && walletState.address) ? String(walletState.address).toLowerCase() : 'public';
   if (typeof _guardedJsonFetch === 'function') {
     return _guardedJsonFetch('economy:' + key + ':' + walletKey, url, {
-      minGap: minGap || 10000,
+      minGap: minGap == null ? 10000 : minGap,
       backoffMs: 120000,
       fetchOptions: auth ? { headers: getAuthHeaders() } : {}
     });
@@ -1073,14 +1073,14 @@ function purchaseVipPass(tierId, name, cost) {
 var _craftingRecipes=[];
 var _craftingCatFilter='all';
 
-function loadCraftingView(){
+function loadCraftingView(refreshAfterCraft){
   var grid=document.getElementById('craftingGrid');
   if(!grid) return;
   grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:20px 0;font-size:10px" data-i18n="loading">Loading…</div>';
   var url='/api/crafting/recipes';
   if(_craftingCatFilter&&_craftingCatFilter!=='all') url+='?category='+encodeURIComponent(_craftingCatFilter);
   Promise.all([
-    _economyReadFetch('crafting-recipes:' + (_craftingCatFilter || 'all'), url, true, 15000),
+    _economyReadFetch('crafting-recipes:' + (_craftingCatFilter || 'all'), url, true, refreshAfterCraft === true ? 0 : 15000),
     _baseShopItems.length||_shopItems.length ? Promise.resolve(null) : _economyReadFetch('craft-art-catalog','/api/shop/items',false,15000).catch(function(){return null;})
   ]).then(function(result){
     var recipes=result[0];
@@ -1177,12 +1177,13 @@ function attemptCraft(recipeId){
         gameAlert('✅ '+(t('craft_success')||'Craft success!')
           +'\n+'+(d.outputQty||1)+'× '+(d.outputName||tl('item','아이템','アイテム','物品')));
       }else{
-        var refMsg=d.gpRefunded>0?'\n'+t('craft_refund_partial')||'\nPartial GP refunded: '+d.gpRefunded:'';
+        var refMsg=d.gpRefunded>0?'\n'+(t('craft_refund_partial')||'Partial GP refunded')+': '+d.gpRefunded+' GP':'';
         gameAlert('❌ '+(t('craft_fail')||'Craft failed')+refMsg);
       }
       // Refresh recipes & balances
-      loadCraftingView();
-      if(typeof updateBalanceDisplays==='function') updateBalanceDisplays();
+      loadCraftingView(true);
+      if(typeof refreshBalance==='function') refreshBalance();
+      else if(typeof updateBalanceDisplays==='function') updateBalanceDisplays();
     }).catch(function(e){
       if(btn){ btn.disabled=false; btn.textContent='⚗️ '+tl('CRAFT','제작','クラフト','制作'); }
       gameAlert(tl('Error','오류','エラー','错误')+': '+e.message);

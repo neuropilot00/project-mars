@@ -14,28 +14,38 @@ var _campaignBattleTimer=null;
 var _campaignTypingFrame=null;
 var _campaignSimTimer=null;
 var _campaignImageCache={};
+var _campaignStatusRequest=0;
 function loadCampaignStatus(){
   var el=document.getElementById('campaignList');
   var w=walletState.address;
   if(!el) return Promise.resolve();
+  var request=++_campaignStatusRequest;
   if(!w){el.innerHTML='<div style="font-size:9px;color:var(--tx3);padding:8px 0">'+tl('Login to view campaign chapters.','로그인하면 캠페인 챕터를 볼 수 있습니다.','ログインするとキャンペーンチャプターを表示できます。','登录后可查看战役章节。')+'</div>';return Promise.resolve();}
   // 파벌 정보가 아직 로드되지 않았으면 먼저 로드한다 — 파벌별 필터링이 정확하게 동작해야 한다.
   var factionPromise=(typeof factionState!=='undefined'&&factionState&&factionState.current!==null)
     ? Promise.resolve()
     : (typeof loadFactions==='function' ? Promise.resolve(loadFactions()).catch(function(){}) : Promise.resolve());
   return factionPromise.then(function(){
-    return fetch('/api/campaign/status/'+encodeURIComponent(w))
-      .then(function(r){return r.json()})
+    var controller=new AbortController();
+    var timeout=setTimeout(function(){controller.abort();},8000);
+    return fetch('/api/campaign/status/'+encodeURIComponent(w),{signal:controller.signal})
+      .then(function(r){if(!r.ok) throw new Error('campaign_status_http');return r.json();})
       .then(function(d){
+        if(request!==_campaignStatusRequest||w!==walletState.address) return;
+        if(!d||typeof d!=='object'||Array.isArray(d)||d.error||!Array.isArray(d.chapters)||d.chapters.some(function(ch){return !ch||typeof ch!=='object'||Array.isArray(ch);})) throw new Error('campaign_status_invalid');
         _campaignData=d;
         renderCampaignReputation(d.reputation||{},d.tierLabels||{});
         renderCampaignRewardInbox(d.rewardInbox||[]);
-        renderCampaignList(d.chapters||[]);
+        renderCampaignList(d.chapters);
       })
       .catch(function(){
+        if(request!==_campaignStatusRequest||w!==walletState.address) return;
+        _campaignData=null;
+        var reputation=document.getElementById('campaignReputation');
+        if(reputation) reputation.innerHTML='';
         renderCampaignRewardInbox([]);
-        el.innerHTML='<div style="font-size:9px;color:var(--mars);padding:8px 0">'+tl('Campaign unavailable.','캠페인을 불러올 수 없습니다.','キャンペーンを読み込めません。','无法加载战役。')+'</div>';
-      });
+        el.innerHTML='<div role="status" style="font-size:12px;color:var(--mars);padding:8px 0">'+tl('Campaign unavailable.','캠페인을 불러올 수 없습니다.','キャンペーンを読み込めません。','无法加载战役。')+'<br><button type="button" class="campaign-btn secondary" style="min-height:44px;margin-top:8px" onclick="loadCampaignStatus()">'+tl('Retry','다시 시도','再試行','重试')+'</button></div>';
+      }).finally(function(){clearTimeout(timeout);});
   });
 }
 

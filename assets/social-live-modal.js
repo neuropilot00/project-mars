@@ -493,6 +493,7 @@ async function checkOnboarding() {
 }
 
 function openOnboarding() {
+  closeOnboardingHint(); // Keep the legacy setup overlay and journey card from overlapping.
   var el = document.getElementById('obOverlay');
   if (el) el.classList.add('active');
   renderStep(ob.currentStep);
@@ -778,6 +779,7 @@ async function finishOnboarding() {
 function closeOnboarding() {
   var el = document.getElementById('obOverlay');
   if (el) el.classList.remove('active');
+  _setActiveTimeout(runOnboardingCheck, 100);
 }
 
 function getOnboardingWallet() {
@@ -787,71 +789,177 @@ function getOnboardingWallet() {
   return (w || '').toLowerCase().trim();
 }
 
+var _journeyCheckTimer = null;
+var _journeyLoadingWallet = null;
+var _journeyRequestId = 0;
+var _journeyDismissedWallets = Object.create(null);
+
+function scheduleJourneyCheck() {
+  if (_journeyCheckTimer) _clearActiveTimeout(_journeyCheckTimer);
+  _journeyCheckTimer = _setActiveTimeout(runOnboardingCheck, 30000);
+}
+
+function journeyHintIsBlocked() {
+  var overlay = document.getElementById('obOverlay');
+  var operations = document.getElementById('commandCenter');
+  return !!((overlay && overlay.classList.contains('active')) || (operations && !operations.hidden));
+}
+
+function showJourneyRequestState(state) {
+  var el = document.getElementById('onboardingHint');
+  if (!el || journeyHintIsBlocked()) return;
+  el.dataset.state = state;
+  var title = el.querySelector('.onboarding-hint__title');
+  var body = el.querySelector('.onboarding-hint__body');
+  var action = el.querySelector('.onboarding-hint__actions button:not(.secondary)');
+  if (title) title.removeAttribute('data-i18n');
+  if (body) body.removeAttribute('data-i18n');
+  if (title) title.textContent = state === 'loading'
+    ? tl('CHECKING PROGRESS','진행 확인 중','進行状況を確認中','正在检查进度')
+    : tl('PROGRESS UNAVAILABLE','진행 확인을 다시 시도하세요','進行状況を再確認してください','请重试检查进度');
+  if (body) body.textContent = state === 'loading'
+    ? tl('Reading your completed actions.','완료한 활동을 확인하고 있습니다.','完了した行動を確認しています。','正在读取你已完成的行动。')
+    : tl('Your progress has not been reset. Retry to see your next action.','진행은 초기화되지 않았습니다. 다시 확인하면 다음 행동을 볼 수 있습니다.','進行状況はリセットされていません。再試行すると次の行動を確認できます。','进度没有重置。重试后可查看下一步行动。');
+  if (action) {
+    action.removeAttribute('data-i18n');
+    action.disabled = state === 'loading';
+    action.textContent = state === 'loading'
+      ? tl('CHECKING…','확인 중…','確認中…','检查中…')
+      : tl('RETRY','다시 확인','再試行','重试');
+  }
+  var guildAction = document.getElementById('journeyGuildAction');
+  if (guildAction) guildAction.hidden = true;
+  el.classList.add('active');
+}
+
 async function runOnboardingCheck() {
+  if (_journeyCheckTimer) _clearActiveTimeout(_journeyCheckTimer);
+  _journeyCheckTimer = null;
   if (!_pageIsActive()) return;
   if (typeof isLoggedIn === 'function' && !isLoggedIn()) return;
   var wallet = getOnboardingWallet();
   if (!wallet) return;
+  if (_journeyDismissedWallets[wallet]) return;
+  if (journeyHintIsBlocked()) { closeOnboardingHint(); scheduleJourneyCheck(); return; }
+  if (_journeyLoadingWallet === wallet) return;
+  _journeyLoadingWallet = wallet;
+  var requestId = ++_journeyRequestId;
+  var controller = typeof AbortController === 'function' ? new AbortController() : null;
+  var requestTimeout = controller ? _setActiveTimeout(function() { controller.abort(); }, 12000) : null;
+  var hint = document.getElementById('onboardingHint');
+  if (!hint || hint.dataset.state !== 'ready') showJourneyRequestState('loading');
   try {
     var res = await fetch('/api/onboarding/status', {
-      headers: getAuthHeaders()
+      headers: getAuthHeaders(),
+      signal: controller ? controller.signal : undefined
     });
-    if (!res.ok) return;
+    if (!res.ok) throw new Error('JOURNEY_UNAVAILABLE');
     var status = await res.json();
+    if (requestId !== _journeyRequestId || getOnboardingWallet() !== wallet || _journeyDismissedWallets[wallet]) {
+      if (requestId === _journeyRequestId) closeOnboardingHint();
+      return;
+    }
+    if (!status || !Number.isInteger(status.step) || status.step < 0 || status.step > 3 || status.completed !== (status.step === 3)) throw new Error('INVALID_JOURNEY');
+    var journey = status.journey || { step: status.step, completed: status.completed };
+    if (!Number.isInteger(journey.step) || journey.step < 0 || journey.step > 4 || typeof journey.completed !== 'boolean') throw new Error('INVALID_JOURNEY');
+    if (status.journey && journey.completed !== (journey.step === 4)) throw new Error('INVALID_JOURNEY');
     // [first-session] 골든패스 글로우 캐시를 같은 응답으로 갱신(완료 시 자동 해제).
     try {
       window._goldenPathState = { fetched: true, completed: !!status.completed, step: (status && status.step) || 0, ts: Date.now() };
+      // BASE's mining tab requires a ship. First territory harvest lives in Territory.
+      if (typeof GOLDEN_PATH_TARGET_BY_STEP === 'object') GOLDEN_PATH_TARGET_BY_STEP[1] = 'territory';
       if (typeof applyGoldenPathGlow === 'function') applyGoldenPathGlow();
     } catch (_gp) {}
-    if (!status || status.completed) {
+    if (journey.completed) {
+      closeOnboardingHint();
       // 온보딩 완료면 globe 첫클릭 가이드도 정리.
       try { if (typeof window._removeFirstClaimGuide === 'function') window._removeFirstClaimGuide(); } catch (_rg) {}
       return;
     }
-    // The starter campaign has its own persisted progress. Do not invite an
-    // existing commander to claim a second first fleet through legacy onboarding.
-    if ((status.step || 0) === 0 && typeof window.openCommandCenter === 'function') {
-      var starterRes = await fetch('/api/starter-ops/state', { headers: getAuthHeaders() });
-      if (!starterRes.ok || getOnboardingWallet() !== wallet) return;
+    // The five starter operations take precedence; progress remains server-owned.
+    var firstSortie = false;
+    if (typeof window.openCommandCenter === 'function') {
+      var starterRes = await fetch('/api/starter-ops/state', {
+        headers: getAuthHeaders(), signal: controller ? controller.signal : undefined
+      });
+      if (!starterRes.ok) throw new Error('STARTER_PROGRESS_UNAVAILABLE');
       var starterState = await starterRes.json();
-      if ((starterState.missions || []).some(function (mission) {
-        return ['active', 'completed', 'claimed'].includes(mission.status);
-      })) {
-        closeOnboardingHint();
-        return;
-      }
+      if (requestId !== _journeyRequestId || getOnboardingWallet() !== wallet || _journeyDismissedWallets[wallet]) { closeOnboardingHint(); return; }
+      var missions = starterState && starterState.missions;
+      if (!Array.isArray(missions) || missions.length !== 5) throw new Error('INVALID_STARTER_PROGRESS');
+      var started = missions.some(function(m) { return ['active', 'completed', 'claimed'].includes(m.status); });
+      var finished = missions.every(function(m) { return m.status === 'claimed'; });
+      if (started && !finished) { closeOnboardingHint(); scheduleJourneyCheck(); return; }
+      firstSortie = !started && journey.step === 0;
     }
-    showOnboardingHint(status.step || 0);
+    if (journeyHintIsBlocked()) { closeOnboardingHint(); scheduleJourneyCheck(); return; }
+    showOnboardingHint(journey.step, firstSortie);
     // [first-session] 클레임 0인 신규 유저에게 globe 첫 클릭 가이드 시도(순수 추가 오버레이).
-    try { if (typeof window.openCommandCenter !== 'function' && typeof window.maybeShowFirstClaimGuide === 'function') window.maybeShowFirstClaimGuide(); } catch (_fg) {}
+    try { if (typeof window.openCommandCenter !== 'function' && journey.step === 0 && typeof window.maybeShowFirstClaimGuide === 'function') window.maybeShowFirstClaimGuide(); } catch (_fg) {}
+    scheduleJourneyCheck();
   } catch (err) {
     console.warn('[onboarding] status failed:', err);
+    if (requestId === _journeyRequestId && getOnboardingWallet() === wallet && !_journeyDismissedWallets[wallet]) {
+      showJourneyRequestState('error');
+      scheduleJourneyCheck();
+    }
+  } finally {
+    if (requestTimeout) _clearActiveTimeout(requestTimeout);
+    if (requestId === _journeyRequestId) _journeyLoadingWallet = null;
   }
 }
 
-function showOnboardingHint(step) {
+function showOnboardingHint(step, firstSortie) {
   var el = document.getElementById('onboardingHint');
   if (!el) return;
   var title = el.querySelector('.onboarding-hint__title');
   var body = el.querySelector('.onboarding-hint__body');
-  // 4개 언어 현지화 + 골든패스(첫 영토→채굴→함대→캠페인 메인 스토리) 유도.
-  // 기존엔 영어 하드코딩이라 KO/JA/ZH 유저에게 영어로 노출되던 문제를 함께 수정.
+  // tl(en,ko,ja,zh); new SEA strings use the existing English fallback until regenerated.
   var messages = [
     { title: tl('FIRST LANDING','첫 상륙','ファーストランディング','首次登陆'),
       body: tl('Claim your first Mars territory to stake your claim.','첫 화성 영토를 점령해 거점을 마련하세요.','最初の火星領土を獲得して拠点を築こう。','占领你的第一块火星领土，建立据点。') },
     { title: tl('START MINING','채굴 시작','採掘開始','开始采矿'),
-      body: tl('Harvest PP from your territory — your first income.','영토에서 PP를 채굴하세요 — 첫 수입입니다.','領土からPPを採掘 — 最初の収入です。','从领土收获PP——你的第一笔收入。') },
+      body: tl('Harvest GP for building and check your mineral drops. Minerals are chance-based; this harvest does not pay PP.','영토에서 건조용 GP를 수확하고 광물 드롭을 확인하세요. 광물은 확률 지급이며, 이 수확은 PP를 지급하지 않습니다.','領土で建造用GPを回収し、鉱物ドロップを確認しよう。鉱物は確率制で、この収穫ではPPは支給されません。','收获用于建造的GP并查看矿物掉落。矿物按概率掉落，本次收获不发放PP。') },
     { title: tl('BUILD & ADVANCE','함대 & 진격','艦隊 & 進撃','舰队 & 推进'),
-      body: tl('Build your first ship in BASE, then follow the CAMPAIGN — the main story.','BASE에서 첫 함선을 만들고, 메인 스토리인 캠페인을 따라가세요.','BASEで最初の艦船を建造し、メインストーリーのキャンペーンを進めよう。','在BASE建造第一艘舰船，然后跟随主线剧情战役。') }
+      body: tl('Use GP and minerals to build your first ship in BASE → Fleet / Shipyard.','GP와 광물로 BASE → 함대 / 조선소에서 첫 함선을 건조하세요.','GPと鉱物を使い、BASE → 艦隊・造船所で最初の艦船を建造しよう。','使用GP和矿物，在BASE → 舰队／船坞建造第一艘舰船。') },
+    { title: tl('JOIN THE PLAYER ECONOMY','플레이어 경제에 참여','プレイヤー経済に参加','参与玩家经济'),
+      body: tl('Complete a sale to another player, or donate GP to your guild. Listing alone, buying from NPCs, and self-trades do not complete this step.','다른 플레이어에게 판매를 완료하거나 가입한 길드에 GP를 기부하세요. 판매 등록만 하거나 NPC 구매·자기 거래를 해서는 완료되지 않습니다.','他のプレイヤーへの販売を完了するか、所属ギルドにGPを寄付しよう。出品だけ、NPCからの購入、自己取引では完了しません。','向其他玩家完成一次出售，或向已加入的公会捐赠GP。仅上架、向NPC购买和自我交易不会完成此步骤。') }
   ];
   var msg = messages[Math.max(0, Math.min(step, messages.length - 1))];
-  if (step === 0 && typeof window.openCommandCenter === 'function') {
-    msg = {title:tl('FIRST SORTIE','첫 출격','初出撃','首次出击'),body:tl('Get a free starter fleet and command your first safe battle.','무료 시작 함대로 안전한 첫 전투를 지휘하세요.','無料の初期艦隊で最初の安全な戦闘を指揮しよう。','领取免费初始舰队，指挥第一场安全战斗。')};
-    var cta=el.querySelector('.onboarding-hint__actions button');
-    if(cta){cta.removeAttribute('data-i18n');cta.textContent=tl('START OPERATIONS','첫 작전 시작','初作戦を開始','开始行动');}
+  if (firstSortie) msg = {
+    title: tl('FIRST SORTIE','첫 출격','初出撃','首次出击'),
+    body: tl('Get a free starter fleet and command your first safe battle.','무료 시작 함대로 안전한 첫 전투를 지휘하세요.','無料の初期艦隊で最初の安全な戦闘を指揮しよう。','领取免费初始舰队，指挥第一场安全战斗。')
+  };
+  el.dataset.firstSortie = firstSortie ? 'true' : 'false';
+  if (title) title.textContent = msg.title;
+  if (body) body.textContent = msg.body;
+  if (title) title.removeAttribute('data-i18n');
+  if (body) body.removeAttribute('data-i18n');
+  var action = el.querySelector('.onboarding-hint__actions button:not(.secondary)');
+  if (action) {
+    action.removeAttribute('data-i18n');
+    action.disabled = false;
+    action.textContent = firstSortie ? tl('START OPERATIONS','첫 작전 시작','初作戦を開始','开始行动') : step === 3
+      ? tl('OPEN MARKET','마켓 열기','マーケットを開く','打开市场')
+      : tl('OPEN BASE','BASE 열기','BASEを開く','打开BASE');
   }
-  if (title) {title.removeAttribute('data-i18n');title.textContent = msg.title;}
-  if (body) {body.removeAttribute('data-i18n');body.textContent = msg.body;}
+  var guildAction = document.getElementById('journeyGuildAction');
+  if (!guildAction && step === 3) {
+    var actions = el.querySelector('.onboarding-hint__actions');
+    if (actions) {
+      guildAction = document.createElement('button');
+      guildAction.id = 'journeyGuildAction';
+      guildAction.type = 'button';
+      guildAction.className = 'secondary';
+      guildAction.addEventListener('click', function() { openJourneyTab('guild'); });
+      actions.appendChild(guildAction);
+    }
+  }
+  if (guildAction) {
+    guildAction.hidden = step !== 3;
+    guildAction.textContent = tl('OPEN GUILD','길드 열기','ギルドを開く','打开公会');
+  }
+  el.dataset.state = 'ready';
   el.dataset.step = String(step);
   el.classList.add('active');
 }
@@ -863,6 +971,9 @@ function closeOnboardingHint() {
 
 async function dismissOnboardingHint() {
   var wallet = getOnboardingWallet();
+  if (wallet) _journeyDismissedWallets[wallet] = true;
+  if (_journeyCheckTimer) _clearActiveTimeout(_journeyCheckTimer);
+  _journeyCheckTimer = null;
   closeOnboardingHint();
   try {
     await fetch('/api/onboarding/dismiss', {
@@ -873,20 +984,23 @@ async function dismissOnboardingHint() {
   } catch (_) {}
 }
 
+function openJourneyTab(tab) {
+  closeOnboardingHint();
+  try {
+    openBaseModal();
+    switchBaseTab(tab, document.getElementById('baseTab' + tab.charAt(0).toUpperCase() + tab.slice(1)));
+    if (tab === 'market' && typeof loadMarketTab === 'function') loadMarketTab();
+    if (tab === 'guild' && typeof loadGuildTab === 'function') loadGuildTab();
+  } catch (_) { try { openBaseModal(); } catch (_) {} }
+  scheduleJourneyCheck();
+}
+
 function onboardingAction() {
   var el = document.getElementById('onboardingHint');
+  if (el && el.dataset.state !== 'ready') { runOnboardingCheck(); return; }
   var step = parseInt(el && el.dataset.step, 10) || 0;
-  closeOnboardingHint();
-  if (step === 0) {
-    if (typeof window.openCommandCenter === 'function') { window.openCommandCenter('missions'); return; }
-    try { openBaseModal(); switchBaseTab('territory', document.querySelector('[onclick*=territory]')); } catch (_) { try { openBaseModal(); } catch (_) {} }
-    return;
-  }
-  if (step === 1) {
-    try { openBaseModal(); switchBaseTab('territory', document.getElementById('baseTabTerritory')); } catch (_) { try { openBaseModal(); } catch (_) {} }
-    return;
-  }
-  try { openBaseModal(); switchBaseTab('fleet', document.getElementById('baseTabFleet')); } catch (_) { try { openBaseModal(); } catch (_) {} }
+  if (el && el.dataset.firstSortie === 'true' && typeof window.openCommandCenter === 'function') { closeOnboardingHint(); window.openCommandCenter('missions'); scheduleJourneyCheck(); return; }
+  openJourneyTab(['territory', 'territory', 'fleet', 'market'][step] || 'territory');
 }
 
 // ── override: old initOnboarding → v3 ──

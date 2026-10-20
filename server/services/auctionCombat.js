@@ -13,6 +13,11 @@
 
 const { pool } = require('../db');
 
+function withEscrowReview(auction) {
+  const review = auction.status === 'active' && Number(auction.escrow_version) !== 1;
+  return { ...auction, escrow_review_required: review, read_only: review };
+}
+
 // ─── 헬퍼 ───
 
 async function getSetting(key, fallback) {
@@ -34,6 +39,7 @@ async function getBalance(client, wallet, currency) {
 }
 
 async function deductBalance(client, wallet, currency, amount) {
+  if (!Number.isFinite(Number(amount)) || Number(amount) <= 0) throw new Error('INVALID_AMOUNT');
   const col = currency === 'PP' ? 'pp_balance' : 'gp_balance';
   const { rowCount } = await client.query(
     `UPDATE users SET ${col} = ${col} - $2 WHERE wallet_address = $1 AND ${col} >= $2`,
@@ -43,6 +49,7 @@ async function deductBalance(client, wallet, currency, amount) {
 }
 
 async function addBalance(client, wallet, currency, amount) {
+  if (!Number.isFinite(Number(amount)) || Number(amount) < 0) throw new Error('INVALID_AMOUNT');
   const col = currency === 'PP' ? 'pp_balance' : 'gp_balance';
   await client.query(
     `UPDATE users SET ${col} = ${col} + $2 WHERE wallet_address = $1`,
@@ -73,43 +80,62 @@ async function createAuction(sellerWallet, params) {
     duration_hours = 24,
   } = params;
 
-  if (!start_price || start_price <= 0) throw new Error('INVALID_START_PRICE');
+  if (!Number.isFinite(Number(start_price)) || Number(start_price) <= 0) throw new Error('INVALID_START_PRICE');
   if (!['GP','PP'].includes(currency)) throw new Error('INVALID_CURRENCY');
+  if (!['item','cosmetic','claim','resource','ship','currency'].includes(listing_type)) throw new Error('INVALID_ITEM_TYPE');
+  if (buyout_price != null && (!Number.isFinite(Number(buyout_price)) || Number(buyout_price) < Number(start_price))) throw new Error('INVALID_BUYOUT_PRICE');
 
   // [경제v2 P3] 통화 번들(GP↔PP) 매물 검증 — 파는 통화는 입찰 통화와 달라야 함.
   if (listing_type === 'currency') {
     if (!['GP','PP'].includes(bundle_currency)) throw new Error('INVALID_BUNDLE_CURRENCY');
     if (bundle_currency === currency) throw new Error('BUNDLE_SAME_CURRENCY');
-    if (!(bundle_amount > 0)) throw new Error('INVALID_BUNDLE_AMOUNT');
+    if (!Number.isFinite(Number(bundle_amount)) || !(bundle_amount > 0)) throw new Error('INVALID_BUNDLE_AMOUNT');
     const enabled = String(await getSetting('currency_auction_enabled', 'true')) === 'true';
     if (!enabled) throw new Error('CURRENCY_AUCTION_DISABLED');
   }
 
   const minHours = await getInt('auction_min_duration_hours', 1);
   const maxHours = await getInt('auction_max_duration_hours', 72);
-  if (duration_hours < minHours || duration_hours > maxHours) throw new Error('INVALID_DURATION');
+  if (!Number.isFinite(Number(duration_hours)) || duration_hours < minHours || duration_hours > maxHours) throw new Error('INVALID_DURATION');
 
   const maxPerUser = await getInt('auction_max_per_user', 10);
-  const { rows: countRows } = await pool.query(
-    `SELECT COUNT(*) AS cnt FROM auctions WHERE seller_wallet = $1 AND status = 'active'`,
-    [sellerWallet]
-  );
-  if (parseInt(countRows[0].cnt) >= maxPerUser) throw new Error('MAX_AUCTIONS_REACHED');
 
   const fee = await getAuctionFee(sellerWallet);
+  if (!Number.isFinite(fee) || fee < 0) throw new Error('INVALID_FEE_CONFIGURATION');
   const endsAt = new Date(Date.now() + duration_hours * 3600000);
 
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+    // Same lock as marketplace/legacy auctions: serialize caps and all seller escrow.
+    const seller = await client.query('SELECT wallet_address FROM users WHERE wallet_address=$1 FOR UPDATE', [sellerWallet]);
+    if (!seller.rowCount) throw new Error('USER_NOT_FOUND');
+    const { rows: countRows } = await client.query("SELECT COUNT(*) AS cnt FROM auctions WHERE seller_wallet=$1 AND status='active' AND escrow_version=1", [sellerWallet]);
+    if (Number(countRows[0].cnt) >= maxPerUser) throw new Error('MAX_AUCTIONS_REACHED');
 
     // 에스크로: 경매 아이템 잠금 (타입별)
-    if (listing_type === 'ship' && ship_instance_id) {
+    if (listing_type === 'ship') {
       const { rowCount } = await client.query(
-        `UPDATE ship_instances SET status = 'docked' WHERE id = $1 AND wallet_address = $2 AND status = 'docked'`,
+        `UPDATE ship_instances SET wallet_address = 'auction_escrow' WHERE id = $1 AND wallet_address = $2 AND status = 'docked'`,
         [ship_instance_id, sellerWallet]
       );
       if (!rowCount) throw new Error('SHIP_NOT_AVAILABLE');
+    }
+    if (listing_type === 'item' || listing_type === 'cosmetic') {
+      const item = await client.query("UPDATE item_instances SET wallet='auction_escrow' WHERE id=$1 AND wallet=$2 RETURNING id", [item_instance_id, sellerWallet]);
+      if (!item.rowCount) throw new Error('ITEM_NOT_AVAILABLE');
+    }
+    if (listing_type === 'claim') {
+      const claim = await client.query('SELECT id FROM claims WHERE id=$1 AND owner=$2 AND deleted_at IS NULL AND NOT COALESCE(marketplace_locked,false) AND NOT COALESCE(auction_locked,false) FOR UPDATE', [claim_id, sellerWallet]);
+      if (!claim.rowCount) throw new Error('CLAIM_NOT_AVAILABLE');
+      await client.query('UPDATE claims SET auction_locked=true WHERE id=$1', [claim_id]);
+    }
+    if (listing_type === 'resource') {
+      if (!Number.isSafeInteger(Number(resource_quantity)) || Number(resource_quantity) <= 0) throw new Error('INVALID_RESOURCE_QUANTITY');
+      const resource = await client.query('SELECT id FROM resources WHERE id=$1 AND is_active=true AND is_tradeable=true', [resource_id]);
+      if (!resource.rowCount) throw new Error('RESOURCE_NOT_AVAILABLE');
+      const spent = await client.query('UPDATE user_resource_inventory SET quantity=quantity-$3 WHERE wallet_address=$1 AND resource_id=$2 AND quantity >= $3 RETURNING quantity', [sellerWallet, resource_id, resource_quantity]);
+      if (!spent.rowCount) throw new Error('INSUFFICIENT_MATERIALS');
     }
     // [경제v2 P3] 통화 번들 에스크로 — 파는 통화(bundle_currency) 수량을 판매자 잔고에서 잠금.
     if (listing_type === 'currency') {
@@ -124,13 +150,13 @@ async function createAuction(sellerWallet, params) {
         resource_id, resource_quantity, ship_instance_id,
         bundle_currency, bundle_amount,
         start_price, currency, current_price, buyout_price,
-        fee_pct, ends_at
-      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$11,$13,$14,$15)
+        fee_pct, ends_at, escrow_version
+      ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$11,$13,$14,$15,1)
       RETURNING *
     `, [
       sellerWallet, listing_type,
-      item_instance_id || null, item_type_id || null, claim_id || null,
-      resource_id || null, resource_quantity || null, ship_instance_id || null,
+      (['item','cosmetic'].includes(listing_type) ? item_instance_id : null), (['item','cosmetic'].includes(listing_type) ? item_type_id || null : null), (listing_type === 'claim' ? claim_id : null),
+      (listing_type === 'resource' ? resource_id : null), (listing_type === 'resource' ? resource_quantity : null), (listing_type === 'ship' ? ship_instance_id : null),
       (listing_type === 'currency' ? bundle_currency : null),
       (listing_type === 'currency' ? bundle_amount : null),
       start_price, currency,
@@ -150,6 +176,7 @@ async function createAuction(sellerWallet, params) {
 // ─── 입찰 ───
 
 async function placeBid(bidderWallet, auctionId, bidAmount) {
+  if (!Number.isFinite(Number(bidAmount)) || Number(bidAmount) <= 0) throw new Error('INVALID_BID_AMOUNT');
   // [v7.63] auction 읽기를 트랜잭션 내 FOR UPDATE로 이동 — 동시 입찰 시 이중 잔고 차감 방지
   const client = await pool.connect();
   try {
@@ -160,6 +187,7 @@ async function placeBid(bidderWallet, auctionId, bidAmount) {
     );
     if (!aRows[0]) { await client.query('ROLLBACK'); throw new Error('AUCTION_NOT_FOUND'); }
     const auction = aRows[0];
+    if (Number(auction.escrow_version) !== 1) throw new Error('ESCROW_REVIEW_REQUIRED');
 
     if (auction.seller_wallet === bidderWallet) { await client.query('ROLLBACK'); throw new Error('CANNOT_BID_OWN'); }
     if (new Date() > new Date(auction.ends_at)) { await client.query('ROLLBACK'); throw new Error('AUCTION_EXPIRED'); }
@@ -181,7 +209,7 @@ async function placeBid(bidderWallet, auctionId, bidAmount) {
     if (prevBids[0]) {
       await addBalance(client, prevBids[0].bidder_wallet, auction.currency, prevBids[0].amount);
       await client.query(
-        `UPDATE bids SET is_winning = FALSE WHERE id = $1`, [prevBids[0].id]
+        `UPDATE bids SET is_winning = FALSE, is_refunded = TRUE WHERE id = $1`, [prevBids[0].id]
       );
     }
 
@@ -230,118 +258,66 @@ async function placeBid(bidderWallet, auctionId, bidAmount) {
 // ─── 즉시 구매 ───
 
 async function buyout(buyerWallet, auctionId) {
-  const { rows: aRows } = await pool.query(
-    `SELECT * FROM auctions WHERE id = $1 AND status = 'active'`, [auctionId]
-  );
-  if (!aRows[0]) throw new Error('AUCTION_NOT_FOUND');
-  const auction = aRows[0];
-
-  if (!auction.buyout_price) throw new Error('NO_BUYOUT_PRICE');
-  if (auction.seller_wallet === buyerWallet) throw new Error('CANNOT_BUY_OWN');
-
-  return await _finalizeAuction(auction, buyerWallet, auction.buyout_price);
+  return _finalizeAuction({ id: auctionId }, buyerWallet, true);
 }
 
-// ─── 낙찰 정산 ───
-
+// All price, bid and expiry decisions are made under the auction row lock.
 async function settleAuction(auctionId) {
-  const { rows: aRows } = await pool.query(
-    `SELECT * FROM auctions WHERE id = $1 AND status = 'active' AND ends_at <= NOW()`,
-    [auctionId]
-  );
-  if (!aRows[0]) return null;
-  const auction = aRows[0];
-
-  // 최고 입찰자 확인
-  const { rows: topBid } = await pool.query(`
-    SELECT * FROM bids WHERE auction_id = $1 AND is_winning = TRUE LIMIT 1
-  `, [auctionId]);
-
-  if (!topBid[0]) {
-    // 입찰 없음 → 경매 만료
-    await pool.query(
-      `UPDATE auctions SET status = 'expired' WHERE id = $1`, [auctionId]
-    );
-    // 에스크로 아이템 반환
-    await _returnEscrowItem(auction);
-    return { settled: 'expired', auction_id: auctionId };
-  }
-
-  return await _finalizeAuction(auction, topBid[0].bidder_wallet, topBid[0].amount);
+  return _finalizeAuction({ id: auctionId }, null, false);
 }
 
-async function _finalizeAuction(auction, buyerWallet, amount) {
-  // [v7.166] fee_pct 두 컨벤션(fraction 0~1 vs percent 0~100) 자동 정규화.
-  //   값이 >= 1 이면 percent 로 간주해 /100, 아니면 fraction 그대로. 컨벤션 혼선·admin 오타에 견고.
-  //   최대 50% 안전 clamp(>0.5 fraction → 0 적용).
-  let raw = parseFloat(auction.fee_pct);
-  if (!isFinite(raw) || raw < 0) raw = 0;
-  let fee = raw >= 1 ? raw / 100 : raw;
-  if (fee > 0.5) {
-    console.warn('[auctionCombat] fee_pct misconfigured (>50%):', raw, '→ 0 적용');
-    fee = 0;
-  }
-  const feeAmt   = Math.floor(amount * fee * 100) / 100;
-  const sellerGet = amount - feeAmt;
-
+async function _finalizeAuction(reference, buyerWallet, isBuyout) {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-
-    // [v7.63] 이중 정산 방지: FOR UPDATE로 경매 행 잠금 후 status 재확인
-    const { rows: lockRows } = await client.query(
-      `SELECT status FROM auctions WHERE id = $1 FOR UPDATE`, [auction.id]
-    );
-    if (!lockRows[0] || !['active', 'ended'].includes(lockRows[0].status)) {
+    const { rows } = await client.query('SELECT * FROM auctions WHERE id=$1 FOR UPDATE', [reference.id]);
+    const auction = rows[0];
+    if (!auction || auction.status !== 'active') {
       await client.query('ROLLBACK');
-      return { settled: 'already_finalized', auction_id: auction.id };
+      if (isBuyout) throw new Error('AUCTION_NOT_FOUND');
+      return { settled: 'already_finalized', auction_id: reference.id };
     }
-
-    // 즉시구매인 경우 구매자 잔고 차감
-    const existingBid = await client.query(`
-      SELECT id, amount FROM bids
-      WHERE auction_id = $1 AND bidder_wallet = $2 AND is_winning = TRUE
-    `, [auction.id, buyerWallet]);
-
-    if (!existingBid.rows[0]) {
-      // 즉시구매: 에스크로 없었으므로 차감
-      const ok = await deductBalance(client, buyerWallet, auction.currency, amount);
-      if (!ok) throw new Error('INSUFFICIENT_BALANCE');
+    if (Number(auction.escrow_version) !== 1) throw new Error('ESCROW_REVIEW_REQUIRED');
+    const expired = new Date(auction.ends_at) <= new Date();
+    if (isBuyout && expired) throw new Error('AUCTION_EXPIRED');
+    if (!isBuyout && !expired) { await client.query('ROLLBACK'); return null; }
+    const { rows: winning } = await client.query('SELECT * FROM bids WHERE auction_id=$1 AND is_winning=TRUE AND is_refunded=FALSE FOR UPDATE', [auction.id]);
+    const held = winning[0];
+    if (!isBuyout && !held) {
+      await _returnEscrowItem(client, auction);
+      await client.query("UPDATE auctions SET status='expired' WHERE id=$1", [auction.id]);
+      await client.query('COMMIT');
+      return { settled: 'expired', auction_id: auction.id };
     }
+    if (isBuyout && auction.seller_wallet === buyerWallet) throw new Error('CANNOT_BUY_OWN');
+    const amount = Number(isBuyout ? auction.buyout_price : held.amount);
+    if (!Number.isFinite(amount) || amount <= 0) throw new Error(isBuyout ? 'NO_BUYOUT_PRICE' : 'INVALID_BID_AMOUNT');
+    if (!isBuyout) buyerWallet = held.bidder_wallet;
 
-    // 판매자 지급
+    let raw = Number(auction.fee_pct);
+    if (!Number.isFinite(raw) || raw < 0) raw = 0;
+    let fee = raw >= 1 ? raw / 100 : raw;
+    if (fee > 0.5) fee = 0; // Preserve the existing malformed-fee fallback.
+    const feeAmt = Math.floor(amount * fee * 100) / 100;
+    const sellerGet = amount - feeAmt;
+    if (isBuyout) {
+      // A winning bid is partial escrow, not payment for a higher buyout price.
+      const credit = held && held.bidder_wallet === buyerWallet ? Number(held.amount) : 0;
+      const due = amount - credit;
+      if (due > 0 && !await deductBalance(client, buyerWallet, auction.currency, due)) throw new Error('INSUFFICIENT_BALANCE');
+      if (due < 0) await addBalance(client, buyerWallet, auction.currency, -due);
+    }
     await addBalance(client, auction.seller_wallet, auction.currency, sellerGet);
-
-    // 아이템 소유권 이전
     await _transferItem(client, auction, buyerWallet);
-
-    // 낙찰 처리 — AND status IN ('active','ended') 로 이중 UPDATE 방지 [v7.63]
-    const { rowCount } = await client.query(`
-      UPDATE auctions SET
-        status = 'sold', winner_wallet = $2, final_price = $3, sold_at = NOW()
-      WHERE id = $1 AND status IN ('active', 'ended')
-    `, [auction.id, buyerWallet, amount]);
-    if (rowCount === 0) {
-      await client.query('ROLLBACK');
-      return { settled: 'already_finalized', auction_id: auction.id };
+    // Only the currently held bid can be refunded. Earlier outbid rows were
+    // already returned, including historical rows created before this fix.
+    if (held && held.bidder_wallet !== buyerWallet) {
+      await addBalance(client, held.bidder_wallet, auction.currency, held.amount);
+      await client.query('UPDATE bids SET is_refunded=TRUE,is_winning=FALSE WHERE id=$1', [held.id]);
     }
-
-    // 다른 입찰자 전원 환불
-    const { rows: otherBids } = await client.query(`
-      SELECT * FROM bids
-      WHERE auction_id = $1 AND bidder_wallet != $2 AND is_refunded = FALSE
-    `, [auction.id, buyerWallet]);
-    for (const bid of otherBids) {
-      await addBalance(client, bid.bidder_wallet, auction.currency, bid.amount);
-      await client.query(`UPDATE bids SET is_refunded = TRUE WHERE id = $1`, [bid.id]);
-    }
-
+    await client.query("UPDATE auctions SET status='sold',winner_wallet=$2,final_price=$3,sold_at=NOW() WHERE id=$1", [auction.id, buyerWallet, amount]);
     await client.query('COMMIT');
-    return {
-      settled: 'sold', auction_id: auction.id,
-      buyer: buyerWallet, final_price: amount,
-      seller_received: sellerGet, fee: feeAmt,
-    };
+    return { settled: 'sold', auction_id: auction.id, buyer: buyerWallet, final_price: amount, seller_received: sellerGet, fee: feeAmt };
   } catch (err) {
     await client.query('ROLLBACK');
     throw err;
@@ -351,21 +327,25 @@ async function _finalizeAuction(auction, buyerWallet, amount) {
 }
 
 async function _transferItem(client, auction, buyerWallet) {
+  let transferred;
   switch (auction.listing_type) {
     case 'ship':
       if (auction.ship_instance_id) {
-        await client.query(
-          `UPDATE ship_instances SET wallet_address = $2 WHERE id = $1`,
+        transferred = await client.query(
+          `UPDATE ship_instances SET wallet_address = $2, status = 'docked' WHERE id = $1 AND wallet_address = 'auction_escrow'`,
           [auction.ship_instance_id, buyerWallet]
         );
+        if (!transferred.rowCount) throw new Error('ASSET_NOT_ESCROWED');
       }
       break;
     case 'claim':
       if (auction.claim_id) {
-        await client.query(
-          `UPDATE claims SET owner = $2 WHERE id = $1`,
-          [auction.claim_id, buyerWallet]
+        transferred = await client.query(
+          `UPDATE claims SET owner = $2, auction_locked = FALSE WHERE id = $1 AND owner=$3 AND auction_locked=TRUE`,
+          [auction.claim_id, buyerWallet, auction.seller_wallet]
         );
+        if (!transferred.rowCount) throw new Error('ASSET_NOT_ESCROWED');
+        await client.query('UPDATE pixels SET owner=$2 WHERE claim_id=$1', [auction.claim_id, buyerWallet]);
       }
       break;
     case 'resource':
@@ -375,7 +355,7 @@ async function _transferItem(client, auction, buyerWallet) {
           VALUES ($1, $2, $3)
           ON CONFLICT (wallet_address, resource_id)
           DO UPDATE SET quantity = user_resource_inventory.quantity + $3
-        `, [buyerWallet, auction.resource_id, auction.resource_quantity]).catch(() => {});
+        `, [buyerWallet, auction.resource_id, auction.resource_quantity]);
       }
       break;
     case 'currency':
@@ -388,27 +368,27 @@ async function _transferItem(client, auction, buyerWallet) {
     default:
       // cosmetic/item: item_instance 소유권 이전
       if (auction.item_instance_id) {
-        await client.query(
-          `UPDATE item_instances SET wallet = $2 WHERE id = $1`,
+        transferred = await client.query(
+          `UPDATE item_instances SET wallet = $2 WHERE id = $1 AND wallet='auction_escrow'`,
           [auction.item_instance_id, buyerWallet]
-        ).catch(() => {});
+        );
+        if (!transferred.rowCount) throw new Error('ASSET_NOT_ESCROWED');
       }
   }
 }
 
-async function _returnEscrowItem(auction) {
+async function _returnEscrowItem(client, auction) {
   if (auction.listing_type === 'ship' && auction.ship_instance_id) {
-    await pool.query(
-      `UPDATE ship_instances SET status = 'docked' WHERE id = $1`, [auction.ship_instance_id]
-    ).catch(() => {});
-  }
-  // [경제v2 P3] 통화 번들 유찰 시 판매자에게 에스크로 통화 환불.
-  if (auction.listing_type === 'currency' && auction.bundle_currency && auction.bundle_amount) {
-    const col = auction.bundle_currency === 'PP' ? 'pp_balance' : 'gp_balance';
-    await pool.query(
-      `UPDATE users SET ${col} = COALESCE(${col},0) + $1 WHERE LOWER(wallet_address) = LOWER($2)`,
-      [parseFloat(auction.bundle_amount), auction.seller_wallet]
-    ).catch(() => {});
+    await client.query("UPDATE ship_instances SET wallet_address=$2,status='docked' WHERE id=$1 AND wallet_address='auction_escrow'", [auction.ship_instance_id, auction.seller_wallet]);
+  } else if (auction.listing_type === 'currency' && auction.bundle_currency && auction.bundle_amount) {
+    await addBalance(client, auction.seller_wallet, auction.bundle_currency, Number(auction.bundle_amount));
+  } else if (auction.listing_type === 'resource' && auction.resource_id) {
+    await client.query(`INSERT INTO user_resource_inventory(wallet_address,resource_id,quantity) VALUES($1,$2,$3)
+      ON CONFLICT(wallet_address,resource_id) DO UPDATE SET quantity=user_resource_inventory.quantity+EXCLUDED.quantity`, [auction.seller_wallet, auction.resource_id, auction.resource_quantity]);
+  } else if (auction.listing_type === 'claim' && auction.claim_id) {
+    await client.query('UPDATE claims SET auction_locked=false WHERE id=$1 AND owner=$2', [auction.claim_id, auction.seller_wallet]);
+  } else if (auction.item_instance_id) {
+    await client.query("UPDATE item_instances SET wallet=$2 WHERE id=$1 AND wallet='auction_escrow'", [auction.item_instance_id, auction.seller_wallet]);
   }
 }
 
@@ -416,7 +396,7 @@ async function _returnEscrowItem(auction) {
 
 async function processAllAuctions() {
   const { rows: expired } = await pool.query(`
-    SELECT id FROM auctions WHERE status = 'active' AND ends_at <= NOW()
+    SELECT id FROM auctions WHERE status = 'active' AND escrow_version = 1 AND ends_at <= NOW()
   `);
   let settled = 0;
   for (const a of expired) {
@@ -457,7 +437,7 @@ async function getAuctions({ listing_type, currency, page = 1, limit = 20 } = {}
     ORDER BY a.ends_at ASC
     LIMIT $${params.length - 1} OFFSET $${params.length}
   `, params);
-  return rows;
+  return rows.map(withEscrowReview);
 }
 
 async function getMyAuctions(walletAddress) {
@@ -495,7 +475,7 @@ async function getMyAuctions(walletAddress) {
     ORDER BY b.created_at DESC LIMIT 20
   `, [walletAddress]);
 
-  return { selling, bidding };
+  return { selling: selling.map(withEscrowReview), bidding: bidding.map(withEscrowReview) };
 }
 
 async function getAuctionDetail(auctionId) {
@@ -523,7 +503,7 @@ async function getAuctionDetail(auctionId) {
     ORDER BY b.amount DESC LIMIT 10
   `, [auctionId]);
 
-  return { auction: aRows[0], bids };
+  return { auction: withEscrowReview(aRows[0]), bids };
 }
 
 // ─── 취소 (입찰 없을 때만, 에스크로 환불) ───
@@ -537,22 +517,14 @@ async function cancelAuction(walletAddress, auctionId) {
     );
     if (!rows[0]) { await client.query('ROLLBACK'); throw new Error('AUCTION_NOT_FOUND'); }
     const a = rows[0];
+    if (Number(a.escrow_version) !== 1) throw new Error('ESCROW_REVIEW_REQUIRED');
     if (a.seller_wallet !== walletAddress) { await client.query('ROLLBACK'); throw new Error('NOT_OWNER'); }
     const { rows: bc } = await client.query(
       `SELECT COUNT(*)::int AS c FROM bids WHERE auction_id = $1 AND is_refunded = FALSE`, [auctionId]
     );
     if (bc[0].c > 0) { await client.query('ROLLBACK'); throw new Error('HAS_BIDS'); }
 
-    // 에스크로 환불 (트랜잭션 내) — ship: dock 복귀, currency: 번들 통화 반환.
-    if (a.listing_type === 'ship' && a.ship_instance_id) {
-      await client.query(`UPDATE ship_instances SET status = 'docked' WHERE id = $1`, [a.ship_instance_id]);
-    } else if (a.listing_type === 'currency' && a.bundle_currency && a.bundle_amount) {
-      const col = a.bundle_currency === 'PP' ? 'pp_balance' : 'gp_balance';
-      await client.query(
-        `UPDATE users SET ${col} = COALESCE(${col},0) + $1 WHERE LOWER(wallet_address) = LOWER($2)`,
-        [parseFloat(a.bundle_amount), a.seller_wallet]
-      );
-    }
+    await _returnEscrowItem(client, a);
     await client.query(`UPDATE auctions SET status = 'cancelled' WHERE id = $1`, [auctionId]);
     await client.query('COMMIT');
     return { cancelled: true, auction_id: auctionId };

@@ -24,19 +24,24 @@ function getWeekStart(date = new Date()) {
     .toISOString().slice(0, 10);
 }
 
-async function getSettings() {
+async function getSettings(queryable = pool) {
   const keys = [
     'dividends_enabled', 'dividends_marketplace_pct', 'dividends_lottery_pct',
     'dividends_burn_pct', 'dividends_min_stake_for_div', 'dividends_distribute_day',
   ];
-  const res = await pool.query(`SELECT key, value FROM settings WHERE key = ANY($1)`, [keys]);
+  const res = await queryable.query(`SELECT key, value FROM settings WHERE key = ANY($1)`, [keys]);
   const map = {};
   res.rows.forEach(r => { map[r.key] = String(r.value); });
+  const percentage = (key, fallback) => {
+    const value = map[key] == null ? fallback : Number(map[key]);
+    if (map[key] != null && map[key].trim() === '' || !Number.isFinite(value) || value < 0 || value > 100) throw new Error('INVALID_DIVIDEND_PERCENTAGE');
+    return value;
+  };
   return {
     enabled:          (map.dividends_enabled || 'true') !== 'false',
-    marketplacePct:   parseFloat(map.dividends_marketplace_pct) || 20,
-    lotteryPct:       parseFloat(map.dividends_lottery_pct)     || 30,
-    burnPct:          parseFloat(map.dividends_burn_pct)         || 10,
+    marketplacePct:   percentage('dividends_marketplace_pct', 20),
+    lotteryPct:       percentage('dividends_lottery_pct', 30),
+    burnPct:          percentage('dividends_burn_pct', 10),
     minStake:         parseFloat(map.dividends_min_stake_for_div) || 100,
     distributeDay:    parseInt(map.dividends_distribute_day)     || 1,
   };
@@ -73,29 +78,46 @@ async function ensureCurrentPool() {
  * @param {number} amount - GP to add
  * @param {string} source - 'marketplace' | 'lottery' | 'burn'
  * @param {object} client - optional pg client for transactional use
+ * @param {number} maxAllocation - remaining captured-fee budget after other credits
+ * @param {object} options - requireSchema rejects missing storage for mandatory settlement
  */
-async function addToPool(amount, source) {
-  if (amount <= 0) return;
-  const cfg = await getSettings();
-  if (!cfg.enabled) return;
-
-  let pct;
-  if (source === 'marketplace') pct = cfg.marketplacePct;
-  else if (source === 'lottery')    pct = cfg.lotteryPct;
-  else if (source === 'burn')       pct = cfg.burnPct;
-  else return;
-
-  const dividendAmount = +(amount * pct / 100).toFixed(6);
-  if (dividendAmount <= 0) return;
-
-  const weekStart = getWeekStart();
-  await pool.query(
-    `INSERT INTO gp_dividend_pool (week_start, pool_gp)
-     VALUES ($1, $2)
-     ON CONFLICT (week_start) DO UPDATE
-       SET pool_gp = gp_dividend_pool.pool_gp + EXCLUDED.pool_gp`,
-    [weekStart, dividendAmount]
-  );
+async function addToPool(amount, source, client = null, maxAllocation = amount, { requireSchema = false } = {}) {
+  amount = Number(amount);
+  maxAllocation = Number(maxAllocation);
+  if (!Number.isFinite(amount) || amount < 0 || !Number.isFinite(maxAllocation) || maxAllocation < 0) throw new Error('INVALID_DIVIDEND_AMOUNT');
+  if (amount === 0 || maxAllocation === 0) return 0;
+  const db = client || pool;
+  if (client) await client.query('SAVEPOINT marketplace_dividend');
+  try {
+    const cfg = await getSettings(db);
+    let pct;
+    if (source === 'marketplace') pct = cfg.marketplacePct;
+    else if (source === 'lottery') pct = cfg.lotteryPct;
+    else if (source === 'burn') pct = cfg.burnPct;
+    const nominalAmount = +(amount * (pct || 0) / 100).toFixed(6);
+    const dividendAmount = cfg.enabled ? Math.min(nominalAmount, Math.floor(Math.min(amount, maxAllocation) * 1e6) / 1e6) : 0;
+    if (dividendAmount > 0) {
+      await db.query(
+        `INSERT INTO gp_dividend_pool (week_start, pool_gp)
+         VALUES ($1, $2)
+         ON CONFLICT (week_start) DO UPDATE
+           SET pool_gp = gp_dividend_pool.pool_gp + EXCLUDED.pool_gp`,
+        [getWeekStart(), dividendAmount]
+      );
+    }
+    if (client) await client.query('RELEASE SAVEPOINT marketplace_dividend');
+    return dividendAmount;
+  } catch (error) {
+    if (client) {
+      await client.query('ROLLBACK TO SAVEPOINT marketplace_dividend');
+      await client.query('RELEASE SAVEPOINT marketplace_dividend');
+    }
+    if (!requireSchema && (error.code === '42P01' || error.code === '42703')) {
+      console.log('[DIV] fee allocation skipped — schema not provisioned');
+      return 0;
+    }
+    throw error;
+  }
 }
 
 // ── Distribute ────────────────────────────────────────────────────────────────

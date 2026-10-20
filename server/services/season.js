@@ -284,23 +284,48 @@ async function finalizeSeasonRewards(seasonId) {
   try {
     await client.query('BEGIN');
 
-    // Mark season inactive
+    // Serialize finalization, including zero-reward seasons and admin reactivation.
+    // Migration 359 is required: missing completion evidence must fail closed.
+    const { rows: [season] } = await client.query(
+      `SELECT id, active, ends_at <= NOW() AS ended, rewards_json, active_categories
+         FROM seasons WHERE id = $1 FOR UPDATE`, [seasonId]
+    );
+    if (!season) {
+      await client.query('ROLLBACK');
+      return { error: 'Season not found' };
+    }
+    const finalization = await client.query('SELECT source FROM season_reward_finalizations WHERE season_id = $1', [seasonId]);
+    const { rows: [existing] } = await client.query('SELECT COUNT(*)::int AS n FROM season_rewards WHERE season_id = $1', [seasonId]);
+    const legacySource = existing.n > 0 ? 'legacy_rewards_present' : !season.active && season.ended ? 'legacy_closed' : null;
+    if (finalization.rows.length || legacySource) {
+      if (!finalization.rows.length) {
+        await client.query(
+          'INSERT INTO season_reward_finalizations (season_id, source, reward_rows) VALUES ($1, $2, $3)',
+          [seasonId, legacySource, existing.n]
+        );
+      }
+      await client.query('UPDATE seasons SET active = false WHERE id = $1', [seasonId]);
+      await client.query('COMMIT');
+      return { success: true, rewarded: 0, alreadyFinalized: true };
+    }
+    // Future queued seasons remain eligible once they are explicitly activated.
+    if (!season.active) {
+      await client.query('ROLLBACK');
+      return { success: true, rewarded: 0, skipped: 'not_active' };
+    }
     await client.query('UPDATE seasons SET active = false WHERE id = $1', [seasonId]);
-
-    // Get season rewards config
-    const seasonRes = await client.query('SELECT rewards_json FROM seasons WHERE id = $1', [seasonId]);
-    const rewardsConfig = seasonRes.rows[0]?.rewards_json || [];
+    const rewardsConfig = season.rewards_json || [];
 
     // Category-based reward distribution
     // Each category has its own leaderboard — players can win multiple awards
     // Get season's active categories (admin selects 6 per season)
-    const seasonFull = await client.query('SELECT active_categories FROM seasons WHERE id = $1', [seasonId]);
-    const activeCatKeys = seasonFull.rows[0]?.active_categories || ['overall','territory','mining','combat','explorer','active'];
+    const activeCatKeys = season.active_categories || ['overall','territory','mining','combat','explorer','active'];
 
     // Filter ALL_CATEGORIES to only active ones for this season
     const categories = ALL_CATEGORIES.filter(c => activeCatKeys.includes(c.key));
 
     let totalRewarded = 0;
+    let rewardRows = 0;
 
     for (const cat of categories) {
       // Get category leaderboard
@@ -342,11 +367,16 @@ async function finalizeSeasonRewards(seasonId) {
                categoryLabel: cat.label
              })]
           );
+          rewardRows++;
         }
         totalRewarded++;
       }
     }
 
+    await client.query(
+      "INSERT INTO season_reward_finalizations (season_id, source, reward_rows) VALUES ($1, 'completed', $2)",
+      [seasonId, rewardRows]
+    );
     await client.query('COMMIT');
     console.log(`[SEASON] Finalized season #${seasonId}, rewarded ${totalRewarded} entries across ${categories.length} categories`);
     return { success: true, rewarded: totalRewarded };
@@ -425,9 +455,10 @@ async function claimSeasonReward(wallet, rewardId) {
             }
           }
         } catch (e) {
-          // ⚠️ fail-CLOSED: 42P01(테이블 미존재)만 면제, 그 외 오류는 미담보 USDT 발행 방지 위해 차단.
-          if (e && e.code === '42P01') { /* 마이그레이션 전 → 가드 면제 */ }
-          else { await client.query('ROLLBACK'); return { success: false, error: 'treasury_guard_error' }; }
+          // Missing ledger/migration is unavailable collateral evidence, never
+          // permission to mint a redeemable USDT claim.
+          await client.query('ROLLBACK');
+          return { success: false, error: 'treasury_guard_error' };
         }
       }
       await client.query('UPDATE users SET usdt_balance = usdt_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)',
@@ -840,6 +871,9 @@ async function autoRotateSeason() {
         await finalizeSeasonRewards(s.id);
       } catch (e) {
         console.error('[SEASON] Finalize error:', e.message);
+        // Keep the ended season active/retryable if rights could not be recorded.
+        // In particular, missing migration 359 must not silently close the season.
+        return null;
       }
       // titleExtended: 시즌 종료 칭호 부여 (non-blocking)
       try {

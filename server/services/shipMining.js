@@ -20,7 +20,7 @@ async function getSetting(key, fb) {
   try { const r = await pool.query('SELECT value FROM settings WHERE key=$1', [key]); return r.rows.length ? r.rows[0].value : fb; }
   catch (_) { return fb; }
 }
-function _num(v, fb) { const n = parseFloat(typeof v === 'string' ? v.replace(/^"|"$/g, '') : v); return isFinite(n) ? n : fb; }
+function _num(v, fb, min) { const n = parseFloat(typeof v === 'string' ? v.replace(/^"|"$/g, '') : v); return isFinite(n) && (min == null || n >= min) ? n : fb; }
 const DEFAULT_MINING_DESTINATIONS = [
   { key: 'frontier', yieldMult: 1.0, resourceMult: 1.0, rareMult: 1.0, wearMult: 1.0, raidPct: 0.0 },
   { key: 'mid', yieldMult: 1.5, resourceMult: 1.5, rareMult: 1.15, wearMult: 1.5, raidPct: 0.05 },
@@ -205,8 +205,8 @@ async function _buildMiningInfo(wallet) {
   return {
     enabled: await _enabled(),
     durationsH: await _durations(),
-    gpPerCapacityHour: _num(await getSetting('ship_mining_gp_per_capacity_h', '5'), 5),
-    gpCapPerDay: _num(await getSetting('ship_mining_gp_cap_per_day', '0'), 0),
+    gpPerCapacityHour: _num(await getSetting('ship_mining_gp_per_capacity_h', '3'), 3, 0),
+    gpCapPerDay: _num(await getSetting('ship_mining_gp_cap_per_day', '1500'), 1500, 0),
     maxPerWallet: _num(await getSetting('ship_mining_max_per_wallet', '3'), 3),
     launchCostGp: _num(await getSetting('ship_mining_launch_cost_gp', '0'), 0),
     minHpPct: _num(await getSetting('ship_mining_min_hp_pct', '0.15'), 0.15),
@@ -384,7 +384,7 @@ async function collectMining(wallet, jobId) {
   const w = String(wallet || '').toLowerCase().trim();
   if (!w || !jobId) throw new Error('wallet and jobId required');
   const resourceSvc = (() => { try { return require('./resource'); } catch (_) { return null; } })();
-  const gpPerCapH = _num(await getSetting('ship_mining_gp_per_capacity_h', '5'), 5);
+  const gpPerCapH = _num(await getSetting('ship_mining_gp_per_capacity_h', '3'), 3, 0);
   const rollsPer4h = _num(await getSetting('ship_mining_resource_rolls_per_4h', '1'), 1);
   const dests = await _destinations();
 
@@ -423,7 +423,7 @@ async function collectMining(wallet, jobId) {
     let rewardGp = Math.round(cap * Number(job.duration_h) * gpPerCapH * yieldMult * raidYieldFactor * 1e6) / 1e6;
 
     // [레드팀 #1] 지갑당 채굴 GP 일일 상한 — 무료 채굴 GP 무한 양산(멀티계정/대형함대) 차단.
-    const gpCapDay = _num(await getSetting('ship_mining_gp_cap_per_day', '0'), 0);
+    const gpCapDay = _num(await getSetting('ship_mining_gp_cap_per_day', '1500'), 1500, 0);
     if (gpCapDay > 0) {
       const used = await client.query(
         `SELECT COALESCE(SUM(reward_gp), 0) AS s FROM ship_mining_jobs

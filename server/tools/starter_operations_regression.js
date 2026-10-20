@@ -110,7 +110,9 @@ async function run() {
     assert.ok(parallel.every(x => x.success));
     console.log('PASS 25 parallel getState calls complete within 8 seconds');
 
-    const starts = await within(Promise.all(Array.from({ length: 4 }, () => api(primary, 'POST', '/api/starter-ops/first_sortie/start'))), 15000, 'concurrent first-sortie start');
+    await apiError(primary, 'POST', '/api/starter-ops/first_sortie/start', {openingTactic:'invalid', formation:'vanguard'}, 'INVALID_OPENING_TACTIC');
+    assert.equal((await pool.query('SELECT COUNT(*)::int n FROM starter_fleet_grants WHERE LOWER(wallet_address)=LOWER($1)', [primary])).rows[0].n,0,'invalid tactic must roll back before any grant');
+    const starts = await within(Promise.all(Array.from({ length: 4 }, () => api(primary, 'POST', '/api/starter-ops/first_sortie/start', {openingTactic:'breakthrough'}))), 15000, 'concurrent first-sortie start');
     const pBattle = String(starts[0].battle.battleId);
     assert.ok(starts.every(x => String(x.battle.battleId) === pBattle));
     assert.equal(starts[0].starterFleet.ships.length, 3);
@@ -118,7 +120,7 @@ async function run() {
     const grants = await pool.query('SELECT COUNT(*)::int n FROM starter_fleet_grant_ships WHERE LOWER(wallet_address)=LOWER($1)', [primary]);
     assert.equal(grants.rows[0].n, 3, 'concurrent starts issue exactly one three-ship grant');
 
-    const secondStart = await within(api(second, 'POST', '/api/starter-ops/first_sortie/start'), 15000, 'second-wallet first-sortie start');
+    const secondStart = await within(api(second, 'POST', '/api/starter-ops/first_sortie/start', {openingTactic:'flank'}), 15000, 'second-wallet first-sortie start');
     assert.notEqual(String(secondStart.battle.battleId), pBattle, 'each wallet owns its own battle');
     await assert.rejects(ops.recordEvidence(second, 'first_sortie', 'battle_won', 'fleet_battle', pBattle), /SOURCE_NOT_VERIFIED/);
     const own = await pool.query(`SELECT 1 FROM fleet_battles b JOIN fleet_battle_participants p ON p.battle_id=b.id
@@ -129,6 +131,21 @@ async function run() {
 
     const outcomes = await Promise.all([waitEnded(pBattle), waitEnded(secondStart.battle.battleId)]);
     assert.ok(outcomes.every(x => x.winner_side === 'atk'), 'both controlled first-sortie battles must be won');
+    const battleTimeline = require('../services/battleTimeline');
+    const starterFactory = require('../services/starterBattle');
+    for (const [id,fleetId,formation,movement] of [[pBattle,pFleet,'wedge','advance'],[secondStart.battle.battleId,secondStart.starterFleet.fleetId,'screen','flank']]) {
+      const {timeline} = await battleTimeline.getTimeline(id);
+      const opening = timeline.frames.filter(f=>f.t<50).map(f=>f.fleets.find(x=>String(x.id)===String(fleetId)));
+      assert.ok(opening.length>=10);
+      assert.ok(opening.every(f=>f.formation===formation&&f.movement===movement),'actual first 10 logical seconds preserve chosen formation/movement');
+      // Persisted frames prove real engine control; API/summary intent alone is insufficient.
+    }
+    const summary=(await pool.query('SELECT battle_summary FROM fleet_battles WHERE id=$1',[pBattle])).rows[0].battle_summary;
+    assert.equal(summary.opening_tactic,'breakthrough');
+    assert.equal(await starterFactory.loadOpeningTactic(pool,{id:secondStart.battle.battleId,battle_summary:summary}),null,'copying summary onto another wallet battle grants no control');
+    assert.equal(await starterFactory.loadOpeningTactic(pool,{id:pBattle,battle_summary:{...summary,trusted_source:'ordinary'}}),null,'ordinary battle never receives opening control');
+    assert.equal(await starterFactory.loadOpeningTactic(pool,{id:pBattle,battle_summary:{...summary,opening_tactic:undefined}}),null,'legacy first sorties preserve their default behavior');
+    console.log('PASS real saved timeline preserves both openings for 10 logical seconds; forged owner/source and legacy summaries cannot enable control');
     await within(Promise.all([api(primary, 'GET', '/api/starter-ops/state'), api(second, 'GET', '/api/starter-ops/state')]), 15000, 'first-sortie reconciliation');
     await claimExactlyOnce(primary, 'first_sortie');
     await claimExactlyOnce(second, 'first_sortie');

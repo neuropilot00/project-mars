@@ -6,7 +6,7 @@
 // 기존 siege 서비스에서 이 모듈을 호출하도록 수정 필요
 // ═══════════════════════════════════════════════════════════════
 
-const { pool } = require('../db');
+const { pool, getSetting } = require('../db');
 const { assertFleetsNotMining } = require('./fleetOccupancy');
 
 /**
@@ -96,8 +96,16 @@ async function createSiegeBattleMulti(params) {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+    // Serialize admission → assembly with commitSiegeFleet/resolveSiege. An
+    // already assembled operation cannot create a second authoritative battle.
+    const siege = (await client.query('SELECT * FROM governor_sieges WHERE id = $1 FOR UPDATE', [governor_siege_id])).rows[0];
+    if (!siege || siege.status !== 'active') throw new Error('SIEGE_NOT_ACTIVE');
+    if (siege.fleet_battle_id) { await client.query('COMMIT'); return siege.fleet_battle_id; }
+    const guildGov = String(await getSetting('guild_governance_enabled') ?? 'false') === 'true';
+    const maxPerSide = Math.max(1, parseInt(await getSetting('siege_max_fleets_per_side') ?? '20') || 20);
+
     const commits = (await client.query(
-      `SELECT c.wallet, c.fleet_id, c.side, f.is_in_battle
+      `SELECT c.wallet, c.fleet_id, c.side, f.is_in_battle, f.current_battle_id, f.owner_wallet
          FROM siege_fleet_commits c JOIN fleets f ON f.id = c.fleet_id
         WHERE c.siege_id = $1 ORDER BY c.side, c.fleet_id FOR UPDATE OF f`,
       [governor_siege_id]
@@ -105,8 +113,12 @@ async function createSiegeBattleMulti(params) {
     const atk = commits.filter(c => c.side === 'atk');
     const def = commits.filter(c => c.side === 'def');
     if (!atk.length || !def.length) { await client.query('ROLLBACK'); throw new Error('NEED_BOTH_SIDES'); }
+    if (atk.length > maxPerSide || def.length > maxPerSide) throw new Error('SIDE_FULL');
     for (const c of commits) {
-      if (c.is_in_battle) { await client.query('ROLLBACK'); throw new Error('FLEET_IN_BATTLE'); }
+      if (c.is_in_battle || c.current_battle_id) throw new Error('FLEET_IN_BATTLE');
+      if (String(c.owner_wallet || '').toLowerCase() !== String(c.wallet).toLowerCase()) throw new Error('FLEET_OWNER_CHANGED');
+      const member = guildGov ? (await client.query('SELECT guild_id FROM guild_members WHERE LOWER(wallet) = LOWER($1) FOR SHARE', [c.wallet])).rows[0] : null;
+      if (require('./siege').siegeSideForMember(siege, c.wallet, member, guildGov) !== c.side) throw new Error('PARTICIPANT_ALLEGIANCE_CHANGED');
     }
     try {
       await assertFleetsNotMining(client, commits.map(c => c.fleet_id), 'FLEET_MINING');
@@ -148,7 +160,7 @@ async function createSiegeBattleMulti(params) {
  */
 async function applySiegeResult(battleId) {
   const { rows } = await pool.query(`
-    SELECT fb.winner_side, fb.governor_siege_id,
+    SELECT fb.winner_side, fb.status AS battle_status, fb.governor_siege_id,
            gs.id AS siege_id, gs.challenger_wallet, gs.defender_wallet, gs.status
       FROM fleet_battles fb
       JOIN governor_sieges gs ON gs.id = fb.governor_siege_id
@@ -158,15 +170,11 @@ async function applySiegeResult(battleId) {
   if (!rows[0] || !rows[0].siege_id) return; // siege 연동 없는 전투
   const r = rows[0];
   if (r.status === 'resolved') return; // 이미 해결됨
-
-  // winner_side(atk/def/draw) → 지갑. def/draw = 수비자 유지.
-  const battleWinnerWallet = r.winner_side === 'atk'
-    ? r.challenger_wallet
-    : (r.defender_wallet || null);
+  if (r.battle_status !== 'ended') return { success: true, pending: true, reason: 'battle_not_ended' };
 
   try {
     const siege = require('./siege');
-    const res = await siege.resolveSiege(r.siege_id, { battleWinnerWallet });
+    const res = await siege.resolveSiege(r.siege_id);
     console.log(`[siegeBridge] siege ${r.siege_id} resolved via battle ${battleId} (winner_side=${r.winner_side}, winner=${res?.winner ?? 'n/a'})`);
   } catch (err) {
     console.error('[siegeBridge] applySiegeResult resolveSiege failed:', err.message);

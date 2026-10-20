@@ -32,6 +32,8 @@ const MAX_TICKS = 54000;                // 3시간 한도 — 실질적으로 HP
 const PRECOMPUTE_YIELD_EVERY_TICKS = 250; // keep Node responsive during large offline simulations
 const FIELD_W = 1000;
 const FIELD_H = 440;
+// Visual delivery only: large battles never retain an unbounded shot queue.
+const MAX_COMBAT_EVENTS_PER_FRAME = 128;
 const HIJACK_PHASE1_SIZE_CLASSES = ['frigate', 'destroyer'];
 
 // 시뮬레이션 최적화: 함선을 클러스터로 묶기
@@ -106,7 +108,7 @@ async function simulateBattle(battleId) {
     
     // 전술 AI 평가
     for (const fleet of state.fleets) {
-      if (fleet.ships.some(s => s.isAlive)) tacticsAI.evaluate(fleet, state, events);
+      if (fleet.ships.some(s => s.isAlive)) evaluateLiveTactics(fleet, state, events);
     }
 
     // 함대 이동
@@ -156,6 +158,8 @@ async function simulateBattle(battleId) {
     });
   }
   
+  if (timeline.frames.at(-1)?.t !== state.tick) timeline.frames.push(captureFrame(state, state.tick));
+
   // 통계 계산
   const stats = computeBattleStats(state);
   
@@ -243,6 +247,7 @@ function applyLiveCommandResult(state, cmd) {
 }
 
 function evaluateLiveTactics(fleet, state, events) {
+  if (state.tick * (state.liveTickMs || TICK_MS) < (fleet.openingControlMs || 0)) return;
   if ((fleet.manualControlUntilTick || 0) > state.tick) return;
   tacticsAI.evaluate(fleet, state, events);
 }
@@ -274,7 +279,7 @@ function _applySkill(state, fleet, kind, events) {
       .sort((a, b) => (b.ship.maxHp || 0) - (a.ship.maxHp || 0))
       .slice(0, Math.min(10, enemies.length));
     for (const t of targets) {
-      applyDamage(t.ship, t.fleet, dmgEach, sourceShip, fleet, state, events);
+      applyDamage(t.ship, t.fleet, dmgEach, sourceShip, fleet, state, events, kind);
       hitTargets.push(t.ship.id);
       totalDamage += dmgEach;
     }
@@ -291,7 +296,7 @@ function _applySkill(state, fleet, kind, events) {
     enemies.sort((a, b) => ((b.ship.isFlagship ? 1 : 0) - (a.ship.isFlagship ? 1 : 0)) || ((b.ship.maxHp || 0) - (a.ship.maxHp || 0)));
     const t = enemies[0];
     const damage = Math.round(myAtk * beamMult);
-    applyDamage(t.ship, t.fleet, damage, sourceShip, fleet, state, events);
+    applyDamage(t.ship, t.fleet, damage, sourceShip, fleet, state, events, kind);
     hitTargets.push(t.ship.id);
     totalDamage += damage;
     events.push({
@@ -310,7 +315,7 @@ function _applySkill(state, fleet, kind, events) {
     .sort((a, b) => ((b.ship.size_class === 'frigate') - (a.ship.size_class === 'frigate')) || ((a.ship.hp || 0) - (b.ship.hp || 0)))
     .slice(0, Math.min(6, enemies.length));
   for (const t of targets) {
-    applyDamage(t.ship, t.fleet, dmgEach, sourceShip, fleet, state, events);
+    applyDamage(t.ship, t.fleet, dmgEach, sourceShip, fleet, state, events, kind);
     hitTargets.push(t.ship.id);
     totalDamage += dmgEach;
   }
@@ -414,6 +419,8 @@ async function simulateBattleLive(battleId, hooks) {
     if (Date.now() - started > wallClockMs) {
       winnerSide = 'draw';
       events.push({ tick, type: 'battle_timeout', payload: { winner_side: 'draw', reason: 'wall_clock' } });
+      const fr = captureFrame(state, tick); timeline.frames.push(fr);
+      if (typeof hooks.onFrame === 'function') { try { await hooks.onFrame(Object.assign({}, fr, { realtime: true })); } catch (_) {} }
       break;
     }
     // 권위 lock 상실 — 이중 권위 방지 위해 결과 미기록 중단
@@ -423,6 +430,10 @@ async function simulateBattleLive(battleId, hooks) {
     await _sleep(tickMs);
   }
   if (!winnerSide) { winnerSide = 'draw'; events.push({ tick: state.tick, type: 'battle_timeout', payload: { winner_side: 'draw' } }); }
+  if (timeline.frames.at(-1)?.t !== state.tick) {
+    const fr = captureFrame(state, state.tick); timeline.frames.push(fr);
+    if (typeof hooks.onFrame === 'function') { try { await hooks.onFrame(Object.assign({}, fr, { realtime: true })); } catch (_) {} }
+  }
   const stats = computeBattleStats(state);
   console.log(`[battleEngine] LIVE battle ${battleId} ended. Winner: ${winnerSide}. Ticks: ${state.tick}.`);
   return { winner_side: winnerSide, duration_ticks: state.tick, duration_seconds: Math.round(state.tick * TICK_MS / 1000), timeline, events, stats, objective_result: state.objective?.progress || null };
@@ -475,6 +486,8 @@ async function loadBattleData(battleId) {
   
   if (fleetRows.length === 0) return null;
 
+  const opening = await require('./starterBattle').loadOpeningTactic(pool, battle);
+
   // 각 함대의 함선들 로드
   const fleets = [];
   for (const fr of fleetRows) {
@@ -515,6 +528,7 @@ async function loadBattleData(battleId) {
 
     fleets.push({
       ...fr,
+      ...(opening && opening.fleetId === String(fr.fleet_id) ? { formation: opening.formation, movement: opening.movement, openingControlMs: MANUAL_CONTROL_MS } : {}),
       ships: shipRows,
       combatPowerMult,
     });
@@ -637,6 +651,7 @@ function initBattleState(battleData) {
       
       formation: f.formation || 'sphere',
       movement: f.movement || 'advance',
+      openingControlMs: f.openingControlMs || 0,
       autoRetreatPct: parseInt(f.auto_retreat_pct, 10) || 0,
       retreated: false,
 
@@ -680,6 +695,12 @@ function initBattleState(battleData) {
       if (formBySide[f.side]) f.formation = formBySide[f.side];
       if (mvBySide[f.side])  { f.maneuver = mvBySide[f.side]; f.movement = mvBySide[f.side]; }
     }
+  }
+
+  // Starter opening is the player's explicit choice, after scheduler AI defaults.
+  for (const fleet of stateFleets) {
+    const opening = fleets.find(f => String(f.fleet_id) === String(fleet.id) && f.openingControlMs);
+    if (opening) { fleet.formation = opening.formation; fleet.movement = opening.movement; }
   }
 
   return {
@@ -1342,7 +1363,9 @@ function getShipMatchupMult(attacker, target) {
   return Math.max(0.62, Math.min(1.42, mult));
 }
 
-function applyDamage(target, targetFleet, damage, attacker, attackerFleet, state, events) {
+function applyDamage(target, targetFleet, damage, attacker, attackerFleet, state, events, fireType) {
+  const beforeHp = target.hp;
+  const beforeShield = target.shield_hp || 0;
   // 실드가 있으면 먼저 실드로 흡수
   let remainingDamage = damage;
   if (target.shield_hp > 0) {
@@ -1395,13 +1418,41 @@ function applyDamage(target, targetFleet, damage, attacker, attackerFleet, state
       // 기함이 죽어도 나머지 함선은 계속 싸움 — 전멸할 때까지 전투 지속
     }
   }
+
+  // This describes the instant hit already applied above; it never schedules
+  // damage from client projectile travel. IDs survive stored replay/resends.
+  const seq = state.combatEventSeq = (state.combatEventSeq || 0) + 1;
+  const queue = state.pendingCombatEvents || (state.pendingCombatEvents = []);
+  if (queue.length >= MAX_COMBAT_EVENTS_PER_FRAME) {
+    queue.shift();
+    state.droppedCombatEvents = (state.droppedCombatEvents || 0) + 1;
+  }
+  queue.push({
+    id: `${state.battle_id}:combat:${seq}`, seq, tick: state.tick,
+    type: 'shot_hit',
+    source_ship_id: attacker.id, source_fleet_id: attackerFleet.id, source_side: attackerFleet.side,
+    target_ship_id: target.id, target_fleet_id: targetFleet.id, target_side: targetFleet.side,
+    fire_type: fireType || attacker.fireType,
+    from: { x: Math.round(attacker.x * 10) / 10, y: Math.round(attacker.y * 10) / 10 },
+    to: { x: Math.round(target.x * 10) / 10, y: Math.round(target.y * 10) / 10 },
+    damage, hull_damage: Math.max(0, beforeHp - target.hp),
+    shield_damage: Math.max(0, beforeShield - (target.shield_hp || 0)),
+    target_hp: target.hp, target_shield_hp: target.shield_hp || 0,
+    destroyed: !target.isAlive,
+  });
 }
 
 // ─── 프레임 캡처 (렌더링용 스냅샷) ───
 
 function captureFrame(state, tick) {
+  const combatEvents = state.pendingCombatEvents || [];
+  const dropped = state.droppedCombatEvents || 0;
+  state.pendingCombatEvents = [];
+  state.droppedCombatEvents = 0;
   return {
     t: tick,
+    combat_events: combatEvents,
+    ...(dropped ? { combat_events_dropped: dropped } : {}),
     ...(state.objective ? { objective: { ...state.objective.progress } } : {}),
     fleets: state.fleets.map(f => ({
       id: f.id,
@@ -1435,6 +1486,8 @@ function captureFrame(state, tick) {
         y: Math.round(s.y * 10) / 10,
         hp: s.hp,
         maxHp: s.maxHp,
+        shield_hp: s.shield_hp || 0,
+        shield_max: s.shield_max || 0,
         ff: s.isFlagship ? 1 : 0,
         code: s.ship_type_code,
         facing: Math.round((s.facing || 0) * 100) / 100,

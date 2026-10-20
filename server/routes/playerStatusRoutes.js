@@ -2,6 +2,7 @@ const express = require('express');
 const { makeRateLimiter } = require('../utils/rateLimiters');
 const { pool } = require('../db');
 const { requireAuth, getAuthWallet } = require('../utils/apiHelpers');
+const { getPlayerJourney } = require('../services/playerJourney');
 
 let achievementService;
 try { achievementService = require('../services/achievements'); } catch (_e) { /* achievements service not available */ }
@@ -51,35 +52,14 @@ router.get('/news', readLimiter, async (req, res) => {
 
 router.get('/onboarding/status', requireAuth, async (req, res) => {
   const wallet = getAuthWallet(req);
-  if (!wallet) return res.json({ step: 0, completed: false });
+  if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
 
   try {
-    const [claimRes, miningRes, shipRes] = await Promise.all([
-      pool.query(
-        'SELECT COUNT(*)::int AS cnt FROM claims WHERE LOWER(owner) = LOWER($1) AND deleted_at IS NULL',
-        [wallet]
-      ),
-      pool.query(
-        "SELECT COUNT(*)::int AS cnt FROM transactions WHERE type = 'mining' AND LOWER(from_wallet) = LOWER($1)",
-        [wallet]
-      ),
-      pool.query(
-        'SELECT COUNT(*)::int AS cnt FROM ships WHERE LOWER(owner_wallet) = LOWER($1)',
-        [wallet]
-      )
-    ]);
-
-    const territoryCount = claimRes.rows[0]?.cnt || 0;
-    const miningCount = miningRes.rows[0]?.cnt || 0;
-    const shipCount = shipRes.rows[0]?.cnt || 0;
-
-    if (territoryCount <= 0) return res.json({ step: 0, completed: false });
-    if (miningCount <= 0) return res.json({ step: 1, completed: false });
-    if (shipCount <= 0) return res.json({ step: 2, completed: false });
-    return res.json({ step: 3, completed: true });
+    return res.json(await getPlayerJourney(pool, wallet));
   } catch (err) {
     console.error('[onboarding] status error:', err.message);
-    return res.json({ step: 0, completed: false });
+    // Unknown progress must never look like a new player's confirmed step zero.
+    return res.status(503).json({ error: 'JOURNEY_UNAVAILABLE', retryable: true });
   }
 });
 

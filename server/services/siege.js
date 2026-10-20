@@ -317,9 +317,13 @@ async function resolveSiege(siegeId, opts = {}) {
     //   전투가 아직 안 끝났으면 해결 보류(pending) — battleScheduler 종료 훅이 다시 호출.
     let battleWinnerWallet; // undefined = 전투모드 아님 / null = draw(수비자 유지)
     if (siege.resolution_mode === 'fleet_battle' && !opts.force) {
-      if (opts.battleWinnerWallet !== undefined) {
-        battleWinnerWallet = opts.battleWinnerWallet; // 훅에서 매핑해 전달
-      } else if (siege.fleet_battle_id) {
+      // Resolve from the persisted battle inside this transaction, never a
+      // stale caller hint that can bypass the preparing/active guard.
+      if (!siege.fleet_battle_id) {
+        await client.query('ROLLBACK');
+        return { success: true, pending: true, reason: 'battle_not_created' };
+      }
+      if (siege.fleet_battle_id) {
         const bRes = await client.query(
           'SELECT status, winner_side FROM fleet_battles WHERE id = $1', [siege.fleet_battle_id]
         );
@@ -450,13 +454,18 @@ async function resolveSiege(siegeId, opts = {}) {
       changedGovernor: winnerWallet && winnerWallet !== siege.defender_wallet,
     });
 
-    // Chronicle 기록 (non-blocking)
-    _recordChronicle('governor_overthrown', {
-      actor_wallet: winnerWallet,
-      target_wallet: siege.defender_wallet,
+    // Publish the shared outcome, without member identities or private chat.
+    // A successful defense must not be narrated as the governor overthrowing themselves.
+    const challengerWon = winnerWallet && String(winnerWallet).toLowerCase() === String(siege.challenger_wallet).toLowerCase();
+    _recordChronicle('siege_resolved', {
       sector_code: code,
+      title_en: `${code}: ${challengerWon ? 'challenger secured governance' : 'defender retained governance'}`,
+      title_ko: `${code}: ${challengerWon ? '도전 측 통치권 확보' : '수비 측 통치권 유지'}`,
       extra: {
         siege_id: siegeId,
+        battle_id: siege.fleet_battle_id || null,
+        winner_side: challengerWon ? 'atk' : 'def',
+        resolution_mode: siege.resolution_mode || 'pixels',
         challenger_px: chalPx,
         defender_px: defPx
       }
@@ -720,6 +729,35 @@ async function _recordChronicle(eventType, data) {
 // [Phase1] 공성 함대 커밋 — 도전자/수비자가 결전에 투입할 함대 지정
 //   결전 전투 생성(fleet_battle_id) 전까지 변경 가능. 소유/상태 검증.
 // ─────────────────────────────────────────────────────────────
+// Membership chooses allegiance; a caller cannot pick the opposing side.
+function siegeSideForMember(siege, wallet, member, guildGovernance) {
+  const w = String(wallet || '').toLowerCase();
+  if (!w) return null;
+  if (String(siege.challenger_wallet || '').toLowerCase() === w) return 'atk';
+  if (String(siege.defender_wallet || '').toLowerCase() === w) return 'def';
+  if (!guildGovernance || !member) return null;
+  if (siege.challenger_guild_id != null && String(member.guild_id) === String(siege.challenger_guild_id)) return 'atk';
+  if (siege.defender_guild_id != null && String(member.guild_id) === String(siege.defender_guild_id)) return 'def';
+  return null;
+}
+
+// Private role receipt: no wallet, nickname, chat or new reward is published.
+async function getSiegeParticipation(siegeId, wallet) {
+  const siege = (await pool.query('SELECT * FROM governor_sieges WHERE id = $1', [siegeId])).rows[0];
+  if (!siege) return null;
+  const guildGovernance = String(await getSetting('guild_governance_enabled') ?? 'false') === 'true';
+  const member = guildGovernance ? (await pool.query('SELECT guild_id FROM guild_members WHERE LOWER(wallet) = LOWER($1)', [wallet])).rows[0] : null;
+  const side = siegeSideForMember(siege, wallet, member, guildGovernance);
+  const max = Math.max(1, parseInt(await getSetting('siege_max_fleets_per_side') ?? '20') || 20);
+  return { side, canCommit: !!side && ['pending', 'active'].includes(siege.status) && !siege.fleet_battle_id,
+    status: siege.status, battleId: siege.fleet_battle_id || null,
+    startsAt: siege.siege_starts_at, endsAt: siege.siege_ends_at,
+    goal: 'sector_governor', maxFleetsPerPlayer: 1, maxFleetsPerSide: max,
+    result: siege.status === 'resolved' ? (String(siege.winner_wallet || '').toLowerCase() === String(siege.challenger_wallet || '').toLowerCase() ? 'atk' : 'def') : null,
+    nextAction: siege.status === 'resolved' ? 'repair_and_rebuild' : 'prepare_fleet',
+    supplyAffectsSiege: false };
+}
+
 async function commitSiegeFleet(siegeId, wallet, fleetId) {
   const w = String(wallet || '').toLowerCase();
   const client = await pool.connect();
@@ -731,23 +769,15 @@ async function commitSiegeFleet(siegeId, wallet, fleetId) {
     if (siege.status === 'resolved') { await client.query('ROLLBACK'); return { success: false, error: 'siege_resolved' }; }
     if (siege.fleet_battle_id)       { await client.query('ROLLBACK'); return { success: false, error: 'battle_already_created' }; }
 
-    // 측 판별: 도전자/수비자 본인, 또는 [Phase1b] guildGov 면 해당 길드 리더/오피서
-    let side;
-    if (siege.challenger_wallet && siege.challenger_wallet.toLowerCase() === w) side = 'challenger';
-    else if (siege.defender_wallet && siege.defender_wallet.toLowerCase() === w) side = 'defender';
-    else {
-      const guildGov = String(await getSetting('guild_governance_enabled') ?? 'false') === 'true';
-      if (guildGov) {
-        const gm = (await client.query(
-          'SELECT guild_id, role FROM guild_members WHERE LOWER(wallet) = LOWER($1)', [w]
-        )).rows[0];
-        if (gm && ['leader', 'officer'].includes(String(gm.role))) {
-          if (gm.guild_id === siege.challenger_guild_id) side = 'challenger';
-          else if (gm.guild_id === siege.defender_guild_id) side = 'defender';
-        }
-      }
-      if (!side) { await client.query('ROLLBACK'); return { success: false, error: 'not_a_participant' }; }
-    }
+    // All members of either warring guild can bring their own one fleet.
+    // Declaration/governor powers remain with the existing leader rules.
+    const guildGov = String(await getSetting('guild_governance_enabled') ?? 'false') === 'true';
+    const gm = guildGov ? (await client.query(
+      'SELECT guild_id FROM guild_members WHERE LOWER(wallet) = LOWER($1) FOR SHARE', [w]
+    )).rows[0] : null;
+    const battleSide = siegeSideForMember(siege, w, gm, guildGov);
+    if (!battleSide) { await client.query('ROLLBACK'); return { success: false, error: 'not_a_participant' }; }
+    const side = battleSide === 'atk' ? 'challenger' : 'defender';
 
     // 함대 소유/상태 검증 (FOR UPDATE — is_in_battle TOCTOU 방지)
     const fRes = await client.query(
@@ -770,8 +800,7 @@ async function commitSiegeFleet(siegeId, wallet, fleetId) {
     if (parseInt(shipRes.rows[0]?.cnt ?? 0) < 1) { await client.query('ROLLBACK'); return { success: false, error: 'fleet_empty' }; }
 
     // [Phase 2] 다중 함대 — siege_fleet_commits 에 upsert(지갑당 1함대). 진영 정원 체크.
-    const battleSide = side === 'challenger' ? 'atk' : 'def';
-    const maxPerSide = parseInt(await getSetting('siege_max_fleets_per_side') ?? '20');
+    const maxPerSide = Math.max(1, parseInt(await getSetting('siege_max_fleets_per_side') ?? '20') || 20);
     const cntRes = await client.query(
       'SELECT COUNT(*)::int AS c FROM siege_fleet_commits WHERE siege_id = $1 AND side = $2 AND wallet <> LOWER($3)',
       [siegeId, battleSide, w]
@@ -1022,7 +1051,7 @@ module.exports = {
   getSiegeStatus,
   getSiegeHistory,
   resolveExpiredSieges,
-  commitSiegeFleet,
+  commitSiegeFleet, getSiegeParticipation, siegeSideForMember,
   prepareSiegeBattles,
   getSiegeSchedule,
   updateGovernorDeclaration,

@@ -837,10 +837,12 @@
 
     Promise.all([
       wlfReadFetch('sector-governance:' + code, '/api/sector-defs/' + encodeURIComponent(code) + '/governance', 15000, false).catch(function(){return null}),
-      wlfReadFetch('siege-info:' + code, '/api/siege/' + encodeURIComponent(code), 10000, false).catch(function(){return {active:false}})
+      wlfReadFetch('siege-info:' + code, '/api/siege/' + encodeURIComponent(code), 10000, false).catch(function(){return {active:false}}),
+      wlfReadFetch('siege-last:' + code, '/api/siege/history/' + encodeURIComponent(code) + '?limit=1', 10000, false).catch(function(){return {history:[]}})
     ]).then(function(results) {
       var gov = results[0];
       var siegeData = results[1];
+      var lastSiege = results[2] && results[2].history && results[2].history[0];
       var w = walletState.address ? walletState.address.toLowerCase() : null;
       var html = '';
 
@@ -911,6 +913,9 @@
           html += '<div id="siegeBettingPanel_'+code+'" style="margin-bottom:8px"><div style="font-size:9px;color:var(--tx3);padding:4px 0">'+tl('Loading betting...','베팅 불러오는 중...','ベッティング読み込み中...','加载投注中...')+'</div></div>';
         }
       } else {
+        if (lastSiege && lastSiege.status === 'resolved') {
+          html += '<div style="font-size:11px;color:var(--gold);margin-top:8px">'+escapeHtml(tl('Latest sector outcome', '최근 섹터 결과', '最新のセクター結果', '最近扇区战果'))+'</div><div id="siegeFleetPanel_'+lastSiege.id+'"></div>';
+        }
         // Challenge button
         if (w) {
           html += '<button class="sz-btn" onclick="govDeclareSiege(\''+escapeHtml(code)+'\')" style="width:100%;color:var(--red);border-color:rgba(232,72,85,.4);font-size:9px;padding:8px 12px;margin-bottom:6px" data-i18n="gov_challenge_btn">⚔️ CHALLENGE FOR GOVERNOR</button>';
@@ -954,6 +959,8 @@
       // [v7.244] 결전 함대 패널 async 로드 (활성 공성일 때만)
       if (siegeData && siegeData.active && siegeData.siege) {
         _loadSiegeFleetPanel(siegeData.siege, code, w);
+      } else if (lastSiege && lastSiege.status === 'resolved') {
+        _loadSiegeFleetPanel(lastSiege, code, w);
       }
 
       // Load betting panel async if there's a betting_event_id
@@ -975,39 +982,40 @@
   // [Phase 2] 한 진영의 합류 함대 목록 (혈맹원 여럿이 같은 전장에)
   function _siegeSideList(sideKey, label, commits) {
     var col = sideKey === 'attack' ? 'var(--red)' : 'var(--cyan)';
-    var h = '<div style="margin-bottom:5px"><div style="font-size:9px;color:'+col+';font-weight:700">'+label+' · '+commits.length+'함대</div>';
+    var h = '<div style="margin-bottom:5px"><div style="font-size:13px;color:'+col+';font-weight:700">'+escapeHtml(label)+' · '+escapeHtml(tl('{n} fleets', '{n}함대', '{n}艦隊', '{n}支舰队').replace('{n}', commits.length))+'</div>';
     if (commits.length) {
       h += '<div style="padding-left:8px">';
       commits.slice(0, 12).forEach(function(c){
-        var nm = escapeHtml(c.fleet_name || ('Fleet #' + c.fleet_id));
-        h += '<div style="font-size:8px;color:var(--tx2);display:flex;justify-content:space-between"><span>· '+nm+'</span><span style="color:var(--tx3)">'+(c.ship_count||0)+'척</span></div>';
+        var nm = escapeHtml(c.fleet_name || (tl('Fleet #', '함대 #', '艦隊 #', '舰队 #') + c.fleet_id));
+        h += '<div style="font-size:13px;color:var(--tx2);display:flex;gap:8px;overflow-wrap:anywhere;justify-content:space-between"><span>· '+nm+'</span><span style="color:var(--tx3)">'+escapeHtml(tl('{n} ships', '{n}척', '{n}隻', '{n}艘').replace('{n}', c.ship_count||0))+'</span></div>';
       });
-      if (commits.length > 12) h += '<div style="font-size:8px;color:var(--tx3)">… 외 '+(commits.length-12)+'함대</div>';
+      if (commits.length > 12) h += '<div style="font-size:13px;color:var(--tx3)">'+escapeHtml(tl('… and {n} more fleets', '… 외 {n}함대', '…ほか{n}艦隊', '…另有{n}支舰队').replace('{n}', commits.length-12))+'</div>';
       h += '</div>';
     } else {
-      h += '<div style="font-size:8px;color:var(--tx3);padding-left:8px">미배치</div>';
+      h += '<div style="font-size:13px;color:var(--tx3);padding-left:8px">'+escapeHtml(tl('Not deployed', '미배치', '未配置', '未部署'))+'</div>';
     }
     return h + '</div>';
   }
   function _siegeJoinErr(code) {
-    var m = { not_a_participant:'이 공성의 참가자가 아닙니다', fleet_in_battle:'해당 함대가 전투 중입니다',
-      fleet_empty:'함대에 함선이 없습니다', battle_already_created:'이미 결전이 시작되었습니다',
-      fleet_not_found:'함대를 찾을 수 없습니다', siege_resolved:'이미 종료된 공성입니다',
-      side_full:'이 진영 합류 함대가 가득 찼습니다' };
-    return m[code] || ('합류 실패' + (code ? (': ' + code) : ''));
+    var m = { not_a_participant:tl('You are not a participant in this siege', '이 공성의 참가자가 아닙니다', 'この攻城戦の参加者ではありません', '你不是本次攻城战的参与者'), fleet_in_battle:tl('This fleet is in battle', '해당 함대가 전투 중입니다', 'この艦隊は戦闘中です', '该舰队正在战斗中'),
+      fleet_empty:tl('This fleet has no ships', '함대에 함선이 없습니다', 'この艦隊には艦船がありません', '该舰队没有舰船'), battle_already_created:tl('The decisive battle has already started', '이미 결전이 시작되었습니다', '決戦はすでに始まっています', '决战已经开始'),
+      fleet_not_found:tl('Fleet not found', '함대를 찾을 수 없습니다', '艦隊が見つかりません', '找不到舰队'), siege_resolved:tl('This siege has already ended', '이미 종료된 공성입니다', 'この攻城戦は終了しています', '本次攻城战已经结束'),
+      side_full:tl('This side has no available fleet slots', '이 진영 합류 함대가 가득 찼습니다', 'この陣営の艦隊枠は満員です', '该阵营舰队名额已满') };
+    return m[code] || (tl('Failed to join', '합류 실패', '参加できませんでした', '加入失败') + (code ? (': ' + code) : ''));
   }
   function _siegeParticipationIntel(roster, atkN, defN) {
+    if (roster && roster.status === 'resolved') return tl('This operation has settled. Review the shared battle and prepare the next fleet.', '종료된 작전입니다. 공동 전투를 확인하고 다음 함대를 준비하세요.', 'この作戦は終了しました。共同戦闘を確認し、次の艦隊を準備してください。', '本次行动已结算，回顾共同战斗并准备下一支舰队。');
     var fleetMode = roster && roster.resolution_mode === 'fleet_battle';
     var battleMade = !!(roster && roster.fleet_battle_id);
-    var pressure = atkN === defN ? '전력 균형' : (atkN > defN ? '공격 우세' : '수비 우세');
+    var pressure = atkN === defN ? tl('Equal fleet counts', '함대 수 동일', '艦隊数が同じ', '舰队数量相同') : (atkN > defN ? tl('More attacking fleets', '공격 함대 수 많음', '攻撃側の艦隊数が多い', '进攻方舰队更多') : tl('More defending fleets', '수비 함대 수 많음', '防衛側の艦隊数が多い', '防守方舰队更多'));
     if (fleetMode || battleMade) {
-      return '승리 시 거버너/세율/섹터 권한 장악 · 결전 함대는 패배 시 손실 위험 · 현재 ' + pressure;
+      return tl('Victory secures governor, tax and sector authority · Defeated battle fleets risk losses · Current balance: {pressure}', '승리 시 거버너/세율/섹터 권한 장악 · 결전 함대는 패배 시 손실 위험 · 현재 {pressure}', '勝利で総督・税率・セクター権限を獲得 · 敗北した決戦艦隊は損失の危険あり · 現在：{pressure}', '胜利可取得总督、税率及扇区权限 · 决战舰队战败有损失风险 · 当前：{pressure}').replace('{pressure}', pressure);
     }
-    return '함대 미배치 시 영토 점유율로 판정 · 함선 손실 없음 · 현재 ' + pressure;
+    return tl('Without deployed fleets, territory control determines the result · No ship losses · Current balance: {pressure}', '함대 미배치 시 영토 점유율로 판정 · 함선 손실 없음 · 현재 {pressure}', '艦隊未配置時は領土占有率で判定 · 艦船損失なし · 現在：{pressure}', '未部署舰队时按领土占有率判定 · 无舰船损失 · 当前：{pressure}').replace('{pressure}', pressure);
   }
   function _siegeRewardIntel(roster) {
     var code = roster && roster.sector_code ? String(roster.sector_code).toUpperCase() : 'SECTOR';
-    return code + ' 지배권, 세율 정책, 선언문, 길드 금고 세수 흐름이 이 전투 결과로 바뀝니다.';
+    return tl('This battle changes {sector} control, tax policy, the declaration and tax revenue flowing into the guild treasury.', '이 전투 결과로 {sector} 지배권, 세율 정책, 선언문, 길드 금고 세수 흐름이 바뀝니다.', 'この戦闘結果で{sector}の支配権、税率方針、宣言文、ギルド金庫への税収が変わります。', '本次战斗结果将改变{sector}控制权、税率政策、宣言及流入公会金库的税收。').replace('{sector}', code);
   }
   async function _loadSiegeFleetPanel(siege, code, w) {
     var el = document.getElementById('siegeFleetPanel_' + siege.id);
@@ -1023,39 +1031,62 @@
         myFleets = ((fd && fd.fleets) || []).filter(function(f){ return (parseInt(f.ships_alive)||parseInt(f.ship_count)||0) > 0; });
       } catch(_) {}
 
+      var roleResp = await wlfReadFetch('siege-role-' + siege.id, '/api/siege/' + siege.id + '/participation', 5000, true).catch(function(){return null});
+      if (String((window.walletState && walletState.address) || '').toLowerCase() !== String(w).toLowerCase() || document.getElementById('siegeFleetPanel_' + siege.id) !== el) return;
+      var participation = roleResp && roleResp.participation;
+      var mySide = participation && participation.side;
       var battleMade = !!roster.fleet_battle_id;
-      var modeBadge = roster.resolution_mode === 'fleet_battle' ? '⚔ 함대전' : '◌ 무혈판정';
-      var h = '<div style="padding:8px;background:rgba(255,209,102,.05);border-radius:6px;border:1px solid rgba(255,209,102,.2);margin-bottom:8px">';
+      var modeBadge = roster.resolution_mode === 'fleet_battle' ? tl('⚔ Fleet battle', '⚔ 함대전', '⚔ 艦隊戦', '⚔ 舰队战') : tl('◌ Bloodless resolution', '◌ 무혈판정', '◌ 無血判定', '◌ 无血判定');
+      var h = '<div style="padding:12px;line-height:1.6;overflow-wrap:anywhere;background:rgba(255,209,102,.05);border-radius:6px;border:1px solid rgba(255,209,102,.2);margin-bottom:8px">';
       // [Phase 2] 다함대 — 양 진영 합류 함대 목록/카운트
       var _commits = Array.isArray(roster.commits) ? roster.commits : [];
       var _atkN = roster.atk_count || _commits.filter(function(c){return c.side==='atk';}).length;
       var _defN = roster.def_count || _commits.filter(function(c){return c.side==='def';}).length;
-      h += '<div style="font-size:9px;color:var(--gold);font-family:var(--fn);font-weight:700;margin-bottom:6px">⚔ 결전 함대 ('+_atkN+' vs '+_defN+')<span style="float:right;color:var(--tx3)">'+modeBadge+'</span></div>';
-      h += '<div style="font-size:8px;color:var(--tx2);line-height:1.45;margin-bottom:6px;padding:5px 6px;border-radius:5px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06)">'
+      h += '<div style="font-size:13px;color:var(--gold);font-family:var(--fn);font-weight:700;margin-bottom:6px">'+escapeHtml(tl('⚔ Decisive battle fleets', '⚔ 결전 함대', '⚔ 決戦艦隊', '⚔ 决战舰队'))+' ('+_atkN+' vs '+_defN+')<span style="float:right;color:var(--tx3)">'+escapeHtml(modeBadge)+'</span></div>';
+      h += '<div style="font-size:13px;color:var(--tx2);line-height:1.45;margin-bottom:6px;padding:5px 6px;border-radius:5px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06)">'
         + escapeHtml(_siegeParticipationIntel(roster, _atkN, _defN)) + '<br>'
         + '<span style="color:var(--tx3)">'+escapeHtml(_siegeRewardIntel(roster))+'</span>'
         + '</div>';
-      h += _siegeSideList('attack', '⚔ 공격', _commits.filter(function(c){return c.side==='atk';}));
-      h += _siegeSideList('defense', '🛡 수비', _commits.filter(function(c){return c.side==='def';}));
+      h += _siegeSideList('attack', tl('⚔ Attack', '⚔ 공격', '⚔ 攻撃', '⚔ 进攻'), _commits.filter(function(c){return c.side==='atk';}));
+      h += _siegeSideList('defense', tl('🛡 Defense', '🛡 수비', '🛡 防衛', '🛡 防守'), _commits.filter(function(c){return c.side==='def';}));
 
-      if (!battleMade) {
+      h += '<div style="font-size:13px;line-height:1.5;margin:6px 0">' + escapeHtml(tl('Shared goal: change or defend this sector governor. Each guild member can command one owned fleet in the same battle.', '공동 목표: 이 섹터의 거버너를 교체하거나 지키세요. 길드원마다 자기 함대 1개로 같은 전장에 참여합니다.', '共通目標：このセクターの総督を交代させるか守る。各ギルド員は自分の艦隊1つで同じ戦場に参加します。', '共同目标：更换或保卫本扇区总督。每位公会成员可指挥一支自己的舰队参加同一战场。')) + '</div>';
+      if (participation) {
+        h += '<div style="font-size:13px;color:var(--tx2)">' + escapeHtml(tl('Fleet slots per side', '진영별 함대 정원', '各陣営の艦隊枠', '每方舰队名额')) + ': ' + Number(participation.maxFleetsPerSide) + '</div>';
+      }
+      if (!battleMade && participation && participation.canCommit) {
         if (myFleets.length) {
-          h += '<select data-siege-fleet-sel="'+siege.id+'" style="width:100%;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:10px;padding:4px 6px;border-radius:4px;font-family:var(--fn);margin:4px 0">';
-          myFleets.forEach(function(f){ h += '<option value="'+f.id+'">'+escapeHtml(f.name||('Fleet #'+f.id))+' ('+(f.ships_alive||f.ship_count||0)+')</option>'; });
+          h += '<select data-siege-fleet-sel="'+siege.id+'" style="width:100%;background:var(--surface1);border:1px solid var(--bdr);color:var(--tx);font-size:16px;min-height:44px;padding:8px;border-radius:4px;font-family:var(--fn);margin:6px 0">';
+          myFleets.forEach(function(f){ h += '<option value="'+f.id+'">'+escapeHtml(f.name||(tl('Fleet #', '함대 #', '艦隊 #', '舰队 #')+f.id))+' ('+(f.ships_alive||f.ship_count||0)+')</option>'; });
           h += '</select>';
           h += '<div style="display:flex;gap:6px">';
-          h += '<button type="button" class="sz-btn" data-action="siegeJoin" data-side="attack" data-siege="'+siege.id+'" style="flex:1;font-size:9px;padding:6px;color:var(--red);border-color:rgba(232,72,85,.4)">⚔ 공격 합류</button>';
-          h += '<button type="button" class="sz-btn" data-action="siegeJoin" data-side="defense" data-siege="'+siege.id+'" style="flex:1;font-size:9px;padding:6px;color:var(--cyan);border-color:rgba(91,184,232,.4)">🛡 수비 합류</button>';
+          h += '<button type="button" class="sz-btn" data-action="siegeJoin" data-side="'+(mySide==='atk'?'attack':'defense')+'" data-siege="'+siege.id+'" style="flex:1;font-size:13px;min-height:44px;padding:8px;color:var(--gold)">'+escapeHtml(mySide==='atk'?tl('Join attack', '공격 합류', '攻撃に参加', '加入进攻'):tl('Join defense', '수비 합류', '防衛に参加', '加入防守'))+'</button>';
           h += '</div>';
         } else {
-          h += '<div style="font-size:9px;color:var(--tx3);padding:4px 0">함대가 없어도 <b>영토 점유율로 도전/방어</b> 가능 (◌ 무혈 판정, 함선 손실 없음). 함대전을 원하면 조선소에서 함선을 건조하세요.</div>';
+          h += '<div style="font-size:13px;color:var(--tx3);padding:4px 0">'+escapeHtml(tl('Build or repair an owned fleet before joining. Each member has one fleet slot.', '자기 함대를 건조하거나 수리한 뒤 합류하세요. 길드원마다 함대 슬롯은 1개입니다.', '自分の艦隊を建造・修理してから参加してください。各メンバーの艦隊枠は1つです。', '先建造或修理自己的舰队再加入，每位成员只有一个舰队名额。'))+'</div>';
         }
       }
-      if (battleMade && siege.status === 'active') {
-        h += '<button type="button" class="sz-btn" data-action="siegeSpectate" data-battle="'+roster.fleet_battle_id+'" style="width:100%;font-size:9px;padding:6px;margin-top:6px;color:var(--gold);border-color:rgba(255,209,102,.4)">👁 관전</button>';
+      if (participation && participation.result) {
+        h += '<div style="font-size:13px;padding:6px 0">'+escapeHtml(participation.result==='atk'?tl('World record: challenger secured governance.', '세계 기록: 도전 측이 통치권을 확보했습니다.', '世界記録：挑戦側が統治権を獲得しました。', '世界记录：挑战方取得统治权。'):tl('World record: defender retained governance.', '세계 기록: 수비 측이 통치권을 지켰습니다.', '世界記録：防衛側が統治権を維持しました。', '世界记录：防守方保住统治权。'))+'</div>';
+      }
+      if (!participation) {
+        h += '<div role="status" style="font-size:13px">'+escapeHtml(tl('Participation unavailable. Retry to check your role.', '참가 자격을 불러오지 못했습니다. 다시 시도해 역할을 확인하세요.', '参加資格を読み込めませんでした。再試行してください。', '无法加载参与资格，请重试确认角色。'))+'</div><button type="button" class="sz-btn" data-action="siegeRetry" style="min-height:44px">'+escapeHtml(tl('Retry', '다시 시도', '再試行', '重试'))+'</button>';
+      }
+      if (participation && !mySide) {
+        h += '<div style="font-size:13px;line-height:1.5">'+escapeHtml(tl('New here? Join a participating guild, or prepare through production and cargo. Production does not add a siege combat buff.', '처음이라면 참전 길드에 가입하거나 생산·운송으로 준비하세요. 생산은 공성 전투 버프를 지급하지 않습니다.', '初参加なら参戦ギルドに加入するか、生産・輸送で準備しましょう。生産による攻城戦バフはありません。', '新玩家可加入参战公会，或通过生产与运输做准备。生产不会提供攻城战增益。'))+'</div>';
+      }
+      h += '<button type="button" class="sz-btn" data-action="siegeRebuild" style="min-height:44px;margin-top:6px">'+escapeHtml(tl('Repair and rebuild', '수리·재건', '修理・再建', '修理与重建'))+'</button> ';
+      h += '<button type="button" class="sz-btn" data-action="siegeProduction" style="min-height:44px;margin-top:6px">'+escapeHtml(tl('Production and cargo', '생산·운송', '生産・輸送', '生产与运输'))+'</button>';
+      if (battleMade && (siege.status === 'active' || siege.status === 'resolved')) {
+        h += '<button type="button" class="sz-btn" data-action="siegeSpectate" data-battle="'+roster.fleet_battle_id+'" style="width:100%;font-size:13px;min-height:44px;padding:6px;margin-top:6px;color:var(--gold);border-color:rgba(255,209,102,.4)">'+escapeHtml(siege.status === 'resolved' ? tl('Replay shared battle', '공동 전투 다시보기', '共同戦闘を再生', '回放共同战斗') : tl('Watch shared battle', '공동 전투 보기', '共同戦闘を見る', '观看共同战斗'))+'</button>';
       }
       h += '</div>';
       el.innerHTML = h;
+      // Navigation context only; the destination rechecks owned fleets and depot rights.
+      el._siegePreparationContext = { kind: 'siege', siegeId: Number(siege.id), sectorCode: code,
+        battleId: Number(roster.fleet_battle_id) || null, wallet: String(w).toLowerCase(),
+        ownFleetId: (_commits.find(function(c){ return String(c.wallet || '').toLowerCase() === String(w).toLowerCase(); }) || {}).fleet_id || null,
+        supplyAffectsSiege: false };
 
       if (!el.dataset.delegated) {
         el.dataset.delegated = '1';
@@ -1064,6 +1095,21 @@
           if (!btn) return;
           ev.stopPropagation();
           var act = btn.getAttribute('data-action');
+          if (act === 'siegeRetry') {
+            console.log('[BTN] siegeRetry');
+            loadSiegeInfoPanel(code);
+            return;
+          }
+          if (act === 'siegeRebuild' || act === 'siegeProduction') {
+            console.log('[BTN] ' + act);
+            var context = Object.assign({}, el._siegePreparationContext, { intent: act === 'siegeRebuild' ? 'repair' : 'supply' });
+            if (String((window.walletState && walletState.address) || '').toLowerCase() !== context.wallet) return;
+            var fleetSelect = el.querySelector('select[data-siege-fleet-sel="'+context.siegeId+'"]');
+            var selected = fleetSelect && Number(fleetSelect.value);
+            if (selected && myFleets.some(function(f){ return Number(f.id) === selected; })) context.ownFleetId = selected;
+            if (typeof openCommandCenter === 'function') openCommandCenter(act === 'siegeRebuild' ? 'fleet' : 'front', context);
+            return;
+          }
           if (act === 'siegeSpectate') {
             var bid = parseInt(btn.getAttribute('data-battle'), 10);
             if (bid && typeof openBattleViewer === 'function') { try { openBattleViewer(bid); } catch(e){ console.error('openBattleViewer', e); } }
@@ -1075,10 +1121,11 @@
             var side = btn.getAttribute('data-side');
             var sel = el.querySelector('select[data-siege-fleet-sel="'+sid+'"]');
             var fleetId = sel ? parseInt(sel.value, 10) : null;
-            if (!fleetId) { if (typeof showToast==='function') showToast('함대를 선택하세요','warn'); return; }
+            if (!fleetId) { if (typeof showToast==='function') showToast(tl('Select a fleet', '함대를 선택하세요', '艦隊を選択してください', '请选择舰队'),'warn'); return; }
             console.log('[BTN] siegeJoin', sid, side, fleetId);
-            // [v7.248] full-loss 라이브 — 합류 = 패배 시 함선 영구 손실. 무손실 대안(점유율 판정) 안내 후 confirm.
+            // Explicit consent covers reservation and active loss rules before joining.
             var doCommit = function() {
+              if (String((window.walletState && walletState.address) || '').toLowerCase() !== String(w).toLowerCase()) return;
               btn.disabled = true; var prev = btn.textContent; btn.textContent = '...';
               fetch('/api/siege/'+sid+'/commit-fleet', {
                 method: 'POST',
@@ -1090,18 +1137,19 @@
                     if (typeof showToast==='function') showToast(_siegeJoinErr(res.j && res.j.error), 'warn');
                     btn.disabled = false; btn.textContent = prev; return;
                   }
-                  if (typeof showToast==='function') showToast(side==='attack'?'⚔ 공격 함대 합류 완료':'🛡 수비 함대 합류 완료','success');
+                  if (typeof showToast==='function') showToast(res.j.side==='atk'?tl('⚔ Attack fleet joined', '⚔ 공격 함대 합류 완료', '⚔ 攻撃艦隊が参加しました', '⚔ 进攻舰队已加入'):tl('🛡 Defense fleet joined', '🛡 수비 함대 합류 완료', '🛡 防衛艦隊が参加しました', '🛡 防守舰队已加入'),'success');
                   loadSiegeInfoPanel(code);
-                }).catch(function(){ if (typeof showToast==='function') showToast('합류 실패','warn'); btn.disabled = false; btn.textContent = prev; });
+                }).catch(function(){ if (typeof showToast==='function') showToast(tl('Failed to join', '합류 실패', '参加できませんでした', '加入失败'),'warn'); btn.disabled = false; btn.textContent = prev; });
             };
             if (typeof gameConfirm === 'function') {
+              btn.disabled = true;
               Promise.resolve(gameConfirm({
                 icon: '⚠',
-                title: side==='attack' ? '공격 함대 합류' : '수비 함대 합류',
-                body: '결전에서 <b>패배하면 합류한 함대의 함선이 <span style="color:#ff6b6b">영구 손실(전사)</span></b>될 수 있습니다.<br><br>함대를 걸지 않으면 영토 점유율로만 판정되어 <b>함선 손실이 없습니다</b>.',
-                confirmText: side==='attack' ? '⚔ 합류' : '🛡 합류'
-              })).then(function(ok){ if (ok) doCommit(); });
-            } else { doCommit(); }
+                title: side==='attack' ? tl('Join the attack fleet', '공격 함대 합류', '攻撃艦隊に参加', '加入进攻舰队') : tl('Join the defense fleet', '수비 함대 합류', '防衛艦隊に参加', '加入防守舰队'),
+                body: escapeHtml(tl('You are committing your fleet to your guild side. Once the battle is created, it is unavailable for other missions until settlement. Ships can take damage or be permanently destroyed under the active loss rules. After defeat, repair survivors and rebuild through the fleet panel.', '자기 길드 진영에 함대를 배치합니다. 전투가 생성되면 정산까지 다른 작전에 사용할 수 없습니다. 현재 손실 규칙에 따라 함선이 손상되거나 영구 파괴될 수 있습니다. 패배 후에는 함대 패널에서 생존 함선을 수리하고 재건하세요.', '自分のギルド側に艦隊を配置します。戦闘作成後は精算まで他の作戦に使えません。適用中の損失ルールにより損傷・永久破壊の可能性があります。敗北後は艦隊画面で修理・再建してください。', '舰队将加入所属公会一方。战斗创建后至结算前无法参与其他任务。依当前损失规则，舰船可能受损或永久毁坏。战败后可在舰队面板修理幸存舰船并重建。')),
+                confirmText: side==='attack' ? tl('⚔ Join', '⚔ 합류', '⚔ 参加', '⚔ 加入') : tl('🛡 Join', '🛡 합류', '🛡 参加', '🛡 加入')
+              })).then(function(ok){ if (ok) doCommit(); else btn.disabled = false; }).catch(function(){ btn.disabled = false; });
+            } else { if (typeof showToast === 'function') showToast(tl('Confirmation unavailable. Try again.', '확인 창을 열 수 없습니다. 다시 시도하세요.', '確認画面を開けません。再試行してください。', '无法打开确认窗口，请重试。'), 'warn'); }
           }
         });
       }

@@ -36,10 +36,20 @@ async function getRecipes(category, wallet) {
   );
   const owned = {};
   items.forEach(it => { owned[it.item_type_id] = Number(it.quantity); });
+  const { rows: resources } = await pool.query(
+    `SELECT r.code, inv.quantity FROM user_resource_inventory inv
+     JOIN resources r ON r.id=inv.resource_id WHERE inv.wallet_address=$1 AND inv.quantity>0`,
+    [wallet.toLowerCase()]
+  );
+  const resourceOwned = {};
+  resources.forEach(it => { resourceOwned[it.code] = Number(it.quantity); });
 
   return recipes.map(r => {
     const ingredients = Array.isArray(r.ingredients) ? r.ingredients : (JSON.parse(r.ingredients || '[]'));
-    const canCraft = ingredients.every(ing => (owned[ing.item_type_id] || 0) >= ing.qty);
+    const canCraft = ingredients.every(ing => {
+      const code = ing.code || ing.resource_code;
+      return (code ? resourceOwned[code] || 0 : owned[ing.item_type_id] || 0) >= ing.qty;
+    });
     return { ...r, canCraft, ingredients };
   });
 }
@@ -62,7 +72,17 @@ async function getRecipe(recipeId, wallet) {
     );
     const owned = {};
     items.forEach(it => { owned[it.item_type_id] = Number(it.quantity); });
-    canCraft = ingredients.every(ing => (owned[ing.item_type_id] || 0) >= ing.qty);
+    const { rows: resources } = await pool.query(
+      `SELECT r.code, inv.quantity FROM user_resource_inventory inv
+       JOIN resources r ON r.id=inv.resource_id WHERE inv.wallet_address=$1 AND inv.quantity>0`,
+      [wallet.toLowerCase()]
+    );
+    const resourceOwned = {};
+    resources.forEach(it => { resourceOwned[it.code] = Number(it.quantity); });
+    canCraft = ingredients.every(ing => {
+      const code = ing.code || ing.resource_code;
+      return (code ? resourceOwned[code] || 0 : owned[ing.item_type_id] || 0) >= ing.qty;
+    });
   }
   return { ...r, canCraft, ingredients };
 }
@@ -90,6 +110,17 @@ async function craftItem(client, wallet, recipeId) {
   const ingredients = Array.isArray(recipe.ingredients)
     ? recipe.ingredients
     : JSON.parse(recipe.ingredients || '[]');
+  // Invalid operator recipes must fail before consuming or refunding anything.
+  const gpCost = Number(recipe.gp_cost);
+  const refundPct = Number(recipe.fail_refund_pct);
+  const successRate = Number(recipe.success_rate);
+  if (!Number.isFinite(gpCost) || gpCost < 0 ||
+      !Number.isFinite(refundPct) || refundPct < 0 || refundPct > 100 ||
+      !Number.isFinite(successRate) || successRate < 0 || successRate > 100 ||
+      !ingredients.every(ing => Number.isSafeInteger(Number(ing.qty)) && Number(ing.qty) > 0 &&
+        (ing.code || ing.resource_code || Number.isSafeInteger(Number(ing.item_type_id)) && Number(ing.item_type_id) > 0))) {
+    throw new Error('INVALID_RECIPE');
+  }
 
   // 3. Daily limit check — advisory lock prevents concurrent bypass [v7.63]
   // pg_advisory_xact_lock serializes same-wallet crafts within this transaction
@@ -109,7 +140,7 @@ async function craftItem(client, wallet, recipeId) {
   //   항상 매칭 실패("Item #undefined")로 워아이템 크래프트가 깨져 있었음 → 자원 인벤토리에서 차감.
   //   레거시 item_type_id 형식 레시피는 user_items 경로로 폴백.
   for (const ing of ingredients) {
-    const need = parseInt(ing.qty) || 0;
+    const need = Number(ing.qty);
     if (need <= 0) continue;
     const code = ing.code || ing.resource_code;
     if (code) {
@@ -146,7 +177,6 @@ async function craftItem(client, wallet, recipeId) {
   }
 
   // 5. Deduct GP cost
-  const gpCost = Number(recipe.gp_cost);
   if (gpCost > 0) {
     const { rows: balRows } = await client.query(
       'SELECT gp_balance AS balance FROM users WHERE LOWER(wallet_address)=LOWER($1) FOR UPDATE', [walletLower]);
@@ -161,7 +191,7 @@ async function craftItem(client, wallet, recipeId) {
 
   // 6. Roll success
   const roll = Math.random() * 100;
-  const success = roll < Number(recipe.success_rate);
+  const success = roll < successRate;
 
   let gpRefunded = 0;
   let outputQty = 0;
@@ -178,7 +208,6 @@ async function craftItem(client, wallet, recipeId) {
     );
   } else {
     // 7b. Partial GP refund on fail
-    const refundPct = Number(recipe.fail_refund_pct);
     if (refundPct > 0 && gpCost > 0) {
       gpRefunded = parseFloat((gpCost * refundPct / 100).toFixed(6));
       await client.query(

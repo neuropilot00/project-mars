@@ -1,0 +1,78 @@
+'use strict';
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const vm = require('node:vm');
+const filename = path.resolve(__dirname, '../services/battleEngine.js');
+const box = { module: { exports: {} }, console, require(name) {
+  if (name === '../db') return {};
+  if (name === './battleEnvironment') return require('../services/battleEnvironment');
+  if (name === './tacticsAI') return {};
+  throw new Error('Unconfigured collaborator: ' + name);
+} };
+vm.runInNewContext(fs.readFileSync(filename, 'utf8') + '\nmodule.exports.__test={applyDamage,captureFrame,initBattleState,processCombat,_applySkill};', box, { filename });
+const engine = box.module.exports.__test;
+function fixture() {
+  const fleets = ['atk', 'def'].map((side, i) => ({ fleet_id: String(i + 1), side, owner_wallet: 'dummy-' + side, formation: 'sphere', movement: 'advance', ships: [{ id: String(9007199254740993n + BigInt(i)), ship_type_code: 'fixture', role: 'attack', size_class: 'frigate', base_atk: 10, base_def: 2, base_speed: 4, current_hp: 100, max_hp: 100, shield_hp: i ? 20 : 0, shield_max: i ? 20 : 0, fire_interval: 1000, fire_type: 'laser', shots: 1 }] }));
+  const state = engine.initBattleState({ battle: { id: '9007199254740999' }, fleets });
+  state.tick = 7; state.events = [];
+  const [attackerFleet, targetFleet] = state.fleets;
+  const [attacker, target] = [attackerFleet.ships[0], targetFleet.ships[0]];
+  Object.assign(attacker, { x: 123.45, y: 200 }); Object.assign(target, { x: 800, y: 220 });
+  return { state, attackerFleet, targetFleet, attacker, target, hit(damage, fireType) { engine.applyDamage(target, targetFleet, damage, attacker, attackerFleet, state, state.events, fireType); } };
+}
+test('real damage emits shield absorption and exact stable IDs/coordinates in the authoritative snapshot', () => {
+  const f = fixture(); f.hit(25);
+  const frame = engine.captureFrame(f.state, 7), hit = frame.combat_events[0];
+  assert.equal(hit.id, '9007199254740999:combat:1'); assert.equal(hit.seq, 1); assert.equal(hit.tick, 7);
+  assert.equal(hit.source_ship_id, '9007199254740993'); assert.equal(hit.target_ship_id, '9007199254740994');
+  assert.equal(hit.source_side, 'atk'); assert.equal(hit.target_side, 'def'); assert.equal(hit.fire_type, 'laser');
+  assert.equal(hit.from.x, 123.5); assert.equal(hit.to.x, 800);
+  assert.equal(hit.damage, 25); assert.equal(hit.shield_damage, 20); assert.equal(hit.hull_damage, 5); assert.equal(hit.target_hp, 95); assert.equal(hit.destroyed, false);
+  assert.equal(frame.ships[1].shield_hp, 0); assert.equal(frame.ships[1].shield_max, 20); assert.equal(frame.ships[1].hp, 95);
+});
+test('capture drains events once while saved frame/resend IDs and later sequence remain stable', () => {
+  const f = fixture(); f.hit(1);
+  const frame = engine.captureFrame(f.state, 7), saved = JSON.stringify(frame);
+  assert.equal(engine.captureFrame(f.state, 7).combat_events.length, 0);
+  f.state.tick = 8; f.hit(1);
+  assert.equal(engine.captureFrame(f.state, 8).combat_events[0].id, '9007199254740999:combat:2');
+  assert.equal(JSON.stringify(frame), saved); assert.equal(JSON.parse(saved).combat_events[0].id, frame.combat_events[0].id);
+});
+test('lethal hit preserves destruction events and reports only actual hull loss despite overkill', () => {
+  const f = fixture(); f.hit(500);
+  const hit = engine.captureFrame(f.state, 7).combat_events[0];
+  assert.equal(hit.damage, 500); assert.equal(hit.hull_damage, 100); assert.equal(hit.shield_damage, 20);
+  assert.equal(hit.target_hp, 0); assert.equal(hit.destroyed, true); assert.equal(f.target.isAlive, false);
+  assert.equal(f.state.events.filter(e => e.type === 'ship_destroyed').length, 1); assert.equal(f.attacker.killsDealt, 1);
+});
+test('visual queue caps at 128 with explicit omissions without dropping calculated damage', () => {
+  const f = fixture(); f.target.hp = f.target.maxHp = f.targetFleet.hp = 1000;
+  for (let i = 0; i < 140; i++) f.hit(1);
+  assert.equal(f.state.pendingCombatEvents.length, 128);
+  const frame = engine.captureFrame(f.state, 7);
+  assert.equal(frame.combat_events.length, 128); assert.equal(frame.combat_events_dropped, 12);
+  assert.equal(frame.combat_events[0].seq, 13); assert.equal(frame.combat_events.at(-1).seq, 140);
+  assert.equal(f.target.hp, 880); assert.equal(f.attacker.damageDealt, 140);
+  assert.equal(engine.captureFrame(f.state, 8).combat_events_dropped, undefined);
+});
+test('actual combat cooldown generates no cosmetic attacks until its real damage is applied', () => {
+  const f = fixture();
+  for (const fleet of f.state.fleets) fleet.ships[0].shootT = 0;
+  engine.processCombat(f.state, f.state.events);
+  assert.equal(engine.captureFrame(f.state, 7).combat_events.length, 0);
+  f.attacker.shootT = 1000;
+  engine.processCombat(f.state, f.state.events);
+  const hits = engine.captureFrame(f.state, 8).combat_events;
+  assert.equal(hits.length, 1); assert.equal(hits[0].source_ship_id, f.attacker.id);
+  assert.ok(hits[0].damage > 0); assert.equal(f.attacker.damageDealt, hits[0].damage);
+});
+test('real manual skill damage carries its skill type instead of the source hull default weapon', () => {
+  const f = fixture();
+  assert.equal(engine._applySkill(f.state, f.attackerFleet, 'beam', f.state.events), true);
+  const hits = engine.captureFrame(f.state, 7).combat_events;
+  assert.equal(hits.length, 1); assert.equal(hits[0].fire_type, 'beam');
+  assert.equal(hits[0].source_ship_id, f.attacker.id); assert.equal(hits[0].damage, 88);
+  assert.equal(f.state.events.some(e => e.type === 'manual_skill'), true);
+});
