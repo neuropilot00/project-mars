@@ -2092,6 +2092,7 @@ function _updateMyTerritories(){
     mainRow.appendChild(left);mainRow.appendChild(right);
     d.appendChild(mainRow);
     // Click: zoom to territory
+    var b=entry.group&&entry.group.bounds;
     var zoomW=b?(b.maxLng-b.minLng):((ec[0].w||10)*0.22);
     var zoomH=b?(b.maxLat-b.minLat):((ec[0].h||10)*0.22);
     mainRow.onclick=function(){
