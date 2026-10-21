@@ -83,7 +83,7 @@ function battleHubReadFetch(key, url, minGap, signal) {
   const walletKey = (typeof getMyWallet === 'function' && getMyWallet()) || 'public';
   if (typeof _guardedJsonFetch === 'function') {
     return _guardedJsonFetch('battle-hub:' + key + ':' + String(walletKey).toLowerCase(), url, {
-      minGap: minGap || 10000,
+      minGap: minGap == null ? 10000 : minGap,
       backoffMs: 90000,
       fetchOptions: { headers: getAuthHeaders(), signal: signal }
     });
@@ -2749,8 +2749,16 @@ async function openBattleViewer(battleId, startTick) {
   // 이벤트 타임라인 정렬
   bv.shownEvents.clear();
   bv.eventMessages = [];
-  bv.currentTick = 0;
+  const requestedTick = Number(startTick);
+  bv.currentTick = bv._objectiveReplay && Number.isFinite(requestedTick)
+    ? Math.max(0, Math.min(totalTicks, Math.floor(requestedTick))) : 0;
+  for (const ev of bv.events) {
+    if (ev.tick < bv.currentTick) bv.shownEvents.add(ev.id || `${ev.tick}-${ev.type}`);
+  }
   bv.particles = [];
+  // Stored frames, including HP and clock, own replay seeking. The iframe queues
+  // this first frame if its catalog is still loading; no local simulation seek.
+  if (bv._objectiveReplay) redrawCurrentFrame();
   
   // 재생 시작
   bv.playing = true;
@@ -3396,6 +3404,16 @@ function bvResultNextAction(tab) {
   window.openCommandCenter(tab);
 }
 
+function battleResultContinuation(battle, mySide) {
+  const summary = battle && battle.battle_summary || {};
+  if (mySide && summary.is_starter_battle === true && summary.trusted_source === 'starter_ops' && summary.missionId === 'first_sortie') {
+    return {tab:'missions',label:battle.winner_side === mySide
+      ? tl('Missions · claim and continue','임무 · 보상 받고 계속','任務 · 報酬を受け取り続行','任务 · 领奖并继续','Misi · klaim dan lanjutkan','Nhiệm vụ · nhận thưởng và tiếp tục','ภารกิจ · รับรางวัลและไปต่อ')
+      : tl('Missions · retry sortie','임무 · 출격 재도전','任務 · 再出撃','任务 · 重新出击','Misi · coba sortie lagi','Nhiệm vụ · xuất kích lại','ภารกิจ · ออกศึกอีกครั้ง')};
+  }
+  return {tab:'front',label:tl('Front · next objective','전선 · 다음 목표','前線 · 次の目標','前线 · 下个目标','Garis depan · tujuan berikutnya','Tiền tuyến · mục tiêu tiếp theo','แนวหน้า · เป้าหมายถัดไป')};
+}
+
 function battleObjectiveResult(battle) {
   return battle && (battle.objective_result || (battle.battle_summary && battle.battle_summary.objective_result)) || null;
 }
@@ -3448,8 +3466,9 @@ function showBattleResult() {
     if (p.side === 'def') defParticipant = p;
     if ((p.wallet || '').toLowerCase() === myWallet) mySide = p.side;
   }
-  const iWon = mySide && mySide === winner;
-  const iLost = mySide && winner && mySide !== winner;
+  const decisiveWinner = winner === 'atk' || winner === 'def';
+  const iWon = mySide && decisiveWinner && mySide === winner;
+  const iLost = mySide && decisiveWinner && mySide !== winner;
 
   // 스펙 wireframe: 헤더는 항상 "전투 결과 리포트"
   card.className = 'bv-result-card';
@@ -3466,20 +3485,24 @@ function showBattleResult() {
   const atkName = (atkParticipant?.fleet_name || atkParticipant?.nickname || 'ATK');
   const defName = (defParticipant?.fleet_name || defParticipant?.nickname || 'DEF');
   const resultBadge = iWon
-    ? `<span style="background:#66bb6a;color:#000;font-size:10px;font-weight:900;padding:2px 8px;border-radius:3px;margin-left:8px;letter-spacing:.5px">🏆 ${LANG==='ko'?'승리':LANG==='ja'?'勝利':LANG==='zh'?'胜利':'Victory'}</span>`
+    ? `<span style="background:#66bb6a;color:#000;font-size:10px;font-weight:900;padding:2px 8px;border-radius:3px;margin-left:8px;letter-spacing:.5px">🏆 ${tl('Victory','승리','勝利','胜利','Kemenangan','Chiến thắng','ชนะ')}</span>`
     : iLost
-    ? `<span style="background:#ef5350;color:#fff;font-size:10px;font-weight:900;padding:2px 8px;border-radius:3px;margin-left:8px;letter-spacing:.5px">💀 ${LANG==='ko'?'패배':LANG==='ja'?'敗北':LANG==='zh'?'败北':'Defeat'}</span>`
-    : winner
-    ? `<span style="background:#ffd700;color:#000;font-size:10px;font-weight:900;padding:2px 8px;border-radius:3px;margin-left:8px">≋ ${LANG==='ko'?'무승부':LANG==='ja'?'引き分け':LANG==='zh'?'平局':'Draw'}</span>`
+    ? `<span style="background:#ef5350;color:#fff;font-size:10px;font-weight:900;padding:2px 8px;border-radius:3px;margin-left:8px;letter-spacing:.5px">💀 ${tl('Defeat','패배','敗北','败北','Kekalahan','Thất bại','แพ้')}</span>`
+    : winner === 'draw'
+    ? `<span style="background:#ffd700;color:#000;font-size:10px;font-weight:900;padding:2px 8px;border-radius:3px;margin-left:8px">≋ ${tl('Draw','무승부','引き分け','平局','Seri','Hòa','เสมอ')}</span>`
+    : !mySide && decisiveWinner
+    ? `<span style="background:#66bb6a;color:#000;font-size:10px;font-weight:900;padding:2px 8px;border-radius:3px;margin-left:8px">🏆 ${winner.toUpperCase()} · ${tl('Winner','승자','勝者','胜方','Pemenang','Bên thắng','ผู้ชนะ')}</span>`
     : '';
   // resultBadge를 내 함대 이름 옆에 붙임 (내가 ATK → atk 이름 뒤, 내가 DEF → def 이름 뒤, 관전 → 승자 이름 뒤)
   const atkFinalBadge = mySide === 'atk' ? resultBadge : (!mySide && winner === 'atk' ? resultBadge : '');
   const defFinalBadge = mySide === 'def' ? resultBadge : (!mySide && winner === 'def' ? resultBadge : '');
-  subtitle.innerHTML = `<span style="color:rgba(255,255,255,.7);font-weight:600">${escapeHtml(atkName)}</span>${atkFinalBadge} <span style="color:rgba(255,255,255,.3);margin:0 4px">VS</span> <span style="color:rgba(255,255,255,.7);font-weight:600">${escapeHtml(defName)}</span>${defFinalBadge}`;
+  const drawObserverBadge = !mySide && winner === 'draw' ? resultBadge : '';
+  subtitle.innerHTML = `<span style="color:rgba(255,255,255,.7);font-weight:600">${escapeHtml(atkName)}</span>${atkFinalBadge} <span style="color:rgba(255,255,255,.3);margin:0 4px">VS</span> <span style="color:rgba(255,255,255,.7);font-weight:600">${escapeHtml(defName)}</span>${defFinalBadge}${drawObserverBadge}`;
   subtitle.style.color = '';
   subtitle.style.fontWeight = '';
   subtitle.style.letterSpacing = '0';
 
+  const continuation = battleResultContinuation(bv.battle, mySide);
   const atkWon = winner === 'atk';
   const defWon = winner === 'def';
   const atkIsMe = mySide === 'atk';
@@ -3515,7 +3538,7 @@ function showBattleResult() {
     <section id="bvCommandEvents" style="grid-column:1/-1;border:1px solid #4b6346;border-radius:8px;padding:12px;font-size:14px;color:#d8efcc;overflow-wrap:anywhere"></section>
     <div style="grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px">
       <button type="button" onclick="bvResultNextAction('fleet')" style="flex:1;min-height:44px;min-width:120px;padding:10px;border:1px solid #688672;border-radius:8px;background:#183127;color:#e1f7e9;font:14px system-ui">${LANG==='ko'?'함대 · 수리/재건':'Fleet · repair / rebuild'}</button>
-      <button type="button" onclick="bvResultNextAction('front')" style="flex:1;min-height:44px;min-width:120px;padding:10px;border:1px solid #526b89;border-radius:8px;background:#172a42;color:#e2eeff;font:14px system-ui">${LANG==='ko'?'전선 · 다음 목표':'Front · next objective'}</button>
+      <button type="button" onclick="bvResultNextAction('${continuation.tab}')" style="flex:1;min-height:44px;min-width:120px;padding:10px;border:1px solid #526b89;border-radius:8px;background:#172a42;color:#e2eeff;font:14px system-ui">${escapeHtml(continuation.label)}</button>
     </div>
     <div id="bvReportSection" style="margin-top:12px;width:100%;border-top:1px solid rgba(255,255,255,.12);padding-top:10px">
       <div id="bvReportContent" style="color:rgba(255,255,255,.4);font-size:11px;text-align:center">${t('bv_report_loading')}</div>
@@ -3620,12 +3643,37 @@ async function _injectRewardIntoResult(battleId) {
   } catch (_) {}
 }
 
+// Legacy analysis strings describe the losing side and do not identify their
+// subject. Use recorded, viewer-relative facts instead of treating them as causes.
+function renderBattleReportObservations(report, mySide) {
+  if (!report || !['atk','def'].includes(mySide)) return '';
+  const otherSide = mySide === 'atk' ? 'def' : 'atk';
+  const mine = report[mySide] || {}, other = report[otherSide] || {}, es = report.event_stats || {};
+  const number = value => value == null || value === '' || !Number.isFinite(Number(value)) ? null : Math.max(0, Number(value));
+  const rows = [];
+  const add = (key, text, values) => rows.push({key, text:text.replace(/\{(\w+)\}/g, (_, name) => String(values[name]))});
+  const myLost=number(mine.shipsDestroyed ?? mine.ships_lost), myTotal=number(mine.shipsDeployed ?? mine.total_ships);
+  const otherLost=number(other.shipsDestroyed ?? other.ships_lost), otherTotal=number(other.shipsDeployed ?? other.total_ships);
+  if ([myLost,myTotal,otherLost,otherTotal].every(value=>value!==null)) add('losses',tl('Ships lost: you {mine}/{myTotal}; opponent {other}/{otherTotal}.','함선 손실: 내 함대 {mine}/{myTotal}척 · 상대 {other}/{otherTotal}척.','艦船損失：自軍 {mine}/{myTotal}隻、相手 {other}/{otherTotal}隻。','舰船损失：己方 {mine}/{myTotal}艘；对方 {other}/{otherTotal}艘。','Kapal hilang: Anda {mine}/{myTotal}; lawan {other}/{otherTotal}.','Tàu bị mất: bạn {mine}/{myTotal}; đối thủ {other}/{otherTotal}.','เรือที่เสียไป: คุณ {mine}/{myTotal}; คู่ต่อสู้ {other}/{otherTotal}.'),{mine:myLost,myTotal,other:otherLost,otherTotal});
+  if (es.skillsUsed && es.skillsUsed[mySide] && es.skillsUsed[otherSide]) {
+    const uses = side => ['beam','missile','overdrive','emp'].reduce((sum,key)=>sum+(number(es.skillsUsed[side][key])||0),0);
+    add('skills',tl('Recorded skill uses: you {mine}; opponent {other}.','기록된 스킬 사용: 내 함대 {mine}회 · 상대 {other}회.','記録されたスキル使用：自軍 {mine}回、相手 {other}回。','记录的技能使用：己方 {mine}次；对方 {other}次。','Penggunaan skill tercatat: Anda {mine}; lawan {other}.','Số lần dùng kỹ năng đã ghi: bạn {mine}; đối thủ {other}.','การใช้สกิลที่บันทึก: คุณ {mine}; คู่ต่อสู้ {other}.'),{mine:uses(mySide),other:uses(otherSide)});
+  }
+  const myDamage=number(es.manualSkillDamage && es.manualSkillDamage[mySide]), otherDamage=number(es.manualSkillDamage && es.manualSkillDamage[otherSide]);
+  if (myDamage!==null && otherDamage!==null) add('skill-damage',tl('Recorded skill damage: you {mine}; opponent {other}.','기록된 스킬 피해량: 내 함대 {mine} · 상대 {other}.','記録されたスキルダメージ：自軍 {mine}、相手 {other}。','记录的技能伤害：己方 {mine}；对方 {other}。','Damage skill tercatat: Anda {mine}; lawan {other}.','Sát thương kỹ năng đã ghi: bạn {mine}; đối thủ {other}.','ความเสียหายสกิลที่บันทึก: คุณ {mine}; คู่ต่อสู้ {other}.'),{mine:myDamage,other:otherDamage});
+  if (es.flagshipDestroyed && typeof es.flagshipDestroyed[mySide]==='boolean' && typeof es.flagshipDestroyed[otherSide]==='boolean') add('flagships',tl('Recorded flagship losses: you {mine}; opponent {other}.','기록된 기함 격침: 내 함대 {mine} · 상대 {other}.','記録された旗艦損失：自軍 {mine}、相手 {other}。','记录的旗舰损失：己方 {mine}；对方 {other}。','Kehilangan kapal utama tercatat: Anda {mine}; lawan {other}.','Soái hạm bị mất đã ghi: bạn {mine}; đối thủ {other}.','เรือธงที่เสียไปตามบันทึก: คุณ {mine}; คู่ต่อสู้ {other}.'),{mine:Number(es.flagshipDestroyed[mySide]),other:Number(es.flagshipDestroyed[otherSide])});
+  if (!rows.length) return '';
+  return '<div data-battle-observations style="margin-bottom:10px;padding:9px 11px;background:rgba(79,195,247,.06);border-left:3px solid rgba(79,195,247,.4);border-radius:0 4px 4px 0"><div style="font-size:10px;color:rgba(255,255,255,.65);margin-bottom:5px">🔍 '+tl('Recorded battle observations','전투 관측 기록','戦闘の観測記録','战斗观察记录','Catatan pengamatan pertempuran','Quan sát trận chiến đã ghi','ข้อสังเกตการรบที่บันทึก')+'</div>'+rows.map(row=>'<div data-observation="'+row.key+'" style="font-size:10px;color:rgba(255,255,255,.8);line-height:1.5;margin-top:4px">'+escapeHtml(row.text)+'</div>').join('')+'</div>';
+}
+
 // 전투 리포트 카드 비동기 로드
-async function _loadBattleReport(battleId, mySide) {
+async function _loadBattleReport(battleId, mySide, retry) {
   const section = document.getElementById('bvReportContent');
-  if (!section) return;
+  if (!section || section._battleReportLoading) return;
+  section._battleReportLoading = true;
+  section.innerHTML = `<div style="color:rgba(255,255,255,.4);font-size:11px;text-align:center">${t('bv_report_loading')}</div>`;
   try {
-    const data = await battleHubReadKeyed('battle-report:' + battleId, `/api/battles/${battleId}/report`, 15000);
+    const data = await battleHubReadKeyed('battle-report:' + battleId, `/api/battles/${battleId}/report`, retry ? 0 : 15000);
     if (!data) throw new Error('fetch deferred');
     const r = data.report;
     if (!r) throw new Error('no report');
@@ -3647,14 +3695,14 @@ async function _loadBattleReport(battleId, mySide) {
           <div style="flex:1;height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden">
             <div style="height:100%;width:${barWidth}%;background:${barColor};border-radius:3px;transition:width .6s"></div>
           </div>
-          <span style="font-size:9px;color:rgba(255,255,255,.5);width:36px;text-align:right;flex-shrink:0">생존 ${c.survival_pct}%</span>
-          <span style="font-size:9px;color:${perfColor};width:52px;text-align:right;flex-shrink:0">${c.perf_label}</span>
+          <span style="font-size:9px;color:rgba(255,255,255,.5);width:36px;text-align:right;flex-shrink:0">${tl('Survival','생존','生存','存活','Bertahan','Sống sót','รอดชีวิต')} ${c.survival_pct}%</span>
+          <span style="font-size:9px;color:${perfColor};width:52px;text-align:right;flex-shrink:0">${c.survived}/${c.deployed}</span>
         </div>`;
       }).join('');
       classHtml = `
         <div style="margin-bottom:10px">
           <div style="font-size:9px;color:rgba(255,255,255,.4);letter-spacing:1px;margin-bottom:6px;display:flex;align-items:center;gap:4px">
-            <span>📊</span><span>클래스별 성과</span>
+            <span>📊</span><span>${tl('Survival by class','함급별 생존','艦種別生存','各舰种存活','Kelangsungan per kelas','Sống sót theo lớp','การรอดชีวิตตามประเภท')}</span>
           </div>
           ${rows}
         </div>`;
@@ -3670,10 +3718,10 @@ async function _loadBattleReport(battleId, mySide) {
       const mineRepair = Math.round((es.repairDone && es.repairDone[mySide]) || 0);
       const oppRepair = Math.round((es.repairDone && es.repairDone[oppSide]) || 0);
       const skillRows = [
-        ['빔포', mine.beam || 0, opp.beam || 0],
-        ['미사일', mine.missile || 0, opp.missile || 0],
+        [tl('Beam','빔포','ビーム','光束','Sinar','Tia','ลำแสง'), mine.beam || 0, opp.beam || 0],
+        [tl('Missile','미사일','ミサイル','导弹','Rudal','Tên lửa','มิสไซล์'), mine.missile || 0, opp.missile || 0],
         ['EMP', mine.emp || 0, opp.emp || 0],
-        ['수리', mineRepair, oppRepair],
+        [tl('Repair','수리','修理','维修','Perbaikan','Sửa chữa','ซ่อมแซม'), mineRepair, oppRepair],
       ].map(row => `<div style="display:grid;grid-template-columns:56px 1fr 1fr;gap:6px;align-items:center;font-size:10px;padding:2px 0">
         <span style="color:rgba(255,255,255,.42)">${row[0]}</span>
         <span style="color:#4fc3f7;text-align:right">${formatNum(row[1])}</span>
@@ -3682,7 +3730,7 @@ async function _loadBattleReport(battleId, mySide) {
       skillHtml = `
         <div style="margin-bottom:10px;padding:8px 10px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.08);border-radius:5px">
           <div style="display:grid;grid-template-columns:56px 1fr 1fr;gap:6px;font-size:9px;color:rgba(255,255,255,.36);letter-spacing:1px;margin-bottom:4px">
-            <span>⚡ 전술</span><span style="text-align:right">내 함대</span><span style="text-align:right">상대</span>
+            <span>⚡ ${tl('Skills','스킬','スキル','技能','Skill','Kỹ năng','สกิล')}</span><span style="text-align:right">${tl('Your fleet','내 함대','自軍','己方舰队','Armada Anda','Hạm đội bạn','กองยานคุณ')}</span><span style="text-align:right">${tl('Opponent','상대','相手','对方','Lawan','Đối thủ','คู่ต่อสู้')}</span>
           </div>
           ${skillRows}
         </div>`;
@@ -3711,7 +3759,7 @@ async function _loadBattleReport(battleId, mySide) {
         roleHtml = `
           <div style="margin-bottom:10px;padding:8px 10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:5px">
             <div style="display:grid;grid-template-columns:70px 1fr 1fr;gap:6px;font-size:9px;color:rgba(255,255,255,.36);letter-spacing:1px;margin-bottom:4px">
-              <span>🧩 역할</span><span style="text-align:right">내 함대</span><span style="text-align:right">상대</span>
+              <span>🧩 ${tl('Roles','역할','役割','角色','Peran','Vai trò','บทบาท')}</span><span style="text-align:right">${tl('Your fleet','내 함대','自軍','己方舰队','Armada Anda','Hạm đội bạn','กองยานคุณ')}</span><span style="text-align:right">${tl('Opponent','상대','相手','对方','Lawan','Đối thủ','คู่ต่อสู้')}</span>
             </div>
             ${roleRows}
           </div>`;
@@ -3747,79 +3795,10 @@ async function _loadBattleReport(battleId, mySide) {
       }
     }
 
-    // 🔍 전투 분석 / 패인 분석
-    let analysisHtml = '';
-    const analysisItems = Array.isArray(r.analysis_items) && r.analysis_items.length
-      ? r.analysis_items
-      : (r.analysis_ko ? [{ severity:'info', text:r.analysis_ko }] : []);
-    if (!objectiveBattle && analysisItems.length > 0 && mySide) {
-      const iWon = mySide && r.winner_side && mySide === r.winner_side;
-      const isDraw = r.winner_side === 'draw';
-      const iLost = mySide && r.winner_side && !iWon && !isDraw;
-      const titleText = iLost
-        ? (LANG==='ko'?'패인 분석':LANG==='ja'?'敗因分析':LANG==='zh'?'败因分析':'Loss Analysis')
-        : (LANG==='ko'?'전투 해석':LANG==='ja'?'戦闘分析':LANG==='zh'?'战斗分析':'Battle Read');
-      const borderColor = iLost ? 'rgba(239,83,80,.4)' : iWon ? 'rgba(76,216,154,.45)' : 'rgba(79,195,247,.4)';
-      const bgColor = iLost ? 'rgba(239,83,80,.06)' : iWon ? 'rgba(76,216,154,.07)' : 'rgba(79,195,247,.06)';
-      // 🎯 결과 부각 헤드라인 — "이 전투에서 ___ 때문에 이겼다/졌다"
-      const topReason = (analysisItems[0] && analysisItems[0].text) ? analysisItems[0].text : '';
-      const verdictWord = iLost
-        ? (LANG==='ko'?'졌다':LANG==='ja'?'敗北':LANG==='zh'?'失败':'lost')
-        : iWon
-          ? (LANG==='ko'?'이겼다':LANG==='ja'?'勝利':LANG==='zh'?'胜利':'won')
-          : (LANG==='ko'?'비겼다':LANG==='ja'?'引分':LANG==='zh'?'平局':'drew');
-      const becauseWord = LANG==='ko'?'때문에':LANG==='ja'?'のため':LANG==='zh'?'因为':'because';
-      let verdictHtml = '';
-      if (topReason) {
-        const verdictColor = iLost ? '#ef5350' : iWon ? '#4cd89a' : '#4fc3f7';
-        const reasonHtml = escapeHtml(topReason);
-        // KO/JA 어순: "[이유] 때문에 [졌다]"  /  EN/ZH: "[Won] because [reason]"
-        let phrase;
-        if (LANG==='ko' || LANG==='ja') {
-          phrase = `${reasonHtml} <span style="color:rgba(255,255,255,.45)">${becauseWord}</span> <b style="color:${verdictColor}">${verdictWord}</b>`;
-        } else {
-          const v = verdictWord.charAt(0).toUpperCase() + verdictWord.slice(1);
-          phrase = `<b style="color:${verdictColor}">${v}</b> <span style="color:rgba(255,255,255,.45)">${becauseWord}</span> ${reasonHtml}`;
-        }
-        verdictHtml = `<div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.9);line-height:1.45;margin-bottom:6px">${phrase}</div>`;
-      }
-      // 나머지 보조 분석은 불릿으로
-      const rows = analysisItems.slice(topReason ? 1 : 0, 3).map(item => {
-        const sev = item.severity || 'info';
-        const dot = sev === 'critical' ? '#ef5350' : sev === 'warning' ? '#ffd54f' : '#4fc3f7';
-        return `<div style="display:flex;gap:6px;align-items:flex-start;margin-top:4px">
-          <span style="width:6px;height:6px;border-radius:50%;background:${dot};margin-top:6px;flex-shrink:0"></span>
-          <span style="font-size:10px;color:rgba(255,255,255,.72);line-height:1.5">${escapeHtml(item.text || '')}</span>
-        </div>`;
-      }).join('');
-        analysisHtml = `
-          <div style="margin-bottom:10px;padding:9px 11px;background:${bgColor};border-left:3px solid ${borderColor};border-radius:0 4px 4px 0">
-            <div style="font-size:9px;color:rgba(255,255,255,.4);letter-spacing:1px;margin-bottom:5px;display:flex;align-items:center;gap:4px">
-              <span>🔍</span><span>${titleText}</span>
-            </div>
-            ${verdictHtml}
-            ${rows}
-          </div>`;
-    }
-
-    // 💡 추천 개선 — 승/패/무 모두 노출(이긴 전투도 "유지할 강점" 안내)
-    let recHtml = '';
-    const recommendationItems = Array.isArray(r.recommendation_items) && r.recommendation_items.length
-      ? r.recommendation_items.map(x => x.text || '')
-      : (r.recommendations_ko || []);
-    if (!objectiveBattle && recommendationItems.length > 0 && mySide) {
-      const recTitle = LANG==='ko'?'추천':LANG==='ja'?'おすすめ':LANG==='zh'?'建议':'Recommended';
-      const recRows = recommendationItems.slice(0, 4).map(rec =>
-        `<div style="font-size:10px;color:rgba(255,255,255,.72);padding:2px 0">→ ${escapeHtml(rec)}</div>`
-      ).join('');
-      recHtml = `
-        <div style="margin-bottom:10px;padding:8px 10px;background:rgba(255,213,79,.05);border-left:3px solid rgba(255,213,79,.4);border-radius:0 4px 4px 0">
-          <div style="font-size:9px;color:rgba(255,255,255,.4);letter-spacing:1px;margin-bottom:5px;display:flex;align-items:center;gap:4px">
-            <span>💡</span><span>${recTitle}</span>
-          </div>
-          ${recRows}
-        </div>`;
-    }
+    // The legacy server recommendations/analysis are unscoped loser heuristics.
+    // They cannot be presented as a cause of this viewer's victory or defeat.
+    const analysisHtml = objectiveBattle ? '' : renderBattleReportObservations(r, mySide);
+    const recHtml = '';
 
     // ✅ 리플레이 하이라이트 3장면
     let highlightHtml = '';
@@ -3870,9 +3849,12 @@ async function _loadBattleReport(battleId, mySide) {
   } catch (_) {
     if (section) section.innerHTML = `
       <div style="color:rgba(255,255,255,.3);font-size:10px;text-align:center">${t('bv_report_error')}</div>
-      <div style="margin-top:8px;display:flex;justify-content:center">
+      <div style="margin-top:8px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap">
+        <button type="button" onclick="_loadBattleReport(${Number(battleId)},${mySide === 'atk' ? "'atk'" : mySide === 'def' ? "'def'" : 'null'},true)" style="min-height:44px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:#fff;padding:5px 12px;border-radius:4px;cursor:pointer;font-size:10px">${tl('Retry','다시 시도','再試行','重试','Coba lagi','Thử lại','ลองอีกครั้ง')}</button>
         <button type="button" onclick="_showMyBattleStats()" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:#fff;padding:5px 12px;border-radius:4px;cursor:pointer;font-size:10px">${t('bv_my_stats')}</button>
       </div>`;
+  } finally {
+    section._battleReportLoading = false;
   }
 }
 

@@ -34,6 +34,7 @@ const ERROR_STATUS = {
   'ALREADY_DONE':      409,
   'SKIP_NOT_ALLOWED':  403,
   'INVALID_STEP':      400,
+  'ONBOARDING_ITEM_UNAVAILABLE': 503,
 };
 
 function handleErr(res, err, context) {

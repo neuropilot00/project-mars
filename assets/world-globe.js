@@ -2874,6 +2874,23 @@ function _scheduleServerClaimsBootRetry(){
     loadServerClaims();
   }, retryMs);
 }
+// Keep one current row per persistent claim ID, including number/string IDs.
+// Preserve the shared array and no-ID demo rows used by existing map consumers.
+function _upsertServerClaims(incoming){
+  var merged=[],positions=Object.create(null);
+  function put(claim){
+    if(!claim)return;
+    var id=claim.id==null?null:String(claim.id);
+    if(id!==null&&positions[id]!==undefined)merged[positions[id]]=claim;
+    else{if(id!==null)positions[id]=merged.length;merged.push(claim);}
+  }
+  claims.forEach(put);
+  var removed=claims.length-merged.length;
+  (incoming||[]).forEach(put);
+  claims.length=0;
+  merged.forEach(function(claim){claims.push(claim);});
+  return removed+(incoming||[]).length;
+}
 function loadServerClaims(){
   Promise.all([
     _guardedJsonFetch('claims-initial', '/api/claims', {minGap:15000, backoffMs:120000, fetchOptions:{headers:marsAuthHeaders()}}),
@@ -2885,7 +2902,7 @@ function loadServerClaims(){
       return;
     }
     if(serverClaims&&serverClaims.length){
-      serverClaims.forEach(function(sc){ claims.push(sc); });
+      _upsertServerClaims(serverClaims);
     }
     // Use authoritative pixel data if available
     if(serverPixels&&typeof serverPixels==='object'&&Object.keys(serverPixels).length>0){
@@ -2936,20 +2953,11 @@ _setActiveInterval(function(){
     var added=0;
     if(fetchFullClaims&&Array.isArray(newClaims)){
       claims.length=0;
-      newClaims.forEach(function(sc){
-        _rememberClaimsCursor(sc);
-        claims.push(sc);
-      });
-      added=newClaims.length;
+      newClaims.forEach(_rememberClaimsCursor);
+      added=_upsertServerClaims(newClaims);
     }else if(newClaims&&newClaims.length){
-      var existingIds={};
-      claims.forEach(function(c){if(c.id) existingIds[c.id]=true;});
-      newClaims.forEach(function(sc){
-        _rememberClaimsCursor(sc);
-        if(existingIds[sc.id]) return;
-        claims.push(sc);
-        added++;
-      });
+      newClaims.forEach(_rememberClaimsCursor);
+      added=_upsertServerClaims(newClaims);
     }
     if(fetchPixels&&serverPixels&&typeof serverPixels==='object'&&Object.keys(serverPixels).length>0){
       initPixelGridFromServer(serverPixels);

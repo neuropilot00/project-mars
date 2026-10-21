@@ -3469,12 +3469,21 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   body:has(.cookie-banner.show) .zc,
   body:has(.onboarding-hint.active) .campaign-quick,
   body:has(.onboarding-hint.active) .crates-quick,
-  body:has(.onboarding-hint.active) .ops-quick-split{visibility:hidden}
+  body:has(.onboarding-hint.active) .ops-quick-split,
+  body:has(.onboarding-hint.active) .chat-overlay.collapsed,
+  body:has(.onboarding-hint.active) #sectorToggleBtn,
+  body:has(.onboarding-hint.active) #bugReportBtn{visibility:hidden}
   #tutHowtoBtn,#loginBtn{min-height:44px;min-width:44px}
   .onboarding-hint button{min-height:44px;font-size:12px}
   #shipyardModal .shipyard-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));flex-shrink:0}
   #shipyardModal .sy-tab,#shipyardModal button,#crateRevealModal button{min-height:44px!important;min-width:44px}
   #shipyardModal .sy-tab{font-size:11px;letter-spacing:0;white-space:normal;overflow-wrap:anywhere;line-height:1.3}
+  #bvResultCard button{min-height:44px;min-width:44px}
+  #baseModal .craft-cat,#baseModal button[onclick="toggleCraftHistory()"]{min-height:44px;min-width:44px;font-size:12px!important}
+  #baseModal .craft-cat:not(.active){color:var(--tx2)!important}
+  #craftingGrid .eco-item-title{font-size:14px!important;line-height:1.5}
+  #craftingGrid .eco-item-card>div{font-size:12px!important;line-height:1.5;color:#c1aca0!important}
+  #craftingGrid .eco-item-card button{font-size:12px!important}
 }
 
 /* Confirmation must sit above the objective and card dialogs that open it. */

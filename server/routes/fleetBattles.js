@@ -140,20 +140,20 @@ router.get('/list/active', readLimiter, async (req, res) => {
   try {
     const data = await cachedBattleList('list:active', 5000, async () => {
       const { rows } = await pool.query(`
-        SELECT id, battle_type, status, phase,
-               sector_id, claim_id,
+        SELECT fb.id, fb.battle_type, fb.status, fb.phase,
+               fb.sector_id, fb.claim_id,
                sd.code AS sector_code, COALESCE(sd.name_ko, sd.name_en) AS sector_name,
-               atk_ships_total, def_ships_total,
-               battle_started_at, scheduled_start_at, battle_summary,
+               fb.atk_ships_total, fb.def_ships_total,
+               fb.battle_started_at, fb.scheduled_start_at, fb.battle_summary,
                (SELECT COUNT(*) FROM fleet_battle_participants WHERE battle_id=fb.id AND side='atk') AS atk_fleets,
                (SELECT COUNT(*) FROM fleet_battle_participants WHERE battle_id=fb.id AND side='def') AS def_fleets
         FROM fleet_battles fb
         LEFT JOIN sector_definitions sd ON sd.id = fb.sector_id
-        WHERE status IN ('preparing','active')
+        WHERE fb.status IN ('preparing','active')
         ORDER BY
-          CASE status WHEN 'active' THEN 1 ELSE 2 END,
-          battle_started_at DESC NULLS LAST,
-          scheduled_start_at ASC
+          CASE fb.status WHEN 'active' THEN 1 ELSE 2 END,
+          fb.battle_started_at DESC NULLS LAST,
+          fb.scheduled_start_at ASC
         LIMIT 50
       `);
       return { battles: battleEnvironment.decorateBattles(rows) };
@@ -174,11 +174,11 @@ router.get('/list/recent', readLimiter, async (req, res) => {
     const limit = Math.min(50, parseInt(req.query.limit) || 20);
     const data = await cachedBattleList('list:recent:' + limit, 15000, async () => {
       const { rows } = await pool.query(`
-        SELECT id, battle_type, status, winner_side,
+        SELECT fb.id, fb.battle_type, fb.status, fb.winner_side,
                sd.code AS sector_code, COALESCE(sd.name_ko, sd.name_en) AS sector_name,
-               atk_ships_total, def_ships_total,
-               atk_ships_lost, def_ships_lost,
-               duration_seconds, ended_at, battle_summary,
+               fb.atk_ships_total, fb.def_ships_total,
+               fb.atk_ships_lost, fb.def_ships_lost,
+               fb.duration_seconds, fb.ended_at, fb.battle_summary,
                COALESCE(r.reward_total_gp, 0) AS reward_total_gp,
                COALESCE(r.reward_count, 0) AS reward_count
         FROM fleet_battles fb
@@ -189,7 +189,7 @@ router.get('/list/recent', readLimiter, async (req, res) => {
            GROUP BY battle_id
         ) r ON r.battle_id = fb.id
         WHERE fb.status = 'ended'
-        ORDER BY ended_at DESC NULLS LAST
+        ORDER BY fb.ended_at DESC NULLS LAST
         LIMIT $1
       `, [limit]);
       return { battles: battleEnvironment.decorateBattles(rows) };

@@ -802,7 +802,11 @@ function scheduleJourneyCheck() {
 function journeyHintIsBlocked() {
   var overlay = document.getElementById('obOverlay');
   var operations = document.getElementById('commandCenter');
-  return !!((overlay && overlay.classList.contains('active')) || (operations && !operations.hidden));
+  var claim=document.getElementById('claimModal');
+  var claiming=(typeof _isFirstClaimFlowActive==='function'&&_isFirstClaimFlowActive())||
+    (typeof landSelectMode!=='undefined'&&landSelectMode)||(claim&&claim.classList.contains('open'));
+  var modalOpen=typeof document.querySelector==='function'&&document.querySelector('.mbg.open, .modal.open, .game-confirm.open, .game-picker.open, #campaignModal[style*="display: flex"], #jobSelectModal[style*="display: flex"], .ob-overlay.active, #obOverlay[style*="display: flex"], .wb-overlay.active, .base-modal.open, .mob-territory-modal.open, .stamp-modal.open, .legal-modal-bg.open, .beta-notice.open, [class*="-modal-backdrop"].active, .bv-backdrop.active, .tlab-backdrop.active, .ace-backdrop.active, .objective-operations-modal.active, dialog[open]');
+  return !!(modalOpen || claiming || (overlay && overlay.classList.contains('active')) || (operations && !operations.hidden));
 }
 
 function showJourneyRequestState(state) {
@@ -910,6 +914,7 @@ async function runOnboardingCheck() {
 }
 
 function showOnboardingHint(step, firstSortie) {
+  if(journeyHintIsBlocked()){closeOnboardingHint();return;}
   var el = document.getElementById('onboardingHint');
   if (!el) return;
   var title = el.querySelector('.onboarding-hint__title');

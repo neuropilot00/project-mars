@@ -945,51 +945,126 @@ var _OB_STEPS = {
     emoji: '🚀',
     title_en: 'CLAIM YOUR FIRST TERRITORY',
     title_ko: '첫 영토를 점령하세요',
-    body_en: '<b>Mars starts with one small claim.</b><br>Tap any red zone on the map and plant your flag on your first territory.<br><br>⭐ Your first claim is <b>FREE</b> — no PP required.',
-    body_ko: '<b>화성의 시작은 작은 영토 하나입니다.</b><br>지도의 빨간 영역을 탭해 첫 영토에 깃발을 세우세요.<br><br>⭐ 첫 번째 클레임은 <b>무료</b>입니다 — PP가 필요 없습니다.',
+    title_ja: '最初の領土を確保しよう',
+    title_zh: '占领你的首块领地',
+    title_id: 'KLAIM WILAYAH PERTAMA',
+    title_vi: 'NHẬN LÃNH THỔ ĐẦU TIÊN',
+    title_th: 'ยึดดินแดนแรกของคุณ',
+    body_en: 'Open <b>Claim → Choose beginner area</b> to find an accessible location.<br><br>An eligible first small claim can be <b>free</b>. Review the current offer and size before confirming.',
+    body_ko: '<b>점령 → 초보 지역 선택</b>에서 진입 가능한 위치를 찾으세요.<br><br>자격과 크기 조건을 충족하는 첫 작은 영토는 <b>무료</b>로 점령할 수 있습니다. 확인 전에 현재 조건과 크기를 살펴보세요.',
+    body_ja: '<b>確保 → 初心者エリアを選ぶ</b>で入れる場所を探しましょう。<br><br>資格とサイズの条件を満たす最初の小さな領土は<b>無料</b>で確保できます。確定前に現在の条件とサイズを確認してください。',
+    body_zh: '打开<b>占领 → 选择新手区域</b>，寻找可以进入的位置。<br><br>符合资格和尺寸条件的首块小型领地可<b>免费</b>占领。确认前请查看当前条件和尺寸。',
+    body_id: 'Buka <b>Klaim → Pilih area pemula</b> untuk mencari lokasi yang dapat diakses.<br><br>Klaim kecil pertama yang memenuhi syarat bisa <b>gratis</b>. Periksa penawaran dan ukuran saat ini sebelum mengonfirmasi.',
+    body_vi: 'Mở <b>Nhận đất → Chọn khu vực tân thủ</b> để tìm vị trí có thể tiếp cận.<br><br>Lãnh thổ nhỏ đầu tiên đủ điều kiện có thể được nhận <b>miễn phí</b>. Kiểm tra ưu đãi và kích thước hiện tại trước khi xác nhận.',
+    body_th: 'เปิด <b>ยึดดินแดน → เลือกพื้นที่ผู้เริ่มต้น</b> เพื่อหาตำแหน่งที่เข้าได้<br><br>ดินแดนขนาดเล็กแห่งแรกที่เข้าเงื่อนไขอาจยึดได้<b>ฟรี</b> ตรวจสอบข้อเสนอและขนาดปัจจุบันก่อนยืนยัน',
     next_en: 'GOT IT — SHOW ME THE MAP',
-    next_ko: '알겠어요 — 지도 보기'
+    next_ko: '알겠어요 — 지도 보기',
+    next_ja: 'わかりました — 地図を見る',
+    next_zh: '明白了 — 查看地图',
+    next_id: 'MENGERTI — LIHAT PETA',
+    next_vi: 'ĐÃ HIỂU — XEM BẢN ĐỒ',
+    next_th: 'เข้าใจแล้ว — ดูแผนที่'
   },
   2: {
     emoji: '⛏️',
     title_en: 'HARVEST FROM YOUR TERRITORY',
     title_ko: '영토에서 수확하세요',
-    body_en: 'Your territory generates <b>PP</b> over time.<br><br>→ Tap <b>[HARVEST]</b> to collect it.<br>→ PP is the fuel for expansion, ships, and growth.',
-    body_ko: '영토에서는 시간이 지나면 <b>PP</b>가 생성됩니다.<br><br>→ <b>[수확하기]</b>를 눌러 회수하세요.<br>→ PP는 확장, 함선, 성장의 연료입니다.',
+    title_ja: '領土で収穫しよう',
+    title_zh: '从领地收获资源',
+    title_id: 'PANEN DARI WILAYAH ANDA',
+    title_vi: 'THU HOẠCH TỪ LÃNH THỔ',
+    title_th: 'เก็บเกี่ยวจากดินแดนของคุณ',
+    body_en: 'Tap <b>[HARVEST]</b> to collect <b>GP</b> for building and growth.<br><br>Minerals may also drop. Mineral drops are chance-based and are not guaranteed with every harvest.',
+    body_ko: '<b>[수확하기]</b>를 눌러 건조와 성장에 쓸 <b>GP</b>를 받으세요.<br><br>광물도 확률에 따라 나옵니다. 수확할 때마다 광물이 보장되지는 않습니다.',
+    body_ja: '<b>[収穫]</b>を押して建造や成長に使う<b>GP</b>を受け取りましょう。<br><br>鉱物も確率で手に入ります。毎回の収穫で必ず入手できるわけではありません。',
+    body_zh: '点击<b>[收获]</b>，领取用于建造和成长的<b>GP</b>。<br><br>矿物也可能掉落。矿物按概率发放，并非每次收获都有。',
+    body_id: 'Ketuk <b>[PANEN]</b> untuk mengumpulkan <b>GP</b> bagi pembangunan dan perkembangan.<br><br>Mineral juga dapat diperoleh secara acak. Mineral tidak dijamin muncul pada setiap panen.',
+    body_vi: 'Nhấn <b>[THU HOẠCH]</b> để nhận <b>GP</b> dùng cho xây dựng và phát triển.<br><br>Khoáng sản cũng có thể xuất hiện ngẫu nhiên. Không phải lần thu hoạch nào cũng có khoáng sản.',
+    body_th: 'แตะ <b>[เก็บเกี่ยว]</b> เพื่อรับ <b>GP</b> สำหรับก่อสร้างและพัฒนา<br><br>อาจได้รับแร่แบบสุ่มด้วย แต่ไม่ได้รับประกันว่าจะได้แร่ทุกครั้งที่เก็บเกี่ยว',
     next_en: 'UNDERSTOOD',
-    next_ko: '이해했어요'
+    next_ko: '이해했어요',
+    next_ja: 'わかりました',
+    next_zh: '明白了',
+    next_id: 'MENGERTI',
+    next_vi: 'ĐÃ HIỂU',
+    next_th: 'เข้าใจแล้ว'
   },
   3: {
     emoji: '🚢',
     title_en: 'BUILD YOUR FIRST FLEET',
     title_ko: '첫 함대 준비하기',
+    title_ja: '最初の艦隊を準備しよう',
+    title_zh: '准备你的首支舰队',
+    title_id: 'SIAPKAN ARMADA PERTAMA',
+    title_vi: 'CHUẨN BỊ HẠM ĐỘI ĐẦU TIÊN',
+    title_th: 'เตรียมกองยานแรกของคุณ',
     body_en: 'Territory growth leads to combat power.<br><br>Use your resources to prepare ships, organize a fleet, and get ready to defend what you own.',
     body_ko: '영토 성장은 전력으로 이어집니다.<br><br>자원을 모아 함선을 준비하고, 함대를 구성해 당신의 영토를 지킬 준비를 하세요.',
+    body_ja: '領土の成長は戦力につながります。<br><br>資源を使って艦船を準備し、艦隊を編成して、自分の領土を守る準備をしましょう。',
+    body_zh: '领地发展会提升战力。<br><br>利用资源准备舰船、组建舰队，为保卫自己的领地做好准备。',
+    body_id: 'Perkembangan wilayah memperkuat kemampuan tempur.<br><br>Gunakan sumber daya untuk menyiapkan kapal, menyusun armada, dan bersiap mempertahankan wilayah Anda.',
+    body_vi: 'Phát triển lãnh thổ giúp tăng sức chiến đấu.<br><br>Dùng tài nguyên để chuẩn bị tàu, tổ chức hạm đội và sẵn sàng bảo vệ lãnh thổ của bạn.',
+    body_th: 'การพัฒนาดินแดนช่วยเพิ่มกำลังรบ<br><br>ใช้ทรัพยากรเตรียมยาน จัดกองยาน และเตรียมปกป้องดินแดนของคุณ',
     next_en: 'NEXT',
-    next_ko: '다음'
+    next_ko: '다음',
+    next_ja: '次へ',
+    next_zh: '下一步',
+    next_id: 'LANJUT',
+    next_vi: 'TIẾP THEO',
+    next_th: 'ถัดไป'
   },
   4: {
     emoji: '⚔️',
     title_en: 'FOLLOW YOUR FIRST MISSION',
     title_ko: '첫 임무를 따라가세요',
-    body_en: 'Your next objective lives in <b>Campaign</b>.<br><br>Follow the mission steps to learn the core loop: claim territory, harvest, and push toward conflict.',
-    body_ko: '다음 목표는 <b>캠페인</b>에 있습니다.<br><br>임무 순서를 따라가며 영토 확보, 수확, 그리고 첫 분쟁까지 핵심 루프를 익히세요.',
+    title_ja: '最初の作戦を進めよう',
+    title_zh: '开始你的首个行动',
+    title_id: 'IKUTI MISI PERTAMA',
+    title_vi: 'THEO DÕI NHIỆM VỤ ĐẦU TIÊN',
+    title_th: 'ทำภารกิจแรกของคุณ',
+    body_en: 'Open <b>Base → Command → Missions</b> for the five starting operations.<br><br>Follow real battles, capture, production, cargo and repair. The story campaign is optional.',
+    body_ko: '<b>BASE → 작전실 → 작전</b>에서 다섯 시작 작전을 진행하세요.<br><br>실제 전투, 점령, 생산, 운송, 정비를 순서대로 경험합니다. 이야기 캠페인은 선택 사항입니다.',
+    body_ja: '<b>基地 → 指揮 → 作戦</b>で最初の5作戦を進めましょう。<br><br>実際の戦闘、占領、生産、輸送、整備を体験します。ストーリーキャンペーンは任意です。',
+    body_zh: '打开<b>基地 → 指挥 → 行动</b>，开始五项初始行动。<br><br>依次体验真实战斗、占领、生产、运输和维修。剧情战役可自由选择。',
+    body_id: 'Buka <b>Markas → Komando → Misi</b> untuk lima operasi awal.<br><br>Ikuti pertempuran nyata, perebutan wilayah, produksi, kargo, dan perbaikan. Kampanye cerita bersifat opsional.',
+    body_vi: 'Mở <b>Căn cứ → Chỉ huy → Nhiệm vụ</b> để thực hiện năm chiến dịch khởi đầu.<br><br>Trải nghiệm chiến đấu thật, chiếm đóng, sản xuất, vận chuyển và sửa chữa. Chiến dịch cốt truyện là tùy chọn.',
+    body_th: 'เปิด <b>ฐาน → บัญชาการ → ภารกิจ</b> เพื่อเล่นปฏิบัติการเริ่มต้นทั้งห้า<br><br>สัมผัสการรบจริง การยึดพื้นที่ ผลิต ขนส่ง และซ่อมบำรุง ส่วนแคมเปญเนื้อเรื่องเป็นทางเลือก',
     next_en: 'NEXT',
-    next_ko: '다음'
+    next_ko: '다음',
+    next_ja: '次へ',
+    next_zh: '下一步',
+    next_id: 'LANJUT',
+    next_vi: 'TIẾP THEO',
+    next_th: 'ถัดไป'
   },
   5: {
     emoji: '🎯',
     title_en: 'READY TO EXPAND',
     title_ko: '이제 확장할 시간입니다',
+    title_ja: '拡張の準備ができました',
+    title_zh: '准备扩张',
+    title_id: 'SIAP BEREKSPANSI',
+    title_vi: 'SẴN SÀNG MỞ RỘNG',
+    title_th: 'พร้อมขยายดินแดน',
     body_en: 'You now know the core loop.<br><br><b>Claim territory → Harvest resources → Build your fleet → Follow missions</b><br><br>Take your starter reward and begin expanding on Mars.',
     body_ko: '이제 핵심 루프를 이해했습니다.<br><br><b>영토 확보 → 자원 수확 → 함대 준비 → 임무 진행</b><br><br>시작 보상을 받고 화성에서 세력을 확장하세요.',
+    body_ja: '基本の流れがわかりました。<br><br><b>領土確保 → 資源収穫 → 艦隊準備 → 作戦進行</b><br><br>スタート報酬を受け取り、火星で勢力を広げましょう。',
+    body_zh: '你已了解核心玩法。<br><br><b>占领领地 → 收获资源 → 准备舰队 → 推进行动</b><br><br>领取初始奖励，开始在火星扩张势力。',
+    body_id: 'Anda kini memahami alur utama.<br><br><b>Klaim wilayah → Panen sumber daya → Siapkan armada → Ikuti misi</b><br><br>Ambil hadiah awal dan mulai perluas pengaruh Anda di Mars.',
+    body_vi: 'Bạn đã nắm được vòng chơi chính.<br><br><b>Nhận lãnh thổ → Thu hoạch tài nguyên → Chuẩn bị hạm đội → Thực hiện nhiệm vụ</b><br><br>Nhận phần thưởng khởi đầu và mở rộng thế lực trên Sao Hỏa.',
+    body_th: 'ตอนนี้คุณเข้าใจวงจรหลักแล้ว<br><br><b>ยึดดินแดน → เก็บเกี่ยวทรัพยากร → เตรียมกองยาน → ทำภารกิจ</b><br><br>รับรางวัลเริ่มต้นแล้วขยายอำนาจบนดาวอังคาร',
     next_en: '🎉 CLAIM REWARD',
-    next_ko: '🎉 보상 수령'
+    next_ko: '🎉 보상 수령',
+    next_ja: '🎉 報酬を受け取る',
+    next_zh: '🎉 领取奖励',
+    next_id: '🎉 AMBIL HADIAH',
+    next_vi: '🎉 NHẬN THƯỞNG',
+    next_th: '🎉 รับรางวัล'
   }
 };
 
 function _obStepContent(step) {
-  var lang = (typeof _lang !== 'undefined' ? _lang : 'en') || 'en';
+  var lang = (typeof LANG === 'string' ? LANG : 'en') || 'en';
   var s = _OB_STEPS[step];
   if (!s) return '';
   var title = s['title_' + lang] || s.title_en;
@@ -1023,6 +1098,7 @@ function showOnboardingStep(step) {
   if (!ov || !ct) return;
   _obSetDots(step);
   ct.innerHTML = _obStepContent(step);
+  if(typeof closeOnboardingHint==='function')closeOnboardingHint();
   ov.style.display = 'flex';
 }
 

@@ -186,8 +186,7 @@ async function getSectorInfluenceProductionBonus(client, wallet, sectorId) {
     const guildRes = await client.query(`
       SELECT LOWER(wallet) AS wallet, guild_id
         FROM guild_members
-       WHERE status = 'active'
-         AND LOWER(wallet) = ANY($1)
+       WHERE LOWER(wallet) = ANY($1)
     `, [scores.map(row => row.wallet)]);
     const guildByWallet = {};
     guildRes.rows.forEach(r => { guildByWallet[r.wallet] = r.guild_id; });
@@ -759,15 +758,27 @@ router.post('/claim', requireAuth, writeLimiter, async (req, res) => {
       return sum + _ref * HIJACK_MULT;
     }, 0);
     const failedAttackCost = attackLost > 0 ? (attackCost - wonAttackCost) : 0;
-    const totalCost = Math.round((baseCost + wonAttackCost + failedAttackCost - refundFromFailed) * 1000000) / 1000000;
+    let totalCost = Math.round((baseCost + wonAttackCost + failedAttackCost - refundFromFailed) * 1000000) / 1000000;
 
     // ── [Onboarding] Tutorial Free First Claim / First Claim Sync ──
     let isTutorialFreeClaim = false;
     let onboardingState = null;
     let isFirstOwnedClaim = false;
+    // get/create uses its own connection; finish it before locking the user so
+    // its onboarding FK check cannot wait on this transaction's user row lock.
     try {
       if (onboardingService && attackLost === 0 && enemyPixels.length === 0 && totalCost > 0) {
         onboardingState = await onboardingService.getOnboardingState(wallet.toLowerCase());
+      }
+    } catch (_oe) { /* Unknown eligibility cannot satisfy an expected-free request. */ }
+
+    // Serialize eligibility and charging for this owner before counting claims.
+    const userRes = await client.query(
+      'SELECT usdt_balance, pp_balance FROM users WHERE wallet_address = $1 FOR UPDATE',
+      [wallet.toLowerCase()]
+    );
+    try {
+      if (onboardingState) {
         const existingClaims = await client.query(
           'SELECT COUNT(*) AS cnt FROM claims WHERE owner = $1',
           [wallet.toLowerCase()]
@@ -785,11 +796,20 @@ router.post('/claim', requireAuth, writeLimiter, async (req, res) => {
       }
     } catch (_oe) { /* onboarding check non-critical */ }
 
-    // Check user balance based on selected payment method
-    const userRes = await client.query(
-      'SELECT usdt_balance, pp_balance FROM users WHERE wallet_address = $1 FOR UPDATE',
-      [wallet.toLowerCase()]
-    );
+    if (req.body.expectedTutorialFree === true && !isTutorialFreeClaim) {
+      await client.query('ROLLBACK');
+      return res.status(409).json({
+        error: 'TUTORIAL_FREE_CLAIM_CHANGED', code: 'TUTORIAL_FREE_CLAIM_CHANGED',
+        message: 'Free first-claim eligibility changed or could not be verified. Review the current offer and try again.'
+      });
+    }
+
+    // A free grant has reference pixel value, but no paid volume or funded fees.
+    const nominalCost = totalCost;
+    if (isTutorialFreeClaim) totalCost = 0;
+    const paidBaseCost = isTutorialFreeClaim ? 0 : baseCost;
+
+    // Check user balance based on selected payment method.
     const user = userRes.rows[0];
     let ppUsed = 0, usdtUsed = 0;
     const ppBal = parseFloat(user.pp_balance);
@@ -944,7 +964,7 @@ router.post('/claim', requireAuth, writeLimiter, async (req, res) => {
     const txRes = await client.query(
       `INSERT INTO transactions (type, from_wallet, usdt_amount, pp_amount, fee, meta)
        VALUES ($1,$2,$3,$4,$5,$6) RETURNING id`,
-      [txType, wallet.toLowerCase(), usdtUsed, ppUsed, baseCost,
+      [txType, wallet.toLowerCase(), usdtUsed, ppUsed, paidBaseCost,
         JSON.stringify({
           claimId, totalPixels: claimPixels.length, newCount, attackWon, attackLost, ownSkipCount,
           affectedOwners, platformFee, refundFromFailed
@@ -954,7 +974,7 @@ router.post('/claim', requireAuth, writeLimiter, async (req, res) => {
 
     // XP + quest pool + refund (sequential)
     const rankUp = await awardXP(client, walletLower, totalXP);
-    await fundQuestPool(client, baseCost);
+    await fundQuestPool(client, paidBaseCost);
     if (refundFromFailed > 0) {
       // [경제v2 P2] land-PvP 닫힌 루프라 PP 유지: 공격 실패 환불은 소비한 PP의 균형 항목.
       await client.query(
@@ -1118,6 +1138,7 @@ router.post('/claim', requireAuth, writeLimiter, async (req, res) => {
 
     res.json({
       success: true, claimId, totalCost,
+      ...(isTutorialFreeClaim ? { nominalCost } : {}),
       newCount, overlapCount, ownSkipCount,
       attackWon, attackLost,
       refundFromFailed: Math.round(refundFromFailed * 100) / 100,
@@ -2056,6 +2077,21 @@ router.post('/territory/harvest-all', requireAuth, harvestLimiter, async (req, r
     try { if (jobService) minerCooldownMult = await jobService.getJobBuff(w, 'miner_harvest_cooldown', 1.0); } catch (_) {}
 
     await client.query('BEGIN');
+    // A caught SQL error still aborts PostgreSQL's transaction. Optional bonuses
+    // and side effects must restore their savepoint before the mandatory payout.
+    const optionalBulk = async (work, fallback) => {
+      await client.query('SAVEPOINT bulk_harvest_optional');
+      try {
+        const value = await work();
+        await client.query('RELEASE SAVEPOINT bulk_harvest_optional');
+        return value;
+      } catch (error) {
+        await client.query('ROLLBACK TO SAVEPOINT bulk_harvest_optional');
+        await client.query('RELEASE SAVEPOINT bulk_harvest_optional');
+        console.warn('[API] bulk harvest optional work rolled back:', error.message);
+        return fallback;
+      }
+    };
     await client.query(`INSERT INTO user_mining (wallet_address) VALUES ($1) ON CONFLICT (wallet_address) DO NOTHING`, [w]);
     const miningRes = await client.query(
       `SELECT today_date, today_mined_pp FROM user_mining WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`,
@@ -2098,14 +2134,14 @@ router.post('/territory/harvest-all', requireAuth, harvestLimiter, async (req, r
     }
 
     let isGovernor = false;
-    try {
+    await optionalBulk(async () => {
       const govRes = await client.query('SELECT COUNT(*) AS cnt FROM sectors WHERE LOWER(governor_wallet) = LOWER($1)', [w]);
       isGovernor = parseInt(govRes.rows[0]?.cnt, 10) > 0;
-    } catch (_) {}
+    });
     let isDoubleMining = false;
     try { isDoubleMining = await hasActiveEvent('double_mining'); } catch (_) {}
     let virusPenalty = 0;
-    try {
+    await optionalBulk(async () => {
       const vpRes = await client.query(
         `SELECT effect_value FROM user_active_effects
          WHERE wallet = $1 AND effect_type = 'virus_payload' AND active = true
@@ -2113,13 +2149,13 @@ router.post('/territory/harvest-all', requireAuth, harvestLimiter, async (req, r
          ORDER BY id DESC LIMIT 1`, [w]
       );
       if (vpRes.rows.length > 0) virusPenalty = Math.max(0, Math.min(0.95, (parseFloat(vpRes.rows[0].effect_value) || 0) / 100));
-    } catch (_) {}
+    });
     let vipBoost = 1;
     try { const v = require('../services/vip'); vipBoost = await v.getMiningBoost(w); } catch (_) {}
     let prestigeBoost = 1;
     try { const p = require('../services/prestige'); prestigeBoost = await p.getMiningBonus(w); } catch (_) {}
     let bestTierBoost = 1;
-    try {
+    await optionalBulk(async () => {
       const t = require('../services/tiers'); const tc = await t.getCfg();
       if (tc && tc.enabled) {
         const tRes = await client.query(`SELECT MAX(tt.tier) AS max_tier FROM territory_tiers tt JOIN claims c2 ON c2.id = tt.claim_id WHERE LOWER(tt.wallet) = $1 AND c2.deleted_at IS NULL`, [w]);
@@ -2130,10 +2166,10 @@ router.post('/territory/harvest-all', requireAuth, harvestLimiter, async (req, r
           if (bp > 0) bestTierBoost = 1 + bp / 100;
         }
       }
-    } catch (_) {}
+    });
 
     let harvestSurge = null;
-    try {
+    await optionalBulk(async () => {
       const hsRes = await client.query(
         `SELECT id, effect_value FROM user_active_effects
          WHERE wallet = $1 AND effect_type = 'harvest_surge' AND active = true
@@ -2142,7 +2178,7 @@ router.post('/territory/harvest-all', requireAuth, harvestLimiter, async (req, r
          ORDER BY id DESC LIMIT 1`, [w]
       );
       if (hsRes.rows.length > 0) harvestSurge = { id: hsRes.rows[0].id, mult: Math.max(1, parseFloat(hsRes.rows[0].effect_value) || 3) };
-    } catch (_) {}
+    });
 
     // ✅ [정시 섹터 서지] 요청당 1회만 활성 서지를 조회(시간창 값이라 루프 내 불변). 각 claim 의 거점 섹터(tier)가
     //    활성 서지 섹터와 일치하면 그 claim 수확 PP 에 배율. weekly_surge_enabled=false 면 active:false → 무효.
@@ -2204,11 +2240,11 @@ router.post('/territory/harvest-all', requireAuth, harvestLimiter, async (req, r
       if (vipBoost > 1) harvestedPP = Math.round(harvestedPP * vipBoost * 10000) / 10000;
       if (prestigeBoost > 1) harvestedPP = Math.round(harvestedPP * prestigeBoost * 10000) / 10000;
       if (bestTierBoost > 1) harvestedPP = Math.round(harvestedPP * bestTierBoost * 10000) / 10000;
-      try {
+      await optionalBulk(async () => {
         const extRes = await client.query(`SELECT MAX(u.level) AS max_level FROM territory_upgrades u WHERE u.claim_id = $1 AND u.upgrade_type = 'extractor' AND u.is_active = true`, [claimId]);
         const lvl = parseInt(extRes.rows[0]?.max_level || 0);
         if (lvl > 0) { const bmap = {1:0.15,2:0.30,3:0.50,4:0.75,5:1.00}; const b = bmap[lvl]||0; if (b>0) harvestedPP = Math.round(harvestedPP*(1+b)*10000)/10000; }
-      } catch (_) {}
+      });
       const holdBonus = parseFloat(claim.hold_bonus_pct || 0);
       if (holdBonus > 0) harvestedPP = Math.round(harvestedPP * (1 + holdBonus / 100) * 10000) / 10000;
       let gradeRareMult = 1;
@@ -2219,15 +2255,15 @@ router.post('/territory/harvest-all', requireAuth, harvestLimiter, async (req, r
         if (gm && gm !== 1) harvestedPP = Math.round(harvestedPP * gm * 10000) / 10000;
       } catch (_) {}
       let sectorInfluenceBonus = null;
-      try {
-        sectorInfluenceBonus = await getSectorInfluenceProductionBonus(client, w, claim.sector_id);
+      sectorInfluenceBonus = await optionalBulk(() => getSectorInfluenceProductionBonus(client, w, claim.sector_id), null);
+      if (sectorInfluenceBonus) {
         if (sectorInfluenceBonus && sectorInfluenceBonus.multiplier > 1) {
           harvestedPP = Math.round(harvestedPP * sectorInfluenceBonus.multiplier * 10000) / 10000;
           influenceHits++;
           if (sectorInfluenceBonus.source === 'guild') guildInfluenceHits++;
           bestInfluenceMult = Math.max(bestInfluenceMult, sectorInfluenceBonus.multiplier);
         }
-      } catch (_) { sectorInfluenceBonus = null; }
+      }
       try { if (new Date().getUTCDay() === 1) harvestedPP = Math.round(harvestedPP * 1.5 * 10000) / 10000; } catch (_) {}
       // 정시 섹터 서지: 이 claim 의 거점 섹터가 활성 서지 섹터와 일치할 때만 배율(수확량 자체 조정).
       let claimSurgeApplied = false;
@@ -2245,17 +2281,18 @@ router.post('/territory/harvest-all', requireAuth, harvestLimiter, async (req, r
       if (harvestedPP <= 0) break;
 
       const harvestedGP = Math.round(harvestedPP * ppToGpRate * 1000000) / 1000000;
-      let resourceDrops = [];
-      try {
+      const resourceDrops = await optionalBulk(async () => {
         if (resourceService) {
           const drops = await resourceService.rollResourceDrop(w, tier, { gradeRareMult });
           const merged = {};
           for (const d of drops) merged[d.code] = (merged[d.code] || 0) + d.quantity;
-          resourceDrops = Object.keys(merged).map(code => ({ code, quantity: merged[code] }));
+          const resourceDrops = Object.keys(merged).map(code => ({ code, quantity: merged[code] }));
           if (resourceDrops.length > 0) await resourceService.addResourcesToInventory(client, w, resourceDrops);
-          for (const d of resourceDrops) resourceTotals[d.code] = (resourceTotals[d.code] || 0) + d.quantity;
+          return resourceDrops;
         }
-      } catch (_) {}
+        return [];
+      }, []);
+      for (const d of resourceDrops) resourceTotals[d.code] = (resourceTotals[d.code] || 0) + d.quantity;
 
       await client.query('UPDATE claims SET last_harvest_at = NOW() WHERE id = $1', [claimId]);
       await client.query(
@@ -2274,7 +2311,7 @@ router.post('/territory/harvest-all', requireAuth, harvestLimiter, async (req, r
     }
 
     if (surgeApplied && harvestSurge?.id) {
-      await client.query(`UPDATE user_active_effects SET uses_remaining = 0, active = false WHERE id = $1`, [harvestSurge.id]).catch(() => {});
+      await client.query(`UPDATE user_active_effects SET uses_remaining = 0, active = false WHERE id = $1`, [harvestSurge.id]);
     }
     await client.query(`
       INSERT INTO user_mining (wallet_address, last_harvest_at, total_mined_pp, today_mined_pp, today_date)
@@ -2286,8 +2323,8 @@ router.post('/territory/harvest-all', requireAuth, harvestLimiter, async (req, r
         today_date = $3
     `, [w, totalPP, todayDate]);
     await client.query('UPDATE users SET gp_balance = COALESCE(gp_balance, 0) + $1 WHERE LOWER(wallet_address) = LOWER($2)', [totalGP, w]);
-    await awardXP(client, w, harvested.length * 5).catch(() => {});
-    try { await creditReferralCommission(client, w, 'harvest', totalGP, 'gp'); } catch (_) {}
+    await optionalBulk(() => awardXP(client, w, harvested.length * 5));
+    await optionalBulk(() => creditReferralCommission(client, w, 'harvest', totalGP, 'gp'));
 
     await client.query('COMMIT');
 

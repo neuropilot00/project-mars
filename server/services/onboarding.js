@@ -29,7 +29,7 @@ async function getOnboardingStatus(walletAddress) {
 
   if (!rows[0]) {
     // 온보딩 레코드 없으면 신규 유저 — 자동 생성
-    return await createOnboarding(walletAddress);
+    return { ...await createOnboarding(walletAddress), enabled };
   }
 
   const o = rows[0];
@@ -85,11 +85,13 @@ async function completeStep(walletAddress, step, data = {}) {
     }
 
     if (onboarding.completed || onboarding.skipped) {
+      await client.query('ROLLBACK');
       return { success: false, error: 'ALREADY_DONE' };
     }
 
     // 순서 체크: 현재 스텝 이상만 처리
     if (step < onboarding.current_step) {
+      await client.query('ROLLBACK');
       return { success: true, already_done: true };
     }
 
@@ -162,7 +164,7 @@ async function completeStep(walletAddress, step, data = {}) {
 
     if (step === 3 && !onboarding.shield_given) {
       // STEP 3: Basic Shield 지급
-      const itemType = await getSettingStr(client, 'onboarding_free_item_type', 'basic_shield');
+      const itemType = await getSettingStr(client, 'onboarding_free_item_type', 'shield_basic');
       await giveItem(client, walletAddress, itemType, 1);
       updates.shield_given = true;
       rewards.push({ type: 'item', code: itemType, quantity: 1 });
@@ -172,7 +174,9 @@ async function completeStep(walletAddress, step, data = {}) {
       // STEP 5: 온보딩 완료 — 최종 보상
       const gpReward = await getSettingInt(client, 'onboarding_gp_reward', 75);
 
-      if (!onboarding.gp_rewarded) {
+      // The older aggregate marker is evidence of a final payout, even when
+      // migration 362 has just added the more specific per-step flag.
+      if (!onboarding.gp_rewarded && !onboarding.reward_claimed) {
         await client.query(
           `UPDATE users SET gp_balance = gp_balance + $1 WHERE LOWER(wallet_address) = LOWER($2)`,
           [gpReward, walletAddress]
@@ -313,26 +317,18 @@ function getFirstMission(jobCode) {
 // ─── 내부 헬퍼 ───
 
 async function giveItem(client, walletAddress, itemCode, quantity) {
-  try {
-    // item_types 테이블에서 ID 조회
-    const { rows: typeRows } = await client.query(
-      `SELECT id FROM item_types WHERE code = $1`, [itemCode]
-    );
-    if (!typeRows[0]) {
-      console.warn(`[onboarding] giveItem: item_type not found for code=${itemCode}`);
-      return;
-    }
-    const itemTypeId = typeRows[0].id;
+  const { rows: typeRows } = await client.query(
+    `SELECT id FROM item_types WHERE code = $1`, [itemCode]
+  );
+  if (!typeRows[0]) throw new Error('ONBOARDING_ITEM_UNAVAILABLE');
 
-    await client.query(`
-      INSERT INTO user_items (wallet, item_type_id, quantity)
-      VALUES ($1, $2, $3)
-      ON CONFLICT (wallet, item_type_id)
-      DO UPDATE SET quantity = user_items.quantity + $3
-    `, [walletAddress, itemTypeId, quantity]);
-  } catch (e) {
-    console.warn(`[onboarding] giveItem failed: ${itemCode} — ${e.message}`);
-  }
+  // Failure must roll back the step rather than consume its reward marker.
+  await client.query(`
+    INSERT INTO user_items (wallet, item_type_id, quantity)
+    VALUES ($1, $2, $3)
+    ON CONFLICT (wallet, item_type_id)
+    DO UPDATE SET quantity = user_items.quantity + $3
+  `, [walletAddress, typeRows[0].id, quantity]);
 }
 
 async function giveTitle(client, walletAddress, titleCode) {

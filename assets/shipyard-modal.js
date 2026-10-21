@@ -952,6 +952,8 @@ function _perfectGachaBoxHtml(d, loading) {
   var enabled = !loading && d.enabled !== false && !d.error;
   var pity = (typeof d.pity_remaining === 'number') ? d.pity_remaining : '-';
   var pool = (typeof d.pool_size === 'number') ? d.pool_size : '-';
+  var pityRule = tl('Pity grants 1 random unowned part if any remain, not a complete unit. A new part resets the counter.','천장은 미보유 파츠가 남아 있을 때 무작위 미보유 파츠 1개를 보장합니다. 완성 유닛 지급이 아니며, 새 파츠 획득 시 횟수가 초기화됩니다.','天井は未所持パーツが残る場合、ランダムな未所持パーツ1個を保証します。完成ユニットではありません。新パーツ獲得で回数はリセット。','保底仅在仍有未拥有零件时，保证随机获得1个未拥有零件，并非完整单位。获得新零件后计数重置。','Pity memberi 1 komponen acak yang belum dimiliki jika masih ada, bukan unit lengkap. Komponen baru mereset hitungan.','Bảo hiểm cho 1 bộ phận ngẫu nhiên chưa sở hữu nếu còn thiếu, không phải đơn vị hoàn chỉnh. Bộ phận mới đặt lại bộ đếm.','การันตีให้ชิ้นส่วนสุ่มที่ยังไม่มี 1 ชิ้น หากยังมีชิ้นส่วนที่ขาด ไม่ใช่ยูนิตสมบูรณ์ ได้ชิ้นส่วนใหม่แล้วตัวนับจะเริ่มใหม่');
+  var assemblyRule = tl('Assembly still needs every required part for that unit and its separately listed GP cost.','유닛 합체에는 해당 유닛의 필수 파츠 전부와 별도로 표시된 합체 GP 비용이 필요합니다.','合体には、そのユニットの必要パーツすべてと別途表示される合体GP費用が必要です。','合体仍需集齐该单位的全部必需零件，并支付另行标示的GP合体费用。','Perakitan tetap membutuhkan semua komponen wajib unit tersebut dan biaya GP yang tercantum terpisah.','Lắp ráp vẫn cần đủ mọi bộ phận bắt buộc của đơn vị đó và chi phí GP được niêm yết riêng.','การประกอบยังต้องใช้ชิ้นส่วนที่จำเป็นของยูนิตนั้นครบทุกชิ้น และค่า GP ที่ระบุแยกต่างหาก');
   var status = loading ? tl('Loading…','로딩 중…','読み込み中…','加载中…') :
     (d.error === 'LOGIN_REQUIRED' ? tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录') :
     (d.error ? tl('Unavailable','이용 불가','利用不可','不可用') : (tl('Pity in','천장까지','天井まで','保底还需')+' '+pity+' '+tl('pulls','회','回','次')+' · Pool '+pool)));
@@ -967,6 +969,8 @@ function _perfectGachaBoxHtml(d, loading) {
     '<div style="padding:12px;display:flex;flex-direction:column;flex:1;gap:8px">' +
       '<div style="font-size:10px;line-height:1.55;color:rgba(255,255,255,.72)">'+tl('Collect parts of robots & alien lifeforms to assemble super-units','로봇·외계생명체 파츠를 모아 기동 슈퍼유닛 완성','ロボ・エイリアンのパーツを集めて合体','收集机器人与外星生命零件合体')+'</div>' +
       '<div style="font-size:9px;color:var(--gold)">🎯 '+status+'</div>' +
+      '<div data-gacha-pity-rule style="font-size:10px;line-height:1.55;color:rgba(255,255,255,.78)">'+pityRule+'</div>' +
+      '<div data-gacha-assembly-rule style="font-size:10px;line-height:1.55;color:rgba(255,255,255,.72)">'+assemblyRule+'</div>' +
       '<div style="font-size:9px;color:rgba(255,255,255,.48)">GP <b style="color:#fff">'+(loading?'-':formatNum(price))+'</b></div>' +
       '<div style="display:flex;gap:8px;margin-top:auto">' +
         '<button type="button" class="fd-btn" data-action="gacha-box-pull" data-count="1" '+(enabled?'':'disabled')+' style="flex:1">1회 · '+formatNum(price)+'GP</button>' +
@@ -2485,10 +2489,16 @@ function renderShips() {
         + '<div style="height:3px;background:rgba(100,181,246,.15);border-radius:2px;overflow:hidden"><div style="height:100%;width:' + shieldPct + '%;background:linear-gradient(90deg,#1565c0,#64b5f6);transition:width .3s"></div></div></div>'
       : '';
     var listed = !!s.is_market_listed;
+    var repairLabel=tl('Repair','수리','修理','维修','Perbaiki','Sửa chữa','ซ่อมแซม');
+    var fullHpLabel=tl('Full HP','최대 HP','HP最大','满血','HP penuh','HP đầy','HP เต็ม');
+    var shieldLabel=tl('Shield','실드','シールド','护盾','Perisai','Lá chắn','โล่');
+    var saleLabel=tl('List for sale','판매 등록','出品する','上架出售','Jual di pasar','Đăng bán','ลงขาย');
+    var listedLabel=tl('Listed','판매 중','出品中','在售','Dijual','Đang bán','ลงขายแล้ว');
+    var cancelSaleLabel=tl('Cancel listing','판매 취소','出品取消','取消上架','Batalkan penjualan','Hủy đăng bán','ยกเลิกการขาย');
     var listedSticker = listed ? '<span class="ship-sale-sticker">'+(LANG==="ko"?"판매중":LANG==="ja"?"販売中":LANG==="zh"?"在售":"For Sale")+'</span>' : '';
     var repairBtn = isDamaged && !listed
-      ? '<button data-action="syRepairShip" data-ship-id="' + escapeHTML(s.id) + '" data-ship-name="' + escapeHTML(s.name_ko) + '" data-current-hp="' + escapeHTML(s.current_hp) + '" data-effective-max-hp="' + escapeHTML(effectiveMaxHp) + '" style="flex:1;padding:5px 4px;font-size:9px;font-weight:700;border-radius:5px;background:rgba(76,175,80,.18);border:1px solid rgba(76,175,80,.4);color:#81c784;cursor:pointer;font-family:var(--fn)">🔧 수리</button>'
-      : '<button disabled style="flex:1;padding:5px 4px;font-size:9px;border-radius:5px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.25);font-family:var(--fn)">' + (listed ? '판매중' : '✅ 최대HP') + '</button>';
+      ? '<button aria-label="'+escapeHTML(repairLabel)+'" data-action="syRepairShip" data-ship-id="' + escapeHTML(s.id) + '" data-ship-name="' + escapeHTML(s.name_ko) + '" data-current-hp="' + escapeHTML(s.current_hp) + '" data-effective-max-hp="' + escapeHTML(effectiveMaxHp) + '" style="flex:1;padding:5px 4px;font-size:9px;font-weight:700;border-radius:5px;background:rgba(76,175,80,.18);border:1px solid rgba(76,175,80,.4);color:#81c784;cursor:pointer;font-family:var(--fn)">🔧 '+repairLabel+'</button>'
+      : '<button disabled aria-label="'+escapeHTML(listed?listedLabel:fullHpLabel)+'" style="flex:1;padding:5px 4px;font-size:9px;border-radius:5px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.25);font-family:var(--fn)">' + (listed ? listedLabel : '✅ '+fullHpLabel) + '</button>';
     // [v7.346] 좌상단 배지(공용/타진영/별점)가 절대배치(top:6px,left:6px)라 .ship-name과 겹쳐 함선 이름이 가려짐 → 배지 있으면 상단 패딩으로 이름을 아래로 민다.
     var _hasTopBadge = !!(crossBadge || qBadge || listedSticker);
     return '<div class="ship-item ' + (s.is_flagship ? 'flagship ' : '') + (listed ? 'listed' : '') + (crossFaction ? ' cross-faction' : '') + '" style="position:relative' + (_hasTopBadge ? ';padding-top:28px' : '') + '">' +
@@ -2514,13 +2524,13 @@ function renderShips() {
       '</div>' +
       '<div style="display:flex;gap:4px;margin-top:6px">' +
         repairBtn +
-        '<button ' + (listed ? 'disabled' : '') + ' data-action="syChargeShield" data-ship-id="' + escapeHTML(s.id) + '" data-ship-name="' + escapeHTML(s.name_ko) + '" data-effective-max-hp="' + escapeHTML(effectiveMaxHp) + '" data-shield-hp="' + escapeHTML(shieldHp) + '" data-shield-max="' + escapeHTML(shieldMax) + '" style="flex:1;padding:5px 4px;font-size:9px;font-weight:700;border-radius:5px;background:rgba(100,181,246,.15);border:1px solid rgba(100,181,246,.35);color:#64b5f6;cursor:pointer;font-family:var(--fn)">🛡 실드</button>' +
+        '<button ' + (listed ? 'disabled' : '') + ' aria-label="'+escapeHTML(shieldLabel)+'" data-action="syChargeShield" data-ship-id="' + escapeHTML(s.id) + '" data-ship-name="' + escapeHTML(s.name_ko) + '" data-effective-max-hp="' + escapeHTML(effectiveMaxHp) + '" data-shield-hp="' + escapeHTML(shieldHp) + '" data-shield-max="' + escapeHTML(shieldMax) + '" style="flex:1;padding:5px 4px;font-size:9px;font-weight:700;border-radius:5px;background:rgba(100,181,246,.15);border:1px solid rgba(100,181,246,.35);color:#64b5f6;cursor:pointer;font-family:var(--fn)">🛡 '+shieldLabel+'</button>' +
         '<button ' + (listed ? 'disabled' : '') + ' data-action="syScrapShip" data-ship-id="' + escapeHTML(s.id) + '" data-ship-name="' + escapeHTML(s.name_ko) + '" title="해체 (환불+소각)" style="padding:5px 6px;font-size:9px;font-weight:700;border-radius:5px;background:rgba(255,107,107,.15);border:1px solid rgba(255,107,107,.35);color:#ff8a80;cursor:pointer;font-family:var(--fn)">🔥</button>' +
       '</div>' +
       '<div class="ship-sale-actions">' +
         (listed
-          ? '<button class="ship-sale-btn cancel" onclick="syCancelShipListing(' + s.market_listing_id + ')">판매 취소</button><button class="ship-sale-btn" disabled>' + syFmt(s.market_price_gp) + ' GP</button>'
-          : '<button class="ship-sale-btn" onclick="syListShipForSale(' + s.id + ')">판매 등록</button>') +
+          ? '<button aria-label="'+escapeHTML(cancelSaleLabel)+'" class="ship-sale-btn cancel" onclick="syCancelShipListing(' + s.market_listing_id + ')">'+cancelSaleLabel+'</button><button class="ship-sale-btn" disabled>' + syFmt(s.market_price_gp) + ' GP</button>'
+          : '<button aria-label="'+escapeHTML(saleLabel)+'" class="ship-sale-btn" onclick="syListShipForSale(' + s.id + ')">'+saleLabel+'</button>') +
       '</div>' +
     '</div>';
   }).join('');
@@ -2917,15 +2927,15 @@ async function syRepairShip(shipId, name, currentHp, maxHp) {
   var targetHp = quote ? quote.target_hp : maxHp;
   var healed = quote ? quote.healed : missing;
   var ok = await gameConfirm({
-    title: LANG==='ko'?'🔧 함선 수리':LANG==='ja'?'🔧 艦船修理':LANG==='zh'?'🔧 修复舰船':'🔧 Repair Ship', icon: '🔧',
+    title: tl('🔧 Repair Ship','🔧 함선 수리','🔧 艦船修理','🔧 修复舰船','🔧 Perbaiki Kapal','🔧 Sửa tàu','🔧 ซ่อมเรือ'), icon: '🔧',
     body: '<div style="font-size:11px;color:#81c784;font-weight:700;margin-bottom:5px">' + name + '</div>'
       + '<div style="font-size:10px;color:var(--tx3)">HP ' + syFmt(currentHp) + ' → ' + syFmt(targetHp) + ' (+' + syFmt(healed) + ')</div>'
-      + (!quote ? '<div style="font-size:9px;color:var(--gold);margin-top:4px">'+(LANG==='ko'?'견적 API 실패 — 기본 공식으로 표시합니다.':LANG==='ja'?'見積API失敗 — 基本式で表示します。':LANG==='zh'?'报价接口失败 — 使用默认公式显示。':'Quote unavailable — showing default estimate.')+'</div>' : ''),
+      + (!quote ? '<div style="font-size:9px;color:var(--gold);margin-top:4px">'+(tl('Quote unavailable — showing default estimate.','견적 API 실패 — 기본 공식으로 표시합니다.','見積API失敗 — 基本式で表示します。','报价接口失败 — 使用默认公式显示。','Penawaran tidak tersedia — menampilkan perkiraan dasar.','Không có báo giá — hiển thị ước tính mặc định.','ไม่มีใบเสนอราคา — แสดงค่าประมาณเบื้องต้น'))+'</div>' : ''),
     info: [
-      { k: LANG==='ko'?'GP 비용':LANG==='ja'?'GP費用':LANG==='zh'?'GP费用':'GP Cost', v: gpCost + ' GP' },
+      { k: tl('GP Cost','GP 비용','GP費用','GP费用','Biaya GP','Chi phí GP','ค่า GP'), v: gpCost + ' GP' },
       { k: '🪨 iron_ore', v: ironNeed + (LANG==='ko'?'개':LANG==='ja'?'個':LANG==='zh'?'个':'x') }
     ],
-    confirmText: LANG==='ko'?'🔧 수리하기':LANG==='ja'?'🔧 修理する':LANG==='zh'?'🔧 修复':'🔧 Repair'
+    confirmText: tl('🔧 Repair','🔧 수리하기','🔧 修理する','🔧 修复','🔧 Perbaiki','🔧 Sửa chữa','🔧 ซ่อมแซม')
   });
   if (!ok) return;
   try {
@@ -2936,7 +2946,7 @@ async function syRepairShip(shipId, name, currentHp, maxHp) {
     });
     var d = await r.json();
     if (d.error) { showFactionToast((LANG==='ko'?'수리 실패: ':LANG==='ja'?'修理失敗: ':LANG==='zh'?'修复失败: ':'Repair failed: ') + d.error, 'error'); return; }
-    showFactionToast('🔧 수리 완료! +' + syFmt(d.healed) + ' HP (-' + d.gp_cost + ' GP)', 'success');
+    showFactionToast(tl('🔧 Repair complete! +','🔧 수리 완료! +','🔧 修理完了！+','🔧 维修完成！+','🔧 Perbaikan selesai! +','🔧 Đã sửa xong! +','🔧 ซ่อมเสร็จแล้ว! +') + syFmt(d.healed) + ' HP (-' + d.gp_cost + ' GP)', 'success');
     try{ markDailyOpsAction('repair_ship', 1); }catch(_e){}
     refreshBalance();
     await refreshShipyard();
@@ -2981,12 +2991,12 @@ async function syChargeShield(shipId, name, maxHp, currentShield, shieldMax) {
   var units = canAdd;
   var gpCost = Math.ceil(units * 0.05);
   var ok = await gameConfirm({
-    title: LANG==='ko'?'🛡 실드 충전':LANG==='ja'?'🛡 シールド充電':LANG==='zh'?'🛡 充能护盾':'🛡 Charge Shield', icon: '🛡',
+    title: tl('🛡 Charge Shield','🛡 실드 충전','🛡 シールド充電','🛡 充能护盾','🛡 Isi Perisai','🛡 Nạp lá chắn','🛡 ชาร์จโล่'), icon: '🛡',
     body: '<div style="font-size:11px;color:#64b5f6;font-weight:700;margin-bottom:5px">' + name + '</div>'
-      + '<div style="font-size:10px;color:var(--tx3)">'+(LANG==="ko"?"실드":LANG==="ja"?"シールド":LANG==="zh"?"护盾":"Shield")+' ' + syFmt(currentShield) + ' → ' + syFmt(currentShield + units) + '</div>'
-      + '<div style="font-size:9px;color:rgba(255,255,255,.4);margin-top:4px">'+(LANG==="ko"?"실드는 전투 시 HP 대신 먼저 소모됩니다 · 시간당 3% 자연 감소":LANG==="ja"?"シールドは戦闘時HPより先に消費 · 毎時3%自然減少":LANG==="zh"?"护盾优先于HP消耗 · 每小时衰减3%":"Shield absorbs damage before HP · 3% decay/hr")+'</div>',
-    info: [{ k: LANG==='ko'?'GP 비용':LANG==='ja'?'GP費用':LANG==='zh'?'GP费用':'GP Cost', v: gpCost + ' GP' }],
-    confirmText: LANG==='ko'?'🛡 충전하기':LANG==='ja'?'🛡 充電する':LANG==='zh'?'🛡 充能':'🛡 Charge'
+      + '<div style="font-size:10px;color:var(--tx3)">'+(tl('Shield','실드','シールド','护盾','Perisai','Lá chắn','โล่'))+' ' + syFmt(currentShield) + ' → ' + syFmt(currentShield + units) + '</div>'
+      + '<div style="font-size:9px;color:rgba(255,255,255,.4);margin-top:4px">'+(tl('Shield absorbs damage before HP · 3% decay/hr','실드는 전투 시 HP 대신 먼저 소모됩니다 · 시간당 3% 자연 감소','シールドは戦闘時HPより先に消費 · 毎時3%自然減少','护盾优先于HP消耗 · 每小时衰减3%','Perisai menyerap kerusakan sebelum HP · berkurang 3%/jam','Lá chắn chịu sát thương trước HP · giảm 3%/giờ','โล่รับความเสียหายก่อน HP · ลดลง 3% ต่อชั่วโมง'))+'</div>',
+    info: [{ k: tl('GP Cost','GP 비용','GP費用','GP费用','Biaya GP','Chi phí GP','ค่า GP'), v: gpCost + ' GP' }],
+    confirmText: tl('🛡 Charge','🛡 충전하기','🛡 充電する','🛡 充能','🛡 Isi','🛡 Nạp','🛡 ชาร์จ')
   });
   if (!ok) return;
   try {
@@ -3096,9 +3106,9 @@ async function syListShipForSale(shipId) {
   var _shipFb = LANG==='ko'?'함선':LANG==='ja'?'艦船':LANG==='zh'?'舰船':'Ship';
   var name = ship ? (syShipName(ship) || ship.name || _shipFb) : _shipFb;
   var priceText = await gameInput({
-    title:LANG==='ko'?'함선 판매 등록':LANG==='ja'?'艦船出品':LANG==='zh'?'上架舰船':'List Ship for Sale',
-    label:name + (LANG==='ko'?' 판매가 (GP)':LANG==='ja'?' 売値 (GP)':LANG==='zh'?' 售价 (GP)':' Sale Price (GP)'),
-    placeholder:LANG==='ko'?'예: 1200':LANG==='ja'?'例: 1200':LANG==='zh'?'例如: 1200':'e.g. 1200',
+    title:tl('List Ship for Sale','함선 판매 등록','艦船出品','上架舰船','Jual Kapal','Đăng bán tàu','ลงขายเรือ'),
+    label:name + (tl(' Sale Price (GP)',' 판매가 (GP)',' 売値 (GP)',' 售价 (GP)',' Harga Jual (GP)',' Giá bán (GP)',' ราคาขาย (GP)')),
+    placeholder:tl('e.g. 1200','예: 1200','例: 1200','例如: 1200','mis. 1200','ví dụ: 1200','เช่น 1200'),
     maxLength:16
   });
   if (priceText === null) return;

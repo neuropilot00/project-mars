@@ -150,6 +150,8 @@ body{padding:0;background:#03040b;}
   .sound-toggle{top:98px}
 }
 html[data-tl-mode="sandbox"] body{overflow-y:auto;}
+/* The local practice turn counter is not an authoritative live/replay turn. */
+html[data-tl-mode="battle"] .tinfo{display:none;}
 html[data-tl-mode="sandbox"] .wrap{height:100%;max-height:100svh;grid-template-rows:42px minmax(160px,1fr) auto 42px auto auto;}
 html[data-tl-mode="sandbox"] #c{height:100%;max-height:100%;object-fit:contain;}
 @media (max-height:820px) and (min-width:721px){
@@ -4174,9 +4176,10 @@ async function boot(){
   // ws 연결 — battle 페이지인 경우만 (iframe 안에서 호출됨)
   connectBattleWs();
 
-  // ✅ [리플레이 하이라이트] startTick 파라미터로 자동 패스트포워드
+  // Sandbox simulation may fast-forward locally. Recorded battle seeking is
+  // controlled by the parent's authoritative timeline and replay_frame bridge.
   const _startTick = parseInt(tlQuery('startTick') || '0');
-  if (_startTick > 0) {
+  if (TL_MODE === 'sandbox' && _startTick > 0) {
     // 서버 tick × 200ms/tick ÷ 8 배속 = 패스트포워드 필요 시간(ms)
     const _ffDuration = Math.min(_startTick * 200 / 8, 12000);
     setSimSpeed(8);

@@ -55,7 +55,31 @@ router.get('/onboarding/status', requireAuth, async (req, res) => {
   if (!wallet) return res.status(401).json({ error: 'NO_WALLET' });
 
   try {
-    return res.json(await getPlayerJourney(pool, wallet));
+    const journey = await getPlayerJourney(pool, wallet);
+    // Read-only offer metadata. The claim transaction remains the authority.
+    let firstClaim = null;
+    try {
+      const result = await pool.query(`SELECT u.rank_level, o.completed, o.skipped,
+        (SELECT COUNT(*)::int FROM claims WHERE owner=$1) AS claim_count,
+        (SELECT value FROM settings WHERE key='onboarding_enabled') AS onboarding_enabled,
+        (SELECT value FROM settings WHERE key='onboarding_free_claim_enabled') AS free_enabled,
+        (SELECT value FROM settings WHERE key='onboarding_free_claim_size') AS free_size
+        FROM users u LEFT JOIN user_onboarding o ON o.wallet_address=u.wallet_address
+        WHERE u.wallet_address=$1`, [String(wallet).toLowerCase()]);
+      const row = result.rows[0];
+      if (row) {
+        const maxPixels = parseInt(row.free_size == null ? '25' : row.free_size, 10);
+        const onboardingEnabled = [true, 'true', '"true"'].includes(row.onboarding_enabled);
+        firstClaim = {
+          eligible: onboardingEnabled && String(row.free_enabled == null ? 'true' : row.free_enabled) === 'true' &&
+            row.completed !== true && row.skipped !== true && Number(row.claim_count) === 0 &&
+            Number.isSafeInteger(maxPixels) && maxPixels > 0,
+          maxPixels: Number.isSafeInteger(maxPixels) && maxPixels > 0 ? maxPixels : null,
+          playerLevel: Math.max(0, parseInt(row.rank_level, 10) || 0)
+        };
+      }
+    } catch (_) { /* Unknown eligibility must not advertise a free claim. */ }
+    return res.json({ ...journey, firstClaim });
   } catch (err) {
     console.error('[onboarding] status error:', err.message);
     // Unknown progress must never look like a new player's confirmed step zero.

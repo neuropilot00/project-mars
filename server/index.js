@@ -651,6 +651,9 @@ app.use((req, res, next) => {
 app.get('/favicon.ico', (_req, res) => res.status(204).end());
 // Publish only game client files, never the repository/server/tooling tree.
 app.use('/assets', express.static(path.join(__dirname, '..', 'assets'), { index: false }));
+for (const file of ['minigame-runner.js', 'minigame-invaders.js', 'minigame-digger.js']) {
+  app.get('/public/js/' + file, (_req, res) => res.sendFile(path.join(__dirname, '..', 'public', 'js', file)));
+}
 for (const file of ['index.html', 'authenticator.html', 'admin.html', 'arena.html', 'manifest.json', 'sw.js', 'map.png', 'PIXELWAR_landing.html', 'PIXELWAR_concept.html']) {
   app.get('/' + file, (_req, res) => res.sendFile(path.join(__dirname, '..', file)));
 }

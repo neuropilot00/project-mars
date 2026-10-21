@@ -53,20 +53,32 @@ test('ordinary real end, including a first sortie, reaches the parent result wit
 });
 function viewer({status='active',frames=null,error=null}={}){
  const elements={};const element=id=>elements[id]||(elements[id]={textContent:'',src:'',style:{},classList:{add(){},remove(){},contains(){return true;}},getContext(){return{};}});
- const notices=[];let animations=0;
+ const notices=[],posted=[],drawn=[];let animations=0;
+ const origin='https://fixture.invalid';
+ element('bvTacticalFrame').contentWindow={postMessage(message,target){assert.equal(target,origin);posted.push(message);}};
  const c={console:{log(){},warn(){},error(){}},LANG:'en',walletState:{address:'dummy'},bv:{_viewerSeq:0,animHandle:null,playing:true,timeline:{frames:[{t:999}],tick_ms:200},battle:{id:999},shownEvents:new Set()},document:{getElementById:element},performance:{now:()=>100},buildTacticalLabUrl:()=>'/tactical?mode=battle&bid=71',loadBvSidePanels(){},_pageIsActive:()=>true,_activeSleep:async()=>{},rememberBattleContext(){},renderHudSides(){},renderBvCmdBanner(){},formatTickTime:()=> '00:00',showFactionToast:(message,type)=>notices.push({message,type}),requestAnimationFrame:()=>++animations,cancelAnimationFrame(){},bvAnimLoop(){},
+ location:{origin},drawBattleFrame:frame=>drawn.push(frame),updateHudFleets(){},showBvEvent(){assert.fail('fixture has no recorded battle events');},
  battleHubReadKeyed:async(key)=>key.startsWith('battle-info:')?error?{error}:{battle:{id:71,status,winner_side:status==='ended'?'atk':null}}:key.startsWith('battle-timeline:')?frames?{timeline:{tick_ms:200,frames}}:null:{actions:[]}};
- vm.createContext(c);vm.runInContext(part(hub,'async function openBattleViewer(','function closeBattleViewer('),c);return{c,notices,get animations(){return animations;}};
+ vm.createContext(c);
+ vm.runInContext(part(hub,'async function openBattleViewer(','function closeBattleViewer('),c);
+ vm.runInContext(part(hub,'function getLastTick(','function bvAnimLoop('),c);
+ vm.runInContext(part(hub,'function forwardObjectiveReplayFrame(','function drawBattleFrame('),c);
+ return{c,notices,posted,drawn,get animations(){return animations;}};
 }
 for(const [name,input]of[['active pending',{status:'active'}],['ended missing timeline',{status:'ended'}],['info failure',{error:'UNAVAILABLE'}]])test('viewer '+name+' never reuses prior battle or invents an instant result',async()=>{
  const f=viewer(input);await f.c.openBattleViewer(71);assert.equal(f.c.bv.timeline,null);assert.equal(f.animations,0);assert.ok(!f.notices.some(n=>/Auto-win|Auto-loss|instantly/.test(n.message)));if(input.status==='ended'||input.error)assert.ok(f.notices.some(n=>n.type==='error'));
 });
 test('ordinary terminal battle with actual stored frames uses the same authoritative replay bridge as objectives',async()=>{
  const f=viewer({status:'ended',frames:[{t:0,fleets:[],ships:[]},{t:50,fleets:[],ships:[]}]});await f.c.openBattleViewer(71);assert.equal(f.c.bv._objectiveReplay,true);assert.equal(f.c.bv.timeline.frames.length,2);assert.equal(f.animations,1);assert.ok(!f.notices.length);
+ assert.equal(typeof f.c.redrawCurrentFrame,'function');assert.equal(f.drawn[0],f.c.bv.timeline.frames[0]);
+ assert.equal(f.posted.length,1);assert.equal(f.posted[0].cmd,'replay_frame');assert.equal(f.posted[0].battleId,71);assert.equal(f.posted[0].payload.tick,0);assert.equal(f.posted[0].payload.realtime,false);
+ f.c.redrawCurrentFrame();assert.equal(f.posted.length,1,'actual bridge deduplicates the initial stored frame');
 });
 
 test('a one-frame real result never claims an unverified automatic territory capture',async()=>{
  const f=viewer({status:'ended',frames:[{t:0,fleets:[],ships:[]}]});await f.c.openBattleViewer(71);assert.equal(f.c.bv._objectiveReplay,true);assert.ok(!f.notices.length);assert.equal(f.animations,1);
+ assert.equal(f.drawn[0],f.c.bv.timeline.frames[0]);assert.equal(f.posted.length,1);assert.equal(f.posted[0].cmd,'replay_frame');assert.equal(f.posted[0].payload.tick,0);
+ assert.ok(!f.posted.some(message=>message.cmd==='replay_end'),'opening a short record does not manufacture an end/capture');
 });
 
 test('disabled targets and detailed fleet status never expose catalogue HP before the first authoritative frame',()=>{

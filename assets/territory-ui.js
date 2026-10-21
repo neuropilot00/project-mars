@@ -118,13 +118,147 @@ var landDragStart=null; // {lat, lng}
 var landDragEnd=null;   // {lat, lng}
 var landDragRect=null;  // {lat, lng, w, h} — computed rect
 
-function activateLandSelect(){
+// Fresh server eligibility is an offer only; /claim rechecks all rules atomically.
+var _claimFlowPreparing=false;
+function _isFirstClaimFlowActive(){
+  var modal=document.getElementById('claimModal');
+  return _claimFlowPreparing||landSelectMode||!!(modal&&modal.classList.contains('open'));
+}
+function _suppressFirstClaimGuidance(){
+  if(typeof closeOnboardingHint==='function')closeOnboardingHint();
+  else{var hint=document.getElementById('onboardingHint');if(hint)hint.classList.remove('active');}
+  if(typeof _removeFirstClaimGuide==='function')_removeFirstClaimGuide();
+}
+var _firstClaimOffer = null;
+async function _refreshFirstClaimOffer(){
+  var wallet=String(walletState.address||'').toLowerCase();
+  _firstClaimOffer=null;
+  var controller=typeof AbortController==='function'?new AbortController():null;
+  var timeout=controller?setTimeout(function(){controller.abort();},8000):null;
+  try{
+    var response=await fetch('/api/onboarding/status',{headers:getAuthHeaders(),cache:'no-store',signal:controller?controller.signal:undefined});
+    if(!response.ok) return;
+    var data=await response.json(), offer=data&&data.firstClaim;
+    if(wallet!==String(walletState.address||'').toLowerCase()) return;
+    if(offer&&typeof offer.eligible==='boolean'&&Number.isSafeInteger(offer.maxPixels)&&offer.maxPixels>0&&Number.isSafeInteger(offer.playerLevel)){
+      _firstClaimOffer={wallet:wallet,eligible:offer.eligible,maxPixels:offer.maxPixels,playerLevel:offer.playerLevel};
+    }
+  }catch(_){}finally{if(timeout)clearTimeout(timeout);}
+}
+var _firstClaimPixelsWallet = null;
+async function _refreshFirstClaimPixels(){
+  var wallet=String(walletState.address||'').toLowerCase();
+  _firstClaimPixelsWallet=null;
+  var controller=typeof AbortController==='function'?new AbortController():null;
+  var timeout=controller?setTimeout(function(){controller.abort();},8000):null;
+  try{
+    var response=await fetch('/api/pixels',{headers:getAuthHeaders(),cache:'no-store',signal:controller?controller.signal:undefined});
+    // Public-HUD deferral uses a synthetic 200 {}. It is not a server snapshot.
+    if(!response.ok||(response.headers&&response.headers.get('X-OM-Deferred')))return;
+    var byOwner=await response.json();
+    if(!byOwner||typeof byOwner!=='object'||Array.isArray(byOwner))return;
+    var valid=Object.keys(byOwner).every(function(owner){
+      return Array.isArray(byOwner[owner])&&byOwner[owner].every(function(pixel){
+        return Array.isArray(pixel)&&pixel.length>=4&&Number.isFinite(pixel[0])&&Number.isFinite(pixel[1])&&Number.isFinite(pixel[3]);
+      });
+    });
+    if(!valid||wallet!==String(walletState.address||'').toLowerCase()||typeof initPixelGridFromServer!=='function')return;
+    // An empty object is a valid authoritative empty-world response.
+    initPixelGridFromServer(byOwner);
+    _firstClaimPixelsWallet=wallet;
+  }catch(_){}finally{if(timeout)clearTimeout(timeout);}
+}
+function _firstClaimPixelsReady(){
+  return _firstClaimPixelsWallet!==null&&_firstClaimPixelsWallet===String(walletState.address||'').toLowerCase();
+}
+function _currentFirstClaimOffer(){
+  return _firstClaimOffer&&_firstClaimOffer.wallet===String(walletState.address||'').toLowerCase()?_firstClaimOffer:null;
+}
+function _firstClaimSectorAllowed(sector){
+  var offer=_currentFirstClaimOffer();
+  if(!sector||!offer) return false;
+  // Match the existing sector gate, without guessing unknown prerequisites.
+  if(sector.tier==='frontier'||sector.entryCheckActive===false) return true;
+  return Number.isFinite(Number(sector.entryMinLevel))&&Number(sector.entryMinLevel)<=offer.playerLevel&&
+    Number(sector.entryRequiredMidOwns)===0;
+}
+function _firstClaimFreeAt(lat,lng,w,h,cost){
+  var offer=_currentFirstClaimOffer();
+  if(!_firstClaimPixelsReady())return false;
+  if(!offer||!offer.eligible||w*h>offer.maxPixels||!cost||cost.overlapCount!==0||cost.newCount!==w*h) return false;
+  var sector=typeof findSectorAtLatLng==='function'?findSectorAtLatLng(lat,lng):null;
+  return _firstClaimSectorAllowed(sector);
+}
+function _firstClaimFreeLabel(){
+  return tl('FREE first territory','첫 영토 무료','最初の領土は無料','首块领地免费','Wilayah pertama GRATIS','Lãnh thổ đầu tiên MIỄN PHÍ','ดินแดนแรกฟรี');
+}
+function _firstClaimUnknownLabel(){
+  return tl('Free-claim eligibility unavailable. Retry before buying.','무료 점령 자격을 확인하지 못했습니다. 구매 전에 다시 확인하세요.','無料確保の資格を確認できません。購入前に再確認してください。','无法确认免费占领资格，请在购买前重试。','Kelayakan klaim gratis belum tersedia. Coba lagi sebelum membeli.','Chưa kiểm tra được quyền nhận đất miễn phí. Thử lại trước khi mua.','ตรวจสอบสิทธิ์ยึดฟรีไม่ได้ ลองใหม่ก่อนซื้อ');
+}
+function _showFirstClaimActions(){
+  var warning=document.getElementById('claimLevelWarn');
+  if(!warning||!warning.parentNode) return;
+  var area=document.getElementById('firstClaimActions');
+  if(!area){area=document.createElement('div');area.id='firstClaimActions';warning.parentNode.insertBefore(area,warning.nextSibling);}
+  area.textContent='';
+  var offer=_currentFirstClaimOffer();
+  if(!offer||!_firstClaimPixelsReady()){
+    var note=document.createElement('p');note.textContent=_firstClaimUnknownLabel();area.appendChild(note);
+    var retry=document.createElement('button');retry.type='button';retry.className='cfm';retry.textContent=tl('Retry eligibility check','무료 자격 다시 확인','無料資格を再確認','重试资格检查','Periksa kelayakan lagi','Kiểm tra quyền nhận lại','ตรวจสอบสิทธิ์อีกครั้ง');
+    retry.onclick=function(){openClaimModal();};area.appendChild(retry);
+  }
+  if(!offer||offer.eligible||_getBlockedSector(selectedPlot.lat,selectedPlot.lng)){
+    var beginner=document.createElement('button');beginner.type='button';beginner.className='cfm';
+    beginner.textContent=tl('Choose beginner area','초보 지역 선택','初心者エリアを選ぶ','选择新手区域','Pilih area pemula','Chọn khu vực tân thủ','เลือกพื้นที่ผู้เริ่มต้น');
+    beginner.onclick=_chooseFirstClaimArea;area.appendChild(beginner);
+  }
+}
+async function _chooseFirstClaimArea(){
+  await Promise.all([_refreshFirstClaimOffer(),_refreshFirstClaimPixels()]);
+  if(typeof refreshSectors==='function')await refreshSectors();
+  var offer=_currentFirstClaimOffer();
+  if(!offer||!_firstClaimPixelsReady()){showToast(_firstClaimUnknownLabel(),'error');return;}
+  var size=offer.eligible?Math.floor(Math.sqrt(offer.maxPixels)):5;
+  size=Math.max(1,Math.min(5,size));
+  var regions=typeof _sectorsData!=='undefined'&&Array.isArray(_sectorsData)?_sectorsData:[];
+  for(var si=0;si<regions.length;si++){
+    var sector=regions[si],bounds=sector.bounds;
+    if(sector.tier!=='frontier'||!bounds||!_firstClaimSectorAllowed(sector))continue;
+    // Sample inside published geometry; a candidate is offered only if the live
+    // pixel grid confirms every cell is new. The server still rechecks on POST.
+    for(var yi=1;yi<=9;yi++)for(var xi=1;xi<=9;xi++){
+      var lat=Math.round((bounds.latMin+(bounds.latMax-bounds.latMin)*yi/10)/GRID_SIZE)*GRID_SIZE;
+      var lng=Math.round((bounds.lngMin+(bounds.lngMax-bounds.lngMin)*xi/10)/GRID_SIZE)*GRID_SIZE;
+      if(lat-size*GRID_SIZE/2< -70||lat+size*GRID_SIZE/2>70)continue;
+      var cells=typeof getClaimPixels==='function'?getClaimPixels(lat,lng,size,size):[];
+      var inside=cells.length===size*size&&cells.every(function(cell){
+        var actual=typeof findSectorAtLatLng==='function'?findSectorAtLatLng(cell.lat,cell.lng):null;
+        return actual&&actual.id===sector.id;
+      });
+      if(!inside)continue;
+      var cost=calcStampCost(lat,lng,size,size);
+      if(cost.overlapCount!==0||cost.newCount!==size*size)continue;
+      cancelLandSelect();
+      _mobLandW=size;_mobLandH=size;
+      selectedPlot={lat:lat,lng:lng,owner:null,price:0,label:'UNCLAIMED',w:size,h:size};
+      uploadedUrl=null;
+      if(globe&&globe.pointOfView)globe.pointOfView({lat:lat,lng:lng-180,altitude:1.2},1000);
+      await openClaimModal();return;
+    }
+  }
+  showToast(tl('No vacant beginner area found. Choose another location on the map.','비어 있는 초보 지역을 찾지 못했습니다. 지도에서 다른 위치를 선택하세요.','空いている初心者エリアが見つかりません。地図で別の場所を選んでください。','未找到空闲新手区域，请在地图上选择其他位置。','Area pemula kosong tidak ditemukan. Pilih lokasi lain di peta.','Không tìm thấy khu vực tân thủ trống. Hãy chọn vị trí khác trên bản đồ.','ไม่พบพื้นที่ผู้เริ่มต้นว่าง เลือกตำแหน่งอื่นบนแผนที่'),'error');
+}
+
+async function activateLandSelect(){
   if(!walletState.connected){
     showToast(t('daily_login_required')||tl('Login required','로그인이 필요합니다','ログインが必要です','请先登录'));
     openAuthModal();
     return;
   }
-  landSelectMode=true; stampMode=false;
+  _claimFlowPreparing=true;_suppressFirstClaimGuidance();
+  await Promise.all([_refreshFirstClaimOffer(),_refreshFirstClaimPixels()]);
+  if(typeof refreshSectors==='function'){try{await refreshSectors();}catch(_){}}
+  landSelectMode=true;_claimFlowPreparing=false; stampMode=false;
   landDragStart=null; landDragEnd=null; landDragRect=null;
   document.getElementById('landSelectBtn').textContent=isMobile?tl('TAP MARS TO PLACE','화성을 탭해 배치','タップして配置','点击火星放置'):tl('CLICK MARS TO START','화성을 클릭해 시작','クリックして開始','点击火星开始');
   document.getElementById('landSelectBtn').style.color='var(--gn)';
@@ -142,7 +276,9 @@ function activateLandSelect(){
   }
   // Mobile: show size controls and default size
   if(isMobile){
-    _mobLandW=10; _mobLandH=10;
+    var offer=_currentFirstClaimOffer();
+    var initialSize=offer&&offer.eligible?Math.max(1,Math.min(10,Math.floor(Math.sqrt(offer.maxPixels)))):10;
+    _mobLandW=initialSize; _mobLandH=initialSize;
     _showMobSizeControls(true);
     showToast(tl('Tap to place center → drag to move → pinch zoom','탭해서 중심 배치 → 드래그로 이동 → 핀치로 확대/축소','タップで中心配置 → ドラッグで移動 → ピンチで拡大縮小','点击放置中心 → 拖动移动 → 双指缩放'));
   }else{
@@ -176,7 +312,7 @@ function _updateMobLabels(){
   var cl=document.getElementById('mobCostLabel');
   if(!landDragRect){if(cl) cl.textContent=(_mobLandW*_mobLandH).toLocaleString()+'px';return;}
   var ci=calcStampCost(landDragRect.lat,landDragRect.lng,landDragRect.w,landDragRect.h);
-  if(cl) cl.textContent=(_mobLandW*_mobLandH).toLocaleString()+'px · ≈'+ci.total.toFixed(1)+' PP'+(ci.overlapCount>0?' ('+ci.overlapCount+'⚔)':'');
+  if(cl) cl.textContent=(_mobLandW*_mobLandH).toLocaleString()+'px · '+(_firstClaimFreeAt(landDragRect.lat,landDragRect.lng,landDragRect.w,landDragRect.h,ci)?_firstClaimFreeLabel():'≈'+ci.total.toFixed(1)+' PP')+(ci.overlapCount>0?' ('+ci.overlapCount+'⚔)':'');
 }
 // Virtual joystick for territory size control
 (function(){
@@ -317,7 +453,7 @@ function updateLandSelectUI(){
   document.getElementById('landSizeLabel').textContent=r.w+'×'+r.h;
   document.getElementById('landPixelLabel').textContent=(r.w*r.h).toLocaleString()+'px';
   var costInfo=calcStampCost(r.lat,r.lng,r.w,r.h);
-  var costStr=costInfo.total.toFixed(2)+' PP';
+  var costStr=_firstClaimFreeAt(r.lat,r.lng,r.w,r.h,costInfo)?_firstClaimFreeLabel():costInfo.total.toFixed(2)+' PP';
   if(costInfo.overlapCount>0) costStr+=' ('+costInfo.overlapCount+' hijack)';
   // 섹터 레벨 제한 체크
   var _lsBlocked=_getBlockedSector(r.lat,r.lng);
@@ -2840,17 +2976,22 @@ function updateCostDisplayUnit(){
     document.getElementById('modalCostDisplay').textContent=ci.total.toFixed(2)+' '+unit+' (new '+ci.newCount+'px + hijack '+ci.overlapCount+'px)';
   }else{
     var cw=selectedPlot?selectedPlot.w||stampW:stampW, ch=selectedPlot?selectedPlot.h||stampH:stampH;
-    document.getElementById('modalCostDisplay').textContent=ci.total.toFixed(2)+' '+unit+' ('+cw+'×'+ch+' = '+ci.totalPixels.toLocaleString()+'px)';
+    document.getElementById('modalCostDisplay').textContent=(_firstClaimFreeAt(selectedPlot.lat,selectedPlot.lng,cw,ch,ci)?_firstClaimFreeLabel()+' · 0 '+unit:ci.total.toFixed(2)+' '+unit)+' ('+cw+'×'+ch+' = '+ci.totalPixels.toLocaleString()+'px)';
   }
 }
 
 var lastStampCost=null; // cached cost breakdown for confirm
-function openClaimModal(){
+async function openClaimModal(){
   if(!selectedPlot) return;
+  var openingPlot=selectedPlot;
+  _claimFlowPreparing=true;_suppressFirstClaimGuidance();
+  await Promise.all([_refreshFirstClaimOffer(),_refreshFirstClaimPixels()]);
+  if(selectedPlot!==openingPlot){_claimFlowPreparing=false;return;}
   // Fresh sector pricing/access data before computing cost — admin 변경이 즉시 반영
-  if (typeof refreshSectors === 'function') { try { refreshSectors(); } catch(_) {} }
+  if (typeof refreshSectors === 'function') { try { await refreshSectors(); } catch(_) {} }
+  if(selectedPlot!==openingPlot){_claimFlowPreparing=false;return;}
   var m=document.getElementById('claimModal');
-  m.classList.add('open');
+  m.classList.add('open');_claimFlowPreparing=false;
   document.getElementById('modalCoords').textContent=selectedPlot.lat.toFixed(1)+'°, '+selectedPlot.lng.toFixed(1)+'°';
   var hw=document.getElementById('hijackWarn'),tl=document.getElementById('modalTitle');
 
@@ -2974,6 +3115,7 @@ function openClaimModal(){
     }
     // 하이젝 모드: _loadHijackFleets가 버튼 상태 관리
   }
+  _showFirstClaimActions();
   // ── 하이젝 모드: 섹터 차단 없으면 함대 로더 실행 ──
   if(_isHijackMode && !_blockedSec){
     _loadHijackFleets();
@@ -3214,6 +3356,8 @@ async function confirmClaim(){
   }
   var cw=selectedPlot.w||stampW, ch=selectedPlot.h||stampH;
   var costInfo=lastStampCost||calcStampCost(selectedPlot.lat,selectedPlot.lng,cw,ch);
+  // Freeze the verified free quote before optimistic pixels change ownership.
+  var expectedTutorialFree=_firstClaimFreeAt(selectedPlot.lat,selectedPlot.lng,cw,ch,costInfo);
   var price=costInfo.total;
   var hasOverlap=costInfo.overlapCount>0;
   var linkVal=(document.getElementById('stampLinkInput')?document.getElementById('stampLinkInput').value:'').trim();
@@ -3431,11 +3575,7 @@ async function confirmClaim(){
               // claims도 재로드
               return _guardedJsonFetch('hijack-claims-refresh', '/api/claims', {minGap:15000, backoffMs:120000, fetchOptions:{headers:getAuthHeaders()}}).then(function(sc){
                 if(sc&&sc.length){
-                  var existIds={};
-                  claims.forEach(function(c){if(c.id)existIds[c.id]=true;});
-                  sc.forEach(function(c){if(!existIds[c.id])claims.push(c);
-                    else{for(var i=0;i<claims.length;i++){if(claims[i].id===c.id){claims[i]=c;break;}}}
-                  });
+                  _upsertServerClaims(sc);
                 }
               }).catch(function(){});
             }
@@ -3503,7 +3643,8 @@ async function confirmClaim(){
         imageUrl:sendImageUrl,
         originalImageUrl:originalGifUrl||'',
         linkUrl:linkVal||'',
-        payMethod:selectedPayMethod||'pp'
+        payMethod:selectedPayMethod||'pp',
+        expectedTutorialFree:expectedTutorialFree
       })
     });
     var d=await resp.json();
@@ -3517,7 +3658,10 @@ async function confirmClaim(){
       _rebuildOwnerData();
       claimsSnapshot=null;
       compositeClaimsOnTexture();
-      showToast(srvErr(d.error)||tl('CLAIM FAILED','점령 실패','確保失敗','占领失败'),'error');
+      if(resp.status===409&&d.error==='TUTORIAL_FREE_CLAIM_CHANGED'){
+        _firstClaimOffer=null;
+        showToast(tl('Free first-claim eligibility changed. Reopen Claim to check the current offer.','첫 무료 점령 자격이 변경되었습니다. 점령 창을 다시 열어 현재 조건을 확인하세요.','最初の無料確保の資格が変わりました。確保画面を開き直し、現在の条件を確認してください。','首次免费占领资格已变更，请重新打开占领窗口检查当前条件。','Kelayakan klaim pertama gratis berubah. Buka kembali Klaim untuk memeriksa penawaran saat ini.','Quyền nhận lãnh thổ đầu tiên miễn phí đã thay đổi. Mở lại phần nhận đất để kiểm tra điều kiện hiện tại.','สิทธิ์ยึดดินแดนแรกฟรีเปลี่ยนไป เปิดหน้ายึดดินแดนใหม่เพื่อตรวจสอบเงื่อนไขปัจจุบัน'),'error');
+      }else showToast(srvErr(d.error)||tl('CLAIM FAILED','점령 실패','確保失敗','占领失败'),'error');
       try{_sfx.error()}catch(e){}
       if(btn){btn.disabled=false;btn.textContent=t('confirm_claim');}
       return;
@@ -3567,10 +3711,12 @@ async function confirmClaim(){
     var nc={lat:ncLat,lng:ncLng,owner:myAddr,price:d.totalCost,
       label:'YOU',nickname:walletState.nickname||'YOU',w:ncW,h:ncH,link:linkVal||'',id:d.claimId};
     nc.imgUrl=sendImageUrl||uploadedUrl||'';
-    claims.push(nc);
+    _upsertServerClaims([nc]);
 
+    // Polling may have received this same claim before the POST response.
+    var claimIdx=claims.findIndex(function(claim){return claim.id!=null&&String(claim.id)===String(nc.id);});
+    if(claimIdx<0)claimIdx=claims.length-1;
     // Register pixels in grid using server-authoritative data
-    var claimIdx=claims.length-1;
     if(d.newPixels){
       d.newPixels.forEach(function(p){
         var k=pxKey(p[0],p[1]);
@@ -3698,6 +3844,7 @@ async function confirmClaim(){
     if(hasBattle&&d.attackWon>0){try{trackQuestAction('hijack',d.attackWon)}catch(e){}}
 
     // ── [Onboarding] Tutorial free claim → advance to step 2 ──
+    _firstClaimOffer=null;
     if (d.tutorialFreeClaim) {
       try { onTutorialClaimSuccess(); } catch(_oe) {}
     }
@@ -3791,6 +3938,7 @@ function _injectFirstClaimGuideStyles(){
   document.head.appendChild(st);
 }
 function showFirstClaimGuide(){
+  if(_isFirstClaimFlowActive()) return;
   if(_firstClaimGuideShown) return;
   if(document.getElementById('firstClaimGuide')) return;
   _injectFirstClaimGuideStyles();
@@ -3815,6 +3963,7 @@ function showFirstClaimGuide(){
 // 온보딩 미완료 + 클레임 0 확인 후에만 노출. 상태 미확정/로그인 전이면 노출하지 않는다(기본 off).
 function maybeShowFirstClaimGuide(){
   try{
+    if(_isFirstClaimFlowActive()) return;
     if(_firstClaimGuideShown) return;
     if(typeof isLoggedIn==='function' && !isLoggedIn()) return;
     var w=(walletState&&walletState.address)?walletState.address:'';

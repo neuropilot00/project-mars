@@ -1113,6 +1113,17 @@ function filterCraftingView(cat,el){
   loadCraftingView();
 }
 
+function _craftingShopWarning(recipe){
+  var qty=Number(recipe.output_qty),cost=Number(recipe.gp_cost);
+  if(recipe.output_item_type_id==null||!Number.isInteger(qty)||qty<=0||!Number.isFinite(cost)) return '';
+  var item=(_baseShopItems||[]).concat(_shopItems||[]).find(function(it){
+    return it.active!==false && String(it.id!=null?it.id:it.item_type_id)===String(recipe.output_item_type_id);
+  });
+  var price=item?Number(item.price_gp):NaN,total=price*qty;
+  if(!Number.isFinite(price)||price<=0||!Number.isFinite(total)||total>=cost) return '';
+  return tl('Direct shop purchase: {n} GP for {qty}. Crafting costs more GP plus materials; check your crafting mission before continuing.','상점 직접 구매: {qty}개에 {n} GP. 제작은 재료와 더 많은 GP가 필요하므로, 계속하기 전에 제작 임무를 확인하세요.','ショップ直接購入：{qty}個で{n} GP。製作には素材とより多くのGPが必要です。続行前に製作ミッションを確認してください。','商店直接购买：{qty}个需{n} GP。制作还需材料和更多GP；继续前请检查制作任务。','Beli langsung di toko: {n} GP untuk {qty}. Membuat perlu lebih banyak GP dan bahan; periksa misi pembuatan sebelum melanjutkan.','Mua trực tiếp ở cửa hàng: {n} GP cho {qty}. Chế tạo tốn thêm GP và nguyên liệu; hãy kiểm tra nhiệm vụ chế tạo trước khi tiếp tục.','ซื้อจากร้านโดยตรง: {n} GP สำหรับ {qty} ชิ้น การสร้างใช้ GP มากกว่าและต้องใช้วัสดุ ตรวจภารกิจสร้างก่อนดำเนินการต่อ').replace('{n}',String(total)).replace('{qty}',String(qty));
+}
+
 function renderCraftingGrid(){
   var grid=document.getElementById('craftingGrid');
   if(!grid) return;
@@ -1122,13 +1133,25 @@ function renderCraftingGrid(){
   }
   grid.innerHTML=_craftingRecipes.map(function(r){
     var canCraft=!!r.canCraft;
+    var shopWarning=_craftingShopWarning(r);
     var ingText=(r.ingredients||[]).map(function(i){
-      return '<span style="display:inline-flex;align-items:center;gap:4px;margin:2px 5px 2px 0">'+_ecoArt(_ecoItemCode(i),28,i.item_name)+' '+_ecoEsc(i.item_name||_itemName(_ecoItemCode(i))||i.code||i.resource_code||(tl('Item','아이템','アイテム','物品')+' #'+i.item_type_id))+' ×'+_ecoNum(i.qty)+'</span>';
+      var code=_ecoItemCode(i);
+      var name=_itemName(code);
+      if(!name||name===code){
+        var mineralName=typeof syResourceName==='function'?syResourceName(code):'';
+        name=mineralName&&mineralName!==code?mineralName:'';
+      }
+      name=name||i.item_name||code||(tl('Item','아이템','アイテム','物品')+' #'+i.item_type_id);
+      return '<span style="display:inline-flex;align-items:center;gap:4px;margin:2px 5px 2px 0">'+_ecoArt(code,28,name)+' '+_ecoEsc(name)+' ×'+_ecoNum(i.qty)+'</span>';
     }).join('')||'—';
     var costText=Number(r.gp_cost)>0?(Number(r.gp_cost).toFixed(0)+' GP'):tl('Free','무료','無料','免费');
     var rateText=_ecoNum(r.success_rate)+'%';
     var seasonBadge=r.is_seasonal?'<span style="font-size:8px;background:rgba(255,183,77,.2);color:#ffb74d;border:1px solid rgba(255,183,77,.3);border-radius:8px;padding:1px 5px;margin-left:3px">'+tl('SEASONAL','시즌 한정','シーズン限定','季节限定')+'</span>':'';
-    var catBadge=r.category!=='general'?'<span style="font-size:8px;background:rgba(160,232,160,.1);color:#a0e8a0;border:1px solid rgba(160,232,160,.2);border-radius:8px;padding:1px 5px;margin-left:3px">'+_ecoEsc(String(r.category||'').toUpperCase())+'</span>':'';
+    var cat=String(r.category||'');
+    var catKey=['defense','attack','utility','boost','cosmetic'].indexOf(cat)>=0?'inv_cat_'+cat:'craft_cat_'+cat;
+    var catLabel=t(catKey);
+    if(!catLabel||catLabel===catKey)catLabel=cat.toUpperCase();
+    var catBadge=r.category!=='general'?'<span style="font-size:8px;background:rgba(160,232,160,.1);color:#a0e8a0;border:1px solid rgba(160,232,160,.2);border-radius:8px;padding:1px 5px;margin-left:3px">'+_ecoEsc(catLabel)+'</span>':'';
     var btnStyle=canCraft
       ?'cursor:pointer;background:rgba(160,232,160,.2);border:1px solid rgba(160,232,160,.5);color:#a0e8a0'
       :'cursor:not-allowed;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:var(--tx3);opacity:.6';
@@ -1143,35 +1166,46 @@ function renderCraftingGrid(){
         +'<span style="color:'+(Number(r.success_rate)>=80?'#a0e8a0':'#ffb74d')+'">'+rateText+' '+tl('success','성공률','成功率','成功率')+'</span>'
       +'</div>'
       +(Number(r.fail_refund_pct)>0?'<div style="font-size:9px;color:#888">'+tl('Fail refund','실패 환급','失敗返金','失败返还')+': '+_ecoNum(r.fail_refund_pct)+'%</div>':'')
-      +'<button onclick="attemptCraft('+_ecoNum(r.id)+')" style="width:100%;padding:6px;border-radius:6px;font-size:9px;font-family:var(--fn);font-weight:700;letter-spacing:.5px;'+btnStyle+'" data-i18n="craft_btn">⚗️ CRAFT</button>'
+      +(shopWarning?'<div data-craft-shop-warning style="font-size:9px;line-height:1.5;color:var(--gold)">'+_ecoEsc(shopWarning)+'</div>':'')
+      +'<button onclick="attemptCraft('+_ecoNum(r.id)+')" style="width:100%;padding:6px;border-radius:6px;font-size:9px;font-family:var(--fn);font-weight:700;letter-spacing:.5px;'+btnStyle+'">⚗️ '+_ecoEsc(tl('CRAFT','제작','製作','制作','BUAT','CHẾ TẠO','คราฟต์'))+'</button>'
       +'</div>';
   }).join('');
 }
 
 function attemptCraft(recipeId){
   var w=(walletState&&walletState.address)||'';
+  var token=typeof emailAuth!=='undefined'?emailAuth.token:null;
   if(!w){ gameAlert(t('connect_wallet_first')||'Connect wallet first'); return; }
-  var recipe=_craftingRecipes.find(function(r){return r.id===recipeId;});
+  var recipe=_craftingRecipes.find(function(r){return String(r.id)===String(recipeId);});
   if(!recipe) return;
   if(!recipe.canCraft){ gameAlert(t('craft_missing_ingredients')||'Missing ingredients'); return; }
 
   var gpCost=Number(recipe.gp_cost);
   var ingList=(recipe.ingredients||[]).map(function(i){
-    return '• '+(i.item_name||_itemName(_ecoItemCode(i))||i.code||i.resource_code||(tl('Item','아이템','アイテム','物品')+' #'+i.item_type_id))+' ×'+_ecoNum(i.qty);
+    var code=_ecoItemCode(i),name=_itemName(code);
+    if(!name||name===code){
+      var mineralName=typeof syResourceName==='function'?syResourceName(code):'';
+      name=mineralName&&mineralName!==code?mineralName:'';
+    }
+    return '• '+(name||i.item_name||code||(tl('Item','아이템','アイテム','物品')+' #'+i.item_type_id))+' ×'+_ecoNum(i.qty);
   }).join('\n');
   var confirmMsg=t('craft_confirm_title')||(tl('Craft','제작','クラフト','制作')+': '+recipe.output_name);
-  var subMsg=(ingList?ingList+'\n':'')+(gpCost>0?tl('Cost','비용','コスト','花费')+': '+gpCost+' GP\n':'')+tl('Success','성공률','成功率','成功率')+': '+recipe.success_rate+'%';
+  var subMsg=(ingList?ingList+'\n':'')+(gpCost>0?tl('Cost','비용','コスト','花费')+': '+gpCost+' GP\n':'')+tl('Success','성공률','成功率','成功率')+': '+_ecoNum(recipe.success_rate)+'%';
+  var shopWarning=_craftingShopWarning(recipe);
+  if(shopWarning) subMsg+='\n\n'+shopWarning;
 
   gameConfirm({icon:'⚗️', title:confirmMsg, body:'<div class="eco-confirm-art">'+_ecoCardArt(recipe,96)+'</div>'+_ecoEsc(subMsg).replace(/\n/g,'<br>'), confirmText:tl('CRAFT','제작','クラフト','制作')}).then(function(ok){
     if(!ok) return;
+    if(walletState.address!==w||(typeof emailAuth!=='undefined'&&emailAuth.token!==token)) return;
     var btn=document.querySelector('[onclick="attemptCraft('+recipeId+')"]');
     if(btn){ btn.disabled=true; btn.textContent=tl('Crafting…','제작 중…','クラフト中…','制作中…'); }
     fetch('/api/crafting/craft',{
       method:'POST',
       headers:Object.assign({'Content-Type':'application/json'},getAuthHeaders()),
-      body:JSON.stringify({wallet:w,recipeId:recipeId})
-    }).then(function(r){return r.json();}).then(function(d){
+      body:JSON.stringify({wallet:w,recipeId:recipe.id})
+    }).then(function(r){return r.json();}).then(async function(d){
       if(btn){ btn.disabled=false; btn.textContent='⚗️ '+tl('CRAFT','제작','クラフト','制作'); }
+      if(walletState.address!==w||(typeof emailAuth!=='undefined'&&emailAuth.token!==token)) return;
       if(d.error){ gameAlert(d.error); return; }
       if(d.success){
         gameAlert('✅ '+(t('craft_success')||'Craft success!')
@@ -1181,9 +1215,10 @@ function attemptCraft(recipeId){
         gameAlert('❌ '+(t('craft_fail')||'Craft failed')+refMsg);
       }
       // Refresh recipes & balances
+      if(typeof refreshEmailBalances==='function') await refreshEmailBalances(true);
+      if(walletState.address!==w||(typeof emailAuth!=='undefined'&&emailAuth.token!==token)) return;
+      _updateBaseShopBalances();
       loadCraftingView(true);
-      if(typeof refreshBalance==='function') refreshBalance();
-      else if(typeof updateBalanceDisplays==='function') updateBalanceDisplays();
     }).catch(function(e){
       if(btn){ btn.disabled=false; btn.textContent='⚗️ '+tl('CRAFT','제작','クラフト','制作'); }
       gameAlert(tl('Error','오류','エラー','错误')+': '+e.message);
@@ -1402,14 +1437,20 @@ function renderBaseInventory(){
       var c=rarityColor[rar]||'var(--tx2)';
       parts.push('<div style="grid-column:1/-1;display:flex;flex-wrap:wrap;gap:4px;padding:4px 0">');
       items.forEach(function(r){
+        var resourceCode=_ecoItemCode(r),resourceName=_itemName(resourceCode);
+        if(!resourceName||resourceName===resourceCode){
+          var mineralName=typeof syResourceName==='function'?syResourceName(resourceCode):'';
+          resourceName=mineralName&&mineralName!==resourceCode?mineralName:'';
+        }
+        resourceName=resourceName||r.name||(LANG==='ko'?r.name_ko:r.name_en)||resourceCode;
         var marketBtn=r.is_tradeable
           ? '<button onclick="openResourceMarketListing(\''+_ecoInline(r.code)+'\')" style="font-size:8px;padding:3px 7px;border-radius:4px;border:1px solid rgba(160,100,220,.4);background:rgba(160,100,220,.1);color:#c088e0;cursor:pointer;font-family:var(--fn);font-weight:700">'+(t('res_sell')||'SELL')+'</button>'
           : '';
         parts.push('<div class="eco-item-row eco-resource-card" style="background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:8px 10px;display:flex;align-items:center;gap:8px;min-width:120px">'
           +_ecoCardArt(r,64)
           +'<div style="flex:1;min-width:0">'
-          +'<div style="font-size:10px;font-weight:700;color:'+c+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+_ecoEsc(r.name||r.code)+'</div>'
-          +'<div style="font-size:9px;color:var(--tx3)">×<b style="color:var(--tx2)">'+_ecoNum(r.quantity)+'</b> · '+_ecoNum(r.base_pp_value)+' PP</div>'
+          +'<div style="font-size:10px;font-weight:700;color:'+c+';white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+_ecoEsc(resourceName)+'</div>'
+          +'<div style="font-size:9px;color:var(--tx3)">×<b style="color:var(--tx2)">'+_ecoNum(r.quantity)+'</b></div>'
           +'</div>'
           +marketBtn
           +'</div>');

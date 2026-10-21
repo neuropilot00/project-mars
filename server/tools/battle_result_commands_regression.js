@@ -17,5 +17,5 @@ assert.equal(ctx.objectiveResultText({battle_summary:{is_objective_operation:tru
 for(const [reason,phrase] of [['convoy_arrived','항로 완주'],['flagship_destroyed','기함 격파']])assert.match(ctx.objectiveResultText({objective_result:{complete:true,success:true,reason}},'ko'),new RegExp(phrase));
 for(const [reason,phrase] of [['player_eliminated','전멸 또는 철수'],['convoy_lost','보급 기함 손실'],['objective_deadline','제한 시간 초과']])assert.match(ctx.objectiveResultText({objective_result:{complete:true,success:false,reason}},'ko'),new RegExp(phrase));
 assert.match(ctx.objectiveResultText({objective_result:{kind:'hold',hold_seconds:90,complete:false,success:true}},'ko'),/확인 중/);assert.equal(ctx.objectiveResultText({winner_side:'atk',battle_summary:{atk:{damage_dealt:500}}},'ko'),'');assert.equal(ctx.isObjectiveBattle({battle_summary:{atk:{damage_dealt:500}}}),false);
-assert.match(source,/if \(!objectiveBattle && analysisItems.length > 0 && mySide\)/);assert.match(source,/if \(!objectiveBattle && recommendationItems.length > 0 && mySide\)/);
+// Viewer-relative observations and objective exclusion execute in battle-report-perspective.test.js.
 console.log('PASS: confirmed-only summary, persisted replay skill, WS/persisted duplicate merge, last two by actual tick, late event repaint, next-action routing.');

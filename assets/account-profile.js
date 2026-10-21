@@ -748,12 +748,17 @@ function logoutEmail(){
   showToast(t('logout'));
 }
 
-async function refreshEmailBalances(){
+async function refreshEmailBalances(force){
   if(!emailAuth.token) return;
   var token = emailAuth.token;
+  var wallet = walletState.address;
   try{
-    var d=await fetchAuthMe(false);
-    if(d && emailAuth.token === token){
+    if(force && _authMeInFlight && _authMeInFlightToken === token){
+      try{ await _authMeInFlight; }catch(_){}
+      if(emailAuth.token !== token || walletState.address !== wallet) return;
+    }
+    var d=await fetchAuthMe(!!force);
+    if(d && emailAuth.token === token && walletState.address === wallet){
       _applyAuthMeBalances(d);
     }
   }catch(e){}
