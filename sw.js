@@ -103,7 +103,7 @@
 // 2026-06-29 v123: v7.465 first-session 핸즈온 — 첫 클레임 연출 + BASE 골든패스 글로우 + globe 첫클릭 가이드.
 // 2026-06-29 v124: 주간 챌린지 UI + 섹터 서지 배너 + 전투 결과 부각 + 골든패스 step2→fleet 보정.
 // 2026-10-11: unified mission flow, retired click rewards, server integrity and private API cache isolation.
-const CACHE_NAME = 'mars-v177-mobile-play-20261021';
+const CACHE_NAME = 'mars-v178-production-mobile-20261021';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json'

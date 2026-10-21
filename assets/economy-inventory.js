@@ -1124,6 +1124,11 @@ function _craftingShopWarning(recipe){
   return tl('Direct shop purchase: {n} GP for {qty}. Crafting costs more GP plus materials; check your crafting mission before continuing.','상점 직접 구매: {qty}개에 {n} GP. 제작은 재료와 더 많은 GP가 필요하므로, 계속하기 전에 제작 임무를 확인하세요.','ショップ直接購入：{qty}個で{n} GP。製作には素材とより多くのGPが必要です。続行前に製作ミッションを確認してください。','商店直接购买：{qty}个需{n} GP。制作还需材料和更多GP；继续前请检查制作任务。','Beli langsung di toko: {n} GP untuk {qty}. Membuat perlu lebih banyak GP dan bahan; periksa misi pembuatan sebelum melanjutkan.','Mua trực tiếp ở cửa hàng: {n} GP cho {qty}. Chế tạo tốn thêm GP và nguyên liệu; hãy kiểm tra nhiệm vụ chế tạo trước khi tiếp tục.','ซื้อจากร้านโดยตรง: {n} GP สำหรับ {qty} ชิ้น การสร้างใช้ GP มากกว่าและต้องใช้วัสดุ ตรวจภารกิจสร้างก่อนดำเนินการต่อ').replace('{n}',String(total)).replace('{qty}',String(qty));
 }
 
+function _craftingHasGP(recipe){
+  var gp=Number(walletState&&walletState.gameGP),cost=Number(recipe.gp_cost);
+  return Number.isFinite(gp)&&Number.isFinite(cost)&&cost>=0&&gp>=cost;
+}
+
 function renderCraftingGrid(){
   var grid=document.getElementById('craftingGrid');
   if(!grid) return;
@@ -1132,7 +1137,8 @@ function renderCraftingGrid(){
     return;
   }
   grid.innerHTML=_craftingRecipes.map(function(r){
-    var canCraft=!!r.canCraft;
+    var hasGP=_craftingHasGP(r),canCraft=!!r.canCraft&&hasGP;
+    var unavailable=!r.canCraft?(t('craft_missing_ingredients')||'Missing ingredients'):!hasGP?tl('Not enough GP','GP가 부족합니다','GPが不足しています','GP不足','GP tidak cukup','Không đủ GP','GP ไม่เพียงพอ'):'';
     var shopWarning=_craftingShopWarning(r);
     var ingText=(r.ingredients||[]).map(function(i){
       var code=_ecoItemCode(i);
@@ -1167,7 +1173,8 @@ function renderCraftingGrid(){
       +'</div>'
       +(Number(r.fail_refund_pct)>0?'<div style="font-size:9px;color:#888">'+tl('Fail refund','실패 환급','失敗返金','失败返还')+': '+_ecoNum(r.fail_refund_pct)+'%</div>':'')
       +(shopWarning?'<div data-craft-shop-warning style="font-size:9px;line-height:1.5;color:var(--gold)">'+_ecoEsc(shopWarning)+'</div>':'')
-      +'<button onclick="attemptCraft('+_ecoNum(r.id)+')" style="width:100%;padding:6px;border-radius:6px;font-size:9px;font-family:var(--fn);font-weight:700;letter-spacing:.5px;'+btnStyle+'">⚗️ '+_ecoEsc(tl('CRAFT','제작','製作','制作','BUAT','CHẾ TẠO','คราฟต์'))+'</button>'
+      +(unavailable?'<div data-craft-unavailable style="font-size:12px;line-height:1.5;color:var(--tx2)">'+_ecoEsc(unavailable)+'</div>':'')
+      +'<button'+(canCraft?'':' disabled')+' onclick="attemptCraft('+_ecoNum(r.id)+')" style="width:100%;padding:6px;border-radius:6px;font-size:9px;font-family:var(--fn);font-weight:700;letter-spacing:.5px;'+btnStyle+'">⚗️ '+_ecoEsc(tl('CRAFT','제작','製作','制作','BUAT','CHẾ TẠO','คราฟต์'))+'</button>'
       +'</div>';
   }).join('');
 }
@@ -1179,6 +1186,7 @@ function attemptCraft(recipeId){
   var recipe=_craftingRecipes.find(function(r){return String(r.id)===String(recipeId);});
   if(!recipe) return;
   if(!recipe.canCraft){ gameAlert(t('craft_missing_ingredients')||'Missing ingredients'); return; }
+  if(!_craftingHasGP(recipe)){ gameAlert(tl('Not enough GP','GP가 부족합니다','GPが不足しています','GP不足','GP tidak cukup','Không đủ GP','GP ไม่เพียงพอ')); return; }
 
   var gpCost=Number(recipe.gp_cost);
   var ingList=(recipe.ingredients||[]).map(function(i){

@@ -104,6 +104,22 @@ test('refund label falls back with the actual amount; real profile hook remains 
   assert.equal(zero.alerts[0], '❌ Craft failed');
 });
 
+test('unfunded recipes disable the actual card and cannot open a confirmation or submit a craft', async () => {
+  for(const balance of [0,38,49.99,undefined]){
+    const f=fixture();f.context.walletState.gameGP=balance;
+    f.context.renderCraftingGrid();
+    assert.match(f.grid.innerHTML,/<button disabled onclick="attemptCraft\(1\)"/);
+    assert.match(f.grid.innerHTML,/Not enough GP/);
+    f.context.attemptCraft(1);await settle();
+    assert.equal(f.confirmations.length,0);assert.equal(f.posts().length,0);
+  }
+  const f=fixture();f.context.walletState.gameGP=50;f.context.renderCraftingGrid();
+  assert.doesNotMatch(f.grid.innerHTML,/<button disabled/);
+  f.context._craftingRecipes[0].canCraft=false;f.context.renderCraftingGrid();
+  assert.match(f.grid.innerHTML,/<button disabled/);
+  f.context.attemptCraft(1);await settle();assert.equal(f.confirmations.length,0);assert.equal(f.posts().length,0);
+});
+
 test('cancelled craft sends no mutation or refresh', async () => {
   const f = fixture({ confirm: false });
   f.context.attemptCraft(1); await settle();

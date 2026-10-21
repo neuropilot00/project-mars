@@ -2836,7 +2836,14 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 @media(max-width:768px){
   .announce-close{min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;font-size:14px}
   .auth-tab{min-height:44px}
-  .auth-input{min-height:44px}
+  .auth-input{min-height:44px;font-size:16px}
+  #authForm .tos-check-row{font-size:12px;min-height:44px;align-items:center;letter-spacing:0}
+  #authForm .tos-check-row input{min-width:24px;min-height:24px;margin:0}
+  #authForm .auth-remember-row{flex-wrap:wrap;gap:8px 16px!important}
+  #authForm .auth-remember-row label{min-height:44px;font-size:12px!important;letter-spacing:0!important}
+  #authForm .auth-remember-row input{min-width:22px;min-height:22px}
+  #authModal .auth-err-msg{font-size:12px;line-height:1.5}
+  #authModal .auth-help-link{font-size:12px;color:var(--tx2)}
   .auth-help-link{min-height:44px;display:inline-flex;align-items:center;padding:8px 6px}
   .auth-back-link{min-height:44px;display:flex;align-items:center;justify-content:center}
   .pass-eye{min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}
@@ -3484,6 +3491,11 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
   #craftingGrid .eco-item-title{font-size:14px!important;line-height:1.5}
   #craftingGrid .eco-item-card>div{font-size:12px!important;line-height:1.5;color:#c1aca0!important}
   #craftingGrid .eco-item-card button{font-size:12px!important}
+  #baseModal .base-inv-cat{min-height:44px}
+  #baseModal .base-inv-cat:not(.active){color:var(--tx2)}
+  :is(#baseInvGrid,#baseInvGrid2) .eco-item-title{font-size:14px!important}
+  :is(#baseInvGrid,#baseInvGrid2) .eco-item-card>div[style*="font-size:9px"]{font-size:12px!important;color:var(--tx2)!important}
+  :is(#baseInvGrid,#baseInvGrid2) .eco-item-card button{font-size:12px!important}
 }
 
 /* Confirmation must sit above the objective and card dialogs that open it. */

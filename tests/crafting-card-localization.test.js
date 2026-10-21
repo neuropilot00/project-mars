@@ -5,7 +5,7 @@ const economy=read('economy-inventory.js'),shipyard=read('shipyard-modal.js');
 function part(source,start,end){const a=source.indexOf(start),b=source.indexOf(end,a);assert.ok(a>=0&&b>a);return source.slice(a,b);}
 function fixture(lang){
  const grid={innerHTML:''};
- const c={window:{},localStorage:{getItem:()=>lang},document:{getElementById:()=>grid},_baseShopItems:[],_shopItems:[],_itemName:code=>code==='known_item'?'Localized catalog item':'',_escHtml:String};
+ const c={window:{},walletState:{address:'COMMANDER',gameGP:100},localStorage:{getItem:()=>lang},document:{getElementById:()=>grid},_baseShopItems:[],_shopItems:[],_itemName:code=>code==='known_item'?'Localized catalog item':'',_escHtml:String};
  vm.createContext(c);
  vm.runInContext(read('i18n.js'),c);vm.runInContext(read('i18n-sea.js'),c);c.TL_SEA=c.window.TL_SEA;
  vm.runInContext(part(shipyard,'var MINERAL_KO = {','var MINERAL_EN = {')+'\n'+shipyard.match(/var MINERAL_EN = \{[\s\S]*?\n\};/)[0]+'\n'+part(shipyard,'function syResourceName(','function syRequirementStatusText('),c);
@@ -36,7 +36,7 @@ for(const lang of ['en','ko','ja','zh','id','vi','th'])test('actual '+lang+' car
  const {c,grid}=fixture(lang),dialogs=[];let requests=0;
  Object.assign(c._craftingRecipes[0],{output_item_type_id:'7',output_qty:2});
  c._baseShopItems=[{id:7,price_gp:'10',code:'existing_output'}];
- c.walletState={address:'COMMANDER'};c.gameConfirm=async d=>{dialogs.push(d);return false;};c.fetch=()=>{requests++;throw Error('unexpected request');};
+ c.walletState={address:'COMMANDER',gameGP:100};c.gameConfirm=async d=>{dialogs.push(d);return false;};c.fetch=()=>{requests++;throw Error('unexpected request');};
  c.renderCraftingGrid();const warning=c._craftingShopWarning(c._craftingRecipes[0]);
  assert.ok(warning.includes('20'));assert.ok(warning.includes('2'));assert.ok(grid.innerHTML.includes('data-craft-shop-warning'));assert.ok(grid.innerHTML.includes(warning));
  assert.ok(grid.innerHTML.includes('50 GP'));assert.ok(grid.innerHTML.includes('80%'));assert.equal(c._craftingRecipes[0].gp_cost,50);assert.equal(c._baseShopItems[0].price_gp,'10');

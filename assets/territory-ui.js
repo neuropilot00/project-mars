@@ -2836,6 +2836,25 @@ function openMobTerritoryModal(){
   var hijackBtn=document.getElementById('mtHijackBtn');
   if(isMine){
     if(ownActions) ownActions.style.display='';
+    if(ownActions){
+      var manageBtn=document.getElementById('mtManageTerritoryBtn');
+      if(!manageBtn){
+        manageBtn=document.createElement('button');
+        manageBtn.id='mtManageTerritoryBtn';
+        manageBtn.type='button';
+        manageBtn.style.cssText='width:100%;min-height:44px;margin-bottom:8px;padding:10px;border-radius:8px;border:1px solid rgba(255,209,102,.4);background:rgba(255,209,102,.12);color:var(--gold);font-family:var(--fn);font-size:11px;font-weight:700;cursor:pointer';
+        manageBtn.addEventListener('click',function(event){
+          event.stopPropagation();
+          var current=selectedPlot,tab=document.getElementById('baseTabTerritory');
+          if(!current||!walletState.address||(current.owner||'').toLowerCase()!==walletState.address.toLowerCase()||!tab) return;
+          closeMobTerritoryModal();
+          openBaseModal();
+          switchBaseTab('territory',tab);
+        });
+        ownActions.insertBefore(manageBtn,ownActions.firstChild);
+      }
+      manageBtn.textContent=tl('Harvest & production','수확·생산 관리','収穫・生産管理','收获与生产管理','Panen & produksi','Thu hoạch & sản xuất','เก็บเกี่ยวและการผลิต');
+    }
     if(otherActions) otherActions.style.display='none';
     if(imgLabel) imgLabel.textContent=plot.imgUrl?'EDIT IMAGE':'ADD IMAGE';
     var li=document.getElementById('mtLinkInput'); if(li) li.value=plot.link||'';
@@ -2894,11 +2913,12 @@ function _loadMobTerritoryProdInfo(claimId, plot){
         }
         html += '</div>';
       }
-      // 예상 PP 수확
+      // The production endpoint exposes PP-equivalent estimates, not a GP quote.
       var ppMin = d.production && d.production.ppMin || 0;
       var ppMax = d.production && d.production.ppMax || 0;
       if (ppMin > 0 || ppMax > 0) {
-        html += '<div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--tx3);font-size:9px">'+(lang==='ko'?'예상 PP 수확':lang==='ja'?'予想PP収穫':lang==='zh'?'预估PP收获':'PP Estimate')+'</span><span style="color:#ffab40;font-weight:700;font-size:10px">'+ppMin.toFixed(4)+'~'+ppMax.toFixed(4)+'</span></div>';
+        html += '<div style="display:flex;justify-content:space-between;padding:2px 0"><span style="color:var(--tx3);font-size:9px">'+tl('Harvest estimate (PP equivalent)','예상 수확 (PP 환산 기준)','予想収穫（PP換算）','预计收获（PP等值）','Perkiraan panen (setara PP)','Ước tính thu hoạch (tương đương PP)','ประมาณการเก็บเกี่ยว (เทียบเท่า PP)')+'</span><span style="color:#ffab40;font-weight:700;font-size:10px">'+ppMin.toFixed(4)+'~'+ppMax.toFixed(4)+' PP</span></div>';
+        html += '<div style="margin-top:4px;color:var(--tx3);font-size:10px;line-height:1.5">'+tl('PP-equivalent estimate; harvest pays GP. Check readiness and collect in territory management.','PP 환산 기준 예상치이며 실제 수확 보상은 GP로 지급됩니다. 영토 관리에서 수확 가능 여부를 확인하고 수확하세요.','PP換算の予想値です。実際の収穫報酬はGPで支払われます。領地管理で収穫可能か確認して収穫してください。','此为PP等值估算，实际收获奖励以GP发放。请在领地管理中检查是否可收获并领取。','Perkiraan setara PP; panen dibayar dalam GP. Periksa kesiapan dan panen di pengelolaan wilayah.','Ước tính tương đương PP; phần thưởng thu hoạch trả bằng GP. Kiểm tra sẵn sàng và thu hoạch trong quản lý lãnh thổ.','เป็นค่าประมาณเทียบเท่า PP แต่รางวัลเก็บเกี่ยวจ่ายเป็น GP ตรวจความพร้อมและเก็บเกี่ยวในการจัดการอาณาเขต')+'</div>';
       }
       // 섹터
       if (d.sector && d.sector.type) {
@@ -3000,6 +3020,8 @@ async function openClaimModal(){
   lastStampCost=costInfo;
 
   var _isHijackMode=costInfo.overlapCount>0;
+  var transferNote=document.getElementById('claimTransferNote');
+  if(transferNote) transferNote.hidden=!_isHijackMode;
   if(_isHijackMode){
     hw.style.display='';
     tl.textContent=LANG==='ko'?'⚔ 하이젝 — 함대전':LANG==='ja'?'⚔ ハイジャック — 艦隊戦':LANG==='zh'?'⚔ 劫持 — 舰队战':'⚔ HIJACK — FLEET BATTLE';tl.className='claim-title wrn';

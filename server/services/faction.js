@@ -221,18 +221,26 @@ async function chooseFaction(walletAddress, factionCode) {
  */
 async function getFactionStats() {
   const { rows } = await pool.query(`
-    SELECT 
+    SELECT
       f.code,
       f.name_ko,
       f.color_primary,
-      COUNT(DISTINCT u.wallet_address) AS player_count,
-      COUNT(DISTINCT s.id) FILTER (WHERE s.is_alive) AS ships_alive
+      COALESCE(u.player_count, 0) AS player_count,
+      COALESCE(s.ships_alive, 0) AS ships_alive
     FROM factions f
-    LEFT JOIN users u ON u.faction_code = f.code
-    LEFT JOIN ship_types st ON st.faction_code = f.code
-    LEFT JOIN ships s ON s.ship_type_code = st.code
+    LEFT JOIN (
+      SELECT faction_code, COUNT(*) AS player_count
+      FROM users
+      GROUP BY faction_code
+    ) u ON u.faction_code = f.code
+    LEFT JOIN (
+      SELECT st.faction_code, COUNT(*) AS ships_alive
+      FROM ship_types st
+      JOIN ships s ON s.ship_type_code = st.code
+      WHERE s.is_alive
+      GROUP BY st.faction_code
+    ) s ON s.faction_code = f.code
     WHERE f.is_active = true
-    GROUP BY f.code, f.name_ko, f.color_primary, f.sort_order
     ORDER BY f.sort_order
   `);
   return rows;

@@ -18,7 +18,7 @@ router.get('/user/:wallet/base', async (req, res) => {
 
     const [userRes, pixelRes, miningRes, rankRes] = await Promise.all([
       pool.query(
-        'SELECT wallet_address, nickname, usdt_balance, pp_balance, xp, rank_level, referral_code, created_at FROM users WHERE LOWER(wallet_address) = LOWER($1)',
+        'SELECT wallet_address, nickname, usdt_balance, pp_balance, gp_balance, xp, rank_level, referral_code, created_at FROM users WHERE LOWER(wallet_address) = LOWER($1)',
         [wallet]
       ),
       pool.query(`
@@ -83,6 +83,7 @@ router.get('/user/:wallet/base', async (req, res) => {
         nickname: user.nickname,
         usdt: parseFloat(user.usdt_balance),
         pp: parseFloat(user.pp_balance),
+        gp: parseFloat(user.gp_balance) || 0,
         xp: user.xp || 0,
         rank: user.rank_level || 1,
         referralCode: user.referral_code,

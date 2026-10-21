@@ -140,7 +140,7 @@ test('actual modal classes block journey hints and leave first-sortie available 
  activeModal=null;assert.equal(f.state.journeyHintIsBlocked(),false);
  assert.ok(selector.includes('.mbg.open'));assert.ok(selector.includes('[class*="-modal-backdrop"].active'));assert.ok(selector.includes('.bv-backdrop.active'));
  const css=fs.readFileSync(path.join(__dirname,'../../assets/utility-overlays.css'),'utf8');
- assert.ok(css.includes('body:has('+selector+') :is(.onboarding-hint,#firstClaimGuide){visibility:hidden;pointer-events:none}'),'CSS immediately suppresses existing hint and guide for the same real modal selectors');
+ assert.ok(css.includes('body:has('+selector+') :is(.onboarding-hint,#firstClaimGuide,#chatOverlay,#bugReportBtn,.zc,.mob-toggle){visibility:hidden;pointer-events:none}'),'CSS suppresses hints and map helpers for the same real modal selectors');
 });
 
 test('rendered FREE0 quote is frozen into actual claim POST before optimistic ownership, paid path stays false',async()=>{
