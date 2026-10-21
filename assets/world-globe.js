@@ -2007,7 +2007,8 @@ function toggleMyLand(){
     var pw=merged.w||merged.size||20, ph=merged.h||merged.size||20;
     globe.pointOfView({lat:merged.lat,lng:merged.lng,altitude:Math.max(0.8,Math.max(pw,ph)*0.008)},600);
     selectedPlot=merged;
-    showTerritoryInfo(merged);
+    if(window.innerWidth<=768) showMobInfoBtn(merged);
+    else showTerritoryInfo(merged);
     showToast(tl('My Land ','내 영토 ','マイ領土 ','我的领地 ')+(_myLandIdx+1)+'/'+groups.length+(merged._pixelCount?' — '+merged._pixelCount+' px':''));
     _highlightMyTerritoryItem(_myLandIdx);
   }else{
@@ -2097,7 +2098,9 @@ function _updateMyTerritories(){
     var zoomH=b?(b.maxLat-b.minLat):((ec[0].h||10)*0.22);
     mainRow.onclick=function(){
       globe.pointOfView({lat:centerLat,lng:centerLng,altitude:Math.max(0.4,Math.max(zoomW,zoomH)*0.03)},600);
-      selectedPlot=ec[0];showTerritoryInfo(ec[0]);
+      selectedPlot=ec[0];
+      if(window.innerWidth<=768) showMobInfoBtn(ec[0]);
+      else showTerritoryInfo(ec[0]);
     };
     // Sub-list for merged territories (expandable)
     if(ec.length>1){
@@ -2113,7 +2116,9 @@ function _updateMyTerritories(){
         sub.onclick=function(e){
           e.stopPropagation();
           globe.pointOfView({lat:sc.lat,lng:sc.lng,altitude:Math.max(0.4,Math.max(sw,sh)*0.006)},600);
-          selectedPlot=sc;showTerritoryInfo(sc);
+          selectedPlot=sc;
+          if(window.innerWidth<=768) showMobInfoBtn(sc);
+          else showTerritoryInfo(sc);
         };
         subList.appendChild(sub);
       });
@@ -2379,7 +2384,8 @@ function _baseTerritoryGlobe(idx){
   closeBaseModal();
   if(globe) globe.pointOfView({lat:g.centerLat,lng:g.centerLng,altitude:Math.max(0.4,Math.max(zoomW,zoomH)*0.03)},600);
   selectedPlot=ec[0];
-  showTerritoryInfo(ec[0]);
+  if(window.innerWidth<=768) showMobInfoBtn(ec[0]);
+  else showTerritoryInfo(ec[0]);
 }
 
 function _baseTerritoryTap(idx){

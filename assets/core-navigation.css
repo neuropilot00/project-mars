@@ -38,5 +38,5 @@
   #baseModal #baseTabsRow>.base-tab [data-game-icon]{display:none}
   #baseModal #baseTabsRow>.base-tab[data-cat="mission"].cat-show{flex:1 1 0;overflow-wrap:anywhere}
   #baseModal .base-cat-row{max-width:100%;min-width:0}
-  #baseModal .bcat{flex:1 1 0;min-width:44px;padding:8px 4px;white-space:normal;line-height:1.4;letter-spacing:0;word-break:keep-all;overflow-wrap:anywhere}
+  #baseModal .bcat{flex:0 0 auto;min-width:44px;padding:8px 4px;white-space:nowrap;line-height:1.4;letter-spacing:0}
 }
