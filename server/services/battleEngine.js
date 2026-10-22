@@ -34,6 +34,9 @@ const FIELD_W = 1000;
 const FIELD_H = 440;
 // Visual delivery only: large battles never retain an unbounded shot queue.
 const MAX_COMBAT_EVENTS_PER_FRAME = 128;
+// Keep replay snapshots below battleTimeline's 10MiB guard while simulating,
+// rather than retaining a potentially huge three-hour recording in memory.
+const REPLAY_SIZE_BUDGET = 8 * 1024 * 1024;
 const HIJACK_PHASE1_SIZE_CLASSES = ['frigate', 'destroyer'];
 
 // 시뮬레이션 최적화: 함선을 클러스터로 묶기
@@ -97,6 +100,7 @@ async function simulateBattle(battleId) {
     frames: [],    // 각 프레임: { t, fleets, ships, events }
   };
   
+  const recordFrame = createTimelineRecorder(timeline);
   const events = [];
   state.events = events;
   let winnerSide = null;
@@ -128,7 +132,7 @@ async function simulateBattle(battleId) {
     
     // 프레임 저장 (매 5tick = 1초마다 저장. 렌더 시 보간)
     if (tick % 5 === 0) {
-      timeline.frames.push(captureFrame(state, tick));
+      recordFrame(captureFrame(state, tick));
     }
     
     // 자동 퇴각 — HP 임계 이하 함대 후퇴(함선 보존)
@@ -144,7 +148,7 @@ async function simulateBattle(battleId) {
         payload: { winner_side: winnerSide, duration_ticks: tick }
       });
       // 마지막 프레임 저장
-      timeline.frames.push(captureFrame(state, tick));
+      recordFrame(captureFrame(state, tick));
       break;
     }
   }
@@ -158,7 +162,7 @@ async function simulateBattle(battleId) {
     });
   }
   
-  if (timeline.frames.at(-1)?.t !== state.tick) timeline.frames.push(captureFrame(state, state.tick));
+  if (timeline.frames.at(-1)?.t !== state.tick) recordFrame(captureFrame(state, state.tick));
 
   // 통계 계산
   const stats = computeBattleStats(state);
@@ -355,6 +359,7 @@ async function simulateBattleLive(battleId, hooks) {
     fleets_meta: state.fleets.map(f => ({ id: f.id, name: f.name, side: f.side, faction_code: f.faction_code, owner_wallet: f.owner_wallet, ships_total: f.ships.length })),
     frames: [],
   };
+  const recordFrame = createTimelineRecorder(timeline);
   const events = [];
   state.events = events;
   let winnerSide = null;
@@ -401,7 +406,7 @@ async function simulateBattleLive(battleId, hooks) {
       //   (fleets[].beamCharge/missileCharge/overdriveCharge)를 신뢰하는 기준.
       //   [적대검증 fix] realtime 스탬프는 broadcast 사본에만 — timeline 에 push 되는 원본에 찍으면
       //   saveTimeline 으로 영속돼 리플레이 서빙 프레임까지 라이브로 오판된다.
-      timeline.frames.push(fr);
+      recordFrame(fr);
       if (typeof hooks.onFrame === 'function') { try { await hooks.onFrame(Object.assign({}, fr, { realtime: true })); } catch (_) {} }
     }
 
@@ -411,7 +416,7 @@ async function simulateBattleLive(battleId, hooks) {
     const defAlive = state.fleets.filter(f => f.side === 'def' && !f.retreated && f.ships.some(s => s.isAlive && !s.withdrawn)).length;
     if (objectiveOutcome || (!state.objective && (atkAlive === 0 || defAlive === 0))) {
       winnerSide = objectiveOutcome ? objectiveOutcome.winner_side : atkAlive > 0 ? 'atk' : defAlive > 0 ? 'def' : 'draw';
-      const fr = captureFrame(state, tick); timeline.frames.push(fr); // realtime 은 broadcast 사본에만
+      const fr = captureFrame(state, tick); recordFrame(fr); // realtime 은 broadcast 사본에만
       if (typeof hooks.onFrame === 'function') { try { await hooks.onFrame(Object.assign({}, fr, { realtime: true })); } catch (_) {} }
       events.push({ tick, type: 'battle_ended', payload: { winner_side: winnerSide, duration_ticks: tick } });
       break;
@@ -419,7 +424,7 @@ async function simulateBattleLive(battleId, hooks) {
     if (Date.now() - started > wallClockMs) {
       winnerSide = 'draw';
       events.push({ tick, type: 'battle_timeout', payload: { winner_side: 'draw', reason: 'wall_clock' } });
-      const fr = captureFrame(state, tick); timeline.frames.push(fr);
+      const fr = captureFrame(state, tick); recordFrame(fr);
       if (typeof hooks.onFrame === 'function') { try { await hooks.onFrame(Object.assign({}, fr, { realtime: true })); } catch (_) {} }
       break;
     }
@@ -431,7 +436,7 @@ async function simulateBattleLive(battleId, hooks) {
   }
   if (!winnerSide) { winnerSide = 'draw'; events.push({ tick: state.tick, type: 'battle_timeout', payload: { winner_side: 'draw' } }); }
   if (timeline.frames.at(-1)?.t !== state.tick) {
-    const fr = captureFrame(state, state.tick); timeline.frames.push(fr);
+    const fr = captureFrame(state, state.tick); recordFrame(fr);
     if (typeof hooks.onFrame === 'function') { try { await hooks.onFrame(Object.assign({}, fr, { realtime: true })); } catch (_) {} }
   }
   const stats = computeBattleStats(state);
@@ -1443,6 +1448,42 @@ function applyDamage(target, targetFleet, damage, attacker, attackerFleet, state
 }
 
 // ─── 프레임 캡처 (렌더링용 스냅샷) ───
+
+function createTimelineRecorder(timeline) {
+  // Account for UTF-8 JSON, array separators and a little sampling metadata.
+  const headerBytes = Buffer.byteLength(JSON.stringify(timeline), 'utf8') + 256;
+  let sizeBytes = headerBytes;
+  let frameBytes = [];
+  let interval = 5;
+  return (frame) => {
+    // After sampling, keep only the newest off-grid snapshot as the endpoint.
+    const last = timeline.frames.at(-1);
+    if (interval > 5 && timeline.frames.length > 1 && last.t % interval !== 0) {
+      timeline.frames.pop();
+      sizeBytes -= frameBytes.pop();
+    }
+    timeline.frames.push(frame);
+    const bytes = Buffer.byteLength(JSON.stringify(frame), 'utf8') + 1;
+    frameBytes.push(bytes);
+    sizeBytes += bytes;
+    while (sizeBytes > REPLAY_SIZE_BUDGET && timeline.frames.length > 2) {
+      interval *= 2;
+      const keptFrames = [], keptBytes = [];
+      for (let i = 0; i < timeline.frames.length; i++) {
+        if (i === 0 || i === timeline.frames.length - 1 || timeline.frames[i].t % interval === 0) {
+          keptFrames.push(timeline.frames[i]);
+          keptBytes.push(frameBytes[i]);
+        }
+      }
+      timeline.frames = keptFrames;
+      frameBytes = keptBytes;
+      sizeBytes = headerBytes + frameBytes.reduce((sum, value) => sum + value, 0);
+      // Presentation detail only. Results, persistent events and rewards still
+      // use every simulated tick; live broadcasts keep their original cadence.
+      timeline.replay_frame_interval_ticks = interval;
+    }
+  };
+}
 
 function captureFrame(state, tick) {
   const combatEvents = state.pendingCombatEvents || [];

@@ -2344,7 +2344,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .bn-row .bn-tx b{color:var(--gold);font-weight:800}
 .bn-foot{position:relative;padding:14px 24px 20px;z-index:1}
 .bn-agree{font-size:9.5px;color:var(--tx3);text-align:center;margin-bottom:12px;letter-spacing:.3px;line-height:1.5}
-.bn-btn{width:100%;padding:13px;border-radius:11px;font-family:var(--fn);font-size:12px;
+.bn-btn{width:100%;min-height:44px;padding:13px;border-radius:11px;font-family:var(--fn);font-size:12px;
   font-weight:900;letter-spacing:2px;cursor:pointer;border:1px solid var(--mars);
   background:linear-gradient(135deg,var(--mars),var(--red));color:#fff;
   box-shadow:0 6px 26px rgba(255,120,60,.4),inset 0 1px 0 rgba(255,255,255,.25);transition:all .15s}
