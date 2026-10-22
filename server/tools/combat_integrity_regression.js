@@ -123,6 +123,7 @@ async function siegeCase(mode, battle, challengerArea, defenderArea) {
     const pool = {
       async query(sql) {
         if (sql.includes('FROM settings')) return { rows: [{ key: 'npc_arena_enabled', value: true }] };
+        if (sql.includes('pg_total_relation_size')) return { rows: [{ size_bytes: '0' }] };
         if (sql.includes('AS ships_alive')) return { rows: [
           { fleet_id: 1, owner_wallet: 'guard', ships_alive: 2 },
           { fleet_id: 2, owner_wallet: 'normal', ships_alive: 2 } ] };

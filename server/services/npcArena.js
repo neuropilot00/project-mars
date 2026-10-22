@@ -20,6 +20,14 @@ const { pool } = require('../db');
 const battleScheduler = require('./battleScheduler');
 const aiFleetManager = require('./aiFleetManager');
 
+// Future automatic matches only: retain every existing replay and stop this
+// decorative loop when shared replay storage fills. Other battle modes and NPC
+// density replenishment remain available. Allow 20MiB for two in-flight 8MiB
+// replays plus storage overhead. This is a matchmaking soft budget, not a cap
+// on the whole database or on writes from ordinary player battles.
+const ARENA_TIMELINE_BUDGET_BYTES = 128 * 1024 * 1024;
+const ARENA_TIMELINE_RESERVE_BYTES = 20 * 1024 * 1024;
+
 // ─── 설정 로드 ───────────────────────────────────────────────
 async function loadArenaSettings() {
   const defaults = {
@@ -141,6 +149,26 @@ async function runArenaTick() {
   const liveTotal = await countLiveBattles();
   if (liveTotal >= settings.battle_max_concurrent) {
     return { skipped: 'global_battle_cap', liveTotal };
+  }
+
+  // O(1) relation metadata; never scan, prune or rewrite battle records. Missing
+  // relation means zero bytes; unavailable/invalid metadata must fail closed.
+  let timelineBytes;
+  try {
+    const { rows } = await pool.query(`
+      SELECT COALESCE(pg_total_relation_size(to_regclass('public.fleet_battle_timelines')), 0)::text AS size_bytes
+    `);
+    const raw = rows[0]?.size_bytes;
+    timelineBytes = typeof raw === 'string' && /^\d+$/.test(raw) ? Number(raw) : NaN;
+    if (!Number.isSafeInteger(timelineBytes) || timelineBytes < 0) throw Error('INVALID_TIMELINE_SIZE');
+  } catch (_) {
+    console.warn('[npcArena] background match skipped: timeline_storage_unavailable');
+    return { skipped: 'timeline_storage_unavailable' };
+  }
+  const startLimit = ARENA_TIMELINE_BUDGET_BYTES - ARENA_TIMELINE_RESERVE_BYTES;
+  if (timelineBytes >= startLimit) {
+    console.warn(`[npcArena] background match skipped: timeline_storage_budget (bytes=${timelineBytes}, startLimit=${startLimit})`);
+    return { skipped: 'timeline_storage_budget' };
   }
 
   const fleets = await listBattleReadyNpcFleets();
