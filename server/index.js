@@ -47,6 +47,8 @@ const path = require('path');
 const fs = require('fs');
 const { makeRateLimiter } = require('./utils/rateLimiters');
 const { safeInitScheduler, scheduleTask } = require('./utils/scheduler');
+// Start the configured cache connection during boot, before health probes arrive.
+const { cacheDiagnostics } = require('./services/cache');
 const { validateProductionEnv, validateStrongSecret } = require('./utils/productionEnv');
 
 // ── Ensure logs directory exists ──
@@ -238,7 +240,7 @@ async function healthCheck(req, res) {
   catch (_) { dbStatus = 'error'; }
 
   let redis = { status: 'unknown', configured: Boolean(process.env.REDIS_URL), mode: 'unknown' };
-  try { redis = await require('./services/cache').cacheDiagnostics(); }
+  try { redis = await cacheDiagnostics(); }
   catch (_) {}
 
   // Redis is required for leader election only when this process is allowed to run
