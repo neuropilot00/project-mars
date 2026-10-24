@@ -65,6 +65,12 @@ async function rollAssemblyQuality() {
   return entries[entries.length - 1][0];
 }
 
+async function assemblyQualityOdds() {
+  const weights = parseQualityWeights(await getSetting('assembly_quality_weights', null)) || ASSEMBLY_QUALITY_WEIGHTS_DEFAULT;
+  const total = Object.values(weights).reduce((sum, n) => sum + n, 0);
+  return Object.fromEntries(ASSEMBLY_QUALITY_GRADES.map(g => [g, ((weights[g] || 0) / total) * 100]));
+}
+
 function rollAssemblyBonusStats(quality, base) {
   const meta = ASSEMBLY_QUALITY[quality] || ASSEMBLY_QUALITY.common;
   const range = meta.range || [0, 0];
@@ -88,6 +94,24 @@ function rollAssemblyBonusStats(quality, base) {
 function _slotShardCost(base, slot) {
   const offset = { 1: 0, 2: 2, 3: 4, 4: 6, 5: 8 };
   return (base || 40) + (offset[slot] || 0);
+}
+
+// The same candidate pool and pity condition used by both draw paths.
+function partDrawDisclosure(parts, ownMap, pulls, hardPity, dupYield) {
+  const missing = parts.filter(p => (ownMap[p.part_code] || 0) < 1);
+  const pityActive = hardPity > 0 && pulls + 1 >= hardPity && missing.length > 0;
+  const candidates = pityActive ? missing : parts;
+  const chance = candidates.length ? 100 / candidates.length : 0;
+  const eligible = new Set(candidates.map(p => p.part_code));
+  return {
+    pool_size: parts.length, missing_count: missing.length, pity_active: pityActive,
+    duplicate_policy: 'retain_part_and_grant_shards', dup_shard_yield: dupYield,
+    duplicate_pct: candidates.length ? candidates.filter(p => (ownMap[p.part_code] || 0) >= 1).length * chance : 0,
+    outcomes: parts.map(p => ({ part_code: p.part_code, unit_code: p.unit_code,
+      name_en: p.name_en, name_ko: p.name_ko, name_ja: p.name_ja, name_zh: p.name_zh,
+      unit_name_en: p.unit_name_en, unit_name_ko: p.unit_name_ko, unit_name_ja: p.unit_name_ja, unit_name_zh: p.unit_name_zh,
+      owned: ownMap[p.part_code] || 0, probability_pct: eligible.has(p.part_code) ? chance : 0 })),
+  };
 }
 
 async function getUnit(unitCode) {
@@ -226,6 +250,8 @@ async function getState(wallet, unitCode) {
     gacha_enabled: u.gacha_enabled,
     gacha_price_gp: u.gacha_price_gp,
     pulls_since_new: pulls,
+    disclosure: partDrawDisclosure(parts, ownMap, pulls, u.hard_pity_pulls || 30, u.dup_shard_yield || 15),
+    assembly_quality_odds: await assemblyQualityOdds(),
     hard_pity: u.hard_pity_pulls,
     pity_remaining: Math.max(0, u.hard_pity_pulls - pulls),
   });
@@ -239,7 +265,8 @@ async function pull(wallet, unitCode, count) {
   if (!u) return { error: 'UNIT_NOT_FOUND' };
   if (!u.gacha_enabled) return { error: 'GACHA_DISABLED' };
 
-  const price = u.gacha_price_gp || 0;
+  const price = Number(u.gacha_price_gp || 0);
+  if (!Number.isFinite(price) || price < 0) return { error: 'INVALID_PRICE' };
   const hardPity = u.hard_pity_pulls || 30;
   const dupYield = u.dup_shard_yield || 15;
   const maxMulti = 10;
@@ -255,9 +282,9 @@ async function pull(wallet, unitCode, count) {
     const allParts = partRows.map(p => p.part_code);
 
     const total = price * n;
+    const { rows: uu } = await client.query(`SELECT gp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`, [w]);
+    if (!uu[0]) { await client.query('ROLLBACK'); return { error: 'USER_NOT_FOUND' }; }
     if (total > 0) {
-      const { rows: uu } = await client.query(`SELECT gp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`, [w]);
-      if (!uu[0]) { await client.query('ROLLBACK'); return { error: 'USER_NOT_FOUND' }; }
       if (Number(uu[0].gp_balance) < total) { await client.query('ROLLBACK'); return { error: 'INSUFFICIENT_GP', required: total, current: Number(uu[0].gp_balance) }; }
       await client.query(`UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2)`, [total, w]);
     }
@@ -276,7 +303,7 @@ async function pull(wallet, unitCode, count) {
     for (let i = 0; i < n; i++) {
       const missing = allParts.filter(pc => (ownMap[pc] || 0) < 1);
       const pityHit = hardPity > 0 && (pullsSinceNew + 1) >= hardPity && missing.length > 0;
-      const picked = pityHit ? missing[Math.floor(Math.random() * missing.length)] : allParts[Math.floor(Math.random() * allParts.length)];
+      const picked = pityHit ? missing[crypto.randomInt(missing.length)] : allParts[crypto.randomInt(allParts.length)];
       const wasNew = (ownMap[picked] || 0) < 1;
       ownMap[picked] = (ownMap[picked] || 0) + 1;
       let gain = 0;
@@ -589,11 +616,13 @@ async function getBoxInfo() {
   };
 }
 
-async function pullBox(wallet, count) {
+async function pullBox(wallet, count, expectedPrice) {
   const w = (wallet || '').toLowerCase().trim();
   if (!w) return { error: 'INVALID_WALLET' };
   const info = await getBoxInfo();
   if (!info.enabled) return { error: 'BOX_DISABLED' };
+  if (!Number.isFinite(info.price) || info.price < 0) return { error: 'INVALID_PRICE' };
+  if (expectedPrice !== undefined && Number(expectedPrice) !== info.price) return { error: 'PRICE_CHANGED', price_gp: info.price };
   const n = Math.max(1, Math.min(10, parseInt(count, 10) || 1));
 
   const client = await pool.connect();
@@ -609,9 +638,9 @@ async function pullBox(wallet, count) {
     const allParts = pool0.map(r => r.part_code);
 
     const total = info.price * n;
+    const { rows: uu } = await client.query(`SELECT gp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`, [w]);
+    if (!uu[0]) { await client.query('ROLLBACK'); return { error: 'USER_NOT_FOUND' }; }
     if (total > 0) {
-      const { rows: uu } = await client.query(`SELECT gp_balance FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE`, [w]);
-      if (!uu[0]) { await client.query('ROLLBACK'); return { error: 'USER_NOT_FOUND' }; }
       if (Number(uu[0].gp_balance) < total) { await client.query('ROLLBACK'); return { error: 'INSUFFICIENT_GP', required: total, current: Number(uu[0].gp_balance) }; }
       await client.query(`UPDATE users SET gp_balance = gp_balance - $1 WHERE LOWER(wallet_address) = LOWER($2)`, [total, w]);
     }
@@ -630,7 +659,7 @@ async function pullBox(wallet, count) {
     for (let i = 0; i < n; i++) {
       const missing = allParts.filter(pc => (ownMap[pc] || 0) < 1);
       const pityHit = info.hardPity > 0 && (pulls + 1) >= info.hardPity && missing.length > 0;
-      const picked = pityHit ? missing[Math.floor(Math.random() * missing.length)] : allParts[Math.floor(Math.random() * allParts.length)];
+      const picked = pityHit ? missing[crypto.randomInt(missing.length)] : allParts[crypto.randomInt(allParts.length)];
       const wasNew = (ownMap[picked] || 0) < 1;
       ownMap[picked] = (ownMap[picked] || 0) + 1;
       let gain = 0;
@@ -692,11 +721,17 @@ async function boxState(wallet) {
   if (!w) return { error: 'INVALID_WALLET' };
   const info = await getBoxInfo();
   const { rows: pity } = await pool.query(`SELECT pulls_since_new FROM user_assembly_gacha WHERE wallet = $1 AND unit_code = '__box__'`, [w]);
-  const { rows: poolCnt } = await pool.query(
-    `SELECT COUNT(*)::int AS c FROM assembly_parts ap JOIN assembly_units au ON au.unit_code = ap.unit_code AND au.active = true WHERE ap.is_active = true`
+  const { rows: parts } = await pool.query(
+    `SELECT ap.part_code,ap.unit_code,ap.name_en,ap.name_ko,ap.name_ja,ap.name_zh,
+       au.name_en AS unit_name_en,au.name_ko AS unit_name_ko,au.name_ja AS unit_name_ja,au.name_zh AS unit_name_zh,COALESCE(up.qty,0) AS owned
+     FROM assembly_parts ap JOIN assembly_units au ON au.unit_code=ap.unit_code AND au.active=true
+     LEFT JOIN user_assembly_parts up ON up.part_code=ap.part_code AND up.wallet=$1
+     WHERE ap.is_active=true ORDER BY ap.part_code`, [w]
   );
   const pulls = parseInt(pity[0]?.pulls_since_new, 10) || 0;
-  return { enabled: info.enabled, price_gp: info.price, hard_pity: info.hardPity, pity_remaining: Math.max(0, info.hardPity - pulls), pool_size: poolCnt[0]?.c || 0 };
+  const ownMap = Object.fromEntries(parts.map(p => [p.part_code, Number(p.owned)]));
+  return { enabled: info.enabled, price_gp: info.price, hard_pity: info.hardPity, pity_remaining: Math.max(0, info.hardPity - pulls), pool_size: parts.length,
+    disclosure: partDrawDisclosure(parts, ownMap, pulls, info.hardPity, info.dupYield) };
 }
 
 module.exports = { listUnits, getState, pull, assemble, disassemble, exchangeShards, grantParts, getUnit, pullBox, boxState };

@@ -1,0 +1,131 @@
+{
+  "schema": 1,
+  "release": "7.509",
+  "generator": "built-in image_gen",
+  "projection": "orthographic overhead",
+  "canonical_front": "up",
+  "runtime_rotation": "whole sprite follows authoritative actor facing",
+  "baked_effects": false,
+  "preserved": {
+    "cinematic_portraits": 10,
+    "alien_combat_sprites": 4,
+    "part_images": 50
+  },
+  "prompt_template": "Use case: stylized-concept. A production true ORTHOGRAPHIC OVERHEAD tactical-game mech sprite for OCCUPY MARS. Use the supplied schematic ONLY for camera projection, part positions and orientation; replace primitives with detailed realistic original industrial hard-surface art. FRONT IS RIGHT, exactly as the guide. Robot is upright in world Z but camera looks vertically DOWN from the zenith: see armor TOPS, NOT vertical chest/front/back, and only short occluded rear foot tips on LEFT. Head is a CLOSED opaque smooth TEARDROP HELMET TOP CAP with pointed nose toward RIGHT, rounded rear toward LEFT, no eyes/face/visor/mouth/chin visible. All weapons lie horizontally in the battlefield plane and extend to RIGHT; see their long TOP sides, not round muzzle bores aimed at viewer/sky. Helmet nose, weapon muzzles and shield defense direction must ALL point RIGHT. No component faces left, top or bottom. Keep the compact squat overhead footprint of the guide; do not make a full-height standing humanoid portrait or a horizontally rotated portrait. Rich PBR steel, true overlapping armor thickness, joint engineering, neutral overhead light, subtle wear. Complete unit centered in central70 percent of SQUARE canvas with safe transparent padding. GENUINE transparent background with clean tight edges. Do not reproduce guide text, arrows, lines or boxes. No floor, cast shadow, aura, firing, engine flames, exhaust, labels, text or UI. One clean idle battle-ready unit, the game will rotate the WHOLE asset to its final orientation later.",
+  "assets": [
+    {
+      "code": "pilgrim_ignis",
+      "file": "assets/ships/top/pilgrim_ignis.png",
+      "generated_source": "exec-bd13dd6c-cd9d-41ef-a8dd-76c5beb0c04b.png",
+      "source_front": "right",
+      "export_rotation_degrees_ccw": 90,
+      "identity_prompt": "Heavy charcoal steel and muted burnt-orange broad heat-sink armor. Two short heavy forearm cannons. Broad square shoulder blocks, compact reactor top and recessed warm indicators.",
+      "size": [
+        512,
+        512
+      ],
+      "alpha_bbox": [
+        32,
+        42,
+        474,
+        469
+      ],
+      "sha256": "655e2e900095a62110918221112b5da2b06815a944e2ae3e2cdd7e65cc2226c5"
+    },
+    {
+      "code": "pilgrim_glacius",
+      "file": "assets/ships/top/pilgrim_glacius.png",
+      "generated_source": "exec-5fa5737a-a658-4d18-b686-7b88bd5ec8f1.png",
+      "source_front": "right",
+      "export_rotation_degrees_ccw": 90,
+      "identity_prompt": "White and ice-blue/cyan thick armored guardian. One rotary cannon and one large left shield. Shield seen from ABOVE as its thick upper rim/angled top lip, not a front-facing poster plate; cannon and shield both protect/aim toward RIGHT.",
+      "size": [
+        512,
+        512
+      ],
+      "alpha_bbox": [
+        47,
+        32,
+        459,
+        480
+      ],
+      "sha256": "be13d80d3229e2bc13d068f011479e92a963deb1fa129fef159b4b003e726029"
+    },
+    {
+      "code": "pilgrim_voltaris",
+      "file": "assets/ships/top/pilgrim_voltaris.png",
+      "generated_source": "exec-f4b25a40-39e6-4157-b0a5-b61b5a49f95e.png",
+      "source_front": "up",
+      "export_rotation_degrees_ccw": 0,
+      "identity_prompt": "Deep purple and charcoal armored mech with two long parallel cannons pointing UP. Closed opaque teardrop helmet top, pointed nose UP and rounded rear DOWN, no eyes, face, visor, mouth, chin or red head lights. Preserve body, guns and rear feet from the overhead geometric-guide generation.",
+      "size": [
+        512,
+        512
+      ],
+      "alpha_bbox": [
+        80,
+        52,
+        464,
+        451
+      ],
+      "sha256": "3d7399187fd1dbfa20600a4d52a418feaa2032eae151c8bd6b8cd6b167ad2fdd"
+    },
+    {
+      "code": "pilgrim_umbra",
+      "file": "assets/ships/top/pilgrim_umbra.png",
+      "generated_source": "exec-8c81d02f-d866-4891-967f-59e07e1fe98f.png",
+      "source_front": "right",
+      "export_rotation_degrees_ccw": 90,
+      "identity_prompt": "Dark desaturated teal stealth armor, swept jagged shoulder fins, small green recessed sensors. Two short forearm blades extending toward RIGHT. No guns.",
+      "size": [
+        512,
+        512
+      ],
+      "alpha_bbox": [
+        36,
+        39,
+        476,
+        444
+      ],
+      "sha256": "064a98be222fb1b9740f34e8e1c7789de8b99e533a8f723237b5ccbf041c748d"
+    },
+    {
+      "code": "pilgrim_aurum",
+      "file": "assets/ships/top/pilgrim_aurum.png",
+      "generated_source": "exec-5d1499a8-46ca-4449-9d70-5999476da677.png",
+      "source_front": "right",
+      "export_rotation_degrees_ccw": 90,
+      "identity_prompt": "Black steel with restrained gold armor edging, jagged shoulder plates, ONE long gold precision RIFLE with a single barrel extending RIGHT, not a gatling gun. No shield or second gun.",
+      "size": [
+        512,
+        512
+      ],
+      "alpha_bbox": [
+        52,
+        45,
+        456,
+        416
+      ],
+      "sha256": "3fb285df58d8f8ec5295a91b9a953979a15e715e8b194ddc784b40b067394119"
+    },
+    {
+      "code": "pilgrim_tempest",
+      "file": "assets/ships/top/pilgrim_tempest.png",
+      "generated_source": "exec-2334522c-fe9f-48ad-b7c9-5d13bf4e8747.png",
+      "source_front": "right",
+      "export_rotation_degrees_ccw": 90,
+      "identity_prompt": "White and deep blue armor, angular shoulder shells, two round dorsal reactor top housings, ONE compact single-barrel rifle extending RIGHT and an open armored guard hand. No shield.",
+      "size": [
+        512,
+        512
+      ],
+      "alpha_bbox": [
+        38,
+        58,
+        474,
+        463
+      ],
+      "sha256": "4c3788f1fbb157c09c5876abaeef581f8986755b9367f1949b141fac3cb80184"
+    }
+  ]
+}

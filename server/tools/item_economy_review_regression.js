@@ -1,0 +1,84 @@
+#!/usr/bin/env node
+'use strict';
+// Actual HTTP and PostgreSQL transactions in an isolated local shadow schema.
+const assert=require('node:assert/strict'),crypto=require('node:crypto');
+const {Pool}=require('pg');
+const url=new URL(process.env.DATABASE_URL||'');
+if(!['127.0.0.1','localhost'].includes(url.hostname)||url.pathname!=='/codex_occupy_review_upgrade_20261010')throw Error('Exact disposable local review database required');
+if(process.env.NODE_ENV!=='development'||process.env.RUN_SCHEDULERS!=='false')throw Error('Development with schedulers disabled required');
+const schema='item_economy_qa_'+crypto.randomBytes(6).toString('hex');
+const admin=new Pool({connectionString:url.href});
+const pool=new Pool({connectionString:url.href,options:'-c search_path='+schema+',public',max:8});
+const wallet='0x'+crypto.randomBytes(20).toString('hex');
+const settings={assembly_quality_weights:{rare:1,mythic:1},assembly_box_price_gp:'10',assembly_box_hard_pity:'2'};
+const checks=[];let server,base;
+const tables=['users','item_types','user_items','user_active_effects','item_usage_log','assembly_units','assembly_parts','user_assembly_parts','user_assembly_shards','user_assembly_gacha','assembly_gacha_pulls','assembly_events','ships','ship_types'];
+const check=label=>{checks.push(label);console.log('PASS '+label);};
+const gp=async()=>Number((await pool.query('SELECT gp_balance FROM users WHERE wallet_address=$1',[wallet])).rows[0].gp_balance);
+async function call(route,body){const r=await fetch(base+'/api'+route,{method:body?'POST':'GET',headers:{'Content-Type':'application/json',Authorization:'Bearer '+require('jsonwebtoken').sign({wallet_address:wallet},process.env.JWT_SECRET)},body:body?JSON.stringify(body):undefined});return {status:r.status,data:await r.json()};}
+(async()=>{
+ await admin.query('CREATE SCHEMA '+schema);
+ for(const table of tables){
+  await admin.query(`CREATE TABLE ${schema}.${table}(LIKE public.${table} INCLUDING ALL)`);
+  for(const col of (await admin.query("SELECT column_name FROM information_schema.columns WHERE table_schema=$1 AND table_name=$2 AND column_default LIKE 'nextval(%'",[schema,table])).rows){const seq=`${schema}.${table}_${col.column_name}_qa`;await admin.query('CREATE SEQUENCE '+seq);await admin.query(`ALTER TABLE ${schema}.${table} ALTER COLUMN ${col.column_name} SET DEFAULT nextval('${seq}')`);}
+ }
+ const noop=async()=>{};
+ require.cache[require.resolve('../db')]={loaded:true,exports:{pool,getSetting:async(k,f)=>settings[k]??f,logGPActivity:noop}};
+ for(const name of ['season','achievements','missions','enhancement'])require.cache[require.resolve('../services/'+name)]={loaded:true,exports:null};
+ require.cache[require.resolve('../utils/rateLimiters')]={loaded:true,exports:{makeRateLimiter:()=>((_req,_res,next)=>next())}};
+ process.env.JWT_SECRET='disposable-item-economy-review';
+ const app=require('express')();app.use(require('express').json());app.use('/api',require('../routes/itemEconomyRoutes'));
+ server=await new Promise(resolve=>{const s=app.listen(0,'127.0.0.1',()=>resolve(s));});base='http://127.0.0.1:'+server.address().port;
+ await pool.query("INSERT INTO users(wallet_address,nickname,gp_balance) VALUES($1,'Item economy QA',100)",[wallet]);
+ const item=(await pool.query("INSERT INTO item_types(code,name,category,effect_value,duration_hours,max_stack,active) VALUES('gp_generator','GP Generator','boost',5,12,5,true) RETURNING id")).rows[0].id;
+ await pool.query('INSERT INTO user_items(wallet,item_type_id,quantity) VALUES($1,$2,2)',[wallet,item]);
+ await pool.query("INSERT INTO user_active_effects(wallet,effect_type,effect_value,activated_at,last_settled_at,expires_at,active) VALUES($1,'gp_generator',5,NOW()-interval '2 hours',NOW()-interval '2 hours',NOW()+interval '10 hours',true)",[wallet]);
+ const replaced=await Promise.all([call('/shop/use',{itemCode:'gp_generator'}),call('/shop/use',{itemCode:'gp_generator'})]);
+ assert.ok(replaced.every(r=>r.status===200));assert.ok((await gp())>=110&&(await gp())<110.02);
+ assert.equal((await pool.query('SELECT quantity FROM user_items WHERE wallet=$1',[wallet])).rows[0].quantity,0);
+ assert.equal(Number((await pool.query("SELECT COUNT(*) n FROM user_active_effects WHERE wallet=$1 AND active=true",[wallet])).rows[0].n),1);
+ assert.ok(replaced.some(r=>r.data.effect.gpSettled>=10));
+ check('concurrent generator replacement pays accrued income once, consumes two owned items and leaves one active effect');
+ await pool.query('UPDATE user_active_effects SET active=false WHERE wallet=$1',[wallet]);
+ await pool.query("INSERT INTO user_active_effects(wallet,effect_type,effect_value,activated_at,last_settled_at,expires_at,active) VALUES($1,'gp_generator',5,NOW()-interval '22 seconds',NOW()-interval '22 seconds',NOW()-interval '2 seconds',true)",[wallet]);
+ const before=await gp();assert.equal((await call('/shop/active-effects')).status,200);const paid=await gp();assert.ok(Math.abs(paid-before-20*5/3600)<0.000002);await call('/shop/active-effects');assert.equal(await gp(),paid);
+ check('expired sub-minute remainder is credited exactly once');
+ await pool.query('UPDATE user_items SET quantity=1 WHERE wallet=$1',[wallet]);
+ await pool.query("INSERT INTO user_active_effects(wallet,effect_type,effect_value,activated_at,last_settled_at,expires_at,active) VALUES($1,'gp_generator',5,NOW()-interval '1 hour',NOW()-interval '1 hour',NOW()+interval '11 hours',true)",[wallet]);
+ await pool.query('ALTER TABLE item_usage_log ADD CONSTRAINT qa_force_rollback CHECK(false) NOT VALID');
+ const rollbackGp=await gp();assert.equal((await call('/shop/use',{itemCode:'gp_generator'})).status,500);assert.equal(await gp(),rollbackGp);
+ assert.equal((await pool.query('SELECT quantity FROM user_items WHERE wallet=$1',[wallet])).rows[0].quantity,1);
+ assert.equal(Number((await pool.query("SELECT COUNT(*) n FROM user_active_effects WHERE wallet=$1 AND active=true",[wallet])).rows[0].n),1);
+ await pool.query('ALTER TABLE item_usage_log DROP CONSTRAINT qa_force_rollback');
+ check('failed activation rolls back inventory, generator replacement and earned GP together');
+ await pool.query("INSERT INTO ship_types SELECT * FROM public.ship_types WHERE code='mcc_frg'");
+ await pool.query("INSERT INTO assembly_units(unit_code,ship_type_code,name_en,name_ko,part_count,gacha_price_gp,hard_pity_pulls,dup_shard_yield,max_per_player) VALUES('qa_unit','mcc_frg','QA','QA',2,10,2,15,1)");
+ for(const [i,code] of ['qa_a','qa_b'].entries())await pool.query("INSERT INTO assembly_parts(part_code,unit_code,slot,name_en,name_ko) VALUES($1,'qa_unit',$2,$1,$1)",[code,i+1]);
+ await pool.query("INSERT INTO user_assembly_parts(wallet,part_code,qty) VALUES($1,'qa_a',2)",[wallet]);
+ await pool.query("INSERT INTO user_assembly_gacha(wallet,unit_code,pulls_since_new,total_pulls) VALUES($1,'qa_unit',1,1),($1,'__box__',1,1)",[wallet]);
+ const assembly=require('../services/assembly');
+ let state=await assembly.getState(wallet,'qa_unit');
+ assert.equal(state.disclosure.pity_active,true);assert.equal(state.disclosure.outcomes.find(p=>p.part_code==='qa_b').probability_pct,100);assert.equal(state.disclosure.duplicate_pct,0);
+ assert.deepEqual(state.assembly_quality_odds,{common:0,uncommon:0,rare:50,epic:0,legendary:0,mythic:50});
+ assert.equal((await assembly.boxState(wallet)).disclosure.outcomes.find(p=>p.part_code==='qa_b').probability_pct,100);
+ const pull=await assembly.pull(wallet,'qa_unit',1);assert.equal(pull.success,true);assert.equal(pull.results[0].part_code,'qa_b');assert.equal(pull.results[0].is_pity,true);
+ state=await assembly.getState(wallet,'qa_unit');assert.equal(state.disclosure.pity_active,false);assert.equal(state.disclosure.duplicate_pct,100);assert.ok(state.disclosure.outcomes.every(p=>p.probability_pct===50));
+ check('per-part next-draw odds match real missing-part pity, reset and configured assembly quality weights');
+ const duplicatesBefore=Number((await pool.query('SELECT SUM(qty) n FROM user_assembly_parts WHERE wallet=$1',[wallet])).rows[0].n);
+ const box=await assembly.pullBox(wallet,1);assert.equal(box.success,true);assert.equal(box.results[0].is_dup,true);assert.equal(box.shards_gained,15);
+ assert.equal(Number((await pool.query('SELECT SUM(qty) n FROM user_assembly_parts WHERE wallet=$1',[wallet])).rows[0].n),duplicatesBefore+1);
+ assert.equal((await pool.query('SELECT shards FROM user_assembly_shards WHERE wallet=$1',[wallet])).rows[0].shards,15);
+ check('duplicate disclosure matches real retained part plus shard bonus, without changing existing holdings');
+  const quoteGp=await gp();assert.equal((await assembly.pullBox(wallet,1,999)).error,'PRICE_CHANGED');assert.equal(await gp(),quoteGp);
+  check('stale displayed box price rejects before currency or inventory changes');
+ await pool.query('UPDATE users SET gp_balance=15 WHERE wallet_address=$1',[wallet]);
+ const race=await Promise.all([assembly.pull(wallet,'qa_unit',1),assembly.pull(wallet,'qa_unit',1)]);assert.equal(race.filter(r=>r.success).length,1);assert.equal(await gp(),5);
+ await pool.query("UPDATE assembly_units SET gacha_price_gp=0 WHERE unit_code='qa_unit'");
+ const totalBefore=Number((await pool.query("SELECT total_pulls FROM user_assembly_gacha WHERE wallet=$1 AND unit_code='qa_unit'",[wallet])).rows[0].total_pulls);
+ assert.ok((await Promise.all([assembly.pull(wallet,'qa_unit',1),assembly.pull(wallet,'qa_unit',1)])).every(r=>r.success));
+ assert.equal(Number((await pool.query("SELECT total_pulls FROM user_assembly_gacha WHERE wallet=$1 AND unit_code='qa_unit'",[wallet])).rows[0].total_pulls),totalBefore+2);
+ assert.equal((await assembly.pull('missing-user-wallet','qa_unit',1)).error,'USER_NOT_FOUND');
+ await pool.query("UPDATE assembly_units SET gacha_price_gp=-1 WHERE unit_code='qa_unit'");assert.equal((await assembly.pull(wallet,'qa_unit',1)).error,'INVALID_PRICE');
+ check('paid draw cannot double-spend; configured free draws serialize counters and require an account; negative price rejects');
+ console.log(JSON.stringify({passed:checks.length,checks,productionFixturesUsed:false}));
+})().catch(e=>{console.error(e);process.exitCode=1;}).finally(async()=>{if(server)await new Promise(r=>server.close(r));await pool.end();await admin.query('DROP SCHEMA IF EXISTS '+schema+' CASCADE');await admin.end();});

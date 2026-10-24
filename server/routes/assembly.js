@@ -98,7 +98,7 @@ router.get('/assembly/box', requireAuth, async (req, res) => {
 router.post('/assembly/box/pull', requireAuth, async (req, res) => {
   const w = requireWallet(req, res); if (!w) return;
   try {
-    const r = await assembly.pullBox(w, req.body?.count);
+    const r = await assembly.pullBox(w, req.body?.count, req.body?.expected_price_gp);
     if (r.error) return res.status(400).json(r);
     res.json(r);
   } catch (e) { console.error('[assembly/box/pull]', e.message); res.status(500).json({ error: 'internal_error' }); }

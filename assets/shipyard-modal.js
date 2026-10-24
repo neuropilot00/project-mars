@@ -393,7 +393,7 @@ async function loadAssembly() {
     renderAssembly(_asmUnits);
   } catch(e) { wrap.innerHTML = '<div style="text-align:center;color:#ef5350;padding:24px;font-size:10px">'+tl('Network error','네트워크 오류','ネットワークエラー','网络错误')+'</div>'; }
 }
-var ASSET_VER = '7407'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화 (v7.407: tactical-lab 스프라이트 캐시버스트 합류)
+var ASSET_VER = '7509'; // 합체 유닛 아트 버전 — 아트 교체 시 올려 브라우저 캐시 무효화 (v7.407: tactical-lab 스프라이트 캐시버스트 합류)
 function _asmKindLabel(k){ return ({robot:tl('Robot','로봇','ロボ','机器人'),ship:tl('Ship','함선','艦船','舰船'),astronaut:tl('Astronaut','우주인','宇宙飛行士','宇航员'),mech:tl('Mech','메크','メック','机甲'),alien:tl('Alien','외계생명체','エイリアン','外星生命')})[k]||k; }
 // 역할 특성 라벨 + 한줄 설명(전투 매치업 기반)
 function _asmRoleInfo(role){
@@ -558,7 +558,7 @@ async function _asmConfirm(options){
   function keys(ev){
     if (ev.key === 'Escape') { ev.preventDefault(); ev.stopPropagation(); gameConfirmResolve(false); return; }
     if (ev.key !== 'Tab') return;
-    var buttons = Array.from(dialog.querySelectorAll('button:not(:disabled)'));
+    var buttons = Array.from(dialog.querySelectorAll('button:not(:disabled),summary,[href],input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[tabindex]:not([tabindex="-1"])')).filter(function(el){return el.getClientRects().length>0;});
     var first = buttons[0], last = buttons[buttons.length-1];
     if (ev.shiftKey && document.activeElement === first) { ev.preventDefault(); last.focus(); }
     else if (!ev.shiftKey && document.activeElement === last) { ev.preventDefault(); first.focus(); }
@@ -606,6 +606,13 @@ function _asmControlIcon(name){
 function _asmCloseButton(){
   return '<button type="button" class="asm-close" data-action="asm-modal-close" aria-label="'+tl('Close','닫기','閉じる','关闭')+'">'+_asmControlIcon('close')+'</button>';
 }
+function _assemblyOddsHtml(d){
+  var odds=d.disclosure;
+  if(!odds)return '';
+  var rows=(odds.outcomes||[]).map(function(p){var unitName=_asmName({name_en:p.unit_name_en,name_ko:p.unit_name_ko,name_ja:p.unit_name_ja,name_zh:p.unit_name_zh});return '<li style="display:flex;justify-content:space-between;gap:12px"><span>'+escapeHtmlSafe((unitName?unitName+' · ':'')+(_asmName(p)||p.part_code))+'</span><b>'+_cratePercent(p.probability_pct)+'</b></li>';}).join('');
+  var quality=Object.keys(d.assembly_quality_odds||{}).map(function(q){return escapeHtmlSafe(_qLabel(q))+' '+_cratePercent(d.assembly_quality_odds[q]);}).join(' · ');
+  return '<details class="asm-details" data-assembly-odds><summary style="min-height:44px;display:flex;align-items:center">'+tl('Next-draw odds & duplicates','다음 뽑기 확률과 중복 보상','次回確率と重複報酬','下次抽取概率与重复奖励','Peluang berikut & duplikat','Xác suất lượt tới & trùng lặp','โอกาสครั้งถัดไปและของซ้ำ')+'</summary><p>'+tl('Duplicates keep the part and also grant shards.','중복 파츠는 재고에 남고 조각도 추가 지급됩니다.','重複パーツは在庫に残り、シャードも獲得します。','重复零件保留在库存中，同时额外获得碎片。','Komponen duplikat tetap dimiliki dan memberi pecahan tambahan.','Bộ phận trùng vẫn được giữ và tặng thêm mảnh.','ชิ้นส่วนซ้ำยังคงอยู่ในคลังและได้รับเศษเพิ่ม')+' +'+formatNum(odds.dup_shard_yield||0)+' · '+tl('Duplicate chance','중복 확률','重複確率','重复概率','Peluang duplikat','Xác suất trùng','โอกาสซ้ำ')+' '+_cratePercent(odds.duplicate_pct)+'</p><ul style="max-height:220px;overflow:auto;padding:0;list-style:none;font-size:11px;line-height:1.8">'+rows+'</ul>'+(quality?'<p>'+tl('New assembly quality','신규 합체 품질','新規合体品質','新合成品质','Kualitas perakitan baru','Phẩm chất lắp ráp mới','คุณภาพการประกอบใหม่')+' · '+quality+'</p>':'')+'<p>'+tl('The next draw uses your current inventory and pity counter. New parts reset pity; pity grants one missing part, not a complete unit. A multi-draw recalculates after each result.','현재 재고와 천장 횟수를 반영한 다음 1회 확률입니다. 신규 파츠는 천장 횟수를 초기화하며, 천장은 완성 유닛이 아닌 미보유 파츠 1개를 보장합니다. 연속 뽑기는 결과마다 다시 계산합니다.','現在の在庫と天井回数を反映した次の1回の確率です。新規パーツで天井はリセット。天井は未所持パーツ1個を保証し、完成ユニットではありません。連続抽選は結果ごとに再計算。','此为当前库存和保底计数下的下次单抽概率。获得新零件重置保底，保底保证1个未拥有零件而非完整单位。连抽逐次重算。','Peluang 1 tarikan berikut sesuai inventaris dan pity saat ini. Komponen baru mereset pity; pity menjamin satu komponen yang belum ada, bukan unit lengkap. Multi-tarik dihitung ulang tiap hasil.','Xác suất lượt kế tiếp dựa trên kho và bộ đếm hiện tại. Bộ phận mới đặt lại bảo hiểm; bảo đảm một bộ phận thiếu, không phải đơn vị hoàn chỉnh. Quay nhiều tính lại sau mỗi kết quả.','โอกาส 1 ครั้งถัดไปตามคลังและตัวนับปัจจุบัน ชิ้นส่วนใหม่รีเซ็ตการันตี ซึ่งให้ชิ้นส่วนที่ขาด 1 ชิ้น ไม่ใช่ยูนิตครบชุด การสุ่มหลายครั้งคำนวณใหม่ทุกรอบ')+'</p></details>';
+}
 function _asmRenderUnitModal(d, error){
   var c = document.getElementById('asmUnitModalContent');
   if (!c) return;
@@ -631,7 +638,7 @@ function _asmRenderUnitModal(d, error){
     '<div class="asm-method">'+(error?'<p class="asm-error" role="alert">'+escapeHtmlSafe(error)+'</p>':'')+
     '<div class="asm-section-title"><h3>'+tl('Parts → unit','부품 → 유닛','パーツ → ユニット','零件 → 单位')+'</h3><b>'+owned+'/'+total+'</b></div>'+
     '<p class="asm-explain">'+(d.pending_reassembly?tl('Recovered parts rebuild the original unit. Its quality, bonuses, upgrades, HP and shield are preserved. Reassembly does not reroll or repair it.','회수한 부품으로 기존 유닛을 재조립합니다. 품질·추가 능력치·강화·HP·보호막을 유지하며, 재추첨이나 수리는 하지 않습니다.','回収パーツで元のユニットを再組立します。品質・追加能力・強化・HP・シールドを維持し、再抽選や修理は行いません。','回收零件将重组原单位，保留品质、额外属性、强化、HP与护盾，不会重新随机或维修。','Komponen pulih membangun ulang unit asli. Kualitas, bonus, peningkatan, HP dan perisai tetap. Perakitan ulang tidak mengundi atau memperbaiki.','Linh kiện thu hồi tái dựng đơn vị gốc. Giữ phẩm chất, thưởng, nâng cấp, HP và khiên. Không quay lại chỉ số hay sửa chữa.','ชิ้นส่วนที่กู้คืนสร้างหน่วยเดิมใหม่ คงคุณภาพ โบนัส อัปเกรด HP และโล่ การประกอบใหม่ไม่สุ่มหรือซ่อม') : tl('Combine one of every part below into one unit. Quality and bonus stats are assigned by the server when assembly completes.','아래 모든 부품을 1개씩 합쳐 유닛 1기를 만듭니다. 품질과 추가 능력치는 합체 완료 시 서버가 결정합니다.','下記パーツを各1個合体して1ユニットを作ります。品質と追加能力は完成時にサーバーが決定します。','消耗下列每种零件各1个，合成1个单位。品质与额外属性由服务器在完成时决定。'))+'</p>'+
-    '<div class="asm-modal-parts">'+slots+'</div>'+
+    '<div class="asm-modal-parts">'+slots+'</div>'+_assemblyOddsHtml(d)+
     '<div class="asm-cost-row"><div>'+_asmIcon('gp','GP',48)+'<span>'+tl('Assembly cost','합체 비용','合体コスト','合成消耗')+'<b>'+formatNum(d.assemble_gp_cost || 0)+' GP</b></span></div><div>'+_asmIcon('assembly_shards',tl('Shards','조각','シャード','碎片'),48)+'<span>'+tl('Owned shards','보유 조각','所持シャード','持有碎片')+'<b>'+formatNum(d.shards || 0)+'</b></span></div></div>'+
     '<p class="asm-consumption">'+tl('Confirmation required: one of each part and the GP cost are consumed once.','확인 후 각 부품 1개와 GP 비용을 한 번 소비합니다.','確認後、各パーツ1個とGPコストを一度消費します。','确认后一次性消耗每种零件各1个及GP费用。')+'</p>'+actions+
     '<details class="asm-details"><summary>'+tl('Unit role & battle preview','유닛 역할과 전투 미리보기','役割と戦闘プレビュー','单位职责与战斗预览')+'</summary>'+_asmTraitPanel(d,unit)+_asmBattlePreview(d,unit)+'</details></div></div>';
@@ -971,6 +978,7 @@ function _perfectGachaBoxHtml(d, loading) {
       '<div style="font-size:9px;color:var(--gold)">🎯 '+status+'</div>' +
       '<div data-gacha-pity-rule style="font-size:10px;line-height:1.55;color:rgba(255,255,255,.78)">'+pityRule+'</div>' +
       '<div data-gacha-assembly-rule style="font-size:10px;line-height:1.55;color:rgba(255,255,255,.72)">'+assemblyRule+'</div>' +
+      _assemblyOddsHtml(d) +
       '<div style="font-size:9px;color:rgba(255,255,255,.48)">GP <b style="color:#fff">'+(loading?'-':formatNum(price))+'</b></div>' +
       '<div style="display:flex;gap:8px;margin-top:auto">' +
         '<button type="button" class="fd-btn" data-action="gacha-box-pull" data-count="1" '+(enabled?'':'disabled')+' style="flex:1">1회 · '+formatNum(price)+'GP</button>' +
@@ -1025,12 +1033,16 @@ async function _onPerfectGachaBoxClick(ev) {
   var prev = btn.textContent;
   btn.disabled = true; btn.textContent = '…';
   try {
-    var _boxVid = _playBoxOpenVideo();
-    var r = await _asmPost('/api/assembly/box/pull', w, { count: count });
-    try { await _boxVid; } catch(_){}
+    var quoteResponse = await fetch('/api/assembly/box', {headers:getAuthHeaders()});
+    var quote = await quoteResponse.json();
+    if (!quoteResponse.ok || !quote.enabled || !quote.disclosure) throw new Error('ODDS_UNAVAILABLE');
+    var accepted = await _asmConfirm({icon:'◇',title:tl('Confirm purchase','구매 확인','購入確認','确认购买','Konfirmasi pembelian','Xác nhận mua','ยืนยันการซื้อ'),body:'<p>'+tl('Each draw gives one random part, not a complete unit.','뽑기 1회는 무작위 파츠 1개를 지급하며, 완성 유닛이 아닙니다.','1回につきランダムなパーツ1個です。完成ユニットではありません。','每抽获得1个随机零件，并非完整单位。','Setiap tarikan memberi satu komponen acak, bukan unit lengkap.','Mỗi lượt cho một bộ phận ngẫu nhiên, không phải đơn vị hoàn chỉnh.','สุ่มแต่ละครั้งได้รับชิ้นส่วนสุ่ม 1 ชิ้น ไม่ใช่ยูนิตครบชุด')+'</p><p>×'+count+' · <b>'+formatNum(Number(quote.price_gp)*count)+' GP</b></p>'+_assemblyOddsHtml(quote),confirmText:tl('Purchase','구매','購入','购买'),danger:true});
+    if (!accepted || w !== ((typeof getMyWallet==='function'?getMyWallet():'')||'')) return;
+    var r = await _asmPost('/api/assembly/box/pull', w, { count: count, expected_price_gp: Number(quote.price_gp) });
     if (r.error || r.success === false) {
-      showFactionToast(_asmErr(r), 'error');
+      showFactionToast(r.error==='PRICE_CHANGED'?tl('Price changed. Review the current cost before buying.','가격이 변경됐습니다. 현재 비용을 다시 확인한 뒤 구매하세요.','価格が変わりました。現在の費用を確認して購入してください。','价格已变更，请确认当前费用后再购买。','Harga berubah. Tinjau biaya terbaru sebelum membeli.','Giá đã thay đổi. Hãy xem chi phí hiện tại trước khi mua.','ราคาเปลี่ยนแล้ว โปรดตรวจสอบราคาปัจจุบันก่อนซื้อ'):_asmErr(r), 'error');
     } else {
+      await _playBoxOpenVideo();
       var results = r.results || [];
       var newCnt = results.filter(function(x){ return x.is_new; }).length;
       var dupCnt = results.filter(function(x){ return x.is_dup; }).length;

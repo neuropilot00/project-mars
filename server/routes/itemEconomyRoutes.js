@@ -46,13 +46,16 @@ function getUseEffectExpiry(item) {
   return new Date(Date.now() + hours * 3600000);
 }
 
-async function settleGpGenerators(wallet) {
+async function settleGpGenerators(wallet, transactionClient) {
   const w = String(wallet || '').toLowerCase().trim();
   if (!w) return 0;
-  const client = await pool.connect();
+  const ownsTransaction = !transactionClient;
+  const client = transactionClient || await pool.connect();
   let totalGp = 0;
   try {
-    await client.query('BEGIN');
+    if (ownsTransaction) await client.query('BEGIN');
+    // Use the same wallet -> effect lock order as purchases and item activation.
+    await client.query('SELECT wallet_address FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE', [w]);
     const effects = await client.query(
       `SELECT id, effect_value, activated_at, expires_at, COALESCE(last_settled_at, activated_at) AS last_settled_at
        FROM user_active_effects
@@ -72,10 +75,7 @@ async function settleGpGenerators(wallet) {
       const settleAt = Math.min(now, expiresAt);
       const elapsedMs = settleAt - lastAt;
       const expired = expiresAt <= now;
-      if (elapsedMs < 60000) {
-        if (expired) await client.query('UPDATE user_active_effects SET active = false WHERE id = $1', [effect.id]);
-        continue;
-      }
+      if (elapsedMs <= 0 || (!expired && ownsTransaction && elapsedMs < 60000)) continue;
       const gpPerHour = Math.max(0, parseFloat(effect.effect_value) || 0);
       const gpEarned = Math.round(gpPerHour * (elapsedMs / 3600000) * 1000000) / 1000000;
       if (gpEarned > 0) {
@@ -93,17 +93,18 @@ async function settleGpGenerators(wallet) {
         [effect.id, settleAt]
       );
     }
-    await client.query('COMMIT');
-    if (totalGp > 0 && logGPActivity) {
+    if (ownsTransaction) await client.query('COMMIT');
+    if (ownsTransaction && totalGp > 0 && logGPActivity) {
       logGPActivity(w, Math.round(totalGp * 1000000) / 1000000, 'gp_generator', 'GP Generator settlement').catch(() => {});
     }
     return Math.round(totalGp * 1000000) / 1000000;
   } catch (e) {
+    if (!ownsTransaction) throw e;
     try { await client.query('ROLLBACK'); } catch (_) {}
     console.warn('[SHOP] gp_generator settlement skipped:', e.message);
-    return 0;
+    throw e;
   } finally {
-    client.release();
+    if (ownsTransaction) client.release();
   }
 }
 
@@ -304,6 +305,7 @@ router.post('/shop/use', requireAuth, writeLimiter, async (req, res) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+    await client.query('SELECT wallet_address FROM users WHERE LOWER(wallet_address) = LOWER($1) FOR UPDATE', [w]);
 
     // Get item type
     const itemRes = await client.query('SELECT * FROM item_types WHERE code = $1', [itemCode]);
@@ -598,6 +600,8 @@ router.post('/shop/use', requireAuth, writeLimiter, async (req, res) => {
       effectResult = { applied: true, code: item.code, expiresAt, value: item.effect_value };
     } else if (item.code === 'gp_generator') {
       // GP generator — 5 GP/hr for 12h (duration-based, like mining_boost)
+      // Settle the outgoing generator in this transaction before replacing it.
+      const gpSettled = await settleGpGenerators(w, client);
       const expiresAt = getUseEffectExpiry(item);
       await client.query(
         `UPDATE user_active_effects SET active = false WHERE wallet = $1 AND effect_type = 'gp_generator' AND active = true`, [w]
@@ -606,7 +610,7 @@ router.post('/shop/use', requireAuth, writeLimiter, async (req, res) => {
         `INSERT INTO user_active_effects (wallet, effect_type, effect_value, expires_at, source_item_code) VALUES ($1, 'gp_generator', $2, $3, $4)`,
         [w, item.effect_value, expiresAt, item.code]
       );
-      effectResult = { applied: true, code: item.code, expiresAt, value: item.effect_value };
+      effectResult = { applied: true, code: item.code, expiresAt, value: item.effect_value, gpSettled };
     } else if (item.code === 'lucky_charm') {
       // Lucky charm — +15% cantina win rate for 3h (duration-based)
       const expiresAt = getUseEffectExpiry(item);
@@ -634,6 +638,9 @@ router.post('/shop/use', requireAuth, writeLimiter, async (req, res) => {
     }
 
     await client.query('COMMIT');
+    if (effectResult.gpSettled > 0 && logGPActivity) {
+      logGPActivity(w, effectResult.gpSettled, 'gp_generator', 'GP Generator settlement before replacement').catch(() => {});
+    }
     res.json({ success: true, item: item.name, effect: effectResult });
   } catch (e) {
     await client.query('ROLLBACK');

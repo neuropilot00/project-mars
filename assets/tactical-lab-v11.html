@@ -2034,6 +2034,7 @@ function fire(sh,wsMode){
   const ty=tf.cy+(Math.random()-.5)*tf.radius*.5;
   const dx=tx-sh.x,dy=ty-sh.y,len=Math.hypot(dx,dy)||1;
   sh.aimX=tx;sh.aimY=ty;sh.aimTTL=900;
+  sh.recoilUntil=Date.now()+180;
   // [v7.229 VFX] 발사 머즐 플래시 — 함급이 클수록 큰 섬광
   const _mzScale=t.size==='titan'?2.6:t.size==='battleship'?2.0:t.size==='cruiser'?1.4:t.size==='destroyer'?1.0:0.7;
   mkMuzzle(sh.x,sh.y,dx/len,dy/len,facColor(sh.type.faction),_mzScale);
@@ -2595,9 +2596,7 @@ function drawShipSprite(ctx,s){
   ctx.save();
   ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
   ctx.rotate(Math.PI/2);
-  if(isPilgrim)ctx.filter='brightness(0.8) contrast(0.9) saturate(0.82)';
   ctx.drawImage(img,-w/2,-h/2,w,h);
-  if(isPilgrim)ctx.filter='none';
   ctx.restore();
   return true;
 }
@@ -2822,6 +2821,9 @@ function drawShips2(){
     CX.rotate(sh.facing);
     const metrics=shipDisplayMetrics(sh);
     const classScale=metrics.scale;
+    // Visual response only: never move the server hull, hitbox or target marker.
+    const recoil=Math.max(0,Math.min(1,((sh.recoilUntil||0)-Date.now())/180));
+    if(recoil&&!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches))CX.translate(-recoil*Math.min(metrics.radius*.12,3/metrics.pixelScale),0);
     CX.scale(classScale,classScale);
     if(sh.flash>0)CX.filter='brightness(1.8)';
     const drawn=drawShipByFaction(CX,t);
@@ -4106,6 +4108,7 @@ function syncServerCombatEvents(frame){
   seen.add(event.id);if(seen.size>512)seen.delete(seen.values().next().value);
   if(lasers.length>=256)continue;
   const source=ships.find(s=>String(s.dbShipId)===String(event.source_ship_id)),target=ships.find(s=>String(s.dbShipId)===String(event.target_ship_id));
+  if(source)source.recoilUntil=Date.now()+180;
   const from=source&&Number.isFinite(source.x)&&Number.isFinite(source.y)?{x:source.x,y:source.y}:battleWorldPoint(event.from.x,event.from.y,W,H),to=target&&Number.isFinite(target.x)&&Number.isFinite(target.y)?{x:target.x,y:target.y}:battleWorldPoint(event.to.x,event.to.y,W,H);
   const type=source&&source.type||{fireType:event.fire_type,faction:event.source_side==='atk'?'mcc':'cv'};
   const heavy=event.fire_type==='beam'||event.fire_type==='overdrive';

@@ -25,9 +25,10 @@ test('snapshot shields replace local defaults, reflect depletion, and clamp inva
 });
 const shot=id=>({id,type:'shot_hit',source_side:'atk',source_ship_id:'111',fire_type:'bullet',from:{x:0,y:0},to:{x:1000,y:440},damage:999999,target_hp:0});
 test('only resolved authoritative shots create deduplicated visual tracers with exact mapped endpoints and no damage',()=>{
- const{c,ship}=render();c.syncServerCombatEvents({combat_events:[shot('71:combat:1')]});
+ const{c,ship}=render();c.Date={now:()=>1000};c.syncServerCombatEvents({combat_events:[shot('71:combat:1')]});
+ assert.equal(ship.recoilUntil,1180);assert.equal(ship.x,undefined);assert.equal(ship.y,undefined);
  assert.equal(c.lasers.length,1);const effect=c.lasers[0];assert.equal(effect.x1,98);assert.equal(effect.x2,362);assert.equal(effect.y1,600);assert.equal(effect.y2,0);assert.equal(effect.visual,true);assert.equal(effect.applied,true);assert.equal(effect.dmg,0);assert.equal(ship.hp,100);assert.equal(ship.shield,120);
- c.syncServerCombatEvents({combat_events:[shot('71:combat:1'),{...shot('2'),type:'fake'},{...shot('3'),from:{x:NaN,y:0}}]});assert.equal(c.lasers.length,1);
+ c.Date={now:()=>2000};c.syncServerCombatEvents({combat_events:[shot('71:combat:1'),{...shot('2'),type:'fake'},{...shot('3'),from:{x:NaN,y:0}}]});assert.equal(c.lasers.length,1);assert.equal(ship.recoilUntil,1180,'duplicates and invalid events never restart recoil');
  c.syncServerCombatEvents({});assert.equal(c.lasers.length,1,'old records without events never invent firing');
 });
 test('seeking an actual recording backward clears prior tracers and permits the same recorded hit again',()=>{
