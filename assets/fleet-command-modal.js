@@ -46,9 +46,11 @@ function fleetCmdBodyScroll() {
 
 function keepFleetCmdOpen(scrollTop) {
   var modal = document.getElementById('fleetCmdModal');
-  if (modal) modal.classList.add('active');
+  // A late save response must not undo an explicit close.
+  if (!modal || !modal.classList.contains('active')) return;
   if (scrollTop === undefined || scrollTop === null) return;
   requestAnimationFrame(function() {
+    if (!modal.classList.contains('active')) return;
     var body = document.querySelector('#fleetCmdModal .fleetcmd-body');
     if (body) body.scrollTop = scrollTop;
   });
