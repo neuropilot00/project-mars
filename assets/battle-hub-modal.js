@@ -3464,14 +3464,14 @@ function battleResultFleetUnits(battle, timeline, liveArt, side, artCodes) {
   let units;
   if(lost===total||lost===0||identified){
     units=roster.slice(0,total).map(s=>({id:s.id,code:s.code,lost:lost===total||(lost>0&&!aliveIds.has(String(s.id)))}));
-    while(units.length<Math.min(total,9))units.push({code:null,lost:lost===total});
+    if(units.length<total)units.push({code:null,lost:lost===total,count:total-units.length});
   }else{
     // Missing terminal identities: show verified counts without assigning a loss to a guessed hull.
     const common=roster.length===total&&new Set(roster.map(s=>s.code)).size===1?roster[0].code:null;
-    const lossSlots=Math.min(lost,Math.ceil(9*lost/total)),aliveSlots=Math.min(total-lost,9-lossSlots);
-    units=[...Array.from({length:lossSlots},()=>({code:common,lost:true})),...Array.from({length:aliveSlots},()=>({code:common,lost:false}))];
+    units=[{code:common,lost:true,count:lost},{code:common,lost:false,count:total-lost}];
   }
-  return {units:units.slice(0,9),remaining:Math.max(0,total-Math.min(9,units.length)),state};
+  units.sort((a,b)=>Number(a.lost)-Number(b.lost)||String(a.code||'').localeCompare(String(b.code||'')));
+  return {units,remaining:0,state};
 }
 
 function showBattleResult() {
@@ -3523,20 +3523,20 @@ function showBattleResult() {
     if(snapshot&&String(snapshot.battleId)===String(bv.battle.id))liveArt=snapshot;
   }catch(_){} // Old, unloaded or foreign frames cannot supply result art.
   const artCodes=new Set(['alien_devourer','alien_hive','alien_leviathan','alien_voidmaw','cv_bomb','cv_bs','cv_crs','cv_dst','cv_frg','cv_int','cv_titan','fsp_bs','fsp_crs','fsp_dst','fsp_int','fsp_logi','fsp_logi_crs','fsp_titan','mcc_bs','mcc_crs','mcc_destroyer_top','mcc_dst','mcc_ewar','mcc_frg','mcc_int','mcc_snp','mcc_titan','pilgrim_aurum','pilgrim_glacius','pilgrim_ignis','pilgrim_tempest','pilgrim_umbra','pilgrim_voltaris']);
-  const sceneCodes=new Set(['cv_bomb','cv_bs','cv_crs','cv_dst','cv_frg','cv_int','cv_titan','fsp_bs','fsp_crs','fsp_dst','fsp_int','fsp_logi','fsp_logi_crs','fsp_titan','mcc_bs','mcc_crs','mcc_dst','mcc_ewar','mcc_frg','mcc_int','mcc_snp','mcc_titan']);
   const fleetArt=battleResultFleetUnits(bv.battle,bv.timeline,liveArt,focusSide,artCodes);
+  const fleetSize=100/(Math.sqrt(fleetArt.units.length)+1);
   const surviving=tl('Surviving','생존','生存','存活','Bertahan','Sống sót','รอดชีวิต');
   const losses=tl('Lost','손실','損失','损失','Hilang','Tổn thất','สูญเสีย');
   const deployed=tl('Deployed','출격','出撃','出战','Dikerahkan','Xuất kích','ออกศึก');
   const fleetImage=unit=>{
-    if(!unit.lost)return unit.code?(sceneCodes.has(unit.code)?'/assets/ships/reveal/'+unit.code+'.jpg':'/assets/ships/'+unit.code+'.png'):'';
+    if(!unit.lost)return unit.code?'/assets/ships/'+(unit.code.startsWith('pilgrim_')?'top/':'')+unit.code+'.png':'';
     const wreck=unit.code==='fsp_int'?'fsp_int':unit.code?.startsWith('pilgrim_')?'robot':unit.code?.startsWith('alien_')?'alien':'ship';
     return '/assets/ships/wreck/'+wreck+'-v1.webp';
   };
   const sidePanel=side=>`<div class="bv-result-stat-group ${side}"><div class="bv-result-stat-label">${side.toUpperCase()}${mySide===side?' · '+tl('You','아군','自軍','己方','Anda','Bạn','คุณ'):''}</div><div class="bv-result-stat-row"><span>${deployed}</span><b>${total(side)}</b></div><div class="bv-result-stat-row"><span>${losses}</span><b>${lost(side)}</b></div><div class="bv-result-stat-row"><span>${surviving}</span><b>${alive(side)}</b></div><div class="bv-result-stat-row"><span>${tl('Damage','피해량','ダメージ','伤害','Kerusakan','Sát thương','ความเสียหาย')}</span><b>${formatNum(number(summary[side]?.damage_dealt))}</b></div></div>`;
   stats.innerHTML=`
     <div class="bv-result-hero">
-      ${fleetArt.units.length?`<div class="bv-result-fleet-scene" data-fleet-state="${fleetArt.state}" data-shown="${fleetArt.units.length}" role="img" aria-label="${escapeHtml(deployed+' '+total(focusSide)+' · '+losses+' '+lost(focusSide)+' · '+surviving+' '+alive(focusSide))}">${fleetArt.units.map(unit=>{const src=fleetImage(unit);return `<div class="bv-result-hull ${unit.lost?'lost':'surviving'}" data-ship-state="${unit.lost?'lost':'surviving'}"${unit.id!=null?` data-ship-id="${escapeHtml(String(unit.id))}"`:''}>${src?`<img src="${src}" alt="" width="200" height="180" decoding="async">`:'<span aria-hidden="true">◇</span>'}</div>`;}).join('')}${fleetArt.remaining?`<span class="bv-result-more">+${fleetArt.remaining}</span>`:''}</div>`:''}
+      ${fleetArt.units.length?`<div class="bv-result-fleet-scene" data-fleet-state="${fleetArt.state}" data-shown="${fleetArt.units.length}" style="--fleet-size:${fleetSize}%" role="img" aria-label="${escapeHtml(deployed+' '+total(focusSide)+' · '+losses+' '+lost(focusSide)+' · '+surviving+' '+alive(focusSide))}">${fleetArt.units.map((unit,index)=>{const src=fleetImage(unit),radius=fleetArt.units.length>1?Math.sqrt((index+.5)/fleetArt.units.length):0,angle=index*2.39996323,x=50+Math.cos(angle)*radius*Math.max(0,(100-fleetSize)/2-4),y=50+Math.sin(angle)*radius*Math.max(0,(100-fleetSize*1.4)/2-4);return `<div class="bv-result-hull ${unit.lost?'lost':'surviving'}" data-ship-state="${unit.lost?'lost':'surviving'}" style="left:${x}%;top:${y}%;--fleet-roll:${(index*47)%25-12}deg"${unit.id!=null?` data-ship-id="${escapeHtml(String(unit.id))}"`:''}>${src?`<img src="${src}" alt="" width="200" height="180" decoding="async">`:'<span aria-hidden="true">◇</span>'}${unit.count>1?`<b class="bv-result-group-count">×${unit.count}</b>`:''}</div>`;}).join('')}</div>`:''}
       <div class="bv-result-hero-data"><small>${tl('AFTER ACTION','교전 결과','交戦結果','交战结果','HASIL TEMPUR','KẾT QUẢ GIAO CHIẾN','ผลการรบ')}</small><div class="bv-result-key-metrics"><div><b>${alive(focusSide)}<span> / ${total(focusSide)}</span></b><span>${focusSide.toUpperCase()} · ${surviving}</span></div><div><b>${lost(focusSide)}</b><span>${losses}</span></div></div></div>
     </div>
     <section id="bvObjectiveResult" hidden></section>
