@@ -64,3 +64,17 @@ test('confirmed beam and missile events produce distinct bounded visual-only eff
  assert.equal(c.lasers.length,2);assert.equal(c.lasers[0].beamCannon,true);assert.equal(c.lasers[0].ttl,120);assert.equal(c.lasers[1].projectile,true);
  assert.ok(c.lasers.every(x=>x.visual&&x.dmg===0&&x.applied));c.syncServerCombatEvents(frame);assert.equal(c.lasers.length,2);
 });
+
+test('final battle composition holds on a one-sided or ended snapshot and resumes on replay seek',()=>{
+ const c={};vm.createContext(c);vm.runInContext(extract('function shouldHoldBattleCamera(','function battleDeathPoint('),c);
+ assert.equal(c.shouldHoldBattleCamera('battle',false,1,1),false);
+ assert.equal(c.shouldHoldBattleCamera('battle',false,1,0),true);
+ assert.equal(c.shouldHoldBattleCamera('battle',true,1,1),true);
+ assert.equal(c.shouldHoldBattleCamera('battle',false,1,1),false);
+ assert.equal(c.shouldHoldBattleCamera('sandbox',false,1,0),false);
+});
+test('destroyed ship explodes at its last visible hull location, with projection only as fallback',()=>{
+ const c={ships:[{dbShipId:42,x:109,y:314,dead:true}],Number,String,W:460,H:600,battleWorldPoint:()=>({x:20,y:40})};vm.createContext(c);vm.runInContext(extract('function battleDeathPoint(','const BATTLE_VIEWPORT_RIM='),c);
+ assert.deepEqual(JSON.parse(JSON.stringify(c.battleDeathPoint('42',{x:5,y:6}))),{x:109,y:314});
+ assert.deepEqual(JSON.parse(JSON.stringify(c.battleDeathPoint(43,{x:5,y:6}))),{x:20,y:40});
+});

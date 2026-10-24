@@ -401,8 +401,13 @@ html[data-tl-mode="battle"] .wrap{grid-template-rows:42px auto 52px minmax(220px
 .combat-action small{font:9px/12px system-ui;letter-spacing:1px;color:#7eacc4;}
 .combat-action strong{font:12px/17px system-ui;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .combat-weapon{display:flex;align-items:center;flex-direction:column;min-width:0;}
-.combat-fire{position:relative;display:flex;align-items:center;justify-content:center;gap:5px;min-height:44px;flex:1;width:100%;border:1px solid #836c3d;border-radius:15px 4px 4px 4px;background:linear-gradient(90deg,#ac833a44 var(--charge,0%),#101725 var(--charge,0%));color:#f4cc79;cursor:pointer;}
-.combat-fire.ready{border-color:#ffe099;box-shadow:inset 0 0 18px #ffb83b33,0 0 12px #ffb83b22;}
+.combat-fire{position:relative;isolation:isolate;display:flex;align-items:center;justify-content:center;gap:3px;min-height:44px;flex:1;width:72px;max-width:100%;border:0;border-radius:50%;background:transparent;color:#f4cc79;cursor:pointer;}
+.combat-fire:before{content:'';position:absolute;inset:-8px;background:url('/assets/ui/combat/weapon-bezel-v1.png') center/contain no-repeat;z-index:-2;pointer-events:none;}
+.combat-fire:after{content:'';position:absolute;inset:3px;border-radius:50%;background:conic-gradient(#f5c979 var(--charge,0%),#374353 var(--charge,0%));mask:radial-gradient(transparent 58%,#000 61% 72%,transparent 75%);z-index:-1;pointer-events:none;}
+.combat-fire:not(:disabled):active{transform:scale(.94);filter:brightness(1.45);}
+.combat-action:not(:disabled):active{background:#245369;box-shadow:inset 0 2px 10px #0008;}
+.combat-fire:focus-visible{outline:2px solid #f9e2a9;outline-offset:2px;}
+.combat-fire.ready{filter:drop-shadow(0 0 5px #ffb83b88);}
 .combat-fire:disabled{color:#b1a17f;cursor:default;}
 .combat-fire-glyph{font:28px system-ui;}.combat-fire strong{font:700 14px system-ui;}
 .combat-weapon-choice{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:44px;border:0;background:transparent;color:#b9cfdd;font:12px system-ui;cursor:pointer;}
@@ -1307,6 +1312,16 @@ let loopFrame=null,tlDisposed=false;
 let _floatTexts=[];
 // ws 함선 추적: 이전 프레임 생존 함선 맵 (id → {x,y,code})
 let _wsPrevShips = new Map();
+// Hold the final composition; losing a side must never fly the winning fleet away.
+function shouldHoldBattleCamera(mode,ended,attackers,defenders){
+ return mode==='battle'&&(ended||!attackers||!defenders);
+}
+function battleDeathPoint(id,record){
+ const visible=ships.find(s=>String(s.dbShipId)===String(id));
+ return visible&&Number.isFinite(visible.x)&&Number.isFinite(visible.y)
+  ? {x:visible.x,y:visible.y}:battleWorldPoint(record.x,record.y,W,H);
+}
+const BATTLE_VIEWPORT_RIM=new Image();BATTLE_VIEWPORT_RIM.src='/assets/ui/combat/viewport-rim-v1.png';
 // 카메라 (자동 줌/팬)
 let camScale=1,camCx=W/2,camCy=H/2,_camTargetScale=1,_camTargetCx=W/2,_camTargetCy=H/2;
 
@@ -3148,7 +3163,10 @@ function loop(ts){
   const _aliveF=fleets.filter(f=>f.ships.some(s=>!s.dead));
   const _atkF=_aliveF.filter(f=>f.side==='atk');
   const _defF=_aliveF.filter(f=>f.side==='def');
-  if(_atkF.length&&_defF.length){
+  const holdCamera=shouldHoldBattleCamera(TL_MODE,!!_wsEndPayload,_atkF.length,_defF.length);
+  if(holdCamera){
+    _camTargetCx=camCx;_camTargetCy=camCy;_camTargetScale=camScale;
+  } else if(_atkF.length&&_defF.length){
     const cfg=battleScaleConfig();
     let pair={a:_atkF[0],d:_defF[0],dist:Infinity};
     _atkF.forEach(a=>_defF.forEach(d=>{
@@ -3187,6 +3205,7 @@ function loop(ts){
   } else {
     _camTargetCx=W/2;_camTargetCy=H/2;_camTargetScale=1;
   }
+  if(!holdCamera){
   const _lp=0.06;
   camScale+=(_camTargetScale-camScale)*_lp;
   camCx+=(_camTargetCx-camCx)*_lp;
@@ -3194,6 +3213,8 @@ function loop(ts){
   const _halfW=W/(2*Math.max(camScale,.001)), _halfH=H/(2*Math.max(camScale,.001));
   if(_halfW<W/2)camCx=Math.max(_halfW,Math.min(W-_halfW,camCx)); else camCx=W/2;
   if(_halfH<H/2)camCy=Math.max(_halfH,Math.min(H-_halfH,camCy)); else camCy=H/2;
+
+  }
 
   // [v7.179 VFX] 격침 화면 흔들림 — 카메라 transform 직전에 오프셋 계산
   if(_shakeIntensity>0){
@@ -3218,6 +3239,7 @@ function loop(ts){
   // 플로팅 텍스트 (카메라 transform 밖에서 스크린 좌표로 렌더)
   tickFloatTexts(dt);
   drawFloatTexts();
+  if(TL_MODE==='battle'&&BATTLE_VIEWPORT_RIM.complete&&BATTLE_VIEWPORT_RIM.naturalWidth)CX.drawImage(BATTLE_VIEWPORT_RIM,0,0,W,H);
 
   atkHP=fleets.filter(f=>f.side==='atk'&&f.ships.some(s=>!s.dead)).reduce((a,f)=>a+f.hp,0);
   defHP=fleets.filter(f=>f.side==='def'&&f.ships.some(s=>!s.dead)).reduce((a,f)=>a+f.hp,0);
@@ -4291,7 +4313,7 @@ function processBattleMessage(m,bid){
                 const shipName = shipDef ? (shipDef.name || info.code) : info.code;
                 const radMap = { frigate:1.2, destroyer:1.8, cruiser:2.8, battleship:4.0, titan:6.0 };
                 const r = radMap[sz] || 1.5;
-                const pos=battleWorldPoint(info.x,info.y,W,H);
+                const pos=battleDeathPoint(sid,info);
                 const rect=CVs.getBoundingClientRect(),pixelScale=Math.min(rect.width/W,rect.height/H)*Math.max(.4,camScale);
                 mkExp(pos.x,pos.y,Math.max(r,8/Math.max(.1,pixelScale)));
                 triggerScreenShake(sz==='titan'?4:2,180);

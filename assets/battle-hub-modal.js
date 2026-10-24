@@ -3470,80 +3470,47 @@ function showBattleResult() {
   const iWon = mySide && decisiveWinner && mySide === winner;
   const iLost = mySide && decisiveWinner && mySide !== winner;
 
-  // 스펙 wireframe: 헤더는 항상 "전투 결과 리포트"
-  card.className = 'bv-result-card';
-  if (winner === 'atk') card.classList.add('atk-won');
-  else if (winner === 'def') card.classList.add('def-won');
-  else card.classList.add('draw');
-
-  title.style.color = winner === 'atk' ? '#4fc3f7' : winner === 'def' ? '#ff7043' : '#ffd700';
-  title.style.fontSize = '20px';
-  title.style.letterSpacing = '2px';
-  title.innerHTML = `⚔&nbsp; ${LANG==='ko'?'전투 결과 리포트':LANG==='ja'?'戦闘結果レポート':LANG==='zh'?'战斗结果报告':'Battle Report'}`;
-
-  // 부제목: 함대명 VS 함대명 + 내 승리/패배 배지
-  const atkName = (atkParticipant?.fleet_name || atkParticipant?.nickname || 'ATK');
-  const defName = (defParticipant?.fleet_name || defParticipant?.nickname || 'DEF');
-  const resultBadge = iWon
-    ? `<span style="background:#66bb6a;color:#000;font-size:10px;font-weight:900;padding:2px 8px;border-radius:3px;margin-left:8px;letter-spacing:.5px">🏆 ${tl('Victory','승리','勝利','胜利','Kemenangan','Chiến thắng','ชนะ')}</span>`
-    : iLost
-    ? `<span style="background:#ef5350;color:#fff;font-size:10px;font-weight:900;padding:2px 8px;border-radius:3px;margin-left:8px;letter-spacing:.5px">💀 ${tl('Defeat','패배','敗北','败北','Kekalahan','Thất bại','แพ้')}</span>`
-    : winner === 'draw'
-    ? `<span style="background:#ffd700;color:#000;font-size:10px;font-weight:900;padding:2px 8px;border-radius:3px;margin-left:8px">≋ ${tl('Draw','무승부','引き分け','平局','Seri','Hòa','เสมอ')}</span>`
-    : !mySide && decisiveWinner
-    ? `<span style="background:#66bb6a;color:#000;font-size:10px;font-weight:900;padding:2px 8px;border-radius:3px;margin-left:8px">🏆 ${winner.toUpperCase()} · ${tl('Winner','승자','勝者','胜方','Pemenang','Bên thắng','ผู้ชนะ')}</span>`
-    : '';
-  // resultBadge를 내 함대 이름 옆에 붙임 (내가 ATK → atk 이름 뒤, 내가 DEF → def 이름 뒤, 관전 → 승자 이름 뒤)
-  const atkFinalBadge = mySide === 'atk' ? resultBadge : (!mySide && winner === 'atk' ? resultBadge : '');
-  const defFinalBadge = mySide === 'def' ? resultBadge : (!mySide && winner === 'def' ? resultBadge : '');
-  const drawObserverBadge = !mySide && winner === 'draw' ? resultBadge : '';
-  subtitle.innerHTML = `<span style="color:rgba(255,255,255,.7);font-weight:600">${escapeHtml(atkName)}</span>${atkFinalBadge} <span style="color:rgba(255,255,255,.3);margin:0 4px">VS</span> <span style="color:rgba(255,255,255,.7);font-weight:600">${escapeHtml(defName)}</span>${defFinalBadge}${drawObserverBadge}`;
-  subtitle.style.color = '';
-  subtitle.style.fontWeight = '';
-  subtitle.style.letterSpacing = '0';
-
-  const continuation = battleResultContinuation(bv.battle, mySide);
-  const atkWon = winner === 'atk';
-  const defWon = winner === 'def';
-  const atkIsMe = mySide === 'atk';
-  const defIsMe = mySide === 'def';
-
-  // ATK/DEF 패널 내부에 "나" 배지 + 승리/패배 표시
-  const _meBadge = `<span style="background:#4fc3f7;color:#000;font-size:9px;padding:1px 5px;border-radius:3px;margin-left:4px;font-weight:700">나</span>`;
-  const _winBadge = `<span style="background:#66bb6a;color:#000;font-size:9px;padding:1px 5px;border-radius:3px;margin-left:4px;font-weight:700">WIN</span>`;
-  const _lossBadge = `<span style="background:rgba(239,83,80,.4);color:#ffb3b3;font-size:9px;padding:1px 5px;border-radius:3px;margin-left:4px;font-weight:700">LOSS</span>`;
-
-  const atkResultBadge = atkWon ? _winBadge : (!atkWon && defWon) ? _lossBadge : '';
-  const defResultBadge = defWon ? _winBadge : (!defWon && atkWon) ? _lossBadge : '';
-
-  stats.innerHTML = `
-    <section id="bvObjectiveResult" hidden style="grid-column:1/-1;padding:12px;border:1px solid #81b99d;border-radius:8px;color:#d7f4e2;font:700 14px/1.5 system-ui"></section>
-    <div class="bv-result-stat-group atk ${atkWon ? 'winner' : ''}${atkIsMe ? ' my-side' : ''}">
-      <div class="bv-result-emblem atk">⚔</div>
-      <div class="bv-result-stat-label" style="color:#4fc3f7">ATK${atkIsMe ? _meBadge : ''}${atkResultBadge}</div>
-      <div class="bv-result-stat-row"><span>투입 함선</span><b>${bv.battle.atk_ships_total || 0}</b></div>
-      <div class="bv-result-stat-row"><span>격침</span><b style="color:#ef5350">${bv.battle.atk_ships_lost || 0}</b></div>
-      <div class="bv-result-stat-row"><span>생존</span><b style="color:#66bb6a">${(bv.battle.atk_ships_total || 0) - (bv.battle.atk_ships_lost || 0)}</b></div>
-      <div class="bv-result-stat-row"><span>총 데미지</span><b>${formatNum(summary.atk?.damage_dealt || 0)}</b></div>
+  const outcome = iWon ? 'victory' : iLost ? 'defeat' : winner==='draw' ? 'draw' : 'observed';
+  const outcomeLabel = iWon ? tl('Victory','승리','勝利','胜利','Kemenangan','Chiến thắng','ชนะ')
+    : iLost ? tl('Defeat','패배','敗北','败北','Kekalahan','Thất bại','แพ้')
+    : winner==='draw' ? tl('Draw','무승부','引き分け','平局','Seri','Hòa','เสมอ')
+    : decisiveWinner ? winner.toUpperCase()+' · '+tl('Winner','승자','勝者','胜方','Pemenang','Bên thắng','ผู้ชนะ')
+    : tl('Battle ended','전투 종료','戦闘終了','战斗结束','Pertempuran selesai','Trận chiến kết thúc','การรบสิ้นสุด');
+  card.className='bv-result-card '+outcome;
+  title.style.color='';title.style.fontSize='';title.style.letterSpacing='';
+  title.textContent=outcomeLabel;
+  const atkName=atkParticipant?.fleet_name||atkParticipant?.nickname||'ATK';
+  const defName=defParticipant?.fleet_name||defParticipant?.nickname||'DEF';
+  subtitle.textContent=atkName+' / '+defName;
+  subtitle.style.color='';subtitle.style.fontWeight='';subtitle.style.letterSpacing='';
+  const continuation=battleResultContinuation(bv.battle,mySide);
+  const number=value=>Number.isFinite(Number(value))?Math.max(0,Number(value)):0;
+  const total=side=>number(bv.battle[side+'_ships_total']);
+  const lost=side=>number(bv.battle[side+'_ships_lost']);
+  const alive=side=>Math.max(0,total(side)-lost(side));
+  const focusSide=mySide||(decisiveWinner?winner:'atk');
+  const initialShips=bv.timeline?.frames?.find(f=>Array.isArray(f.ships)&&f.ships.length)?.ships||[];
+  const ownFleet=participants.find(p=>(p.wallet||'').toLowerCase()===myWallet)?.fleet_id;
+  const sideFleets=new Set((bv.timeline?.fleets_meta||[]).filter(f=>f.side===focusSide).map(f=>String(f.id)));
+  const artCodes=new Set(['alien_devourer','alien_hive','alien_leviathan','alien_voidmaw','cv_bomb','cv_bs','cv_crs','cv_dst','cv_frg','cv_int','cv_titan','fsp_bs','fsp_crs','fsp_dst','fsp_int','fsp_logi','fsp_logi_crs','fsp_titan','mcc_bs','mcc_crs','mcc_destroyer_top','mcc_dst','mcc_ewar','mcc_frg','mcc_int','mcc_snp','mcc_titan','pilgrim_aurum','pilgrim_glacius','pilgrim_ignis','pilgrim_tempest','pilgrim_umbra','pilgrim_voltaris']);
+  const featured=initialShips.find(ship=>artCodes.has(ship.code)&&(ownFleet!=null?String(ship.fid)===String(ownFleet):sideFleets.has(String(ship.fid))));
+  const surviving=tl('Surviving','생존','生存','存活','Bertahan','Sống sót','รอดชีวิต');
+  const losses=tl('Lost','손실','損失','损失','Hilang','Tổn thất','สูญเสีย');
+  const deployed=tl('Deployed','출격','出撃','出战','Dikerahkan','Xuất kích','ออกศึก');
+  const sidePanel=side=>`<div class="bv-result-stat-group ${side}"><div class="bv-result-stat-label">${side.toUpperCase()}${mySide===side?' · '+tl('You','아군','自軍','己方','Anda','Bạn','คุณ'):''}</div><div class="bv-result-stat-row"><span>${deployed}</span><b>${total(side)}</b></div><div class="bv-result-stat-row"><span>${losses}</span><b>${lost(side)}</b></div><div class="bv-result-stat-row"><span>${surviving}</span><b>${alive(side)}</b></div><div class="bv-result-stat-row"><span>${tl('Damage','피해량','ダメージ','伤害','Damage','Sát thương','ความเสียหาย')}</span><b>${formatNum(number(summary[side]?.damage_dealt))}</b></div></div>`;
+  stats.innerHTML=`
+    <div class="bv-result-hero">
+      ${featured?`<img class="bv-result-ship" src="/assets/ships/${featured.code}.png" alt="" width="150" height="180">`:''}
+      <div class="bv-result-hero-data"><small>${tl('AFTER ACTION','교전 결과','交戦結果','交战结果','HASIL TEMPUR','KẾT QUẢ GIAO CHIẾN','ผลการรบ')}</small><div class="bv-result-key-metrics"><div><b>${alive(focusSide)}<span> / ${total(focusSide)}</span></b><span>${focusSide.toUpperCase()} · ${surviving}</span></div><div><b>${lost(focusSide)}</b><span>${losses}</span></div></div></div>
     </div>
-    <div class="bv-result-vs">VS</div>
-    <div class="bv-result-stat-group def ${defWon ? 'winner' : ''}${defIsMe ? ' my-side' : ''}">
-      <div class="bv-result-emblem def">🛡</div>
-      <div class="bv-result-stat-label" style="color:#ff7043">DEF${defIsMe ? _meBadge.replace('#4fc3f7','#ff7043') : ''}${defResultBadge}</div>
-      <div class="bv-result-stat-row"><span>투입 함선</span><b>${bv.battle.def_ships_total || 0}</b></div>
-      <div class="bv-result-stat-row"><span>격침</span><b style="color:#ef5350">${bv.battle.def_ships_lost || 0}</b></div>
-      <div class="bv-result-stat-row"><span>생존</span><b style="color:#66bb6a">${(bv.battle.def_ships_total || 0) - (bv.battle.def_ships_lost || 0)}</b></div>
-      <div class="bv-result-stat-row"><span>총 데미지</span><b>${formatNum(summary.def?.damage_dealt || 0)}</b></div>
-    </div>
-    <section id="bvCommandEvents" style="grid-column:1/-1;border:1px solid #4b6346;border-radius:8px;padding:12px;font-size:14px;color:#d8efcc;overflow-wrap:anywhere"></section>
-    <div style="grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px">
-      <button type="button" onclick="bvResultNextAction('fleet')" style="flex:1;min-height:44px;min-width:120px;padding:10px;border:1px solid #688672;border-radius:8px;background:#183127;color:#e1f7e9;font:14px system-ui">${LANG==='ko'?'함대 · 수리/재건':'Fleet · repair / rebuild'}</button>
-      <button type="button" onclick="bvResultNextAction('${continuation.tab}')" style="flex:1;min-height:44px;min-width:120px;padding:10px;border:1px solid #526b89;border-radius:8px;background:#172a42;color:#e2eeff;font:14px system-ui">${escapeHtml(continuation.label)}</button>
-    </div>
-    <div id="bvReportSection" style="margin-top:12px;width:100%;border-top:1px solid rgba(255,255,255,.12);padding-top:10px">
-      <div id="bvReportContent" style="color:rgba(255,255,255,.4);font-size:11px;text-align:center">${t('bv_report_loading')}</div>
-    </div>
-  `;
+    <section id="bvObjectiveResult" hidden></section>
+    <div class="bv-result-next"><button type="button" data-bv-result-next="${continuation.tab}">${escapeHtml(continuation.label)} <span aria-hidden="true">→</span></button><button type="button" data-bv-result-next="fleet">${tl('Fleet · repair / rebuild','함대 · 수리/재건','艦隊 · 修理／再建','舰队 · 维修／重建','Armada · perbaiki / bangun ulang','Hạm đội · sửa chữa / tái thiết','กองยาน · ซ่อม / สร้างใหม่')}</button></div>
+    <details class="bv-result-details"><summary>${tl('Combat details','교전 상세','交戦詳細','交战详情','Detail pertempuran','Chi tiết giao chiến','รายละเอียดการรบ')}</summary><div class="bv-result-sides">${sidePanel('atk')}${sidePanel('def')}</div><section id="bvCommandEvents"></section></details>
+    <details id="bvReportSection" class="bv-result-details"><summary>${tl('Tactical report','전술 리포트','戦術レポート','战术报告','Laporan taktis','Báo cáo chiến thuật','รายงานยุทธวิธี')}</summary><div id="bvReportContent">${t('bv_report_loading')}</div></details>`;
+  stats.onclick=event=>{
+    const button=event.target.closest('[data-bv-result-next]');
+    if(button&&stats.contains(button)&&['front','fleet','missions'].includes(button.dataset.bvResultNext))bvResultNextAction(button.dataset.bvResultNext);
+  };
 
   renderBattleCommandSummary();
   renderBattleObjectiveResult();
@@ -3637,9 +3604,9 @@ async function _injectRewardIntoResult(battleId) {
     if (existing) return; // 중복 방지
     const div = document.createElement('div');
     div.id = 'bvInlineReward';
-    div.style.cssText = 'margin-top:12px;width:100%;border-top:1px solid rgba(255,215,0,.2);padding-top:10px';
+    div.style.cssText = 'grid-column:1/-1;width:100%;padding:12px;border:1px solid #625438;border-radius:8px;background:#251e16';
     div.innerHTML = `<div style="font-size:10px;font-weight:700;color:#ffd54f;letter-spacing:.8px;margin-bottom:6px">🏆 ${myReward.is_winner ? (LANG==='ko'?'승리 보상':LANG==='ja'?'勝利報酬':LANG==='zh'?'胜利奖励':'Victory Reward') : (LANG==='ko'?'참가 보상':LANG==='ja'?'参加報酬':LANG==='zh'?'参与奖励':'Participation Reward')}</div>${html}`;
-    stats.appendChild(div);
+    stats.insertBefore(div,stats.querySelector('.bv-result-next'));
   } catch (_) {}
 }
 

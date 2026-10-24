@@ -1,0 +1,18 @@
+[
+  {
+    "file": "weapon-bezel-v1.png",
+    "tool": "built-in image_gen",
+    "prompt": "Original graphite titanium circular weapon module bezel, cyan and amber lights, dark empty center, transparent outside. No words, numbers, icons or baked charge. Intended for live code charge and press states.",
+    "source": "exec-0d09e6a5-5d13-4627-be71-240cb1609c49.png",
+    "sha256": "fcaf484355868c8665a44f145bb7d53156e232887709e8471c5003b2f70e64d9",
+    "role": "noninteractive visual skin; game state remains code/server controlled"
+  },
+  {
+    "file": "viewport-rim-v1.png",
+    "tool": "built-in image_gen",
+    "prompt": "Original premium Mars fleet portrait viewport frame, 2:3, thin graphite perimeter rails and cyan/amber corners, transparent center above 88 percent. No text, buttons, sights or scenery. Preserve battlefield visibility.",
+    "source": "exec-1f0cad98-9d84-4169-8fd4-ce9dd4ea1260.png",
+    "sha256": "d892f7e9a487fd0c6ef6c64e3a84753defaea0569274211c5a63d5047b352589",
+    "role": "noninteractive visual skin; game state remains code/server controlled"
+  }
+]
