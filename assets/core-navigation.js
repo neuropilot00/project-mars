@@ -28,9 +28,9 @@
     return '<button type="button" class="'+(cls || '')+'" data-core-route="'+escape(route)+'">'+escape(text)+'</button>';
   }
   var copy = {
-    firstBuild:['Next goal · your first equipment','다음 목표 · 첫 장비 제작','次の目標・初装備製作','下个目标·首次装备制作','Tujuan berikut · peralatan pertama','Mục tiêu tiếp · trang bị đầu tiên','เป้าหมายถัดไป · อุปกรณ์ชิ้นแรก'],
-    supplyHint:['Choose an NPC fleet, review its difficulty and earn normal battle rewards. Check your GP and personal materials before crafting. PvP unlocks separately.','NPC 함대를 골라 난이도를 확인하고 정상 전투 보상을 모으세요. GP·개인 재료를 확인한 뒤 제작합니다. 플레이어 경쟁은 별도 해금됩니다.','NPC艦隊の難易度を確認し通常報酬を集め、GPと個人素材を確認して製作。対人戦は別途解放されます。','选择NPC舰队、查看难度并获取正常战斗奖励。检查GP和个人材料后制作。玩家对战另行解锁。','Pilih armada NPC, periksa kesulitan, dan kumpulkan hadiah normal. Periksa GP serta bahan pribadi sebelum membuat. PvP dibuka terpisah.','Chọn hạm đội NPC, xem độ khó và nhận thưởng chiến đấu thường. Kiểm tra GP và nguyên liệu cá nhân trước khi chế tạo. PvP mở riêng.','เลือกกองยาน NPC ตรวจความยากและรับรางวัลปกติ ตรวจ GP กับวัตถุดิบส่วนตัวก่อนสร้าง ส่วน PvP ปลดล็อกแยกกัน'],
-    npcSupply:['NPC supply battle','NPC 보급 전투','NPC補給戦','NPC补给战','Pertempuran suplai NPC','Trận tiếp tế NPC','การรบเสบียง NPC'],
+    firstBuild:['Next goal · prepare equipment','다음 목표 · 장비 준비','次の目標・装備を準備','下个目标·准备装备','Tujuan berikut · siapkan peralatan','Mục tiêu tiếp · chuẩn bị trang bị','เป้าหมายถัดไป · เตรียมอุปกรณ์'],
+    supplyHint:['Claim eligible rewards in Records, then check GP and personal materials before crafting. NPC practice gives no battle currency or minerals.','기록·보상에서 완료 보상을 확인하고 GP·개인 재료를 확인한 뒤 제작하세요. NPC 연습전 자체는 재화·광물 보상이 없습니다.','記録で受領可能な報酬を確認し、GPと個人素材を確認して製作。NPC練習戦は通貨・鉱石報酬なし。','在记录中领取符合条件的奖励，检查GP与个人材料后制作。NPC练习战本身不提供货币或矿石。','Ambil hadiah yang tersedia di Catatan, lalu periksa GP dan bahan pribadi sebelum membuat. Latihan NPC tidak memberi mata uang atau mineral.','Nhận thưởng đủ điều kiện trong Hồ sơ rồi kiểm tra GP và nguyên liệu trước khi chế tạo. Tập đấu NPC không thưởng tiền hay khoáng sản.','รับรางวัลที่มีสิทธิ์ในบันทึก แล้วตรวจ GP และวัตถุดิบก่อนสร้าง การฝึก NPC ไม่ให้เงินหรือแร่'],
+    npcSupply:['NPC practice · no battle rewards','NPC 연습 · 전투 재화 보상 없음','NPC練習・戦闘通貨報酬なし','NPC练习·无战斗货币奖励','Latihan NPC · tanpa hadiah pertempuran','Tập đấu NPC · không thưởng chiến đấu','ฝึก NPC · ไม่มีรางวัลการรบ'],
     openCraft:['Open crafting · check costs','제작실 · 비용 확인','製作室・費用確認','制作室·查看费用','Buka pembuatan · periksa biaya','Chế tạo · kiểm tra chi phí','เปิดการสร้าง · ตรวจค่าใช้จ่าย'],
     journal:['Operation journal','작전일지','作戦日誌','行动日志','Jurnal operasi','Nhật ký chiến dịch','บันทึกปฏิบัติการ'],
     journey:['Your route to command','지휘관 성장 경로','指揮官への道','指挥官成长路线','Jalur menjadi komandan','Con đường chỉ huy','เส้นทางผู้บัญชาการ'],
@@ -95,7 +95,7 @@
     var claimed=rows.filter(function(m){return m.status==='claimed';}).length;
     renderJourney(rows,current);
     if(!current&&claimed===rows.length){
-      body.innerHTML='<div class="core-mission-meta">5 / 5 · '+escape(text('claimed'))+'</div><h2>'+label('Your front is open','전선이 열렸습니다')+'</h2><p>'+escape(translated(reasons.hold_front[1]))+'</p><h3>'+escape(text('firstBuild'))+'</h3><p>'+escape(text('supplyHint'))+'</p><div class="core-record-links">'+routeButton(text('npcSupply'),'npc','core-primary')+routeButton(text('openCraft'),'crafting')+operationButton('Go to front','전선으로','front')+'</div>';return;
+      body.innerHTML='<div class="core-mission-meta">5 / 5 · '+escape(text('claimed'))+'</div><h2>'+label('Your front is open','전선이 열렸습니다')+'</h2><p>'+escape(translated(reasons.hold_front[1]))+'</p><h3>'+escape(text('firstBuild'))+'</h3><p>'+escape(text('supplyHint'))+'</p><div class="core-record-links">'+routeButton(label('Records and rewards','기록·보상'),'records','core-primary')+routeButton(text('npcSupply'),'npc')+routeButton(text('openCraft'),'crafting')+operationButton('Go to front','전선으로','front')+'</div>';return;
     }
     if(!current)throw Error('INVALID_MISSION_STATE');
     var reason=reasons[current.id];

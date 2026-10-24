@@ -5004,6 +5004,8 @@ function loadAchievements() {
       }
       _achievements = data.achievements || [];
       renderAchievementCards();
+      // Achievement evaluation may award GP; read the authoritative balance now.
+      try { if(typeof refreshEmailBalances==='function')refreshEmailBalances(true); }catch(_){}
     })
     .catch(function(e) {
       grid.innerHTML = '<div style="color:var(--mars);font-size:10px;text-align:center;padding:16px;grid-column:1/-1">'+tl('Failed to load','불러오기 실패','読み込み失敗','加载失败')+'</div>';
