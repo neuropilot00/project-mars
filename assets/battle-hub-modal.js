@@ -3499,13 +3499,15 @@ function showBattleResult() {
   const sideFleets=new Set((bv.timeline?.fleets_meta||liveArt?.fleets||[]).filter(f=>f.side===focusSide).map(f=>String(f.id)));
   const artCodes=new Set(['alien_devourer','alien_hive','alien_leviathan','alien_voidmaw','cv_bomb','cv_bs','cv_crs','cv_dst','cv_frg','cv_int','cv_titan','fsp_bs','fsp_crs','fsp_dst','fsp_int','fsp_logi','fsp_logi_crs','fsp_titan','mcc_bs','mcc_crs','mcc_destroyer_top','mcc_dst','mcc_ewar','mcc_frg','mcc_int','mcc_snp','mcc_titan','pilgrim_aurum','pilgrim_glacius','pilgrim_ignis','pilgrim_tempest','pilgrim_umbra','pilgrim_voltaris']);
   const featured=initialShips.find(ship=>artCodes.has(ship.code)&&(ownFleet!=null?String(ship.fid)===String(ownFleet):sideFleets.has(String(ship.fid))));
+  const sceneCodes=new Set(['cv_bomb','cv_bs','cv_crs','cv_dst','cv_frg','cv_int','cv_titan','fsp_bs','fsp_crs','fsp_dst','fsp_int','fsp_logi','fsp_logi_crs','fsp_titan','mcc_bs','mcc_crs','mcc_dst','mcc_ewar','mcc_frg','mcc_int','mcc_snp','mcc_titan']);
+  const featuredArt=featured?(sceneCodes.has(featured.code)?'/assets/ships/reveal/'+featured.code+'.jpg':'/assets/ships/'+featured.code+'.png'):'';
   const surviving=tl('Surviving','생존','生存','存活','Bertahan','Sống sót','รอดชีวิต');
   const losses=tl('Lost','손실','損失','损失','Hilang','Tổn thất','สูญเสีย');
   const deployed=tl('Deployed','출격','出撃','出战','Dikerahkan','Xuất kích','ออกศึก');
   const sidePanel=side=>`<div class="bv-result-stat-group ${side}"><div class="bv-result-stat-label">${side.toUpperCase()}${mySide===side?' · '+tl('You','아군','自軍','己方','Anda','Bạn','คุณ'):''}</div><div class="bv-result-stat-row"><span>${deployed}</span><b>${total(side)}</b></div><div class="bv-result-stat-row"><span>${losses}</span><b>${lost(side)}</b></div><div class="bv-result-stat-row"><span>${surviving}</span><b>${alive(side)}</b></div><div class="bv-result-stat-row"><span>${tl('Damage','피해량','ダメージ','伤害','Kerusakan','Sát thương','ความเสียหาย')}</span><b>${formatNum(number(summary[side]?.damage_dealt))}</b></div></div>`;
   stats.innerHTML=`
     <div class="bv-result-hero">
-      ${featured?`<img class="bv-result-ship" src="/assets/ships/${featured.code}.png" alt="" width="150" height="180">`:''}
+      ${featured?`<img class="bv-result-ship${sceneCodes.has(featured.code)?' bv-result-scene':''}" src="${featuredArt}" alt="" width="150" height="180">`:''}
       <div class="bv-result-hero-data"><small>${tl('AFTER ACTION','교전 결과','交戦結果','交战结果','HASIL TEMPUR','KẾT QUẢ GIAO CHIẾN','ผลการรบ')}</small><div class="bv-result-key-metrics"><div><b>${alive(focusSide)}<span> / ${total(focusSide)}</span></b><span>${focusSide.toUpperCase()} · ${surviving}</span></div><div><b>${lost(focusSide)}</b><span>${losses}</span></div></div></div>
     </div>
     <section id="bvObjectiveResult" hidden></section>

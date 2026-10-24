@@ -16,7 +16,7 @@ for(const lang of langs)test('result distinguishes a participant draw from an ob
 });
 test('own result uses the actual side, ship art, survivors and unchanged report request',()=>{
  const won=render('atk','alpha'),lost=render('atk','beta');assert.equal(won.title,'Victory');assert.equal(lost.title,'Defeat');assert.equal(won.calls[0].side,'atk');assert.equal(lost.calls[0].side,'def');
- assert.ok(won.stats.includes('/assets/ships/fsp_int.png'));assert.ok(!won.stats.includes('/assets/ships/mcc_int.png'));assert.ok(lost.stats.includes('/assets/ships/mcc_int.png'));
+ assert.ok(won.stats.includes('/assets/ships/reveal/fsp_int.jpg'));assert.ok(!won.stats.includes('/assets/ships/reveal/mcc_int.jpg'));assert.ok(lost.stats.includes('/assets/ships/reveal/mcc_int.jpg'));
  assert.ok(won.stats.includes('<b>2<span> / 3</span></b>'));assert.ok(lost.stats.includes('<b>0<span> / 1</span></b>'));
  assert.ok(won.stats.includes('id="bvObjectiveResult"'));assert.ok(won.stats.includes('id="bvInlineReward"')===false);assert.ok(!won.stats.includes('onclick='));assert.ok(!won.stats.includes('<details open'));
  const stats=won.elements.bvResultStats;stats.onclick({target:{closest:()=>({dataset:{bvResultNext:'missions'}})}});assert.deepEqual(won.next,['missions']);
@@ -27,7 +27,7 @@ test('unknown ship codes cannot become art URLs and incomplete outcomes do not i
 
 test('new live result without a timeline uses only the matching battle actual hull metadata',()=>{
  const live={battleId:1,ships:[{id:9,fid:11,code:'fsp_int'},{id:10,fid:22,code:'mcc_int'}],fleets:[{id:11,side:'atk'},{id:22,side:'def'}]};
- assert.ok(render('atk','alpha','en','fsp_int',live).stats.includes('/assets/ships/fsp_int.png'));
- assert.ok(render('atk','beta','en','fsp_int',live).stats.includes('/assets/ships/mcc_int.png'));
+ assert.ok(render('atk','alpha','en','fsp_int',live).stats.includes('/assets/ships/reveal/fsp_int.jpg'));
+ assert.ok(render('atk','beta','en','fsp_int',live).stats.includes('/assets/ships/reveal/mcc_int.jpg'));
  assert.ok(!render('atk','alpha','en','fsp_int',{...live,battleId:999}).stats.includes('<img'));
 });

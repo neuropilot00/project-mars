@@ -1535,3 +1535,9 @@
 #bvResultCard .bv-result-actions button{min-height:44px;flex:1;font:12px/1.4 var(--fn);letter-spacing:0;padding:9px 12px;background:#152535;border-color:#3a586c;color:#c6dfeb}
 #bvResultCard button:focus-visible,#bvResultCard summary:focus-visible{outline:2px solid var(--result-accent);outline-offset:-3px}
 @media(max-width:340px){.bv-result-hero-data{padding:10px}.bv-result-key-metrics{gap:8px}.bv-result-key-metrics b{font-size:24px}.bv-result-hero-data small{letter-spacing:1px}}
+
+/* Existing cinematic art is separate from tactical top-view sprites. */
+.bv-result-hero:has(.bv-result-scene){display:block}
+.bv-result-hero .bv-result-scene{display:block;width:100%;height:190px;max-height:28svh;padding:0;object-fit:contain;background:#040913;filter:none}
+.bv-result-hero:has(.bv-result-scene) .bv-result-hero-data{padding:10px 16px 12px}
+.bv-result-hero:has(.bv-result-scene) .bv-result-key-metrics{margin-top:7px}
