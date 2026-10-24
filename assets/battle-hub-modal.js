@@ -3489,9 +3489,14 @@ function showBattleResult() {
   const lost=side=>number(bv.battle[side+'_ships_lost']);
   const alive=side=>Math.max(0,total(side)-lost(side));
   const focusSide=mySide||(decisiveWinner?winner:'atk');
-  const initialShips=bv.timeline?.frames?.find(f=>Array.isArray(f.ships)&&f.ships.length)?.ships||[];
+  let liveArt=null;
+  try{
+    const snapshot=document.getElementById('bvTacticalFrame')?.contentWindow?.battleResultArtSnapshot?.();
+    if(snapshot&&String(snapshot.battleId)===String(bv.battle.id))liveArt=snapshot;
+  }catch(_){} // Old, unloaded or foreign frames cannot supply result art.
+  const initialShips=bv.timeline?.frames?.find(f=>Array.isArray(f.ships)&&f.ships.length)?.ships||liveArt?.ships||[];
   const ownFleet=participants.find(p=>(p.wallet||'').toLowerCase()===myWallet)?.fleet_id;
-  const sideFleets=new Set((bv.timeline?.fleets_meta||[]).filter(f=>f.side===focusSide).map(f=>String(f.id)));
+  const sideFleets=new Set((bv.timeline?.fleets_meta||liveArt?.fleets||[]).filter(f=>f.side===focusSide).map(f=>String(f.id)));
   const artCodes=new Set(['alien_devourer','alien_hive','alien_leviathan','alien_voidmaw','cv_bomb','cv_bs','cv_crs','cv_dst','cv_frg','cv_int','cv_titan','fsp_bs','fsp_crs','fsp_dst','fsp_int','fsp_logi','fsp_logi_crs','fsp_titan','mcc_bs','mcc_crs','mcc_destroyer_top','mcc_dst','mcc_ewar','mcc_frg','mcc_int','mcc_snp','mcc_titan','pilgrim_aurum','pilgrim_glacius','pilgrim_ignis','pilgrim_tempest','pilgrim_umbra','pilgrim_voltaris']);
   const featured=initialShips.find(ship=>artCodes.has(ship.code)&&(ownFleet!=null?String(ship.fid)===String(ownFleet):sideFleets.has(String(ship.fid))));
   const surviving=tl('Surviving','생존','生存','存活','Bertahan','Sống sót','รอดชีวิต');

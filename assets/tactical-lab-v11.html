@@ -1321,6 +1321,12 @@ function battleDeathPoint(id,record){
  return visible&&Number.isFinite(visible.x)&&Number.isFinite(visible.y)
   ? {x:visible.x,y:visible.y}:battleWorldPoint(record.x,record.y,W,H);
 }
+// Presentation metadata only. Includes destroyed hulls retained from real frames.
+function battleResultArtSnapshot(){
+ return {battleId:TL_MODE==='battle'?TL_QUERY.get('bid'):null,
+  ships:ships.filter(s=>s.dbShipId!=null).map(s=>({id:s.dbShipId,fid:s.fleet.dbFleetId,code:s.tid})),
+  fleets:fleets.filter(f=>f.dbFleetId!=null).map(f=>({id:f.dbFleetId,side:f.side}))};
+}
 const BATTLE_VIEWPORT_RIM=new Image();BATTLE_VIEWPORT_RIM.src='/assets/ui/combat/viewport-rim-v1.png';
 // 카메라 (자동 줌/팬)
 let camScale=1,camCx=W/2,camCy=H/2,_camTargetScale=1,_camTargetCx=W/2,_camTargetCy=H/2;
