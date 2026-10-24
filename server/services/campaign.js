@@ -3603,7 +3603,7 @@ async function getStatus(wallet) {
   const w = normalizeWallet(wallet);
   const client = await pool.connect();
   try {
-    const [progressRes, reputationRes, branchRes, playerBranchRes, inboxRes, tagRes, sessionRes, objectiveState] = await Promise.all([
+    const [progressRes, reputationRes, branchRes, playerBranchRes, inboxRes, tagRes, sessionRes, objectiveState, historyRes] = await Promise.all([
       client.query(`SELECT * FROM player_campaign_progress WHERE wallet = $1 ORDER BY chapter_number ASC`, [w]),
       client.query(`SELECT faction, value FROM player_reputation WHERE wallet = $1 ORDER BY faction ASC`, [w]),
       client.query(`SELECT target_chapter, modifier_key, modifier_value, source_quest_id, created_at FROM chapter_branch_modifiers WHERE wallet = $1 ORDER BY created_at DESC`, [w]),
@@ -3612,6 +3612,7 @@ async function getStatus(wallet) {
       client.query(`SELECT tag_id FROM player_tags WHERE wallet = $1 ORDER BY created_at DESC`, [w]),
       client.query(`SELECT * FROM campaign_sessions WHERE wallet = $1 AND status = 'active' ORDER BY started_at DESC LIMIT 1`, [w]),
       getObjectiveState(w),
+      client.query(`SELECT id, quest_id, reward_type, reward_code, quantity, payload, claimed_at FROM campaign_reward_inbox WHERE wallet=$1 AND claimed=TRUE ORDER BY claimed_at DESC, id DESC LIMIT 20`, [w]),
     ]);
     const rows = progressRes.rows;
     const progressByQuest = {};
@@ -3651,6 +3652,7 @@ async function getStatus(wallet) {
       tags: tagRes.rows.map(r => r.tag_id),
       branchModifiers: branchRes.rows,
       rewardInbox: inboxRes.rows,
+      rewardHistory: historyRes.rows,
     };
   } finally {
     client.release();
@@ -3675,7 +3677,7 @@ async function applyClaimedInboxReward(client, wallet, reward) {
   }
 
   // Resource rewards are real inventory when the code exists in resources.
-  if (type === 'resource' || type === 'resource_stream') {
+  if (type === 'resource' || type === 'rare_resource' || type === 'resource_stream') {
     const { rows } = await client.query('SELECT id FROM resources WHERE code = $1 AND COALESCE(is_active, true) = true', [code]);
     if (rows[0]) {
       await client.query(
@@ -3687,7 +3689,7 @@ async function applyClaimedInboxReward(client, wallet, reward) {
         [wallet, rows[0].id, qty]
       );
       applied.push({ kind: 'resource', code, quantity: qty });
-      return { applied };
+      return { applied, ...(type === 'resource_stream' ? { note: 'One-time resource delivery; no recurring income.' } : {}) };
     }
   }
 
@@ -3705,18 +3707,10 @@ async function applyClaimedInboxReward(client, wallet, reward) {
     return { applied };
   }
 
-  // Narrative/entitlement rewards are still claimable so the campaign cannot dead-end while
-  // those long-term systems are being built out.
-  const typeNotes = {
-    ship_blueprint: '설계도가 연구 데이터에 기록되었습니다. 추후 조선소 시스템 확장 시 실제 건조가 가능해집니다.',
-    ship_choice: '함선 선택권이 부여되었습니다. 함선 지급 시스템 확장 후 선택 화면이 열립니다.',
-    asset: '전략 자산이 기록되었습니다. 자산 관리 시스템에서 확인할 수 있습니다.',
-    resource_stream: '자원 공급 계약이 체결되었습니다. 정기 공급 시스템 확장 시 자원이 배송됩니다.',
-    contract: '계약이 체결되어 기록되었습니다. 계약 시스템 확장 후 효과가 활성화됩니다.',
-    data_artifact: '데이터 아티팩트가 기록되었습니다. 서사 진행에 영향을 미칠 수 있습니다.',
-  };
-  const friendlyNote = typeNotes[type] || `${label || code} 보상이 수령 처리되었습니다.`;
-  return { applied, note: friendlyNote, label, rewardType: type };
+  // Story mementos remain permanent inbox records. Never promise a missing bonus,
+  // future redemption UI, automatic deliveries or an unimplemented combat effect.
+  return { applied, record: { type, code, label, quantity: qty, effect: 'story_record' },
+    note: 'Saved to campaign archive. No inventory, combat bonus or recurring income added.' };
 }
 
 function campaignShipRewardPlan(code, quantity) {
@@ -3829,8 +3823,9 @@ async function claimReward(wallet, rewardId) {
     await client.query(
       `UPDATE campaign_reward_inbox
        SET claimed = TRUE, claimed_at = NOW()
+         , payload = jsonb_set(CASE WHEN jsonb_typeof(payload)='object' THEN payload ELSE jsonb_build_object('original',payload) END, '{receipt}', $2::jsonb, true)
        WHERE id = $1`,
-      [id]
+      [id, JSON.stringify(applyResult)]
     );
     await client.query(
       `INSERT INTO transactions (type, from_wallet, pp_amount, usdt_amount, fee, meta)
@@ -3859,6 +3854,7 @@ async function claimReward(wallet, rewardId) {
         payload: reward.payload,
       },
       applied: applyResult.applied,
+      record: applyResult.record || null,
       note: applyResult.note || null,
     };
   } catch (e) {

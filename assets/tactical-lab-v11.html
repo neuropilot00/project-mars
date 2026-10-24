@@ -424,6 +424,14 @@ html[data-tl-mode="battle"] .wrap{grid-template-rows:42px auto 52px minmax(220px
 html[data-tl-mode="battle"] .advanced-deck .command-deck{display:block;padding:8px 0;border:0;}
 html[data-tl-mode="battle"] #commandFeedback{bottom:172px;}
 html[data-tl-mode="sandbox"] .combat-dock{display:none;}
+.combat-field-tools{display:none;grid-area:battle;align-self:end;justify-self:start;z-index:8;margin:8px;pointer-events:none;max-width:calc(100% - 16px);}
+html[data-tl-mode="battle"] .combat-field-tools{display:block;}
+.combat-field-tools small{display:block;width:max-content;max-width:100%;margin-bottom:5px;padding:4px 7px;background:#06131cdd;border-left:2px solid #76dfff;color:#cceefa;font:11px/1.4 system-ui;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.combat-field-tools>div{display:flex;gap:4px;}
+.combat-field-tools button{min-width:44px;max-width:88px;height:44px;padding:4px 8px;border:1px solid #42788c;border-radius:6px;background:#071a27e8;color:#c3e9f3;font:12px/1.2 system-ui;overflow-wrap:anywhere;pointer-events:auto;cursor:pointer;}
+.combat-field-tools button[aria-pressed="true"]{border-color:#ffcd6f;background:#493819;color:#ffe4a8;}
+.combat-field-tools button:disabled{opacity:.4;cursor:default;}
+.combat-field-tools button:focus-visible{outline:2px solid #b1efff;outline-offset:2px;}
 @media(max-height:600px){html[data-tl-mode="battle"] .wrap{grid-template-rows:36px auto 44px minmax(120px,1fr) 0 112px 44px;}.combat-tray{bottom:160px;}}
 
 
@@ -449,6 +457,10 @@ html[data-tl-mode="sandbox"] .combat-dock{display:none;}
   </details>
 </section>
 <canvas id="c" width="460" height="600"></canvas>
+<nav class="combat-field-tools" aria-label="Fleet navigation">
+  <small id="combatSelectedFleet" role="status"></small>
+  <div><button type="button" data-combat-order="move" aria-pressed="false">Move</button><button type="button" data-combat-order="hold">Hold</button><button type="button" data-combat-order="auto">Auto</button></div>
+</nav>
 <button class="speed-cycle" id="speedCycle" onclick="cycleSimSpeed()">×1</button>
 <button class="sound-toggle" id="soundToggle" onclick="toggleBattleAudio()">SOUND</button>
 <div class="battle-comms top" id="battleCommsTop"></div>
@@ -488,6 +500,7 @@ html[data-tl-mode="sandbox"] .combat-dock{display:none;}
 <div class="command-status" id="commandFeedback" role="status" aria-live="polite"></div>
 <section id="combatCommandTray" class="combat-tray" hidden aria-labelledby="combatTrayTitle"><header><h2 id="combatTrayTitle"></h2><button type="button" data-combat-close aria-label="Close">×</button></header><div id="combatTrayOptions"></div></section>
 <details class="advanced-deck"><summary id="advancedLabel">Advanced commands &amp; fleet status</summary>
+<p id="spatialTacticsHint" style="font:12px/1.5 system-ui;color:#b9ceda;padding:4px 0"></p>
 <section class="command-deck" aria-label="Fleet command">
   <div class="command-status" id="battleModeStatus" role="status">Connecting…</div>
   <span hidden id="confirmedActionSummaryHome"></span><section id="confirmedActionSummary" hidden><strong id="actionSummaryTitle"></strong><ol id="actionSummaryEvents"></ol></section>
@@ -1464,8 +1477,22 @@ function _onCanvasTap(clientX,clientY){
   const point=_canvasToWorld(clientX,clientY);
   if(!point)return;
   const {wx,wy,displayScale}=point;
+  if(TL_MODE==='battle'&&_moveOrderArmed){
+    const destination=battleServerPoint(wx,wy,W,H);
+    if(!destination){commandFeedback(navigationText('invalid'));return;}
+    if(sendLiveCommand('move',destination)){_moveOrderArmed=false;updateCommandDeck();}
+    return;
+  }
   // 클릭 반경: 화면상 30px 기준 → 월드 거리
   const tapR=30/displayScale/camScale;
+  let own=null,ownDistance=Infinity;
+  if(TL_MODE==='battle'){
+    for(const ship of ships){
+      if(ship.dead||!ship.fleet||!commandableFleets().some(f=>String(f.id)===String(ship.fleet.dbFleetId)))continue;
+      const d=Math.hypot(ship.x-wx,ship.y-wy);
+      if(d<=Math.max(tapR,shipDisplayMetrics(ship,displayScale).radius)&&d<ownDistance){own=ship;ownDistance=d;}
+    }
+  }
   // 적 함선 중 가장 가까운 것 탐색 (atk 관점: def가 적)
   let best=null,bestDist=Infinity;
   const enemySide=commandSide()==='atk'?'def':'atk';
@@ -1474,6 +1501,7 @@ function _onCanvasTap(clientX,clientY){
     const d=Math.hypot(sh.x-wx,sh.y-wy);
     if(d<=Math.max(tapR,shipDisplayMetrics(sh,displayScale).radius)&&d<bestDist){bestDist=d;best=sh;}
   });
+  if(own&&ownDistance<=bestDist){selectCommandFleet(own.fleet.dbFleetId);return;}
   if(!best)return;
   // 해당 함선의 함대를 집중공격 대상으로 설정
   const tf=best.fleet;
@@ -3235,6 +3263,7 @@ function loop(ts){
   CX.translate(-camCx,-camCy);
   drawShockwaves();
   drawFleets();
+  drawNavigationOrders();
   drawExps();
   drawLasers(_wsActive);
   drawRepairBeams();
@@ -3876,6 +3905,12 @@ function battleWorldPoint(x,y,width,height){
  return {x:(width-440*scale)/2+Number(y)*scale,y:(height-1000*scale)/2+(1000-Number(x))*scale,scale};
 }
 function battleWorldFacing(facing){return Number(facing)-Math.PI/2;}
+function battleServerPoint(x,y,width,height){
+ const scale=Math.min(width/440,height/1000);
+ const server={x:1000-(y-(height-1000*scale)/2)/scale,y:(x-(width-440*scale)/2)/scale};
+ if(!Number.isFinite(server.x)||!Number.isFinite(server.y)||server.x<-.000001||server.x>1000.000001||server.y<-.000001||server.y>440.000001)return null;
+ return {x:Math.max(0,Math.min(1000,server.x)),y:Math.max(0,Math.min(440,server.y))};
+}
 function battleShipPoint(live,frame,width,height){
  const point=battleWorldPoint(live.x,live.y,width,height);
  const fleet=(frame.fleets||[]).find(f=>String(f.id)===String(live.fid));
@@ -3919,6 +3954,7 @@ function drawObjectiveSituation(frame){
 
 // The live socket is authoritative. Training alone runs local commands.
 let _commandWallet='';
+let _selectedCommandFleetId=null,_moveOrderArmed=false;
 let _commandSeq=0;
 const _pendingCommands=new Map();
 const _confirmedActions=new Map();
@@ -3928,10 +3964,21 @@ const COMMAND_COPY={
  ko:{doctrine:'1 · 접근 교리',focus:'2 · 적 함대',skill:'3 · 필살기',order:'지휘',aim:'집중',advanced:'상세 지휘 · 함대 현황',breakthrough:'돌파',protect:'보호',flank:'측면',breakthroughNote:'쐐기 + 전진 · 정면 접근',protectNote:'차폐 + 재집결 · 보호 진형으로 다시 모으기',flankNote:'협공 + 측면 우회 · 양 날개로 접근',training:'훈련 · 로컬 시뮬레이션 · 자산 손실 없음',live:'실시간 · 서버 지휘 가능',replay:'리플레이 · 지휘 불가',spectator:'관전 · 지휘 불가',connecting:'연결 확인 중 · 지휘 잠금',ended:'전투 종료 · 지휘 잠금',sent:'전송됨 · 접수 확인 대기',connected:'연결됨',disconnected:'연결 끊김 · 재연결 대기',accepted:'접수됨 · 서버 적용 대기',applied:'적용됨',rejected:'거부됨',auto:'자동 지휘',hold:'수동 지휘 유지',noTarget:'남은 적 함대 없음',unselectedTarget:'대상 미선택',target:'집중 대상',fleetOnly:'적 함대 전체를 집중 공격합니다. 특정 함선 저격은 아닙니다.',beamNote:'빔 · 기함 우선 단일 표적',missileNote:'미사일 · 최대 6척 분산 타격',overdriveNote:'합체필살 · 합체 함선 필요',trainingNoLoss:'훈련은 영구 함선 손실이 없습니다.',liveUnavailable:'이 화면의 EMP는 훈련 전용입니다.',retreatTruth:'거리 벌리기는 기동입니다. 전투 종료나 함선 보존을 보장하지 않습니다.',forfeitTruth:'서버에 전투 포기를 요청합니다. 받은 피해와 해당 전투의 손실 규칙이 적용됩니다.',charge_insufficient:'충전 부족',not_your_fleet:'본인 함대가 아님',rate_limited:'명령이 너무 빠릅니다 · 잠시 대기',battle_not_live:'실시간 전투가 아님',no_valid_target:'유효한 표적 없음',invalid_formation:'잘못된 진형',invalid_maneuver:'잘못된 기동',fleet_unavailable:'함대 사용 불가',not_authority:'명령 서버 사용 불가',damage:'피해',hits:'표적'}
 };
 function commandText(key){return (COMMAND_COPY[TLANG]||COMMAND_COPY.en)[key]||COMMAND_COPY.en[key]||key;}
-function commandReason(reason){return commandText(reason||'unknown');}
+function commandReason(reason){return reason==='invalid_destination'?navigationText('invalid'):commandText(reason||'unknown');}
+function commandableFleets(){
+ if(!_commandWallet||!_wsLastFrame)return [];
+ return (_wsLastFrame.fleets||[]).filter(f=>String(f.owner_wallet||'').toLowerCase()===_commandWallet&&Number(f.hp)>0&&!f.dead&&!f.retreated);
+}
 function ownedLiveFleet(){
- if(!_commandWallet||!_wsLastFrame)return null;
- return (_wsLastFrame.fleets||[]).find(f=>String(f.owner_wallet||'').toLowerCase()===_commandWallet&&Number(f.hp)>0&&!f.dead&&!f.retreated)||null;
+ const own=commandableFleets();
+ return own.find(f=>String(f.id)===String(_selectedCommandFleetId))||own[0]||null;
+}
+function selectCommandFleet(id){
+ const own=commandableFleets().find(f=>String(f.id)===String(id));
+ if(!own||!canCommandBattle())return false;
+ _selectedCommandFleetId=String(own.id);_moveOrderArmed=false;
+ focusFleet=own.focusFireTargetId==null?null:fleets.find(f=>String(f.dbFleetId)===String(own.focusFireTargetId))||null;
+ commandFeedback(navigationText('selected'));updateCommandDeck();return true;
 }
 function commandSide(){const f=ownedLiveFleet();return f?f.side:'atk';}
 function canCommandBattle(){return _wsRealtime&&!_wsEndPayload&&!!ownedLiveFleet()&&!!_wsBattle&&_wsBattle.readyState===1;}
@@ -3966,7 +4013,7 @@ function handleCommandResult(m){
  if(m.status==='applied'){
   const f=fleets.find(f=>String(f.dbFleetId)===String(m.fleetId));
   if(f&&m.manualControlRemainingMs!=null){f.manualControlRemainingMs=Number(m.manualControlRemainingMs)||0;f.manualControlUpdatedMs=performance.now();}
-  if(m.cmd==='focus')focusFleet=m.focusFireTargetId==null?null:fleets.find(f=>String(f.dbFleetId)===String(m.focusFireTargetId))||null;
+  if(m.cmd==='focus'&&String(m.fleetId)===String(ownedLiveFleet()?.id))focusFleet=m.focusFireTargetId==null?null:fleets.find(f=>String(f.dbFleetId)===String(m.focusFireTargetId))||null;
   if(Number.isFinite(m.totalDamage))text+=' · '+commandText('damage')+' '+m.totalDamage+' · '+m.targetCount+' '+commandText('hits');
   if(['beam','missile','overdrive'].includes(m.cmd)){
    if(m.cmd==='beam')beamCharge=0;else if(m.cmd==='missile')missileCharge=0;else overdriveCharge=0;
@@ -4080,6 +4127,48 @@ function fleetRoleText(f){
  return Object.entries(counts).map(([key,n])=>key+n).join(' ');
 }
 
+const NAVIGATION_COPY={
+ en:{move:'Move',hold:'Hold',auto:'Auto',pick:'Select your fleet on the field',hint:'Tap a destination · move at fleet speed',selected:'Fleet selected',invalid:'Choose a point inside the battlefield'},
+ ko:{move:'이동',hold:'정지',auto:'자동',pick:'전장의 아군을 탭해 함대 선택',hint:'목적지 탭 · 함대 속도로 이동',selected:'지휘 함대 선택됨',invalid:'전장 안의 지점을 선택하세요'},
+ ja:{move:'移動',hold:'停止',auto:'自動',pick:'味方をタップして艦隊選択',hint:'目的地をタップ・艦隊速度で移動',selected:'指揮艦隊を選択',invalid:'戦場内の地点を選択してください'},
+ zh:{move:'移动',hold:'停止',auto:'自动',pick:'点击友军选择舰队',hint:'点击目的地·以舰队速度移动',selected:'已选择指挥舰队',invalid:'请选择战场内的位置'},
+ id:{move:'Gerak',hold:'Tahan',auto:'Otomatis',pick:'Ketuk armada sendiri di medan',hint:'Ketuk tujuan · bergerak sesuai kecepatan armada',selected:'Armada dipilih',invalid:'Pilih titik di dalam medan'},
+ vi:{move:'Di chuyển',hold:'Dừng',auto:'Tự động',pick:'Chạm hạm đội của bạn trên chiến trường',hint:'Chạm đích · di chuyển theo tốc độ hạm đội',selected:'Đã chọn hạm đội',invalid:'Chọn điểm trong chiến trường'},
+ th:{move:'เคลื่อนที่',hold:'หยุด',auto:'อัตโนมัติ',pick:'แตะกองยานของคุณในสนามรบ',hint:'แตะจุดหมาย · เคลื่อนที่ตามความเร็วกองยาน',selected:'เลือกกองยานแล้ว',invalid:'เลือกจุดภายในสนามรบ'}
+};
+function navigationText(key){return (NAVIGATION_COPY[TLANG]||NAVIGATION_COPY.en)[key]||NAVIGATION_COPY.en[key]||key;}
+const SPATIAL_HINT={en:'The circle shows average effective range for normal fire, not a firing cutoff. Distance and actual side/rear angles affect firepower. Select an allied hull to change fleets.',ko:'원은 일반 사격의 평균 유효거리이며 발사 한계가 아닙니다. 실제 거리·측후방 각도가 화력에 반영됩니다. 아군 함선을 탭해 지휘 함대를 바꿉니다.',ja:'円は通常射撃の平均有効距離で発射限界ではありません。実距離と側背面の角度が火力に影響。味方艦をタップして艦隊選択。',zh:'圆圈为普通射击平均有效距离，并非开火边界。实际距离和侧后方角度影响火力。点击友舰切换指挥舰队。',id:'Lingkaran menunjukkan rata-rata jarak efektif tembakan biasa, bukan batas menembak. Jarak dan sudut samping/belakang memengaruhi daya tembak. Ketuk kapal sendiri untuk mengganti armada.',vi:'Vòng tròn là tầm hiệu quả trung bình của bắn thường, không phải giới hạn khai hỏa. Khoảng cách và góc bên/sau ảnh hưởng hỏa lực. Chạm tàu đồng minh để đổi hạm đội.',th:'วงกลมแสดงระยะยิงปกติที่มีประสิทธิภาพเฉลี่ย ไม่ใช่ขอบเขตห้ามยิง ระยะจริงและมุมด้านข้างหรือด้านหลังมีผลต่อพลังยิง แตะยานฝ่ายเดียวกันเพื่อเปลี่ยนกองยาน'};
+function updateNavigationControls(enabled){
+ const status=document.getElementById('combatSelectedFleet');if(!status)return;
+ const hint=document.getElementById('spatialTacticsHint');if(hint)hint.textContent=SPATIAL_HINT[TLANG]||SPATIAL_HINT.en;
+ if(!enabled)_moveOrderArmed=false;
+ const fleet=ownedLiveFleet(),order=fleet&&fleet.navigation;
+ const pending=Array.from(_pendingCommands.values()).some(command=>['move','hold','auto'].includes(command.cmd)&&String(command.payload.fleetId)===String(fleet&&fleet.id));
+ status.textContent=_moveOrderArmed?navigationText('hint'):fleet?'▲ '+String(fleet.id)+' · '+(order?navigationText(order.mode):navigationText('auto')):navigationText('pick');
+ document.querySelectorAll('[data-combat-order]').forEach(button=>{
+   button.disabled=!enabled||pending;button.textContent=navigationText(button.dataset.combatOrder);
+   button.setAttribute('aria-label',navigationText(button.dataset.combatOrder));
+   button.setAttribute('aria-pressed',String(button.dataset.combatOrder==='move'?_moveOrderArmed:!!order&&button.dataset.combatOrder===order.mode));
+ });
+}
+function drawNavigationOrders(){
+ if(TL_MODE!=='battle'||!_wsLastFrame)return;
+ const fleet=ownedLiveFleet();if(!fleet)return;
+ const center=battleWorldPoint(fleet.cx,fleet.cy,W,H),order=fleet.navigation;
+ CX.save();CX.lineWidth=1.5/Math.max(camScale,.1);CX.strokeStyle='#7de5ff';
+ if(canCommandBattle()&&Number.isFinite(fleet.engagement_range)){
+   CX.strokeStyle='#79d8f522';CX.setLineDash([6/Math.max(camScale,.1),7/Math.max(camScale,.1)]);
+   CX.beginPath();CX.arc(center.x,center.y,fleet.engagement_range*center.scale,0,Math.PI*2);CX.stroke();CX.setLineDash([]);CX.strokeStyle='#7de5ff';
+ }
+ CX.beginPath();CX.arc(center.x,center.y,22/Math.max(camScale,.1),0,Math.PI*2);CX.stroke();
+ if(order&&Number.isFinite(order.x)&&Number.isFinite(order.y)){
+   const end=battleWorldPoint(order.x,order.y,W,H),r=10/Math.max(camScale,.1);
+   CX.setLineDash([5/Math.max(camScale,.1),5/Math.max(camScale,.1)]);CX.beginPath();CX.moveTo(center.x,center.y);CX.lineTo(end.x,end.y);CX.stroke();CX.setLineDash([]);
+   CX.beginPath();CX.arc(end.x,end.y,r,0,Math.PI*2);CX.moveTo(end.x-r*1.5,end.y);CX.lineTo(end.x+r*1.5,end.y);CX.moveTo(end.x,end.y-r*1.5);CX.lineTo(end.x,end.y+r*1.5);CX.stroke();
+ }
+ CX.restore();
+}
+
 // Compact touch HUD: selection trays do not advance battle state; existing commands do.
 let combatPanel='',combatDockState=null,combatTraySignature='';
 function combatLabel(en,ko){return TLANG==='ko'?ko:en;}
@@ -4089,6 +4178,7 @@ function closeCombatTray(){
 }
 function updateCombatDock(enabled,mode){
  const dock=document.getElementById('battleCommandDock');if(!dock)return;
+ if(typeof updateNavigationControls==='function')updateNavigationControls(enabled);
  const my=TL_MODE==='battle'?ownedLiveFleet():null;
  const skills=['beam','missile','overdrive'].map(id=>{
   const charge=TL_MODE==='battle'?(my?Number(my[id+'Charge'])||0:0):({beam:beamCharge,missile:missileCharge,overdrive:overdriveCharge}[id]||0);
@@ -4138,7 +4228,13 @@ function renderCombatTray(){
 }
 
 function handleCombatDockClick(event){
- const control=event.target.closest('[data-combat-panel],[data-combat-choice],[data-combat-close],[data-combat-fire]');if(!control)return;
+ const control=event.target.closest('[data-combat-panel],[data-combat-choice],[data-combat-close],[data-combat-fire],[data-combat-order]');if(!control)return;
+ if(control.dataset.combatOrder){
+  if(control.disabled||!canCommandBattle())return;
+  if(control.dataset.combatOrder==='move'){_moveOrderArmed=!_moveOrderArmed;closeCombatTray();if(_moveOrderArmed)commandFeedback(navigationText('hint'));updateCommandDeck();}
+  else if(['hold','auto'].includes(control.dataset.combatOrder)){_moveOrderArmed=false;sendLiveCommand(control.dataset.combatOrder,{});}
+  return;
+ }
  if(control.hasAttribute('data-combat-close')){closeCombatTray();return;}
  if(control.hasAttribute('data-combat-fire')){if(!control.disabled)cmdSelectedSkill();return;}
  if(control.dataset.combatPanel){
@@ -4300,7 +4396,7 @@ function processBattleMessage(m,bid){
               f.retreated=!!wsF.retreated;
               f.manualControlRemainingMs=Number(wsF.manualControlRemainingMs)||0;
               f.manualControlUpdatedMs=performance.now();
-              if(String(wsF.owner_wallet||'').toLowerCase()===_commandWallet)focusFleet=wsF.focusFireTargetId==null?null:fleets.find(x=>String(x.dbFleetId)===String(wsF.focusFireTargetId))||null;
+              if(ownedLiveFleet()&&String(wsF.id)===String(ownedLiveFleet().id))focusFleet=wsF.focusFireTargetId==null?null:fleets.find(x=>String(x.dbFleetId)===String(wsF.focusFireTargetId))||null;
             }
           }
         } catch (syncErr) { /* silent */ }
@@ -4380,7 +4476,7 @@ function syncCompactCommandLayout(){
 }
 window.addEventListener('resize',syncCompactCommandLayout);
   document.addEventListener('click',handleCombatDockClick);
-  document.addEventListener('keydown',event=>{if(event.key==='Escape')closeCombatTray();});
+  document.addEventListener('keydown',event=>{if(event.key==='Escape'){_moveOrderArmed=false;closeCombatTray();updateCommandDeck();}});
 
 
 async function boot(){

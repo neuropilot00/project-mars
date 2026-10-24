@@ -23,7 +23,7 @@ function fixture(options = {}) {
   const calls = [], alerts = [], confirmations = [], refreshes = [], repaints = [];
   let now = 100000, affordable = true, serverGP = 85;
   const nodes = Object.fromEntries(['baseGP','baseShopBalGP','baseShopBalPP','baseShopBalUSDT','walletGP','walletGPRow','authGPBal','walletUsdt','walletPP','authUsdtBal','authPPBal'].map(id => [id,{textContent:'',style:{}}]));
-  const grid = { innerHTML: '' }, button = { disabled: false, textContent: 'CRAFT' };
+  const grid = { innerHTML: '', dataset:{}, listeners:{}, contains:()=>true, addEventListener(type,fn){this.listeners[type]=fn;} }, button = { disabled: false, textContent: 'CRAFT' };
   const recipe = () => ({ id: options.recipeId ?? 1, name: 'Shield', output_name: 'Shield', output_item_type_id: 1,
     ingredients: [{ code: 'iron_ore', qty: 5 }], gp_cost: 50, success_rate: 80, output_qty: 1,
     category: 'defense', fail_refund_pct: 50, canCraft: affordable });
@@ -109,7 +109,7 @@ test('unfunded recipes disable the actual card and cannot open a confirmation or
   for(const balance of [0,38,49.99,undefined]){
     const f=fixture();f.context.walletState.gameGP=balance;
     f.context.renderCraftingGrid();
-    assert.match(f.grid.innerHTML,/<button disabled onclick="attemptCraft\(1\)"/);
+    assert.match(f.grid.innerHTML,/<button disabled data-craft-recipe="1"/);
     assert.match(f.grid.innerHTML,/Not enough GP/);
     f.context.attemptCraft(1);await settle();
     assert.equal(f.confirmations.length,0);assert.equal(f.posts().length,0);
@@ -127,6 +127,19 @@ test('cancelled craft sends no mutation or refresh', async () => {
   assert.equal(f.confirmations.length, 1); assert.equal(f.calls.length, 0);
   assert.equal(f.refreshes.length, 0); assert.equal(f.repaints.length, 0);
   assert.equal(f.button.disabled, false);
+});
+
+test('rapid repeated craft taps open one confirmation and send only one mutation',async()=>{
+  const f=fixture();f.context.attemptCraft(1);f.context.attemptCraft(1);await settle();
+  assert.equal(f.confirmations.length,1);assert.equal(f.posts().length,1);
+});
+test('deterministic material assembly stays available at zeroGP without calling materials free',()=>{
+  const f=fixture(),r=f.context._craftingRecipes[0];r.gp_cost=0;r.success_rate=100;r.fail_refund_pct=0;f.context.walletState.gameGP=0;
+  f.context.renderCraftingGrid();assert.match(f.grid.innerHTML,/No GP assembly fee/);assert.match(f.grid.innerHTML,/Guaranteed output/);assert.doesNotMatch(f.grid.innerHTML,/<button disabled|>Free</);
+});
+test('inventory cap explains the unavailable card and blocks confirmation',async()=>{
+  const f=fixture(),r=f.context._craftingRecipes[0];r.canCraft=false;r.unavailableReason='inventory_full';f.context.renderCraftingGrid();
+  assert.match(f.grid.innerHTML,/Inventory limit reached/);f.context.attemptCraft(1);await settle();assert.equal(f.confirmations.length,0);assert.equal(f.posts().length,0);
 });
 
 test('server error and transport error restore the button without confirmed-outcome refresh', async () => {
@@ -176,9 +189,9 @@ test('immediate crafting refresh preserves inFlight and shared endpoint 429 back
 for (const confirm of [false, true]) test('actual rendered string recipe ID opens confirmation and ' + (confirm ? 'posts the original ID' : 'declining sends no POST'), async () => {
   const f = fixture({ recipeId: '1', confirm });
   f.context.renderCraftingGrid();
-  const click = f.grid.innerHTML.match(/onclick="(attemptCraft\(1\))"/);
+  const click = f.grid.innerHTML.match(/data-craft-recipe="(1)"/);
   assert.ok(click, 'execute the actual card click emitted for the PG string ID');
-  vm.runInContext(click[1], f.context); await settle();
+  f.grid.listeners.click({target:{closest:()=>({disabled:false,dataset:{craftRecipe:click[1]}})}}); await settle();
   assert.equal(f.confirmations.length, 1);
   assert.equal(f.posts().length, confirm ? 1 : 0);
   if (confirm) {

@@ -13,18 +13,33 @@ async function getSetting(key, fallback) {
 
 // ── Recipe helpers ────────────────────────────────────────────────────────────
 
+function recipeAvailability(recipe, owned, resources) {
+  const ingredients = (Array.isArray(recipe.ingredients) ? recipe.ingredients : JSON.parse(recipe.ingredients || '[]')).map(ing => {
+    const code = ing.code || ing.resource_code;
+    const quantity = (code ? resources[code] : owned[ing.item_type_id]) || 0;
+    return { ...ing, owned_qty: quantity, missing_qty: Math.max(0, Number(ing.qty) - quantity) };
+  });
+  const outputOwned = owned[recipe.output_item_type_id] || 0;
+  const maximum = Number(recipe.output_max_stack);
+  const capacityAvailable = !(maximum > 0) || outputOwned + Number(recipe.output_qty) <= maximum;
+  const ingredientsAvailable = ingredients.every(ing => ing.missing_qty === 0);
+  return { ...recipe, ingredients, output_owned: outputOwned, capacityAvailable,
+    canCraft: ingredientsAvailable && capacityAvailable,
+    unavailableReason: !capacityAvailable ? 'inventory_full' : !ingredientsAvailable ? 'ingredients_missing' : null };
+}
+
 /**
  * Return all active recipes, optionally filtered by category.
  * For each recipe we compute `canCraft` = does wallet own all ingredients?
  */
 async function getRecipes(category, wallet) {
-  let q = 'SELECT * FROM crafting_recipes WHERE is_active=true';
+  let q = 'SELECT cr.*, it.max_stack AS output_max_stack FROM crafting_recipes cr JOIN item_types it ON it.id=cr.output_item_type_id AND it.active=true WHERE cr.is_active=true';
   const params = [];
   if (category && category !== 'all') {
     params.push(category);
-    q += ` AND category=$${params.length}`;
+    q += ` AND cr.category=$${params.length}`;
   }
-  q += ' ORDER BY sort_order ASC, id ASC';
+  q += ' ORDER BY cr.sort_order ASC, cr.id ASC';
   const { rows: recipes } = await pool.query(q, params);
 
   if (!wallet || !recipes.length) return recipes.map(r => ({ ...r, canCraft: false }));
@@ -44,14 +59,7 @@ async function getRecipes(category, wallet) {
   const resourceOwned = {};
   resources.forEach(it => { resourceOwned[it.code] = Number(it.quantity); });
 
-  return recipes.map(r => {
-    const ingredients = Array.isArray(r.ingredients) ? r.ingredients : (JSON.parse(r.ingredients || '[]'));
-    const canCraft = ingredients.every(ing => {
-      const code = ing.code || ing.resource_code;
-      return (code ? resourceOwned[code] || 0 : owned[ing.item_type_id] || 0) >= ing.qty;
-    });
-    return { ...r, canCraft, ingredients };
-  });
+  return recipes.map(r => recipeAvailability(r, owned, resourceOwned));
 }
 
 /**
@@ -59,7 +67,7 @@ async function getRecipes(category, wallet) {
  */
 async function getRecipe(recipeId, wallet) {
   const { rows } = await pool.query(
-    'SELECT * FROM crafting_recipes WHERE id=$1 AND is_active=true', [recipeId]);
+    'SELECT cr.*, it.max_stack AS output_max_stack FROM crafting_recipes cr JOIN item_types it ON it.id=cr.output_item_type_id AND it.active=true WHERE cr.id=$1 AND cr.is_active=true', [recipeId]);
   if (!rows.length) return null;
   const r = rows[0];
   const ingredients = Array.isArray(r.ingredients) ? r.ingredients : JSON.parse(r.ingredients || '[]');
@@ -79,10 +87,7 @@ async function getRecipe(recipeId, wallet) {
     );
     const resourceOwned = {};
     resources.forEach(it => { resourceOwned[it.code] = Number(it.quantity); });
-    canCraft = ingredients.every(ing => {
-      const code = ing.code || ing.resource_code;
-      return (code ? resourceOwned[code] || 0 : owned[ing.item_type_id] || 0) >= ing.qty;
-    });
+    return recipeAvailability(r, owned, resourceOwned);
   }
   return { ...r, canCraft, ingredients };
 }
@@ -115,6 +120,8 @@ async function craftItem(client, wallet, recipeId) {
   const refundPct = Number(recipe.fail_refund_pct);
   const successRate = Number(recipe.success_rate);
   if (!Number.isFinite(gpCost) || gpCost < 0 ||
+      !Number.isSafeInteger(Number(recipe.output_qty)) || Number(recipe.output_qty) <= 0 ||
+      !Number.isSafeInteger(Number(recipe.output_item_type_id)) || Number(recipe.output_item_type_id) <= 0 ||
       !Number.isFinite(refundPct) || refundPct < 0 || refundPct > 100 ||
       !Number.isFinite(successRate) || successRate < 0 || successRate > 100 ||
       !ingredients.every(ing => Number.isSafeInteger(Number(ing.qty)) && Number(ing.qty) > 0 &&
@@ -125,6 +132,10 @@ async function craftItem(client, wallet, recipeId) {
   // 3. Daily limit check — advisory lock prevents concurrent bypass [v7.63]
   // pg_advisory_xact_lock serializes same-wallet crafts within this transaction
   await client.query(`SELECT pg_advisory_xact_lock(hashtext($1))`, [walletLower]);
+  // Share the account lock used by purchases, including zero-GP material conversions.
+  const account = await client.query('SELECT gp_balance AS balance FROM users WHERE LOWER(wallet_address)=LOWER($1) FOR UPDATE', [walletLower]);
+  if (!account.rows.length) throw new Error('ACCOUNT_NOT_FOUND');
+  if (Number(account.rows[0].balance) < gpCost) throw new Error('INSUFFICIENT_GP');
   const maxPerDay = parseInt(await getSetting('crafting_max_per_day', '20'), 10);
   const { rows: todayRows } = await client.query(
     `SELECT COUNT(*) AS cnt FROM crafting_log
@@ -134,6 +145,12 @@ async function craftItem(client, wallet, recipeId) {
   if (parseInt(todayRows[0].cnt, 10) >= maxPerDay) {
     throw new Error(`Daily crafting limit reached (${maxPerDay}/day)`);
   }
+
+  const output = await client.query('SELECT max_stack, active FROM item_types WHERE id=$1 FOR SHARE', [recipe.output_item_type_id]);
+  if (!output.rows[0] || !output.rows[0].active) throw new Error('OUTPUT_UNAVAILABLE');
+  const existing = await client.query('SELECT quantity FROM user_items WHERE wallet=$1 AND item_type_id=$2 FOR UPDATE', [walletLower, recipe.output_item_type_id]);
+  const maxStack = Number(output.rows[0].max_stack), ownedOutput = Number(existing.rows[0]?.quantity || 0);
+  if (maxStack > 0 && ownedOutput + Number(recipe.output_qty) > maxStack) throw new Error('INVENTORY_FULL');
 
   // 4. Verify ingredients ownership & deduct
   // [v7.364] recipe ingredients는 {qty, code}(자원 코드). 기존엔 item_type_id로 user_items를 조회해

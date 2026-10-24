@@ -112,6 +112,15 @@ async function main() {
       assert.equal(result.status,'rejected');assert.equal(result.reason,'charge_insufficient');assert.equal('wallet' in result,false);
       assert.equal(viewer.messages.some(m=>m.type==='cmd_result'),false);
     });
+    await delay(1050);
+    await check('actual WS routes position coordinates to the engine and sends the accepted path only to its owner',async()=>{
+      client.ws.send(JSON.stringify({type:'cmd',cmd:'move',commandId:'ws-move',payload:{fleetId:'11',x:300,y:180}}));await delay(30);
+      const ack=client.messages.find(m=>m.commandId==='ws-move');assert.equal(ack.status,'accepted');
+      const queued=live.drainCommands('77');assert.equal(queued.length,1);assert.equal(queued[0].params.x,300);assert.equal(queued[0].params.y,180);
+      wsSvc.broadcastBattleCommandResult('77',applyLiveCommandResult(fixture(),queued[0]));await delay(20);
+      const result=client.messages.find(m=>m.type==='cmd_result'&&m.commandId==='ws-move');assert.equal(result.status,'applied');assert.equal(result.navigation.x,300);assert.equal(result.navigation.mode,'move');
+      assert.equal(viewer.messages.some(m=>m.type==='cmd_result'&&m.commandId==='ws-move'),false);
+    });
     await check('HTTP live command returns the client commandId and explicit acceptance, with the same terminal WS result',async()=>{
       const response=await fetch(`http://127.0.0.1:${server.address().port}/api/battles/77/commander-action`,{
         method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token},

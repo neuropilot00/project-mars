@@ -162,7 +162,8 @@ function attachWsServer(httpServer) {
             const fleetId = msg.payload && msg.payload.fleetId;
             if (!fleetId) { _commandAck(ws, msg.cmd, commandId, 'fleetId_required'); return; }
             const action = (msg.cmd === 'maneuver') ? 'maneuver' : (msg.cmd === 'focus') ? 'focus' : (msg.cmd === 'formation') ? 'formation'
-              : (msg.cmd === 'beam') ? 'beam' : (msg.cmd === 'missile') ? 'missile' : (msg.cmd === 'overdrive') ? 'overdrive' : null;
+              : (msg.cmd === 'beam') ? 'beam' : (msg.cmd === 'missile') ? 'missile' : (msg.cmd === 'overdrive') ? 'overdrive'
+              : ['move', 'hold', 'auto'].includes(msg.cmd) ? msg.cmd : null;
             if (!action) { _commandAck(ws, msg.cmd, commandId, 'unsupported_live_cmd'); return; }
             const { pool } = require('./db');
             pool.query(
@@ -194,7 +195,7 @@ function attachWsServer(httpServer) {
               const p = msg.payload || {};
               const queued = routeBattleCommandResult(bid, {
                 commandId, fleetId, wallet: ws.wallet, action,
-                params: { formation: p.formation, movement: p.maneuver || p.movement, targetFleetId: p.targetFleetId },
+                params: { formation: p.formation, movement: p.maneuver || p.movement, targetFleetId: p.targetFleetId, x: p.x, y: p.y },
               });
               _commandAck(ws, msg.cmd, commandId, queued.accepted ? null : queued.reason, { live: true });
             }).catch(() => _commandAck(ws, msg.cmd, commandId, 'validation_failed'));

@@ -215,6 +215,26 @@ function applyLiveCommandResult(state, cmd) {
   if (cmd.wallet && String(fleet.owner_wallet || '').toLowerCase() !== String(cmd.wallet).toLowerCase()) return reject('not_your_fleet');
   if (fleet.retreated || !fleet.ships.some(s => s.isAlive && !s.withdrawn)) return reject('fleet_unavailable');
   const p = cmd.params || {};
+  if (cmd.action === 'move' || cmd.action === 'hold' || cmd.action === 'auto') {
+    if (cmd.action === 'auto') {
+      fleet.navigation = null;
+      fleet.manualControlUntilTick = 0;
+      return applied({ navigation: null });
+    }
+    if (cmd.action === 'move' && (typeof p.x !== 'number' || typeof p.y !== 'number' ||
+        !Number.isFinite(p.x) || !Number.isFinite(p.y) || p.x < 0 || p.x > FIELD_W || p.y < 0 || p.y > FIELD_H)) {
+      return reject('invalid_destination');
+    }
+    const x = cmd.action === 'hold' ? fleet.cx : p.x;
+    const y = cmd.action === 'hold' ? fleet.cy : p.y;
+    fleet.navigation = {
+      mode: cmd.action,
+      x: cmd.action === 'hold' ? x : Math.max(fleet.radius + 8, Math.min(FIELD_W - fleet.radius - 8, x)),
+      y: cmd.action === 'hold' ? y : Math.max(fleet.radius + 8, Math.min(FIELD_H - fleet.radius - 8, y)),
+    };
+    if (cmd.action === 'hold') { fleet.vcx = 0; fleet.vcy = 0; }
+    return applied({ navigation: { ...fleet.navigation } });
+  }
   if (cmd.action === 'formation' || cmd.action === 'maneuver') {
     if (cmd.action === 'formation') {
       if (!LIVE_FORMATIONS.has(p.formation)) return reject('invalid_formation');
@@ -223,6 +243,7 @@ function applyLiveCommandResult(state, cmd) {
     } else {
       if (!LIVE_MOVEMENTS.has(p.movement)) return reject('invalid_maneuver');
       fleet.movement = p.movement; fleet.maneuver = p.movement;
+      fleet.navigation = null;
     }
     fleet.manualControlUntilTick = (state.tick || 0) + Math.ceil(MANUAL_CONTROL_MS / (state.liveTickMs || TICK_MS));
     return applied({ formation: fleet.formation, movement: fleet.movement,
@@ -251,6 +272,7 @@ function applyLiveCommandResult(state, cmd) {
 }
 
 function evaluateLiveTactics(fleet, state, events) {
+  if (fleet.navigation) return;
   if (state.tick * (state.liveTickMs || TICK_MS) < (fleet.openingControlMs || 0)) return;
   if ((fleet.manualControlUntilTick || 0) > state.tick) return;
   tacticsAI.evaluate(fleet, state, events);
@@ -808,6 +830,10 @@ const MOVEMENT_SPEED_MULT = {
 };
 
 function updateFleetPosition(fleet, state) {
+  if (fleet.navigation) {
+    updateFleetNavigation(fleet);
+    return;
+  }
   const enemies = state.fleets.filter(e => e.side !== fleet.side && !e.dead);
   if (!enemies.length) return;
   
@@ -878,6 +904,25 @@ function updateFleetPosition(fleet, state) {
   if (fleet.movement === 'retreat') {
     fleet.facingAngle = Math.atan2(dy, dx);
   }
+}
+
+// Position orders use the existing fleet speed budget; they never move hulls instantly.
+// Reaching a point holds the formation there until another movement/auto order.
+function updateFleetNavigation(fleet) {
+  const order = fleet.navigation;
+  const dx = order.x - fleet.cx, dy = order.y - fleet.cy, distance = Math.hypot(dx, dy);
+  if (order.mode === 'hold' || distance <= 1) {
+    if (distance <= 1) { fleet.cx = order.x; fleet.cy = order.y; }
+    fleet.vcx = 0; fleet.vcy = 0;
+    return;
+  }
+  fleet.vcx = (fleet.vcx || 0) * .9 + dx / distance * .04;
+  fleet.vcy = (fleet.vcy || 0) * .9 + dy / distance * .04;
+  const speed = Math.hypot(fleet.vcx, fleet.vcy);
+  if (speed > .5) { fleet.vcx *= .5 / speed; fleet.vcy *= .5 / speed; }
+  fleet.cx = Math.max(fleet.radius + 8, Math.min(FIELD_W - fleet.radius - 8, fleet.cx + fleet.vcx));
+  fleet.cy = Math.max(fleet.radius + 8, Math.min(FIELD_H - fleet.radius - 8, fleet.cy + fleet.vcy));
+  fleet.facingAngle = Math.atan2(fleet.vcy, fleet.vcx);
 }
 
 // ─── 진형 슬롯 할당 ───
@@ -1222,6 +1267,7 @@ function computeDamage(attacker, target, attackerFleet, targetFleet) {
     * variance
     * typeMult
     * getShipMatchupMult(attacker, target)
+    * getSpatialDamageMult(attacker, target)
     * getFleetTacticDamageMult(attackerFleet, targetFleet, attacker, target)
   ));
 }
@@ -1229,6 +1275,26 @@ function computeDamage(attacker, target, attackerFleet, targetFleet) {
 function clampMult(value, min = 0.65, max = 1.45) {
   if (!Number.isFinite(value)) return 1.0;
   return Math.max(min, Math.min(max, value));
+}
+
+// A soft engagement envelope, not a hard no-fire boundary. Closing, standoff and
+// crossing an opponent's rear have bounded consequences without an idle opening.
+function engagementRange(ship) {
+  return ship.role === 'sniper' || ship.fireType === 'laser' ? 550
+    : ship.role === 'bomb' || ship.fireType === 'stealth_bomb' ? 220
+    : ship.fireType === 'missile' ? 480 : 350;
+}
+function getSpatialDamageMult(attacker, target) {
+  if (![attacker.x,attacker.y,target.x,target.y].every(Number.isFinite)) return 1;
+  const dx=attacker.x-target.x,dy=attacker.y-target.y,dist=Math.hypot(dx,dy),range=engagementRange(attacker);
+  let mult=Math.max(.85,Math.min(1.05,1.05-Math.max(0,dist-range)/range*.2));
+  if (attacker.role==='sniper' && dist<120) mult=.9;
+  if (Number.isFinite(target.facing) && dist>1) {
+    const bearing=(dx*Math.cos(target.facing)+dy*Math.sin(target.facing))/dist;
+    if (bearing<-.5) mult*=1.12;
+    else if (bearing<.25) mult*=1.06;
+  }
+  return Math.max(.85,Math.min(1.18,mult));
 }
 
 function hasAliveFlagship(fleet) {
@@ -1499,6 +1565,8 @@ function captureFrame(state, tick) {
       facing: Math.round(f.facingAngle * 100) / 100,
       formation: f.formation,
       movement: f.movement,
+      engagement_range: Math.round(f.ships.filter(s=>s.isAlive&&!s.withdrawn).reduce((sum,s)=>sum+engagementRange(s),0)/Math.max(1,f.ships.filter(s=>s.isAlive&&!s.withdrawn).length)),
+      ...(f.navigation ? { navigation: { ...f.navigation } } : {}),
       hp: f.hp,
       maxHp: f.maxHp,
       side: f.side,

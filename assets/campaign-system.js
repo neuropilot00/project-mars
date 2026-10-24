@@ -20,7 +20,7 @@ function loadCampaignStatus(){
   var w=walletState.address;
   if(!el) return Promise.resolve();
   var request=++_campaignStatusRequest;
-  if(!w){el.innerHTML='<div style="font-size:9px;color:var(--tx3);padding:8px 0">'+tl('Login to view campaign chapters.','로그인하면 캠페인 챕터를 볼 수 있습니다.','ログインするとキャンペーンチャプターを表示できます。','登录后可查看战役章节。')+'</div>';return Promise.resolve();}
+  if(!w){_campaignData=null;renderCampaignRewardInbox([],[]);el.innerHTML='<div style="font-size:9px;color:var(--tx3);padding:8px 0">'+tl('Login to view campaign chapters.','로그인하면 캠페인 챕터를 볼 수 있습니다.','ログインするとキャンペーンチャプターを表示できます。','登录后可查看战役章节。')+'</div>';return Promise.resolve();}
   // 파벌 정보가 아직 로드되지 않았으면 먼저 로드한다 — 파벌별 필터링이 정확하게 동작해야 한다.
   var factionPromise=(typeof factionState!=='undefined'&&factionState&&factionState.current!==null)
     ? Promise.resolve()
@@ -35,7 +35,7 @@ function loadCampaignStatus(){
         if(!d||typeof d!=='object'||Array.isArray(d)||d.error||!Array.isArray(d.chapters)||d.chapters.some(function(ch){return !ch||typeof ch!=='object'||Array.isArray(ch);})) throw new Error('campaign_status_invalid');
         _campaignData=d;
         renderCampaignReputation(d.reputation||{},d.tierLabels||{});
-        renderCampaignRewardInbox(d.rewardInbox||[]);
+        renderCampaignRewardInbox(d.rewardInbox||[],d.rewardHistory||[]);
         renderCampaignList(d.chapters);
       })
       .catch(function(){
@@ -209,6 +209,7 @@ function campaignRewardLabel(r){
   return p.label||p.labelKo||r.reward_code||tl('Campaign Reward','캠페인 보상','キャンペーン報酬','战役奖励');
 }
 function campaignRewardTypeLabel(type){
+  if(type==='rare_resource')type='resource';
   var maps={
     ko:{ship:'함선',ship_fleet:'함대',ship_blueprint:'설계도',ship_choice:'함선 선택권',resource:'자원',resource_stream:'자원 계약',gp_stream:'GP 계약',data_artifact:'데이터',asset:'자산',permanent_buff:'영구 효과',title_position:'칭호',safe_house_access:'권한'},
     ja:{ship:'艦船',ship_fleet:'艦隊',ship_blueprint:'設計図',ship_choice:'艦船選択',resource:'資源',resource_stream:'資源契約',gp_stream:'GP契約',data_artifact:'データ',asset:'資産',permanent_buff:'永久効果',title_position:'称号',safe_house_access:'アクセス権'},
@@ -219,10 +220,12 @@ function campaignRewardTypeLabel(type){
   var map=maps[lang]||maps.en;
   return map[type]||String(type||(lang==='ko'?'보상':lang==='ja'?'報酬':lang==='zh'?'奖励':'Reward'));
 }
-function renderCampaignRewardInbox(inbox){
+function campaignArchiveLabel(){return tl('Story archive · no item or automatic bonus','서사 기록 · 아이템·자동 보너스 없음','物語記録・アイテムや自動ボーナスなし','剧情记录·无物品或自动加成','Arsip cerita · tanpa item atau bonus otomatis','Hồ sơ truyện · không có vật phẩm hay thưởng tự động','บันทึกเรื่องราว · ไม่มีไอเทมหรือโบนัสอัตโนมัติ');}
+function renderCampaignRewardInbox(inbox,history){
   var el=document.getElementById('campaignRewardInbox');
   if(!el) return;
-  if(!Array.isArray(inbox)||!inbox.length){el.innerHTML='';return;}
+  inbox=Array.isArray(inbox)?inbox:[];history=Array.isArray(history)?history:[];
+  if(!inbox.length&&!history.length){el.innerHTML='';return;}
   // [v7.168] inbox 표시 한도 4→12 (서버 LIMIT 20 — 5건 이상도 노출). 스크롤 가능 컨테이너.
   var html='<div class="campaign-reward-inbox" style="max-height:340px;overflow-y:auto">';
   inbox.slice(0,12).forEach(function(r){
@@ -232,11 +235,22 @@ function renderCampaignRewardInbox(inbox){
     var label=campaignRewardLabel(r);
     html+='<div class="campaign-reward-card">';
     html+='<div><div class="campaign-reward-label">🎁 '+escapeHtmlSafe(label)+(qty>1?' ×'+qty:'')+'</div><div class="campaign-reward-meta">'+escapeHtmlSafe(type)+' · '+escapeHtmlSafe(r.quest_id||'campaign')+'</div></div>';
-    html+='<button class="campaign-reward-claim" onclick="claimCampaignReward('+id+',this)">'+(LANG==='ko'?'수령':LANG==='ja'?'受取':LANG==='zh'?'领取':'Claim')+'</button>';
+    html+='<button class="campaign-reward-claim" data-campaign-claim="'+id+'">'+tl('Claim','수령','受取','领取','Ambil','Nhận','รับ')+'</button>';
     html+='</div>';
   });
   html+='</div>';
+  if(history.length){
+    html+='<details class="campaign-reward-history"><summary style="min-height:44px;padding:12px 4px;cursor:pointer">'+tl('Recent reward receipts','최근 수령 기록','最近の受取記録','近期领取记录','Tanda terima hadiah terbaru','Biên nhận thưởng gần đây','ประวัติรับรางวัลล่าสุด')+' · '+history.length+'</summary>';
+    history.forEach(function(row){
+      var receipt=row.payload&&row.payload.receipt,applied=receipt&&Array.isArray(receipt.applied)?receipt.applied:[];
+      var note=receipt&&receipt.record?campaignArchiveLabel():applied.length?tl('Delivered to your fleet or inventory','함대·보유함에 지급됨','艦隊・所持品へ配布済み','已发放至舰队或背包','Dikirim ke armada atau inventaris','Đã gửi vào hạm đội hoặc túi','ส่งไปยังกองยานหรือคลังแล้ว'):tl('Historical receipt · detailed effect unavailable','이전 수령 기록 · 효과 상세 없음','過去の受取・効果詳細なし','历史领取记录·无效果详情','Tanda terima lama · rincian efek tidak tersedia','Biên nhận cũ · không có chi tiết tác dụng','ประวัติเดิม · ไม่มีรายละเอียดผล');
+      html+='<div class="campaign-reward-card"><div><div class="campaign-reward-label">'+escapeHtmlSafe(campaignRewardLabel(row))+' ×'+(parseInt(row.quantity,10)||1)+'</div><div class="campaign-reward-meta">'+escapeHtmlSafe(note)+'</div></div>'+(applied.length?'<button type="button" data-core-route="'+(applied.some(function(a){return a.kind==='ship';})?'fleet':'items')+'" style="min-height:44px">'+tl('View','보기','表示','查看','Lihat','Xem','ดู')+'</button>':'')+'</div>';
+    });html+='</details>';
+  }
   el.innerHTML=html;
+  if(el.addEventListener&&!el.dataset.claimDelegated){
+    el.dataset.claimDelegated='1';el.addEventListener('click',function(event){var button=event.target.closest('[data-campaign-claim]');if(button&&el.contains(button)&&!button.disabled)claimCampaignReward(parseInt(button.dataset.campaignClaim,10),button);});
+  }
 }
 
 async function claimCampaignReward(id,btn){
@@ -253,10 +267,13 @@ async function claimCampaignReward(id,btn){
     });
     var d=await r.json().catch(function(){return {};});
     if(!r.ok||d.error) throw new Error(d.error||'claim failed');
+    if(!walletState||walletState.address!==_claimWallet)return;
     var _aLabels={ship:LANG==='ko'?'함선 ':LANG==='ja'?'艦船 ':LANG==='zh'?'舰船 ':'Ship ',resource:LANG==='ko'?'자원 ':LANG==='ja'?'資源 ':LANG==='zh'?'资源 ':'Resource ',item:LANG==='ko'?'아이템 ':LANG==='ja'?'アイテム ':LANG==='zh'?'道具 ':'Item '};
-    var noteMsg=d.note||(d.applied&&d.applied.length?d.applied.map(function(a){return((_aLabels[a.kind]||'')+a.code+(a.quantity&&a.quantity>1?' ×'+a.quantity:''));}).join(', '):(LANG==='ko'?'캠페인 보상을 수령했습니다':LANG==='ja'?'キャンペーン報酬を受け取りました':LANG==='zh'?'已领取活动奖励':'Campaign reward claimed'));
+    var noteMsg=d.record?campaignArchiveLabel():(d.applied&&d.applied.length?d.applied.map(function(a){return((_aLabels[a.kind]||'')+a.code+(a.quantity&&a.quantity>1?' ×'+a.quantity:''));}).join(', '):(d.note||tl('Campaign reward claimed','캠페인 보상을 수령했습니다','キャンペーン報酬を受け取りました','已领取活动奖励')));
     showToast(noteMsg,'success');
     await loadCampaignStatus();
+    if(walletState.address!==_claimWallet)return;
+    if(typeof loadBaseInventory==='function')loadBaseInventory();
     try{loadInventory&&loadInventory();}catch(_){}
     try{loadResourceInventory&&loadResourceInventory();}catch(_){}
   }catch(e){

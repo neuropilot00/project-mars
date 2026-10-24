@@ -271,6 +271,17 @@ async function reputation(wallet, faction) { return Number((await pool.query('SE
   assert.deepEqual(cvFailure.progress.rewards.unlocks,[]);
   assert.equal((await campaign.startChapter(a,'cv_campaign_ch2')).error,'PREREQUISITE_NOT_MET');
   checks.push('Real CV failure completion response, progress and saved rewards all omit next-chapter unlock; Ch2 remains locked under the existing completed-prerequisite rule');
+  await pool.query("INSERT INTO resources SELECT * FROM public.resources WHERE code='ancient_metal'");
+  const rareInbox=(await pool.query("INSERT INTO campaign_reward_inbox(wallet,quest_id,reward_type,reward_code,quantity,payload) VALUES($1,'qa_receipt','rare_resource','ancient_metal',280,'{}') RETURNING id",[a])).rows[0];
+  const rare=await campaign.claimReward(a,rareInbox.id);assert.equal(rare.applied[0].kind,'resource');assert.equal(rare.applied[0].quantity,280);
+  assert.equal(Number((await pool.query("SELECT uri.quantity FROM user_resource_inventory uri JOIN resources r ON r.id=uri.resource_id WHERE uri.wallet_address=$1 AND r.code='ancient_metal'",[a])).rows[0].quantity),280);
+  const storyInbox=(await pool.query("INSERT INTO campaign_reward_inbox(wallet,quest_id,reward_type,reward_code,quantity,payload) VALUES($1,'qa_receipt','data_artifact','qa_story_record',1,'{\"label\":\"Story record\"}') RETURNING id",[a])).rows[0];
+  const records=await Promise.all([campaign.claimReward(a,storyInbox.id),campaign.claimReward(a,storyInbox.id)]);
+  assert.equal(records.filter(r=>r.success).length,1);assert.equal(records.find(r=>r.success).record.effect,'story_record');
+  const status=await campaign.getStatus(a),saved=status.rewardHistory.find(r=>String(r.id)===String(storyInbox.id));
+  assert.equal(saved.payload.receipt.record.code,'qa_story_record');assert.equal(saved.payload.receipt.applied.length,0);
+  assert.equal(status.rewardInbox.some(r=>String(r.id)===String(storyInbox.id)),false);
+  checks.push('Rare resources are real inventory;concurrent story claims save exactly one permanent visible receipt without invented bonuses');
   console.log(JSON.stringify({ok:true,checks,chapterCount:Object.keys(audit.CHAPTERS).length},null,2));
 })().catch(error=>{console.error(error);process.exitCode=1;}).finally(async()=>{
   if(server)await new Promise(resolve=>server.close(resolve));

@@ -23,9 +23,9 @@ for(const lang of ['en','ko','ja','zh','id','vi','th'])test('actual crafting car
  assert.ok(html.includes((lang==='ko'?'실리콘칩':'Silicon Chip')+' ×2'));
  assert.ok(html.includes('Localized catalog item ×1'));
  assert.doesNotMatch(html,/>iron_ore ×|>silicon_chip ×/);
- assert.ok(html.includes('onclick="attemptCraft(1)"'));assert.ok(html.includes('50 GP'));assert.ok(html.includes('80%'));assert.ok(html.includes('cursor:pointer'));
+ assert.ok(html.includes('data-craft-recipe="1"'));assert.ok(html.includes('50 GP'));assert.ok(html.includes('80%'));assert.ok(html.includes('cursor:pointer'));
  if(lang!=='en')assert.notEqual(craftLabel,'⚗️ CRAFT');
- c._craftingRecipes[0].canCraft=false;c.renderCraftingGrid();assert.ok(grid.innerHTML.includes('cursor:not-allowed'));assert.ok(grid.innerHTML.includes('onclick="attemptCraft(1)"'));
+ c._craftingRecipes[0].canCraft=false;c.renderCraftingGrid();assert.ok(grid.innerHTML.includes('cursor:not-allowed'));assert.ok(grid.innerHTML.includes('data-craft-recipe="1"'));
 });
 test('unknown crafting categories and ingredients retain escaped existing fallbacks',()=>{
  const {c,grid}=fixture('ko');Object.assign(c._craftingRecipes[0],{category:'unknown_category',ingredients:[{code:'unknown_code',item_name:'Existing <name>',qty:3}]});

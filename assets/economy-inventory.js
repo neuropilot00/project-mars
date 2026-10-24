@@ -1072,6 +1072,21 @@ function purchaseVipPass(tierId, name, cost) {
 // ── CRAFTING VIEW ──────────────────────────────────────────────────────────
 var _craftingRecipes=[];
 var _craftingCatFilter='all';
+var _craftingSubmitting=false;
+var _craftingConfirming=false;
+
+function craftingUnavailable(recipe){
+  if(recipe.unavailableReason==='inventory_full')return tl('Inventory limit reached. Use owned items first.','보유 한도에 도달했습니다. 기존 아이템을 먼저 사용하세요.','所持上限です。所持品を先に使用してください。','已达到持有上限，请先使用已有物品。','Batas inventaris tercapai. Gunakan item yang dimiliki.','Đã đạt giới hạn túi. Hãy dùng vật phẩm đang có.','ถึงขีดจำกัดคลังแล้ว ใช้ไอเทมที่มีอยู่ก่อน');
+  return t('craft_missing_ingredients')||'Missing ingredients';
+}
+function bindCraftingGrid(grid){
+  if(!grid||!grid.addEventListener||grid.dataset.craftDelegated)return;
+  grid.dataset.craftDelegated='1';
+  grid.addEventListener('click',function(event){
+    var button=event.target.closest('button[data-craft-recipe]');
+    if(button&&grid.contains(button)&&!button.disabled)attemptCraft(button.dataset.craftRecipe);
+  });
+}
 
 function loadCraftingView(refreshAfterCraft){
   var grid=document.getElementById('craftingGrid');
@@ -1126,19 +1141,20 @@ function _craftingShopWarning(recipe){
 
 function _craftingHasGP(recipe){
   var gp=Number(walletState&&walletState.gameGP),cost=Number(recipe.gp_cost);
-  return Number.isFinite(gp)&&Number.isFinite(cost)&&cost>=0&&gp>=cost;
+  return Number.isFinite(cost)&&cost>=0&&(cost===0||Number.isFinite(gp)&&gp>=cost);
 }
 
 function renderCraftingGrid(){
   var grid=document.getElementById('craftingGrid');
   if(!grid) return;
+  bindCraftingGrid(grid);
   if(!_craftingRecipes.length){
     grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:20px 0;font-size:10px" data-i18n="craft_no_recipes">No recipes available</div>';
     return;
   }
   grid.innerHTML=_craftingRecipes.map(function(r){
-    var hasGP=_craftingHasGP(r),canCraft=!!r.canCraft&&hasGP;
-    var unavailable=!r.canCraft?(t('craft_missing_ingredients')||'Missing ingredients'):!hasGP?tl('Not enough GP','GP가 부족합니다','GPが不足しています','GP不足','GP tidak cukup','Không đủ GP','GP ไม่เพียงพอ'):'';
+    var hasGP=_craftingHasGP(r),canCraft=!!r.canCraft&&hasGP&&!_craftingSubmitting;
+    var unavailable=!r.canCraft?craftingUnavailable(r):!hasGP?tl('Not enough GP','GP가 부족합니다','GPが不足しています','GP不足','GP tidak cukup','Không đủ GP','GP ไม่เพียงพอ'):'';
     var shopWarning=_craftingShopWarning(r);
     var ingText=(r.ingredients||[]).map(function(i){
       var code=_ecoItemCode(i);
@@ -1148,10 +1164,10 @@ function renderCraftingGrid(){
         name=mineralName&&mineralName!==code?mineralName:'';
       }
       name=name||i.item_name||code||(tl('Item','아이템','アイテム','物品')+' #'+i.item_type_id);
-      return '<span style="display:inline-flex;align-items:center;gap:4px;margin:2px 5px 2px 0">'+_ecoArt(code,28,name)+' '+_ecoEsc(name)+' ×'+_ecoNum(i.qty)+'</span>';
+      return '<span style="display:inline-flex;align-items:center;gap:4px;margin:2px 5px 2px 0">'+_ecoArt(code,28,name)+' '+_ecoEsc(name)+' '+(i.owned_qty!=null?_ecoNum(i.owned_qty)+' / ':'×')+_ecoNum(i.qty)+'</span>';
     }).join('')||'—';
-    var costText=Number(r.gp_cost)>0?(Number(r.gp_cost).toFixed(0)+' GP'):tl('Free','무료','無料','免费');
-    var rateText=_ecoNum(r.success_rate)+'%';
+    var costText=Number(r.gp_cost)>0?(Number(r.gp_cost).toFixed(0)+' GP'):tl('No GP assembly fee','GP 조립비 없음','GP組立費なし','无GP组装费','Tanpa biaya perakitan GP','Không phí lắp ráp GP','ไม่มีค่าประกอบ GP');
+    var rateText=Number(r.success_rate)===100?tl('Guaranteed output','확정 제작','確定製作','必定制成','Hasil terjamin','Chế tạo chắc chắn','สร้างสำเร็จแน่นอน'):_ecoNum(r.success_rate)+'% '+tl('success','성공률','成功率','成功率');
     var seasonBadge=r.is_seasonal?'<span style="font-size:8px;background:rgba(255,183,77,.2);color:#ffb74d;border:1px solid rgba(255,183,77,.3);border-radius:8px;padding:1px 5px;margin-left:3px">'+tl('SEASONAL','시즌 한정','シーズン限定','季节限定')+'</span>':'';
     var cat=String(r.category||'');
     var catKey=['defense','attack','utility','boost','cosmetic'].indexOf(cat)>=0?'inv_cat_'+cat:'craft_cat_'+cat;
@@ -1169,23 +1185,24 @@ function renderCraftingGrid(){
       +'<div style="font-size:9px;color:var(--tx3)"><b style="color:#888">'+tl('Need','필요','必要','需要')+':</b> '+ingText+'</div>'
       +'<div style="display:flex;justify-content:space-between;font-size:9px">'
         +'<span style="color:var(--gold)">'+costText+'</span>'
-        +'<span style="color:'+(Number(r.success_rate)>=80?'#a0e8a0':'#ffb74d')+'">'+rateText+' '+tl('success','성공률','成功率','成功率')+'</span>'
+        +'<span style="color:'+(Number(r.success_rate)>=80?'#a0e8a0':'#ffb74d')+'">'+rateText+'</span>'
       +'</div>'
-      +(Number(r.fail_refund_pct)>0?'<div style="font-size:9px;color:#888">'+tl('Fail refund','실패 환급','失敗返金','失败返还')+': '+_ecoNum(r.fail_refund_pct)+'%</div>':'')
+      +(Number(r.success_rate)<100&&Number(r.fail_refund_pct)>0?'<div style="font-size:9px;color:#888">'+tl('Fail refund','실패 환급','失敗返金','失败返还')+': '+_ecoNum(r.fail_refund_pct)+'%</div>':'')
       +(shopWarning?'<div data-craft-shop-warning style="font-size:9px;line-height:1.5;color:var(--gold)">'+_ecoEsc(shopWarning)+'</div>':'')
       +(unavailable?'<div data-craft-unavailable style="font-size:12px;line-height:1.5;color:var(--tx2)">'+_ecoEsc(unavailable)+'</div>':'')
-      +'<button'+(canCraft?'':' disabled')+' onclick="attemptCraft('+_ecoNum(r.id)+')" style="width:100%;padding:6px;border-radius:6px;font-size:9px;font-family:var(--fn);font-weight:700;letter-spacing:.5px;'+btnStyle+'">⚗️ '+_ecoEsc(tl('CRAFT','제작','製作','制作','BUAT','CHẾ TẠO','คราฟต์'))+'</button>'
+      +'<button'+(canCraft?'':' disabled')+' data-craft-recipe="'+_ecoEsc(String(r.id))+'" style="width:100%;padding:6px;border-radius:6px;font-size:9px;font-family:var(--fn);font-weight:700;letter-spacing:.5px;'+btnStyle+'">⚗️ '+_ecoEsc(tl('CRAFT','제작','製作','制作','BUAT','CHẾ TẠO','คราฟต์'))+'</button>'
       +'</div>';
   }).join('');
 }
 
 function attemptCraft(recipeId){
+  if(_craftingSubmitting||_craftingConfirming)return;
   var w=(walletState&&walletState.address)||'';
   var token=typeof emailAuth!=='undefined'?emailAuth.token:null;
   if(!w){ gameAlert(t('connect_wallet_first')||'Connect wallet first'); return; }
   var recipe=_craftingRecipes.find(function(r){return String(r.id)===String(recipeId);});
   if(!recipe) return;
-  if(!recipe.canCraft){ gameAlert(t('craft_missing_ingredients')||'Missing ingredients'); return; }
+  if(!recipe.canCraft){ gameAlert(craftingUnavailable(recipe)); return; }
   if(!_craftingHasGP(recipe)){ gameAlert(tl('Not enough GP','GP가 부족합니다','GPが不足しています','GP不足','GP tidak cukup','Không đủ GP','GP ไม่เพียงพอ')); return; }
 
   var gpCost=Number(recipe.gp_cost);
@@ -1202,10 +1219,13 @@ function attemptCraft(recipeId){
   var shopWarning=_craftingShopWarning(recipe);
   if(shopWarning) subMsg+='\n\n'+shopWarning;
 
+  _craftingConfirming=true;
   gameConfirm({icon:'⚗️', title:confirmMsg, body:'<div class="eco-confirm-art">'+_ecoCardArt(recipe,96)+'</div>'+_ecoEsc(subMsg).replace(/\n/g,'<br>'), confirmText:tl('CRAFT','제작','クラフト','制作')}).then(function(ok){
+    _craftingConfirming=false;
     if(!ok) return;
     if(walletState.address!==w||(typeof emailAuth!=='undefined'&&emailAuth.token!==token)) return;
-    var btn=document.querySelector('[onclick="attemptCraft('+recipeId+')"]');
+    _craftingSubmitting=true;
+    var btn=document.querySelector('[data-craft-recipe="'+_ecoNum(recipe.id)+'"]');
     if(btn){ btn.disabled=true; btn.textContent=tl('Crafting…','제작 중…','クラフト中…','制作中…'); }
     fetch('/api/crafting/craft',{
       method:'POST',
@@ -1214,7 +1234,7 @@ function attemptCraft(recipeId){
     }).then(function(r){return r.json();}).then(async function(d){
       if(btn){ btn.disabled=false; btn.textContent='⚗️ '+tl('CRAFT','제작','クラフト','制作'); }
       if(walletState.address!==w||(typeof emailAuth!=='undefined'&&emailAuth.token!==token)) return;
-      if(d.error){ gameAlert(d.error); return; }
+      if(d.error){ gameAlert(d.error==='INVENTORY_FULL'?craftingUnavailable({unavailableReason:'inventory_full'}):d.error); return; }
       if(d.success){
         gameAlert('✅ '+(t('craft_success')||'Craft success!')
           +'\n+'+(d.outputQty||1)+'× '+(d.outputName||tl('item','아이템','アイテム','物品')));
@@ -1230,8 +1250,8 @@ function attemptCraft(recipeId){
     }).catch(function(e){
       if(btn){ btn.disabled=false; btn.textContent='⚗️ '+tl('CRAFT','제작','クラフト','制作'); }
       gameAlert(tl('Error','오류','エラー','错误')+': '+e.message);
-    });
-  });
+    }).finally(function(){_craftingSubmitting=false;if(walletState.address===w&&(typeof emailAuth==='undefined'||emailAuth.token===token))renderCraftingGrid();});
+  }).catch(function(){_craftingConfirming=false;});
 }
 
 var _craftHistoryOpen=false;
