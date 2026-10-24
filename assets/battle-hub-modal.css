@@ -1536,8 +1536,28 @@
 #bvResultCard button:focus-visible,#bvResultCard summary:focus-visible{outline:2px solid var(--result-accent);outline-offset:-3px}
 @media(max-width:340px){.bv-result-hero-data{padding:10px}.bv-result-key-metrics{gap:8px}.bv-result-key-metrics b{font-size:24px}.bv-result-hero-data small{letter-spacing:1px}}
 
-/* Existing cinematic art is separate from tactical top-view sprites. */
-.bv-result-hero:has(.bv-result-scene){display:block}
-.bv-result-hero .bv-result-scene{display:block;width:100%;height:190px;max-height:28svh;padding:0;object-fit:contain;background:#040913;filter:none}
-.bv-result-hero:has(.bv-result-scene) .bv-result-hero-data{padding:10px 16px 12px}
-.bv-result-hero:has(.bv-result-scene) .bv-result-key-metrics{margin-top:7px}
+/* One aftermath scene represents the verified fleet, not a pristine featured hull. */
+.bv-result-hero{display:block}
+.bv-result-fleet-scene{position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:center;justify-content:center;min-height:180px;padding:14px 6px 8px;background:radial-gradient(ellipse at 50% 100%,#71322155,transparent 70%),radial-gradient(ellipse at 20% 10%,#35506044,transparent 60%),#030810;isolation:isolate;overflow:hidden}
+.bv-result-fleet-scene[data-shown="1"]{grid-template-columns:minmax(0,70%)}
+.bv-result-fleet-scene[data-shown="2"]{grid-template-columns:repeat(2,minmax(0,1fr))}
+.bv-result-fleet-scene[data-fleet-state="surviving"]{background:radial-gradient(ellipse at 50% 100%,#235b6855,transparent 70%),#030810}
+.bv-result-hull{min-width:0;display:flex;align-items:center;justify-content:center;position:relative}
+.bv-result-hull img{display:block;width:100%;height:146px;object-fit:contain;filter:drop-shadow(0 8px 9px #000a)}
+.bv-result-hull.lost:nth-child(3n+1){transform:rotate(-10deg) translateY(9px)}
+.bv-result-hull.lost:nth-child(3n+2){transform:rotate(7deg) translateY(-8px);z-index:1}
+.bv-result-hull.lost:nth-child(3n){transform:rotate(16deg) translateY(13px)}
+.bv-result-hull.surviving img{border-radius:4px}
+.bv-result-fleet-scene[data-fleet-state="destroyed"][data-shown="3"]{display:block;height:220px}
+.bv-result-fleet-scene[data-fleet-state="destroyed"][data-shown="3"] .bv-result-hull{position:absolute;width:53%}
+.bv-result-fleet-scene[data-fleet-state="destroyed"][data-shown="3"] .bv-result-hull img{height:166px}
+.bv-result-fleet-scene[data-fleet-state="destroyed"][data-shown="3"] .bv-result-hull:nth-child(1){left:-1%;top:-2px}
+.bv-result-fleet-scene[data-fleet-state="destroyed"][data-shown="3"] .bv-result-hull:nth-child(2){right:0;top:8px}
+.bv-result-fleet-scene[data-fleet-state="destroyed"][data-shown="3"] .bv-result-hull:nth-child(3){left:23%;top:62px;z-index:2;transform:rotate(-3deg)}
+.bv-result-hull>span{color:#8fb8c6;font-size:64px}
+.bv-result-fleet-scene[data-shown="1"] img{height:190px}
+.bv-result-fleet-scene[data-shown="2"] img{height:172px}
+.bv-result-fleet-scene:has(.bv-result-hull:nth-child(4)) img{height:96px}
+.bv-result-more{position:absolute;right:10px;bottom:8px;color:#c4d1d7;font:12px/1.5 var(--fn);padding:2px 6px;background:#07111de6;border:1px solid #526575;border-radius:3px}
+.bv-result-hero .bv-result-hero-data{padding:10px 16px 12px}
+.bv-result-hero .bv-result-key-metrics{margin-top:7px}

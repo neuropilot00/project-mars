@@ -1337,7 +1337,7 @@ function battleDeathPoint(id,record){
 // Presentation metadata only. Includes destroyed hulls retained from real frames.
 function battleResultArtSnapshot(){
  return {battleId:TL_MODE==='battle'?TL_QUERY.get('bid'):null,
-  ships:ships.filter(s=>s.dbShipId!=null).map(s=>({id:s.dbShipId,fid:s.fleet.dbFleetId,code:s.tid})),
+  ships:ships.filter(s=>s.dbShipId!=null).map(s=>({id:s.dbShipId,fid:s.fleet.dbFleetId,code:s.tid,hp:s.hp,dead:!!s.dead})),
   fleets:fleets.filter(f=>f.dbFleetId!=null).map(f=>({id:f.dbFleetId,side:f.side}))};
 }
 const BATTLE_VIEWPORT_RIM=new Image();BATTLE_VIEWPORT_RIM.src='/assets/ui/combat/viewport-rim-v1.png';

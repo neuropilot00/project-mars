@@ -3446,6 +3446,34 @@ function renderBattleObjectiveResult() {
   root.textContent = text;
 }
 
+function battleResultFleetUnits(battle, timeline, liveArt, side, artCodes) {
+  const total=Number(battle[side+'_ships_total']),lost=Number(battle[side+'_ships_lost']);
+  if(!Number.isInteger(total)||!Number.isInteger(lost)||total<1||lost<0||lost>total)return {units:[],remaining:0,state:'unknown'};
+  const fleetIds=new Set([...(timeline?.fleets_meta||liveArt?.fleets||[]),...(battle.participants||[])]
+    .filter(f=>f.side===side).map(f=>String(f.fleet_id??f.id)));
+  const first=timeline?.frames?.find(f=>Array.isArray(f.ships)&&f.ships.length)?.ships||liveArt?.ships||[];
+  const seen=new Set(),roster=first.filter(ship=>{
+    if(!fleetIds.has(String(ship.fid))||!artCodes.has(ship.code)||ship.id==null||seen.has(String(ship.id)))return false;
+    seen.add(String(ship.id));return true;
+  });
+  const state=lost===total?'destroyed':lost?'mixed':'surviving';
+  if(!roster.length)return {units:[],remaining:0,state};
+  const final=timeline?.frames?.[timeline.frames.length-1]?.ships||liveArt?.ships;
+  const aliveIds=new Set((final||[]).filter(s=>s.dead!==true&&Number.isFinite(Number(s.hp))&&Number(s.hp)>0).map(s=>String(s.id)));
+  const identified=roster.length===total&&Array.isArray(final)&&roster.filter(s=>!aliveIds.has(String(s.id))).length===lost;
+  let units;
+  if(lost===total||lost===0||identified){
+    units=roster.slice(0,total).map(s=>({id:s.id,code:s.code,lost:lost===total||(lost>0&&!aliveIds.has(String(s.id)))}));
+    while(units.length<Math.min(total,9))units.push({code:null,lost:lost===total});
+  }else{
+    // Missing terminal identities: show verified counts without assigning a loss to a guessed hull.
+    const common=roster.length===total&&new Set(roster.map(s=>s.code)).size===1?roster[0].code:null;
+    const lossSlots=Math.min(lost,Math.ceil(9*lost/total)),aliveSlots=Math.min(total-lost,9-lossSlots);
+    units=[...Array.from({length:lossSlots},()=>({code:common,lost:true})),...Array.from({length:aliveSlots},()=>({code:common,lost:false}))];
+  }
+  return {units:units.slice(0,9),remaining:Math.max(0,total-Math.min(9,units.length)),state};
+}
+
 function showBattleResult() {
   const overlay = document.getElementById('bvResultOverlay');
   const card = document.getElementById('bvResultCard');
@@ -3494,20 +3522,21 @@ function showBattleResult() {
     const snapshot=document.getElementById('bvTacticalFrame')?.contentWindow?.battleResultArtSnapshot?.();
     if(snapshot&&String(snapshot.battleId)===String(bv.battle.id))liveArt=snapshot;
   }catch(_){} // Old, unloaded or foreign frames cannot supply result art.
-  const initialShips=bv.timeline?.frames?.find(f=>Array.isArray(f.ships)&&f.ships.length)?.ships||liveArt?.ships||[];
-  const ownFleet=participants.find(p=>(p.wallet||'').toLowerCase()===myWallet)?.fleet_id;
-  const sideFleets=new Set((bv.timeline?.fleets_meta||liveArt?.fleets||[]).filter(f=>f.side===focusSide).map(f=>String(f.id)));
   const artCodes=new Set(['alien_devourer','alien_hive','alien_leviathan','alien_voidmaw','cv_bomb','cv_bs','cv_crs','cv_dst','cv_frg','cv_int','cv_titan','fsp_bs','fsp_crs','fsp_dst','fsp_int','fsp_logi','fsp_logi_crs','fsp_titan','mcc_bs','mcc_crs','mcc_destroyer_top','mcc_dst','mcc_ewar','mcc_frg','mcc_int','mcc_snp','mcc_titan','pilgrim_aurum','pilgrim_glacius','pilgrim_ignis','pilgrim_tempest','pilgrim_umbra','pilgrim_voltaris']);
-  const featured=initialShips.find(ship=>artCodes.has(ship.code)&&(ownFleet!=null?String(ship.fid)===String(ownFleet):sideFleets.has(String(ship.fid))));
   const sceneCodes=new Set(['cv_bomb','cv_bs','cv_crs','cv_dst','cv_frg','cv_int','cv_titan','fsp_bs','fsp_crs','fsp_dst','fsp_int','fsp_logi','fsp_logi_crs','fsp_titan','mcc_bs','mcc_crs','mcc_dst','mcc_ewar','mcc_frg','mcc_int','mcc_snp','mcc_titan']);
-  const featuredArt=featured?(sceneCodes.has(featured.code)?'/assets/ships/reveal/'+featured.code+'.jpg':'/assets/ships/'+featured.code+'.png'):'';
+  const fleetArt=battleResultFleetUnits(bv.battle,bv.timeline,liveArt,focusSide,artCodes);
   const surviving=tl('Surviving','생존','生存','存活','Bertahan','Sống sót','รอดชีวิต');
   const losses=tl('Lost','손실','損失','损失','Hilang','Tổn thất','สูญเสีย');
   const deployed=tl('Deployed','출격','出撃','出战','Dikerahkan','Xuất kích','ออกศึก');
+  const fleetImage=unit=>{
+    if(!unit.lost)return unit.code?(sceneCodes.has(unit.code)?'/assets/ships/reveal/'+unit.code+'.jpg':'/assets/ships/'+unit.code+'.png'):'';
+    const wreck=unit.code==='fsp_int'?'fsp_int':unit.code?.startsWith('pilgrim_')?'robot':unit.code?.startsWith('alien_')?'alien':'ship';
+    return '/assets/ships/wreck/'+wreck+'-v1.webp';
+  };
   const sidePanel=side=>`<div class="bv-result-stat-group ${side}"><div class="bv-result-stat-label">${side.toUpperCase()}${mySide===side?' · '+tl('You','아군','自軍','己方','Anda','Bạn','คุณ'):''}</div><div class="bv-result-stat-row"><span>${deployed}</span><b>${total(side)}</b></div><div class="bv-result-stat-row"><span>${losses}</span><b>${lost(side)}</b></div><div class="bv-result-stat-row"><span>${surviving}</span><b>${alive(side)}</b></div><div class="bv-result-stat-row"><span>${tl('Damage','피해량','ダメージ','伤害','Kerusakan','Sát thương','ความเสียหาย')}</span><b>${formatNum(number(summary[side]?.damage_dealt))}</b></div></div>`;
   stats.innerHTML=`
     <div class="bv-result-hero">
-      ${featured?`<img class="bv-result-ship${sceneCodes.has(featured.code)?' bv-result-scene':''}" src="${featuredArt}" alt="" width="150" height="180">`:''}
+      ${fleetArt.units.length?`<div class="bv-result-fleet-scene" data-fleet-state="${fleetArt.state}" data-shown="${fleetArt.units.length}" role="img" aria-label="${escapeHtml(deployed+' '+total(focusSide)+' · '+losses+' '+lost(focusSide)+' · '+surviving+' '+alive(focusSide))}">${fleetArt.units.map(unit=>{const src=fleetImage(unit);return `<div class="bv-result-hull ${unit.lost?'lost':'surviving'}" data-ship-state="${unit.lost?'lost':'surviving'}"${unit.id!=null?` data-ship-id="${escapeHtml(String(unit.id))}"`:''}>${src?`<img src="${src}" alt="" width="200" height="180" decoding="async">`:'<span aria-hidden="true">◇</span>'}</div>`;}).join('')}${fleetArt.remaining?`<span class="bv-result-more">+${fleetArt.remaining}</span>`:''}</div>`:''}
       <div class="bv-result-hero-data"><small>${tl('AFTER ACTION','교전 결과','交戦結果','交战结果','HASIL TEMPUR','KẾT QUẢ GIAO CHIẾN','ผลการรบ')}</small><div class="bv-result-key-metrics"><div><b>${alive(focusSide)}<span> / ${total(focusSide)}</span></b><span>${focusSide.toUpperCase()} · ${surviving}</span></div><div><b>${lost(focusSide)}</b><span>${losses}</span></div></div></div>
     </div>
     <section id="bvObjectiveResult" hidden></section>
