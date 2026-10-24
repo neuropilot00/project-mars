@@ -28,6 +28,10 @@
     return '<button type="button" class="'+(cls || '')+'" data-core-route="'+escape(route)+'">'+escape(text)+'</button>';
   }
   var copy = {
+    firstBuild:['Next goal · your first equipment','다음 목표 · 첫 장비 제작','次の目標・初装備製作','下个目标·首次装备制作','Tujuan berikut · peralatan pertama','Mục tiêu tiếp · trang bị đầu tiên','เป้าหมายถัดไป · อุปกรณ์ชิ้นแรก'],
+    supplyHint:['Choose an NPC fleet, review its difficulty and earn normal battle rewards. Check your GP and personal materials before crafting. PvP unlocks separately.','NPC 함대를 골라 난이도를 확인하고 정상 전투 보상을 모으세요. GP·개인 재료를 확인한 뒤 제작합니다. 플레이어 경쟁은 별도 해금됩니다.','NPC艦隊の難易度を確認し通常報酬を集め、GPと個人素材を確認して製作。対人戦は別途解放されます。','选择NPC舰队、查看难度并获取正常战斗奖励。检查GP和个人材料后制作。玩家对战另行解锁。','Pilih armada NPC, periksa kesulitan, dan kumpulkan hadiah normal. Periksa GP serta bahan pribadi sebelum membuat. PvP dibuka terpisah.','Chọn hạm đội NPC, xem độ khó và nhận thưởng chiến đấu thường. Kiểm tra GP và nguyên liệu cá nhân trước khi chế tạo. PvP mở riêng.','เลือกกองยาน NPC ตรวจความยากและรับรางวัลปกติ ตรวจ GP กับวัตถุดิบส่วนตัวก่อนสร้าง ส่วน PvP ปลดล็อกแยกกัน'],
+    npcSupply:['NPC supply battle','NPC 보급 전투','NPC補給戦','NPC补给战','Pertempuran suplai NPC','Trận tiếp tế NPC','การรบเสบียง NPC'],
+    openCraft:['Open crafting · check costs','제작실 · 비용 확인','製作室・費用確認','制作室·查看费用','Buka pembuatan · periksa biaya','Chế tạo · kiểm tra chi phí','เปิดการสร้าง · ตรวจค่าใช้จ่าย'],
     journal:['Operation journal','작전일지','作戦日誌','行动日志','Jurnal operasi','Nhật ký chiến dịch','บันทึกปฏิบัติการ'],
     journey:['Your route to command','지휘관 성장 경로','指揮官への道','指挥官成长路线','Jalur menjadi komandan','Con đường chỉ huy','เส้นทางผู้บัญชาการ'],
     purpose:['Why this matters','이 작전의 목적','作戦の目的','行动目的','Tujuan operasi','Mục đích chiến dịch','เป้าหมายปฏิบัติการ'],
@@ -91,7 +95,7 @@
     var claimed=rows.filter(function(m){return m.status==='claimed';}).length;
     renderJourney(rows,current);
     if(!current&&claimed===rows.length){
-      body.innerHTML='<div class="core-mission-meta">5 / 5 · '+escape(text('claimed'))+'</div><h2>'+label('Your front is open','전선이 열렸습니다')+'</h2><p>'+escape(translated(reasons.hold_front[1]))+'</p>'+operationButton('Go to front','전선으로','front');return;
+      body.innerHTML='<div class="core-mission-meta">5 / 5 · '+escape(text('claimed'))+'</div><h2>'+label('Your front is open','전선이 열렸습니다')+'</h2><p>'+escape(translated(reasons.hold_front[1]))+'</p><h3>'+escape(text('firstBuild'))+'</h3><p>'+escape(text('supplyHint'))+'</p><div class="core-record-links">'+routeButton(text('npcSupply'),'npc','core-primary')+routeButton(text('openCraft'),'crafting')+operationButton('Go to front','전선으로','front')+'</div>';return;
     }
     if(!current)throw Error('INVALID_MISSION_STATE');
     var reason=reasons[current.id];
@@ -111,6 +115,11 @@
     });
   }
   function navigate(route) {
+    if(route==='npc'){
+      var complete=lastIdentity===identity()&&lastState&&lastState.missions&&lastState.missions.length===5&&lastState.missions.every(function(m){return m.status==='claimed';});
+      if(!complete){openCommandCenter('missions');return;}
+      if(typeof window.openAiFight==='function'){closeBaseModal();window.openAiFight();}return;
+    }
     var commands={front:'front',operations:'missions'};
     if(commands[route]){openCommandCenter(commands[route]);return;}
     var external={shipyard:'openShipyard',objectives:'openObjectiveOperations',practice:'openTacticalLab'};

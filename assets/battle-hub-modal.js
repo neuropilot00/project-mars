@@ -3502,7 +3502,7 @@ function showBattleResult() {
   const surviving=tl('Surviving','생존','生存','存活','Bertahan','Sống sót','รอดชีวิต');
   const losses=tl('Lost','손실','損失','损失','Hilang','Tổn thất','สูญเสีย');
   const deployed=tl('Deployed','출격','出撃','出战','Dikerahkan','Xuất kích','ออกศึก');
-  const sidePanel=side=>`<div class="bv-result-stat-group ${side}"><div class="bv-result-stat-label">${side.toUpperCase()}${mySide===side?' · '+tl('You','아군','自軍','己方','Anda','Bạn','คุณ'):''}</div><div class="bv-result-stat-row"><span>${deployed}</span><b>${total(side)}</b></div><div class="bv-result-stat-row"><span>${losses}</span><b>${lost(side)}</b></div><div class="bv-result-stat-row"><span>${surviving}</span><b>${alive(side)}</b></div><div class="bv-result-stat-row"><span>${tl('Damage','피해량','ダメージ','伤害','Damage','Sát thương','ความเสียหาย')}</span><b>${formatNum(number(summary[side]?.damage_dealt))}</b></div></div>`;
+  const sidePanel=side=>`<div class="bv-result-stat-group ${side}"><div class="bv-result-stat-label">${side.toUpperCase()}${mySide===side?' · '+tl('You','아군','自軍','己方','Anda','Bạn','คุณ'):''}</div><div class="bv-result-stat-row"><span>${deployed}</span><b>${total(side)}</b></div><div class="bv-result-stat-row"><span>${losses}</span><b>${lost(side)}</b></div><div class="bv-result-stat-row"><span>${surviving}</span><b>${alive(side)}</b></div><div class="bv-result-stat-row"><span>${tl('Damage','피해량','ダメージ','伤害','Kerusakan','Sát thương','ความเสียหาย')}</span><b>${formatNum(number(summary[side]?.damage_dealt))}</b></div></div>`;
   stats.innerHTML=`
     <div class="bv-result-hero">
       ${featured?`<img class="bv-result-ship" src="/assets/ships/${featured.code}.png" alt="" width="150" height="180">`:''}

@@ -17,7 +17,7 @@ function harness() {
   const document = {readyState: 'complete', documentElement: {}, getElementById: id => elements[id], querySelectorAll: selector => selector === '[data-core-en]' ? [label] : [], querySelector: () => ({dataset:{view:'crafting'}})};
   const response = (value, ok = true) => ({ok, json: async () => value});
   const state = {success: true, currentMissionId: 'move_yield', missions: [{id:'first_sortie',status:'claimed'}, {id:'secure_node',status:'claimed'}, {id:'move_yield', status:'active', objectives:[{key:'production_collected',current:1,target:1}, {key:'cargo_arrived',current:0,target:1}]},{id:'restore_fleet',status:'locked'},{id:'hold_front',status:'locked'}]};
-  for(const name of ['openShipyard','openObjectiveOperations','openTacticalLab'])window[name]=()=>opened.push(name);
+  for(const name of ['openShipyard','openObjectiveOperations','openTacticalLab','openAiFight'])window[name]=()=>opened.push(name);
   const context = {window, document, localStorage: {getItem: () => token}, tl: (en, ko) => lang === 'ko' ? ko : en,
     getAuthHeaders: () => ({Authorization:'Bearer ' + token}), loadQuests: w => loads.push('quests:' + w),
     _scheduleQuestAuxLoads: () => loads.push('community'), _cancelQuestAuxLoads: () => loads.push('cancel-community'),
@@ -41,7 +41,7 @@ async function main() {
   h = harness();h.token=null;await h.window.loadCoreMission();assert.equal(h.calls.length,0);assert.ok(h.elements.coreMissionState.innerHTML.includes('Sign in'));
   h=harness();let release;h.router=()=>new Promise(resolve=>{release=()=>resolve(h.response(h.state));}); const pending=h.window.loadCoreMission();h.token='user-b';h.window.walletState.address='WALLET-B';release();await pending;assert.ok(!h.elements.coreMissionState.innerHTML.includes('Escort the yield'), 'Do not paint previous identity progress');
   h=harness();h.router=()=>h.response({error:'UNAUTHORIZED'},false);await h.window.loadCoreMission();assert.ok(h.elements.coreMissionState.innerHTML.includes('Retry'));assert.ok(!h.elements.coreMissionState.innerHTML.includes('Reward ready'));
-  h=harness();h.state.currentMissionId=null;h.state.missions=['first_sortie','secure_node','move_yield','restore_fleet','hold_front'].map(id=>({id,status:'claimed'}));await h.window.loadCoreMission();assert.ok(h.elements.coreMissionState.innerHTML.includes('5 / 5')); assert.ok(h.elements.coreMissionState.innerHTML.includes('Your front is open'));assert.ok(h.elements.coreMissionState.innerHTML.includes('data-core-route="front"'));assert.doesNotMatch(h.elements.coreMissionJournal.innerHTML,/<details[^>]+ open[ >]/);
+  h=harness();h.state.currentMissionId=null;h.state.missions=['first_sortie','secure_node','move_yield','restore_fleet','hold_front'].map(id=>({id,status:'claimed'}));await h.window.loadCoreMission();assert.ok(h.elements.coreMissionState.innerHTML.includes('5 / 5')); assert.ok(h.elements.coreMissionState.innerHTML.includes('Your front is open'));assert.ok(h.elements.coreMissionState.innerHTML.includes('data-core-route="npc"'));assert.ok(h.elements.coreMissionState.innerHTML.includes('data-core-route="crafting"'));click('npc');assert.deepEqual(h.opened,['close-base','openAiFight']);assert.ok(h.elements.coreMissionState.innerHTML.includes('data-core-route="front"'));assert.doesNotMatch(h.elements.coreMissionJournal.innerHTML,/<details[^>]+ open[ >]/);
   // A reward ready in the same payload takes precedence over an available successor.
   h=harness();h.state.missions[1].status='completed';h.state.currentMissionId='move_yield';await h.window.loadCoreMission();
   assert.ok(h.elements.coreMissionState.innerHTML.includes('Secure the mine'));assert.ok(h.elements.coreMissionState.innerHTML.includes('Claim in operations'));
@@ -56,6 +56,7 @@ async function main() {
   // Routes open destinations only; inventory, market and crafting also load their real data.
   h=harness();
   function click(route){const control={dataset:{coreRoute:route}};h.elements.baseModal.contains=el=>el===control;h.elements.baseModal.events.click({target:{closest:()=>control}});}
+  click('npc');assert.deepEqual(h.opened,['command:missions']);h.opened.length=0;
   for(const route of ['front','operations','campaign','records','season','territory','sectors','mining','fleet','items','crafting','market','guild','govern','pvp','shipyard','objectives','practice','journal','untrusted'])click(route);
   assert.deepEqual(h.opened,['command:front','command:missions','quests','records','rank','territory','sectors','mining','fleet','items','load-inventory','shop','load-shop','shop:crafting','market','load-market','guild','govern','pvp','close-base','openShipyard','close-base','openObjectiveOperations','close-base','openTacticalLab','mission']);
   assert.equal(h.calls.length,0,'navigation never performs a reward/payment/combat POST');
