@@ -22,7 +22,7 @@ const settle = () => new Promise(resolve => setImmediate(resolve));
 function fixture(options = {}) {
   const calls = [], alerts = [], confirmations = [], refreshes = [], repaints = [];
   let now = 100000, affordable = true, serverGP = 85;
-  const nodes = Object.fromEntries(['baseShopBalGP','baseShopBalPP','baseShopBalUSDT','walletGP','walletGPRow','authGPBal','walletUsdt','walletPP','authUsdtBal','authPPBal'].map(id => [id,{textContent:'',style:{}}]));
+  const nodes = Object.fromEntries(['baseGP','baseShopBalGP','baseShopBalPP','baseShopBalUSDT','walletGP','walletGPRow','authGPBal','walletUsdt','walletPP','authUsdtBal','authPPBal'].map(id => [id,{textContent:'',style:{}}]));
   const grid = { innerHTML: '' }, button = { disabled: false, textContent: 'CRAFT' };
   const recipe = () => ({ id: options.recipeId ?? 1, name: 'Shield', output_name: 'Shield', output_item_type_id: 1,
     ingredients: [{ code: 'iron_ore', qty: 5 }], gp_cost: 50, success_rate: 80, output_qty: 1,
@@ -99,6 +99,7 @@ test('refund label falls back with the actual amount; real profile hook remains 
   f.context.attemptCraft(1); await settle();
   assert.match(f.alerts[0], /Partial GP refunded: 10 GP/);
   assert.equal(f.refreshes.length, 1); assert.equal(f.nodes.baseShopBalGP.textContent,35);
+  assert.equal(f.nodes.baseGP.textContent,'35');
   const zero = fixture({ result: { success: false, gpRefunded: 0 } });
   zero.context.attemptCraft(1); await settle();
   assert.equal(zero.alerts[0], '❌ Craft failed');

@@ -2960,6 +2960,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;
 .ob-actions{display:flex;gap:8px;margin-top:4px}
 .ob-btn-next{flex:2;padding:12px;border-radius:10px;background:linear-gradient(135deg,var(--mars),#b71c1c);border:none;color:#fff;font-family:var(--fn);font-size:11px;font-weight:800;cursor:pointer;letter-spacing:.5px;transition:opacity .2s}
 .ob-btn-next,.ob-btn-skip{min-height:44px}
+#baseTerritoryGroupList button{min-height:44px;min-width:44px}
 .ob-btn-next:hover{opacity:.85}
 .ob-btn-skip{flex:1;padding:12px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--tx3);font-family:var(--fn);font-size:10px;cursor:pointer}
 .ob-reward-row{display:flex;justify-content:center;gap:16px;margin-bottom:18px}

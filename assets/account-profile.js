@@ -97,6 +97,7 @@ function _applyAuthMeBalances(d){
   if(d.gpBalance !== undefined){
     if(window._dailyState) window._dailyState.gpBalance = parseFloat(d.gpBalance)||0;
     walletState.gameGP = parseFloat(d.gpBalance)||0;
+    setText('baseGP',walletState.gameGP.toLocaleString());
     if(typeof updateGPDisplay==='function') updateGPDisplay();
   }
   _applyAuthRank(d);
