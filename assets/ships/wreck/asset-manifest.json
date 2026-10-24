@@ -1,0 +1,90 @@
+{
+  "schema": 1,
+  "generator": "built-in image_gen",
+  "release": "7.510",
+  "purpose": "battle-result fleet aftermath, not tactical explosions or persistent-state changes",
+  "layout": "one wreck per confirmed lost slot; at most9 visible slots and explicit remaining count",
+  "constraints": "cinematic 3/4 overhead; charred fractured material; no intact powered hull, engine glow, text, UI, backdrop, floor or giant blast; genuine transparency",
+  "assets": [
+    {
+      "id": "fsp_int",
+      "file": "assets/ships/wreck/fsp_int-v1.webp",
+      "generated_source": "exec-3e798041-b6c9-458c-bb3e-6519d4c8bcd9.png",
+      "reference": "assets/ships/reveal/fsp_int.jpg",
+      "prompt": "Exact FSP interceptor destroyed variant: preserve three cylindrical bodies and orange stripe, break fuselage and pod, all blue engines/lights off, scorched armor and exposed ribs, close fragments and dim embers, same cinematic 3/4 camera, one complete wreck, transparent background.",
+      "size": [
+        512,
+        512
+      ],
+      "alpha_bbox": [
+        32,
+        33,
+        480,
+        474
+      ],
+      "bytes": 83412,
+      "sha256": "b0285d3e65f8019d9fad817ee98f03eab280921c08fb9d5359276189410b27f7",
+      "identity": "exact fsp_int variant"
+    },
+    {
+      "id": "ship",
+      "file": "assets/ships/wreck/ship-v1.webp",
+      "generated_source": "exec-a851d71f-16c1-4834-825e-3a6ec0becd4a.png",
+      "reference": "assets/ships/reveal/mcc_bs.jpg",
+      "prompt": "Shared unknown-model spacecraft wreck: torn elongated military steel hull, exposed bulkheads, unpowered ruptured engine, close debris. Reference is material style only, not an exact model claim. No active propulsion or engine light; one cluster on transparency.",
+      "size": [
+        512,
+        512
+      ],
+      "alpha_bbox": [
+        41,
+        33,
+        477,
+        472
+      ],
+      "bytes": 89672,
+      "sha256": "e81b0b20d192eab65f88089d8773137973f88711d38646c4175652bdb0beea0e",
+      "identity": "shared family remains; actual class and losses come from battle metadata"
+    },
+    {
+      "id": "robot",
+      "file": "assets/ships/wreck/robot-v1.webp",
+      "generated_source": "exec-260479ae-8379-46e6-b81f-f5436d7e6312.png",
+      "reference": "assets/assembly/portrait/pilgrim_glacius.png",
+      "prompt": "Shared mech remains: collapsed inert armored torso, ruptured reactor, dark helmet, broken shoulder and detached forearm/plate, no ready-to-fire pose or powered lights. Reference material language only, not an exact model claim. One close debris cluster on transparency.",
+      "size": [
+        512,
+        512
+      ],
+      "alpha_bbox": [
+        32,
+        61,
+        480,
+        479
+      ],
+      "bytes": 82008,
+      "sha256": "a217bfdae04517e757c98f6650959ba83e1e105e46d9ef4c9ce4eef4cd611f17",
+      "identity": "shared family remains; actual class and losses come from battle metadata"
+    },
+    {
+      "id": "alien",
+      "file": "assets/ships/wreck/alien-v1.webp",
+      "generated_source": "exec-71c43726-8aa6-4a69-bc46-454dbefb3240.png",
+      "reference": "assets/assembly/portrait/alien_devourer.png",
+      "prompt": "Shared non-graphic alien remains: inert collapsed chitin carapace, broken fin/tendril plates, dim desaturated recesses, no active organs, no blood/gore. Reference material language only, not an exact species claim. One close cluster on transparency.",
+      "size": [
+        512,
+        512
+      ],
+      "alpha_bbox": [
+        32,
+        32,
+        480,
+        480
+      ],
+      "bytes": 86520,
+      "sha256": "f964c8fbbee9e0dac73f77ff370abc55a947574cd225b01fc4ae58dceeff18d0",
+      "identity": "shared family remains; actual class and losses come from battle metadata"
+    }
+  ]
+}
