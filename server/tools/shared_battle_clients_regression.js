@@ -45,7 +45,7 @@ const clientSource = fs.readFileSync(path.resolve(root, '../assets/tactical-lab-
 function clientRenderer() {
   const viewFleets = fixtures.map(f => ({ dbFleetId: f.fleet_id, userId: f.fleet_name, side: f.side, hp: 1000, maxHp: 1000, ships: [{ tid: 'fixture', type: { code: 'fixture' }, isFlagship: true, hp: 1000, maxHp: 1000, dead: false }] }));
   const viewShips = viewFleets.flatMap(f => f.ships);
-  const context = { console, fleets: viewFleets, ships: viewShips, lasers: [], weaponColor: () => '#dummy-visual-color', W: 460, H: 600,
+  const context = { console, fleets: viewFleets, ships: viewShips, lasers: [], weaponColor: () => '#dummy-visual-color', W: 460, H: 600, camScale:1, CVs:{getBoundingClientRect:()=>({width:460,height:600})},triggerScreenShake(){},
     FORMATIONS: { sphere: {}, screen: {}, wedge: {} }, MANEUVERS: { advance: {}, flank: {} }, SHIPS: { fixture: { size: 'frigate' } },
     performance: { now: () => 1000 }, renderObjectiveBanner() {}, updateCommandDeck() {}, loadPersistedActionSummary() {}, renderActionSummary() {}, addLog() {}, mkExp() {}, mkShockwave() {}, notifyParent() {}, advanceBattleClock() {}, setTimeout() {} };
   vm.createContext(context);

@@ -16,10 +16,10 @@ function view(mode = 'battle') {
 test('real client projects server ship position, facing and damage into canvas space', () => {
   const { ctx, fleet } = view();
   ctx.syncServerShips({ ships: [{ fid: '11', id: '111', x: 1000, y: 440, facing: 1.5, code: 'dummy', ff: 1, hp: 65, maxHp: 100 }] });
-  assert.equal(fleet.ships[0].x, 460); assert.ok(Math.abs(fleet.ships[0].y - 401.2) < 1e-9); assert.equal(fleet.ships[0].facing, 1.5); assert.equal(fleet.ships[0].hp, 65);
+  assert.equal(fleet.ships[0].x, 362); assert.equal(fleet.ships[0].y, 0); assert.equal(fleet.ships[0].facing, 1.5-Math.PI/2); assert.equal(fleet.ships[0].hp, 65);
   assert.equal(fleet.ships[1].dead, true, 'unmatched locally generated hull is not a live server ship');
   for (let i = 0; i < 20; i++) ctx.updateFleets(16);
-  assert.equal(fleet.ships[0].x, 460); assert.ok(Math.abs(fleet.ships[0].y - 401.2) < 1e-9); assert.equal(fleet.ships[0].hp, 65);
+  assert.equal(fleet.ships[0].x, 362); assert.equal(fleet.ships[0].y, 0); assert.equal(fleet.ships[0].hp, 65);
 });
 test('late join can create a visual instance for a server hull, then removes it only from later full snapshot', () => {
   const { ctx, fleet } = view();

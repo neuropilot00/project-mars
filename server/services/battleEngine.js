@@ -985,10 +985,7 @@ function updateShipPositions(fleet, state) {
     if (ship.isFlagship) {
       ship.x = fleet.cx;
       ship.y = fleet.cy;
-      continue;
-    }
-    
-    if (fleet.formation === 'sphere') {
+    } else if (fleet.formation === 'sphere') {
       // 공전
       const spreadMult = fleet.movement === 'scatter' ? 2.0 : 
                         fleet.movement === 'retreat' ? 1.3 : 1.0;

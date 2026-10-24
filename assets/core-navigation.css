@@ -40,3 +40,41 @@
   #baseModal .base-cat-row{max-width:100%;min-width:0}
   #baseModal .bcat{flex:0 0 auto;min-width:44px;padding:8px 4px;white-space:nowrap;line-height:1.4;letter-spacing:0}
 }
+
+/* Operation journal: one primary goal, a readable route, optional activities below. */
+#baseModal #basePane_mission{color:#e9dfd4}
+#baseModal #basePane_mission p,#baseModal #basePane_mission li,#baseModal #basePane_mission span,#baseModal #basePane_mission div,#baseModal #basePane_mission button,#baseModal #basePane_mission small{font-size:14px!important;line-height:1.6}
+#baseModal #basePane_mission .core-mission-meta,#baseModal #basePane_mission .core-overline{font-size:12px!important;color:#e6c6a1}
+#baseModal #basePane_mission .core-primary{color:#fff6e7;background:linear-gradient(135deg,#744c2a,#95703f);font-size:15px!important;cursor:pointer}
+#coreMissionState>progress{width:100%;height:7px;accent-color:#e6b46e;display:block;margin:10px 0 14px}
+.core-journal{margin:22px 0}
+#baseModal .core-journal h2,#baseModal .core-activity-guide h2{font-size:19px;line-height:1.4;color:#f3d6b0;margin:0 0 12px}
+.core-journey{list-style:none;padding:0;margin:0;display:grid;gap:8px}
+.core-journey details,.core-guide-group{background:#18171e;border:1px solid #49404a;border-radius:10px;overflow:hidden;margin:0 0 10px;min-width:0}
+.core-journey details[open]{border-color:#a97b49;background:#211b1c}
+.core-journey summary,.core-guide-group>summary{min-height:48px;cursor:pointer;color:#f3dfc9;padding:12px;box-sizing:border-box;font-size:14px;line-height:1.5}
+.core-journey summary{display:flex;align-items:center;gap:12px;list-style:none}
+.core-journey summary::-webkit-details-marker{display:none}
+.core-journey summary:after{content:'＋';margin-left:auto;flex:none;color:#ebc18c}
+.core-journey details[open]>summary:after{content:'−'}
+#baseModal .core-step-number{display:grid;place-items:center;flex:0 0 30px;height:30px;border:1px solid #8c6746;border-radius:50%;color:#f4d3a3}
+.core-journey summary>span:nth-child(2){min-width:0}
+.core-journey small{display:block;color:#d2bcaa}
+.core-step-body{padding:0 14px 14px;border-top:1px solid #514136}
+.core-step-body p{color:#ded3c8;margin:12px 0}
+.core-step-body b{color:#f2d2a9}
+#baseModal #basePane_mission .core-objectives li{padding:8px 0;align-items:flex-start}
+.core-objectives .is-done span:before{content:'✓ ';color:#abe0bc}
+.core-reward,.core-prerequisite{padding:10px;border-radius:7px;background:rgba(209,159,92,.08)}
+.core-next-link{border-top:1px solid #715337;padding-top:12px}
+#baseModal #basePane_mission .core-mission-hero p{color:#e5d4c2}
+.core-activity-guide>p,.core-guide-group>p{color:#d6c9bc;line-height:1.6;font-size:14px}
+.core-guide-group>p,.core-guide-group>.core-route-grid{margin:12px}
+.core-guide-group .core-route-grid button{min-height:48px;color:#f4dfc5;font-size:14px;background:#25222c;border-color:#655045}
+[data-core-material-guide] .core-guide-group{margin:0 0 14px}
+[data-core-material-guide] .core-guide-group>summary{font-size:14px;color:#f3d6b0}
+#baseModal .base-command-entry{max-width:130px;white-space:normal;line-height:1.4;min-height:44px;font-size:12px}
+#baseModal [data-core-route]:focus-visible,#baseModal .core-journey summary:focus-visible,#baseModal .core-guide-group>summary:focus-visible{outline:2px solid #f4cb8c;outline-offset:-3px}
+@media(max-width:390px){.core-journey summary{padding:10px;gap:10px}.core-step-body{padding:0 12px 12px}.core-route-grid{grid-template-columns:1fr}}
+
+.core-journey details[data-current="true"]{border-color:#a97b49;}

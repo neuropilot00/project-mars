@@ -7,7 +7,7 @@ function part(source,start,end){return source.slice(source.indexOf(start),source
 function render(mode='battle'){
  const ship={dbShipId:'111',tid:'dummy',type:{code:'dummy',fireType:'bullet',faction:'mcc'},hp:100,shield:120,shieldMax:120,dead:false};
  const fleet={dbFleetId:'11',side:'atk',ships:[ship]};
- const c={TL_MODE:mode,W:460,H:600,fleets:[fleet],ships:[ship],lasers:[],SHIPS:{dummy:{hp:1000,r:2,size:'frigate'}},weaponColor:()=> '#fff'};
+ const c={TL_MODE:mode,W:460,H:600,camScale:1,fleets:[fleet],ships:[ship],lasers:[],SHIPS:{dummy:{hp:1000,r:2,size:'frigate'}},weaponColor:()=> '#fff'};
  vm.createContext(c);
  for(const [a,b]of[['function objectiveMapPoint(','function renderObjectiveBanner('],['function syncServerShips(','function fleetRoleText('],['function mkShip(','function autoTactics(']])vm.runInContext(part(script,a,b),c);
  return{c,ship,fleet};
@@ -26,7 +26,7 @@ test('snapshot shields replace local defaults, reflect depletion, and clamp inva
 const shot=id=>({id,type:'shot_hit',source_side:'atk',source_ship_id:'111',fire_type:'bullet',from:{x:0,y:0},to:{x:1000,y:440},damage:999999,target_hp:0});
 test('only resolved authoritative shots create deduplicated visual tracers with exact mapped endpoints and no damage',()=>{
  const{c,ship}=render();c.syncServerCombatEvents({combat_events:[shot('71:combat:1')]});
- assert.equal(c.lasers.length,1);const effect=c.lasers[0];assert.equal(effect.x1,0);assert.equal(effect.x2,460);assert.ok(Math.abs(effect.y1-198.8)<1e-9);assert.ok(Math.abs(effect.y2-401.2)<1e-9);assert.equal(effect.visual,true);assert.equal(effect.applied,true);assert.equal(effect.dmg,0);assert.equal(ship.hp,100);assert.equal(ship.shield,120);
+ assert.equal(c.lasers.length,1);const effect=c.lasers[0];assert.equal(effect.x1,98);assert.equal(effect.x2,362);assert.equal(effect.y1,600);assert.equal(effect.y2,0);assert.equal(effect.visual,true);assert.equal(effect.applied,true);assert.equal(effect.dmg,0);assert.equal(ship.hp,100);assert.equal(ship.shield,120);
  c.syncServerCombatEvents({combat_events:[shot('71:combat:1'),{...shot('2'),type:'fake'},{...shot('3'),from:{x:NaN,y:0}}]});assert.equal(c.lasers.length,1);
  c.syncServerCombatEvents({});assert.equal(c.lasers.length,1,'old records without events never invent firing');
 });

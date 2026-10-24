@@ -3958,6 +3958,20 @@ I18N.th = Object.assign({}, I18N.en, {
 
 // Core operations and workshop use the same seven supported UI languages.
 var GAME_UI_TEXT = {
+  "Crafting": ["製作", "制作", "Pembuatan", "Chế tạo", "การคราฟต์"],
+  "Shipyard": ["造船所", "船厂", "Galangan kapal", "Xưởng tàu", "อู่เรือ"],
+  "Records and rewards": ["記録と報酬", "记录与奖励", "Catatan dan hadiah", "Hồ sơ và phần thưởng", "บันทึกและรางวัล"],
+  "Season": ["シーズン", "赛季", "Musim", "Mùa giải", "ฤดูกาล"],
+  "My territory and harvest": ["自分の領地と収穫", "我的领地与收获", "Wilayah dan panen saya", "Lãnh thổ và thu hoạch của tôi", "ดินแดนและการเก็บเกี่ยวของฉัน"],
+  "Front production and cargo": ["前線の生産と輸送", "前线生产与运输", "Produksi dan kargo garis depan", "Sản xuất và vận tải tiền tuyến", "การผลิตและขนส่งแนวหน้า"],
+  "Fleet formation": ["艦隊編成", "舰队编组", "Formasi armada", "Đội hình hạm đội", "การจัดกองยาน"],
+  "Inventory": ["インベントリ", "背包", "Inventaris", "Túi đồ", "กระเป๋า"],
+  "Market": ["市場", "市场", "Pasar", "Chợ", "ตลาด"],
+  "Guild": ["ギルド", "公会", "Guild bersama", "Bang hội", "สมาคม"],
+  "Competition": ["対戦", "竞争", "Persaingan", "Cạnh tranh", "การแข่งขัน"],
+  "Sectors": ["セクター", "星区", "Sektor wilayah", "Khu vực", "เขตพื้นที่"],
+  "Governance": ["統治", "治理", "Tata kelola", "Quản trị", "การปกครอง"],
+
   "20 iron dust + 4 hull plates every 30 minutes. Storage holds {batches} batches ({hours} hours).": ["30分ごとに鉄粉20・船体プレート4を生産。最大{batches}回分（{hours}時間）を貯蔵します。", "每30分钟产出20铁粉及4船体板。可储存{batches}批（{hours}小时）。", "20 serbuk besi + 4 pelat lambung setiap 30 menit. Penyimpanan menampung {batches} kelompok ({hours} jam).", "20 bột sắt + 4 tấm thân tàu mỗi 30 phút. Kho chứa {batches} đợt ({hours} giờ).", "ผลิตผงเหล็ก 20 + แผ่นตัวเรือ 4 ทุก 30 นาที เก็บได้ {batches} ชุด ({hours} ชั่วโมง)"],
   "Control reduces delivery from 10 to 9 minutes and raises shipment capacity from 100 to 200.": ["占領すると輸送時間が10分から9分に短縮され、1回の輸送量が100から200に増えます。", "控制后运输时间从10分钟缩短为9分钟，单次运量从100增加至200。", "Penguasaan mengurangi pengiriman dari 10 menjadi 9 menit dan menaikkan kapasitas dari 100 menjadi 200.", "Kiểm soát giảm thời gian giao từ 10 xuống 9 phút và tăng sức chở từ 100 lên 200.", "การควบคุมลดเวลาขนส่งจาก 10 เป็น 9 นาที และเพิ่มความจุจาก 100 เป็น 200"],
   "Up to {capacity} per shipment. The escort fleet is occupied until arrival.": ["1回につき最大{capacity}。到着まで護衛艦隊は使用中です。", "每次最多{capacity}。护送舰队在到达前被占用。", "Maksimal {capacity} per pengiriman. Armada pengawal sibuk sampai tiba.", "Tối đa {capacity} mỗi chuyến. Hạm đội hộ tống bận cho đến khi hàng đến.", "สูงสุด {capacity} ต่อเที่ยว กองยานคุ้มกันถูกใช้งานจนกว่าจะถึง"],
