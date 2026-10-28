@@ -11,7 +11,7 @@ const url = new URL(process.env.DATABASE_URL || '');
 if (!['localhost', '127.0.0.1'].includes(url.hostname) || url.pathname !== '/codex_occupy_review_upgrade_20261010') throw Error('Exact disposable local review DB required');
 const schema = 'campaign_qa_' + crypto.randomBytes(6).toString('hex');
 const admin = new Pool({ connectionString: url.href });
-const pool = new Pool({ connectionString: url.href, options: '-c search_path=' + schema + ',public', max: 20 });
+const pool = new Pool({ connectionString: url.href, options: '-c search_path=' + schema + ',public', max: 1 });
 const tables = ['users','campaign_chapters','campaign_sessions','player_campaign_progress','player_reputation','player_chapter_choices','reputation_history','campaign_reward_inbox','player_lore_flags','player_branch_modifiers','chapter_branch_modifiers','player_tags','user_titles','player_environment_mastery','ships','fleets','ship_types','resources','user_resource_inventory','item_types','user_items','transactions','claims','marketplace_listings','fleet_battles','fleet_battle_participants','ship_stat_upgrade_log','territory_upgrades'];
 const checks = [];
 let server;
@@ -46,12 +46,25 @@ async function reputation(wallet, faction) { return Number((await pool.query('SE
   const campaign = require('../services/campaign');
   const servicePath = require.resolve('../services/campaign');
   const moduleStub = { exports: {} };
-  vm.runInNewContext(fs.readFileSync(servicePath,'utf8') + '\nmodule.exports.__audit={CHAPTERS,simulateChapter,simulateCh1,calculateRewards,campaignShipRewardPlan};', {
+  vm.runInNewContext(fs.readFileSync(servicePath,'utf8') + '\nmodule.exports.__audit={CHAPTERS,simulateChapter,simulateCh1,calculateRewards,campaignShipRewardPlan,safeCampaignCount,getObjectiveState};', {
     require: name => name === '../db' ? require('../db') : require(name), module: moduleStub, console,
     __dirname: path.dirname(servicePath), Buffer, Date,
   }, { filename: servicePath });
   const audit = moduleStub.exports.__audit;
   assert.equal(Object.keys(audit.CHAPTERS).length,38);
+  const transactionWallet = await account();
+  const transactionClient = await pool.connect();
+  try {
+    await transactionClient.query('BEGIN');
+    await transactionClient.query("INSERT INTO ships(owner_wallet,ship_type_code,current_hp,max_hp) SELECT $1,code,base_hp,base_hp FROM ship_types WHERE code='mcc_int'",[transactionWallet]);
+    assert.equal((await audit.getObjectiveState(transactionWallet,transactionClient)).ownedShips,1,'uncommitted hull visible through held transaction');
+    assert.equal(await audit.safeCampaignCount('SELECT COUNT(qa_missing_legacy_column) FROM ships',[],transactionClient),0);
+    assert.equal((await audit.getObjectiveState(transactionWallet,transactionClient)).ownedShips,1,'legacy lookup cannot abort following objectives');
+    await transactionClient.query('ROLLBACK');
+  } finally { transactionClient.release(); }
+  assert.equal((await audit.getObjectiveState(transactionWallet)).ownedShips,0,'rollback preserved');
+  checks.push('One-connection pool: start/resume/status/complete finish; uncommitted objective data uses held transaction; legacy lookup savepoint recovers; rollback leaves no hull');
+
   let catalogChoices=0;
   for(const [questId,chapter] of Object.entries(audit.CHAPTERS)) {
     assert.equal(chapter.questId,questId);

@@ -82,5 +82,5 @@ test('destroyed ship explodes at its last visible hull location, with projection
 test('result art metadata includes real destroyed hulls and excludes local catalogue ships',()=>{
  const c={TL_MODE:'battle',TL_QUERY:new URLSearchParams('bid=1507'),ships:[{dbShipId:1,tid:'fsp_int',dead:true,fleet:{dbFleetId:11}},{tid:'fake',fleet:{dbFleetId:11}}],fleets:[{dbFleetId:11,side:'atk'}]};
  vm.createContext(c);vm.runInContext(extract('function battleResultArtSnapshot(','const BATTLE_VIEWPORT_RIM='),c);
- const actual=JSON.parse(JSON.stringify(c.battleResultArtSnapshot()));assert.deepEqual(actual,{battleId:'1507',ships:[{id:1,fid:11,code:'fsp_int'}],fleets:[{id:11,side:'atk'}]});
+ const actual=JSON.parse(JSON.stringify(c.battleResultArtSnapshot()));assert.deepEqual(actual,{battleId:'1507',ships:[{id:1,fid:11,code:'fsp_int',dead:true}],fleets:[{id:11,side:'atk'}]});
 });

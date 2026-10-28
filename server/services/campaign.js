@@ -1485,39 +1485,46 @@ function normalizeWallet(wallet) {
   return String(wallet || '').toLowerCase().trim();
 }
 
-async function safeCampaignCount(sql, params) {
+async function safeCampaignCount(sql, params, queryable = pool) {
+  const transactional = queryable !== pool;
+  if (transactional) await queryable.query('SAVEPOINT campaign_objective_count');
   try {
-    const { rows } = await pool.query(sql, params);
+    const { rows } = await queryable.query(sql, params);
+    if (transactional) await queryable.query('RELEASE SAVEPOINT campaign_objective_count');
     return parseInt(rows[0]?.count || rows[0]?.cnt || 0, 10) || 0;
   } catch (err) {
+    if (transactional) {
+      await queryable.query('ROLLBACK TO SAVEPOINT campaign_objective_count');
+      await queryable.query('RELEASE SAVEPOINT campaign_objective_count');
+    }
     console.warn('[campaign] objective count skipped:', err && err.message ? err.message : err);
     return 0;
   }
 }
 
-async function getSuccessfulShipUpgradeCount(wallet) {
+async function getSuccessfulShipUpgradeCount(wallet, queryable = pool) {
   const hasSuccessColumn = await safeCampaignCount(`
     SELECT COUNT(*)
     FROM information_schema.columns
     WHERE table_name = 'ship_stat_upgrade_log'
       AND column_name = 'success'
-  `, []);
+  `, [], queryable);
   if (hasSuccessColumn) {
     return safeCampaignCount(`
       SELECT COUNT(*)
       FROM ship_stat_upgrade_log
       WHERE LOWER(wallet_address) = $1
         AND success = true
-    `, [wallet]);
+    `, [wallet], queryable);
   }
   return safeCampaignCount(`
     SELECT COUNT(*)
     FROM ship_stat_upgrade_log
     WHERE LOWER(wallet_address) = $1
-  `, [wallet]);
+  `, [wallet], queryable);
 }
 
-async function getObjectiveState(wallet) {
+async function getObjectiveState(wallet, queryable = pool) {
   const w = normalizeWallet(wallet);
   if (!w) {
     return {
@@ -1537,6 +1544,41 @@ async function getObjectiveState(wallet) {
       territoryUpgradeLevels: 0,
     };
   }
+  const count = (sql, params) => safeCampaignCount(sql, params, queryable);
+  const lookups = [
+    () => count(`SELECT COUNT(*) FROM claims WHERE LOWER(owner) = $1 AND deleted_at IS NULL`, [w]),
+    () => count(`SELECT COUNT(*) FROM claims WHERE LOWER(owner) = $1 AND deleted_at IS NULL AND COALESCE(image_url, '') <> ''`, [w]),
+    () => count(`SELECT COUNT(*) FROM ships WHERE LOWER(owner_wallet) = $1`, [w]),
+    () => count(`SELECT COUNT(*) FROM ships WHERE LOWER(owner_wallet) = $1 AND is_alive = true`, [w]),
+    () => count(`SELECT COUNT(*) FROM ships WHERE LOWER(owner_wallet) = $1 AND is_alive = true AND fleet_id IS NOT NULL AND COALESCE(is_market_listed, false) = false`, [w]),
+    () => count(`SELECT COUNT(*) FROM fleets WHERE LOWER(owner_wallet) = $1`, [w]),
+    () => count(`SELECT COUNT(*) FROM ships WHERE LOWER(owner_wallet) = $1 AND is_market_listed = true`, [w]),
+    () => count(`SELECT COUNT(*) FROM marketplace_listings WHERE LOWER(seller) = $1 AND status = 'active'`, [w]),
+    () => count(`
+      SELECT COUNT(DISTINCT fb.id)
+      FROM fleet_battles fb
+      JOIN fleet_battle_participants p ON p.battle_id = fb.id
+      WHERE LOWER(p.wallet_address) = $1 AND fb.status = 'ended'
+    `, [w]),
+    () => getSuccessfulShipUpgradeCount(w, queryable),
+    // [v7.190] type='mining' OR 'instant_harvest' — 즉시 수확 트랜잭션도 first_harvest 충족.
+    //   from_wallet=miner (api.js:3600 INSERT 기준 검증 완료).
+    () => count(`SELECT COUNT(*) FROM transactions WHERE type IN ('mining','instant_harvest') AND LOWER(from_wallet) = $1`, [w]),
+    () => count(`SELECT COUNT(*) FROM campaign_reward_inbox WHERE LOWER(wallet) = $1 AND claimed = TRUE`, [w]),
+    // P5: material harvests (harvests with at least one resource drop)
+    () => count(`
+      SELECT COUNT(*) FROM transactions
+      WHERE type IN ('mining','instant_harvest') AND LOWER(from_wallet) = $1
+        AND meta->'resourceDrops' IS NOT NULL
+        AND jsonb_array_length(COALESCE(meta->'resourceDrops','[]'::jsonb)) > 0
+    `, [w]),
+    // P5: territory upgrade count (total upgrade levels owned)
+    () => count(`SELECT COALESCE(SUM(level),0) AS count FROM territory_upgrades WHERE LOWER(owner) = $1 AND is_active = true`, [w]),
+  ];
+  const values = [];
+  if (queryable === pool) values.push(...await Promise.all(lookups.map(lookup => lookup())));
+  // A held connection must run each savepoint to completion before the next lookup.
+  else for (const lookup of lookups) values.push(await lookup());
   const [
     ownedClaims,
     artClaims,
@@ -1552,36 +1594,7 @@ async function getObjectiveState(wallet) {
     campaignRewardClaims,
     materialHarvests,
     territoryUpgradeLevels,
-  ] = await Promise.all([
-    safeCampaignCount(`SELECT COUNT(*) FROM claims WHERE LOWER(owner) = $1 AND deleted_at IS NULL`, [w]),
-    safeCampaignCount(`SELECT COUNT(*) FROM claims WHERE LOWER(owner) = $1 AND deleted_at IS NULL AND COALESCE(image_url, '') <> ''`, [w]),
-    safeCampaignCount(`SELECT COUNT(*) FROM ships WHERE LOWER(owner_wallet) = $1`, [w]),
-    safeCampaignCount(`SELECT COUNT(*) FROM ships WHERE LOWER(owner_wallet) = $1 AND is_alive = true`, [w]),
-    safeCampaignCount(`SELECT COUNT(*) FROM ships WHERE LOWER(owner_wallet) = $1 AND is_alive = true AND fleet_id IS NOT NULL AND COALESCE(is_market_listed, false) = false`, [w]),
-    safeCampaignCount(`SELECT COUNT(*) FROM fleets WHERE LOWER(owner_wallet) = $1`, [w]),
-    safeCampaignCount(`SELECT COUNT(*) FROM ships WHERE LOWER(owner_wallet) = $1 AND is_market_listed = true`, [w]),
-    safeCampaignCount(`SELECT COUNT(*) FROM marketplace_listings WHERE LOWER(seller) = $1 AND status = 'active'`, [w]),
-    safeCampaignCount(`
-      SELECT COUNT(DISTINCT fb.id)
-      FROM fleet_battles fb
-      JOIN fleet_battle_participants p ON p.battle_id = fb.id
-      WHERE LOWER(p.wallet_address) = $1 AND fb.status = 'ended'
-    `, [w]),
-    getSuccessfulShipUpgradeCount(w),
-    // [v7.190] type='mining' OR 'instant_harvest' — 즉시 수확 트랜잭션도 first_harvest 충족.
-    //   from_wallet=miner (api.js:3600 INSERT 기준 검증 완료).
-    safeCampaignCount(`SELECT COUNT(*) FROM transactions WHERE type IN ('mining','instant_harvest') AND LOWER(from_wallet) = $1`, [w]),
-    safeCampaignCount(`SELECT COUNT(*) FROM campaign_reward_inbox WHERE LOWER(wallet) = $1 AND claimed = TRUE`, [w]),
-    // P5: material harvests (harvests with at least one resource drop)
-    safeCampaignCount(`
-      SELECT COUNT(*) FROM transactions
-      WHERE type IN ('mining','instant_harvest') AND LOWER(from_wallet) = $1
-        AND meta->'resourceDrops' IS NOT NULL
-        AND jsonb_array_length(COALESCE(meta->'resourceDrops','[]'::jsonb)) > 0
-    `, [w]),
-    // P5: territory upgrade count (total upgrade levels owned)
-    safeCampaignCount(`SELECT COALESCE(SUM(level),0) AS count FROM territory_upgrades WHERE LOWER(owner) = $1 AND is_active = true`, [w]),
-  ]);
+  ] = values;
   const marketListings = marketListedShips + marketplaceListings;
   return {
     ownedClaims,
@@ -3601,9 +3614,10 @@ function calculateRewards(progress, sim) {
 
 async function getStatus(wallet) {
   const w = normalizeWallet(wallet);
+  const objectiveState = await getObjectiveState(w);
   const client = await pool.connect();
   try {
-    const [progressRes, reputationRes, branchRes, playerBranchRes, inboxRes, tagRes, sessionRes, objectiveState, historyRes] = await Promise.all([
+    const [progressRes, reputationRes, branchRes, playerBranchRes, inboxRes, tagRes, sessionRes, historyRes] = await Promise.all([
       client.query(`SELECT * FROM player_campaign_progress WHERE wallet = $1 ORDER BY chapter_number ASC`, [w]),
       client.query(`SELECT faction, value FROM player_reputation WHERE wallet = $1 ORDER BY faction ASC`, [w]),
       client.query(`SELECT target_chapter, modifier_key, modifier_value, source_quest_id, created_at FROM chapter_branch_modifiers WHERE wallet = $1 ORDER BY created_at DESC`, [w]),
@@ -3611,7 +3625,6 @@ async function getStatus(wallet) {
       client.query(`SELECT id, quest_id, reward_type, reward_code, quantity, payload, created_at FROM campaign_reward_inbox WHERE wallet = $1 AND claimed = FALSE ORDER BY created_at DESC LIMIT 20`, [w]),
       client.query(`SELECT tag_id FROM player_tags WHERE wallet = $1 ORDER BY created_at DESC`, [w]),
       client.query(`SELECT * FROM campaign_sessions WHERE wallet = $1 AND status = 'active' ORDER BY started_at DESC LIMIT 1`, [w]),
-      getObjectiveState(w),
       client.query(`SELECT id, quest_id, reward_type, reward_code, quantity, payload, claimed_at FROM campaign_reward_inbox WHERE wallet=$1 AND claimed=TRUE ORDER BY claimed_at DESC, id DESC LIMIT 20`, [w]),
     ]);
     const rows = progressRes.rows;
@@ -4118,8 +4131,8 @@ async function startChapter(wallet, questId) {
     );
     const existingProgress = existing.rows[0] || null;
     if (existingProgress && ['in_progress', 'completed', 'claimed'].includes(existingProgress.status)) {
+      const objectiveState = await getObjectiveState(w, client);
       await client.query('COMMIT');
-      const objectiveState = await getObjectiveState(w);
       return {
         alreadyCompleted: existingProgress.status !== 'in_progress',
         sessionId: existingProgress.session_id,
@@ -4179,8 +4192,8 @@ async function startChapter(wallet, questId) {
          updated_at = NOW()`,
       [sessionId, w, chapter.questId, randomSeed]
     );
+    const objectiveState = await getObjectiveState(w, client);
     await client.query('COMMIT');
-    const objectiveState = await getObjectiveState(w);
     return { sessionId: rows[0].session_id, chapter: publicChapter(chapter, rows[0], objectiveState), progress: formatProgress(rows[0]) };
   } catch (err) {
     await client.query('ROLLBACK');
@@ -4425,11 +4438,8 @@ async function complete(wallet, sessionId) {
       };
     }
     const campaignChapter = CHAPTERS[progress.quest_id];
-    // [v7.68] getObjectiveState는 pool(독립 커넥션)을 사용해 트랜잭션 외부에서 읽힘.
-    // complete() 트랜잭션이 FOR UPDATE로 progress row를 잡은 직후 읽어 TOCTOU 창을 최소화.
-    // 완전한 직렬화는 getObjectiveState를 client 파라미터 방식으로 리팩터링 필요하나
-    // 현재 호출량 기준 실용적 위험은 낮음 — 향후 리팩터링 대상으로 표시.
-    const objectiveState = await getObjectiveState(w); // TODO: pass client for full serialization
+    // Reuse the account transaction; waiting for a second connection can exhaust the pool.
+    const objectiveState = await getObjectiveState(w, client);
     const objectives = buildChapterObjectives(campaignChapter, progress, objectiveState, { progressPct: 100 });
     const missingObjectives = getMissingRequiredObjectives(objectives);
     if (missingObjectives.length > 0) {
