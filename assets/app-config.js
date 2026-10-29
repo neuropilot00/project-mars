@@ -1,2 +1,2 @@
-var ASSET_VER = '7514';
+var ASSET_VER = '7515';
 window.ASSET_VER = ASSET_VER;

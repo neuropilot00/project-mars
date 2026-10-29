@@ -24,6 +24,11 @@ test('snapshot shields replace local defaults, reflect depletion, and clamp inva
  c.syncServerShips({ships:[{...hull,shield_hp:Infinity,shield_max:NaN}]});assert.equal(ship.shield,0);assert.equal(ship.shieldMax,0);
 });
 const shot=id=>({id,type:'shot_hit',source_side:'atk',source_ship_id:'111',fire_type:'bullet',from:{x:0,y:0},to:{x:1000,y:440},damage:999999,target_hp:0});
+test('simultaneous overkill shots render as tracers without inventing damage',()=>{
+ const{c,ship}=render();const event={...shot('71:combat:2'),damage:0,hull_damage:0,shield_damage:0,destroyed:false,overkill:true};
+ c.syncServerCombatEvents({combat_events:[event]});
+ assert.equal(c.lasers.length,1);assert.equal(c.lasers[0].visual,true);assert.equal(c.lasers[0].dmg,0);assert.equal(ship.hp,100);
+});
 test('only resolved authoritative shots create deduplicated visual tracers with exact mapped endpoints and no damage',()=>{
  const{c,ship}=render();c.Date={now:()=>1000};c.syncServerCombatEvents({combat_events:[shot('71:combat:1')]});
  assert.equal(ship.recoilUntil,1180);assert.equal(ship.x,undefined);assert.equal(ship.y,undefined);
@@ -42,9 +47,10 @@ test('combat effects and deduplication memory remain bounded under repeated larg
 });
 test('before the first real frame the battle loop draws only the background and unknown counters',()=>{
  const elements=Object.fromEntries(['ai','di','tn','tm','ah','dh'].map(id=>[id,{textContent:'100%',style:{width:'100%'}}]));let bg=0,requested=0;
- const c={TL_MODE:'battle',document:{hidden:false,getElementById:id=>elements[id]},loopFrame:1,tlDisposed:false,_wsLastFrame:null,lt:0,drawBG(){bg++;},requestBattleLoop(){requested++;}};
+ let clockAdvances=0;const c={TL_MODE:'battle',document:{hidden:false,getElementById:id=>elements[id]},loopFrame:1,tlDisposed:false,_wsLastFrame:null,_waitingLiveSlot:true,lt:0,drawBG(){bg++;},advanceBattleClock(){clockAdvances++;},requestBattleLoop(){requested++;}};
  vm.createContext(c);vm.runInContext(part(script,'function clearUnconfirmedBattleHud(){','/* ═══════════════════════════════════════════════════════════\n   커맨드'),c);
  c.loop(16);assert.equal(bg,1);assert.equal(requested,1);assert.equal(elements.ai.textContent,'—');assert.equal(elements.di.textContent,'—');assert.equal(elements.tm.textContent,'—');assert.equal(elements.ah.style.width,'0%');
+ c.loop(10000);assert.equal(clockAdvances,0,'the battle clock stays stopped while waiting for a live slot');
 });
 test('ordinary real end, including a first sortie, reaches the parent result without local victory simulation',()=>{
  const sent=[],timers=[];const c={_wsEndPayload:null,_wsLastFrame:{fleets:[],ships:[]},battleOver:false,tlDisposed:false,_confirmedActions:new Map(),advanceBattleClock(){},renderActionSummary(){},loadPersistedActionSummary(){},updateCommandDeck(){},addLog(){},notifyParent:(cmd,payload)=>sent.push({cmd,payload}),setTimeout:(fn,ms)=>timers.push({fn,ms})};
@@ -84,7 +90,7 @@ test('a one-frame real result never claims an unverified automatic territory cap
 
 test('disabled targets and detailed fleet status never expose catalogue HP before the first authoritative frame',()=>{
  const elements={};const element=id=>elements[id]||(elements[id]={textContent:'HP 100%',options:[],value:'breakthrough',disabled:false,replaceChildren(){this.options=[];},appendChild(option){this.options.push(option);}});
- const c={TL_MODE:'battle',TLANG:'en',_wsLastFrame:null,_wsEndPayload:null,_wsRealtime:false,_wsBattle:null,battleOver:false,commandText:key=>key,canCommandBattle:()=>false,document:{getElementById:element,createElement:()=>({}),querySelectorAll:()=>[element('focusChoice'),element('focusApply')]}};
+ const c={TL_MODE:'battle',TLANG:'en',_wsLastFrame:null,_wsEndPayload:null,_wsRealtime:false,_waitingLiveSlot:false,_liveCancelled:false,_wsBattle:null,battleOver:false,commandText:key=>key,canCommandBattle:()=>false,document:{getElementById:element,createElement:()=>({}),querySelectorAll:()=>[element('focusChoice'),element('focusApply')]}};
  vm.createContext(c);vm.runInContext(part(script,'function updateCommandDeck(){','// ─── WebSocket 실시간 frame 수신'),c);vm.runInContext(part(script,'function renderFleetStatus(){','function renderRegistry('),c);
  c.updateCommandDeck();c.renderFleetStatus();
  assert.equal(elements.focusChoice.options[0].textContent,'connecting');assert.equal(elements.focusApply.disabled,true);assert.equal(elements.skillApply.textContent,'—');

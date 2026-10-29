@@ -76,3 +76,54 @@ test('real manual skill damage carries its skill type instead of the source hull
   assert.equal(hits[0].source_ship_id, f.attacker.id); assert.equal(hits[0].damage, 88);
   assert.equal(f.state.events.some(e => e.type === 'manual_skill'), true);
 });
+test('sub-tick attack progress reflects the configured interval without firing more than once per tick', () => {
+  for (const [interval, expected] of [[180, 200], [205, 195], [225, 177]]) {
+    const f = fixture();
+    Object.assign(f.attacker, { fireInterval: interval, shootT: 0 });
+    Object.assign(f.target, { shootT: 0, fireInterval: 1e9, hp: 1e9, maxHp: 1e9, shield_hp: 0 });
+    let hits = 0;
+    for (let tick = 1; tick <= 200; tick++) {
+      f.state.tick = tick;
+      engine.processCombat(f.state, f.state.events);
+      const frame = engine.captureFrame(f.state, tick);
+      assert.ok(frame.combat_events.length <= 1);
+      hits += frame.combat_events.length;
+    }
+    assert.equal(hits, expected, `interval ${interval}`);
+  }
+});
+test('repair uses the same carried cooldown and EMP expiry cannot bank a burst', () => {
+  const f = fixture();
+  Object.assign(f.attacker, { fireType: 'repair', fireInterval: 205, shootT: 0 });
+  Object.assign(f.target, { shootT: 0, fireInterval: 1e9 });
+  const ally = { ...f.attacker, id: 'ally', fireInterval: 1e9, shootT: 0, hp: 1, maxHp: 1e9 };
+  f.attackerFleet.ships.push(ally);
+  for (let tick = 1; tick <= 200; tick++) {
+    f.state.tick = tick;
+    engine.processCombat(f.state, f.state.events);
+  }
+  assert.equal(f.attacker.healingDone, 195 * f.attacker.atk * 15);
+  f.attacker.shootT = 800;
+  f.state.empActive = { targetSide: 'atk', mult: 5, untilTick: 201 };
+  f.state.tick = 201;
+  engine.processCombat(f.state, f.state.events);
+  f.state.tick = 202;
+  engine.processCombat(f.state, f.state.events);
+  assert.ok(f.attacker.shootT <= 200);
+});
+test('EW cooldown multiplier changes the actual firing rate and expires without accumulating a burst', () => {
+  const f = fixture();
+  Object.assign(f.attacker, { fireInterval: 205, shootT: 0 });
+  Object.assign(f.target, { shootT: 0, fireInterval: 1e9, hp: 1e9, maxHp: 1e9, shield_hp: 0 });
+  Object.assign(f.attackerFleet, { ewUntilTick: 200, ewFireIntervalMult: 1.5 });
+  let hits = 0;
+  for (let tick = 1; tick <= 200; tick++) {
+    f.state.tick = tick;
+    engine.processCombat(f.state, f.state.events);
+    hits += engine.captureFrame(f.state, tick).combat_events.length;
+  }
+  assert.equal(hits, 130);
+  f.state.tick = 201;
+  engine.processCombat(f.state, f.state.events);
+  assert.ok(f.attacker.shootT <= 200);
+});

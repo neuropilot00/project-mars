@@ -152,6 +152,7 @@ body{padding:0;background:#03040b;}
 html[data-tl-mode="sandbox"] body{overflow-y:auto;}
 /* The local practice turn counter is not an authoritative live/replay turn. */
 html[data-tl-mode="battle"] .tinfo{display:none;}
+html[data-tl-mode="battle"] #battleSafetyLimit:not([hidden]){display:block;font:10px/12px system-ui;white-space:nowrap;color:#b7d6e4;}
 html[data-tl-mode="sandbox"] .wrap{height:100%;max-height:100svh;grid-template-rows:42px minmax(160px,1fr) auto 42px auto auto;}
 html[data-tl-mode="sandbox"] #c{height:100%;max-height:100%;object-fit:contain;}
 @media (max-height:820px) and (min-width:721px){
@@ -368,6 +369,7 @@ html[data-tl-mode="battle"] .wrap{height:100svh;max-height:100svh;min-height:0;o
 html[data-tl-mode="battle"] .hdr{grid-area:header;}
 html[data-tl-mode="battle"] #objectiveBanner{grid-area:objective;max-height:100px;overflow-y:auto;}
 html[data-tl-mode="battle"] .bui{grid-area:teams;}
+html[data-tl-mode="battle"] .cp{gap:0;}
 html[data-tl-mode="battle"] #c{grid-area:battle;width:100%;height:100%;max-width:none;max-height:none;object-fit:contain;}
 html[data-tl-mode="battle"] .blog{grid-area:log;height:22px;overflow:hidden;padding:2px 8px;}
 html[data-tl-mode="battle"] .blog .bl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:18px;}
@@ -482,7 +484,7 @@ html[data-tl-mode="battle"] .combat-field-tools{display:block;}
 <div class="bui">
   <div class="team"><div class="tn a" id="uiAtkCoalition">ATK COALITION</div><div class="tfl" id="ai">—</div>
     <div class="hr"><div class="hl" id="uiHpLeft">HP</div><div class="hb"><div class="hf a" id="ah" style="width:100%"></div></div></div></div>
-  <div class="cp"><div class="vs">VS</div><div class="tmr" id="tm">00:00</div><div class="tinfo"><span id="uiTurnLabel">TURN</span> <span id="tn">0</span></div></div>
+  <div class="cp"><div class="vs">VS</div><div class="tmr" id="tm">00:00</div><div class="tinfo" id="turnInfo"><span id="uiTurnLabel">TURN</span> <span id="tn">0</span></div><div class="tinfo" id="battleSafetyLimit" hidden></div></div>
   <div class="team r"><div class="tn d" id="uiDefCoalition">DEF COALITION</div><div class="tfl" id="di">—</div>
     <div class="hr"><div class="hb rtl"><div class="hf d" id="dh" style="width:100%"></div></div><div class="hl" id="uiHpRight">HP</div></div></div>
 </div>
@@ -500,6 +502,7 @@ html[data-tl-mode="battle"] .combat-field-tools{display:block;}
 <div class="command-status" id="commandFeedback" role="status" aria-live="polite"></div>
 <section id="combatCommandTray" class="combat-tray" hidden aria-labelledby="combatTrayTitle"><header><h2 id="combatTrayTitle"></h2><button type="button" data-combat-close aria-label="Close">×</button></header><div id="combatTrayOptions"></div></section>
 <details class="advanced-deck"><summary id="advancedLabel">Advanced commands &amp; fleet status</summary>
+<p id="battleSafetyDetail" class="decision-note" hidden></p>
 <p id="spatialTacticsHint" style="font:12px/1.5 system-ui;color:#b9ceda;padding:4px 0"></p>
 <section class="command-deck" aria-label="Fleet command">
   <div class="command-status" id="battleModeStatus" role="status">Connecting…</div>
@@ -1115,7 +1118,7 @@ let SHIPS = {
   cv_frg:{faction:'cv',size:'frigate',role:'dps',tier:1,name:'Jagged',cls:'Frigate · T1',r:2.4,hp:28000,atk:20,def:5,spd:1.9,fireInt:112,fireType:'bullet',shots:3,desc:'근접전 특화',recipe:{iron_dust:45,red_sand:25,plasma_coil:2},buildTime:'22분'},
   cv_bomb:{faction:'cv',size:'frigate',role:'bomb',tier:2,name:'Reaper',cls:'Stealth Bomber · T2',r:2.1,hp:12000,atk:55,def:3,spd:1.7,fireInt:620,fireType:'stealth_bomb',shots:1,desc:'은신 폭격기',recipe:{iron_dust:100,volcanic_shard:20,plasma_coil:4,alloy_frame:2,rare_metal:8},buildTime:'2시간'},
   cv_dst:{faction:'cv',size:'destroyer',role:'dps',tier:1,name:'Butcher',cls:'Assault Dst · T1',r:3.5,hp:48000,atk:48,def:11,spd:1.3,fireInt:128,fireType:'bullet',shots:4,desc:'고DPS 돌격',recipe:{iron_dust:160,volcanic_shard:25,hull_plate:4,plasma_coil:5},buildTime:'2.5시간'},
-  cv_crs:{faction:'cv',size:'cruiser',role:'dps',tier:1,name:'Mauler',cls:'Missile Crs · T1',r:4.7,hp:85000,atk:86,def:32,spd:0.8,fireInt:225,fireType:'bullet',shots:1,desc:'중거리 미사일',recipe:{iron_dust:450,volcanic_shard:60,hull_plate:8,plasma_coil:14,alloy_frame:5},buildTime:'5시간'},
+  cv_crs:{faction:'cv',size:'cruiser',role:'dps',tier:1,name:'Mauler',cls:'Missile Crs · T1',r:4.7,hp:85000,atk:86,def:32,spd:0.8,fireInt:400,fireType:'bullet',shots:1,desc:'중거리 미사일',recipe:{iron_dust:450,volcanic_shard:60,hull_plate:8,plasma_coil:14,alloy_frame:5},buildTime:'5시간'},
   cv_bs:{faction:'cv',size:'battleship',role:'dps',tier:1,name:'Ironclad',cls:'Battleship · T1',r:8.5,hp:280000,atk:385,def:155,spd:0.35,fireInt:295,fireType:'laser',shots:1,desc:'고화력 중거리',recipe:{iron_dust:2800,volcanic_shard:400,hull_plate:55,plasma_coil:95,alloy_frame:38,rare_metal:25,meteorite_frag:3},buildTime:'44시간'},
   cv_titan:{faction:'cv',size:'titan',role:'dps',tier:2,name:'Carnage',cls:'Titan · ⚠ MAX 3',r:13.0,hp:1550000,atk:840,def:455,spd:0.16,fireInt:455,fireType:'laser',shots:1,desc:'서버 최강 타이탄',recipe:{iron_dust:25000,volcanic_shard:3000,hull_plate:400,plasma_coil:800,alloy_frame:300,ancient_metal:150,meteorite_frag:40,xenomatter:8},buildTime:'72시간'},
 };
@@ -3966,7 +3969,9 @@ const COMMAND_COPY={
  en:{doctrine:'1 · Doctrine',focus:'2 · Enemy fleet',skill:'3 · Charged skill',order:'Order',aim:'Focus',advanced:'Advanced commands & fleet status',breakthrough:'Breakthrough',protect:'Protect',flank:'Flank',breakthroughNote:'Wedge + advance · direct approach',protectNote:'Screen + rally · protective formation, regroup',flankNote:'Pincer + flank · split wings, side approach',training:'TRAINING · local simulation · no asset loss',live:'LIVE · server commands',replay:'REPLAY · commands unavailable',spectator:'SPECTATOR · commands unavailable',connecting:'Connecting · commands locked',ended:'Battle ended · commands locked',sent:'Sent · waiting for acknowledgement',connected:'Connected',disconnected:'Connection lost · reconnecting',accepted:'Accepted · waiting for server application',applied:'Applied',rejected:'Rejected',auto:'Automatic command',hold:'Manual command held',noTarget:'No enemy fleet',unselectedTarget:'No target selected',target:'Fleet target',fleetOnly:'Focus applies to an enemy fleet, not a chosen ship.',beamNote:'Beam · one priority target (flagship first)',missileNote:'Missile · up to 6 enemy ships',overdriveNote:'Combine · requires an assembled ship',trainingNoLoss:'Training has no persistent ship loss.',liveUnavailable:'EMP is only available in training here.',retreatTruth:'Distance retreat changes movement. It does not end battle or guarantee ship survival.',forfeitTruth:'Forfeit requests server withdrawal. Damage already received and the battle loss policy still apply.',charge_insufficient:'Charge insufficient',not_your_fleet:'Not your fleet',rate_limited:'Too many commands · wait a moment',battle_not_live:'Battle is not live',no_valid_target:'No valid target',invalid_formation:'Invalid formation',invalid_maneuver:'Invalid maneuver',fleet_unavailable:'Fleet unavailable',not_authority:'Command service unavailable',damage:'Damage',hits:'targets'},
  ko:{doctrine:'1 · 접근 교리',focus:'2 · 적 함대',skill:'3 · 필살기',order:'지휘',aim:'집중',advanced:'상세 지휘 · 함대 현황',breakthrough:'돌파',protect:'보호',flank:'측면',breakthroughNote:'쐐기 + 전진 · 정면 접근',protectNote:'차폐 + 재집결 · 보호 진형으로 다시 모으기',flankNote:'협공 + 측면 우회 · 양 날개로 접근',training:'훈련 · 로컬 시뮬레이션 · 자산 손실 없음',live:'실시간 · 서버 지휘 가능',replay:'리플레이 · 지휘 불가',spectator:'관전 · 지휘 불가',connecting:'연결 확인 중 · 지휘 잠금',ended:'전투 종료 · 지휘 잠금',sent:'전송됨 · 접수 확인 대기',connected:'연결됨',disconnected:'연결 끊김 · 재연결 대기',accepted:'접수됨 · 서버 적용 대기',applied:'적용됨',rejected:'거부됨',auto:'자동 지휘',hold:'수동 지휘 유지',noTarget:'남은 적 함대 없음',unselectedTarget:'대상 미선택',target:'집중 대상',fleetOnly:'적 함대 전체를 집중 공격합니다. 특정 함선 저격은 아닙니다.',beamNote:'빔 · 기함 우선 단일 표적',missileNote:'미사일 · 최대 6척 분산 타격',overdriveNote:'합체필살 · 합체 함선 필요',trainingNoLoss:'훈련은 영구 함선 손실이 없습니다.',liveUnavailable:'이 화면의 EMP는 훈련 전용입니다.',retreatTruth:'거리 벌리기는 기동입니다. 전투 종료나 함선 보존을 보장하지 않습니다.',forfeitTruth:'서버에 전투 포기를 요청합니다. 받은 피해와 해당 전투의 손실 규칙이 적용됩니다.',charge_insufficient:'충전 부족',not_your_fleet:'본인 함대가 아님',rate_limited:'명령이 너무 빠릅니다 · 잠시 대기',battle_not_live:'실시간 전투가 아님',no_valid_target:'유효한 표적 없음',invalid_formation:'잘못된 진형',invalid_maneuver:'잘못된 기동',fleet_unavailable:'함대 사용 불가',not_authority:'명령 서버 사용 불가',damage:'피해',hits:'표적'}
 };
-function commandText(key){return (COMMAND_COPY[TLANG]||COMMAND_COPY.en)[key]||COMMAND_COPY.en[key]||key;}
+const BATTLE_QUEUE_COPY={en:'Waiting for a battle slot · commands locked',ko:'서버 전투 슬롯 대기 · 시작 시 지휘 가능',ja:'戦闘枠を待機中 · 指揮は開始後',zh:'等待战斗席位 · 开战后可指挥',id:'Menunggu slot pertempuran · perintah terkunci',vi:'Đang chờ lượt chiến đấu · lệnh bị khóa',th:'รอช่องการต่อสู้ · คำสั่งถูกล็อก'};
+const BATTLE_CANCEL_COPY={en:'Battle cancelled · commands locked',ko:'전투 취소됨 · 지휘 잠금',ja:'戦闘中止 · 指揮は使用不可',zh:'战斗已取消 · 无法指挥',id:'Pertempuran dibatalkan · perintah terkunci',vi:'Trận đấu đã hủy · lệnh bị khóa',th:'ยกเลิกการต่อสู้ · คำสั่งถูกล็อก'};
+function commandText(key){if(key==='waiting_slot')return BATTLE_QUEUE_COPY[TLANG]||BATTLE_QUEUE_COPY.en;if(key==='cancelled')return BATTLE_CANCEL_COPY[TLANG]||BATTLE_CANCEL_COPY.en;return (COMMAND_COPY[TLANG]||COMMAND_COPY.en)[key]||COMMAND_COPY.en[key]||key;}
 function commandReason(reason){return reason==='invalid_destination'?navigationText('invalid'):commandText(reason||'unknown');}
 function commandableFleets(){
  if(!_commandWallet||!_wsLastFrame)return [];
@@ -3984,7 +3989,7 @@ function selectCommandFleet(id){
  commandFeedback(navigationText('selected'));updateCommandDeck();return true;
 }
 function commandSide(){const f=ownedLiveFleet();return f?f.side:'atk';}
-function canCommandBattle(){return _wsRealtime&&!_wsEndPayload&&!!ownedLiveFleet()&&!!_wsBattle&&_wsBattle.readyState===1;}
+function canCommandBattle(){return _wsRealtime&&!_wsEndPayload&&!_liveCancelled&&!!ownedLiveFleet()&&!!_wsBattle&&_wsBattle.readyState===1;}
 function commandFeedback(text){const el=document.getElementById('commandFeedback');if(el)el.textContent=text;addLog('tc',text);}
 function sendLiveCommand(cmd,payload){
  if(!canCommandBattle()){commandFeedback(commandText(_wsEndPayload?'ended':_wsRealtime?'spectator':'replay'));return false;}
@@ -3998,6 +4003,7 @@ function sendLiveCommand(cmd,payload){
  catch(_){_pendingCommands.delete(commandId);commandFeedback(commandText('disconnected'));return false;}
 }
 function advanceBattleClock(rawDt){
+ if(TL_MODE==='battle'&&_liveCancelled)return;
  if(TL_MODE==='battle'&&_parentReplay&&!_wsEndPayload)return;
  if(TL_MODE==='battle'&&_wsEndPayload){
   const seconds=_wsEndPayload.duration_seconds;
@@ -4267,14 +4273,14 @@ function updateCommandDeck(){
  set('doctrineLabel',commandText('doctrine'));set('focusLabel',commandText('focus'));set('skillLabel',commandText('skill'));set('doctrineApply',commandText('order'));set('focusApply',commandText('aim'));set('advancedLabel',commandText('advanced'));set('fieldGuideBtn',TLANG==='ko'?'함대 역할 도감':'Fleet field guide');
  const d=document.getElementById('doctrineChoice');for(const o of d.options)o.textContent=commandText(o.value);
  set('doctrineNote',commandText(d.value+'Note'));
- const mode=TL_MODE==='sandbox'?'training':_wsEndPayload?'ended':!_wsLastFrame?'connecting':!_wsRealtime?'replay':!_wsBattle||_wsBattle.readyState!==1?'disconnected':canCommandBattle()?'live':'spectator';
+ const mode=TL_MODE==='sandbox'?'training':_wsEndPayload?'ended':_liveCancelled?'cancelled':!_wsLastFrame?(_waitingLiveSlot?'waiting_slot':'connecting'):!_wsRealtime?'replay':!_wsBattle||_wsBattle.readyState!==1?'disconnected':canCommandBattle()?'live':'spectator';
  set('battleModeStatus',commandText(mode));
  const enabled=TL_MODE==='sandbox'?!battleOver:canCommandBattle();
  document.querySelectorAll('.command-row select,.command-row button,.advanced-controls button').forEach(e=>{e.disabled=!enabled;});
- if(TL_MODE==='battle'&&!_wsLastFrame){
+ if(TL_MODE==='battle'&&(!_wsLastFrame||_liveCancelled)){
   const target=document.getElementById('focusChoice'),option=document.createElement('option');
-  target.replaceChildren();option.value='';option.textContent=commandText('connecting');target.appendChild(option);
-  for(const id of ['targetNote','compactFleetStatus','manualHoldStatus'])set(id,commandText('connecting'));
+  target.replaceChildren();option.value='';option.textContent=commandText(mode);target.appendChild(option);
+  for(const id of ['targetNote','compactFleetStatus','manualHoldStatus'])set(id,commandText(mode));
   const skill=document.getElementById('skillApply');skill.textContent='—';skill.disabled=true;
   document.getElementById('focusApply').disabled=true;document.getElementById('cmdEMP').disabled=true;document.getElementById('cmdRetreatBtn').disabled=true;document.getElementById('speedCycle').hidden=true;
   if(typeof updateCombatDock==='function')updateCombatDock(false,mode);
@@ -4319,6 +4325,8 @@ let _wsReconnectTimer=null;
 let _wsLastFrame = null;
 let _wsEndPayload = null;
 let _wsMaxHpCalibrated = false;
+let _waitingLiveSlot = false;
+let _liveCancelled = false;
 // [실시간 전투] 서버 도메인은 라이브 스케줄 프레임에만 realtime:true 를 넣는다(사전계산 리플레이 스트림에는 없음).
 // 한 번 라이브로 확인되면 세션 내내 라이브로 취급한다(sticky) — WS 순단으로 스킬 버튼이 깜빡이지 않게.
 let _wsRealtime = false;
@@ -4354,16 +4362,44 @@ function connectBattleWs() {
       try { m = JSON.parse(e.data); } catch (_) { return; }
       processBattleMessage(m,bid);
     };
-    _wsBattle.onclose = () => {addLog('ev',commandText('disconnected'));_wsBattle=null;_pendingCommands.clear();updateCommandDeck();if(!tlDisposed&&!document.hidden)_wsReconnectTimer=setTimeout(connectBattleWs,1500);};
+    _wsBattle.onclose = () => {addLog('ev',commandText('disconnected'));_wsBattle=null;_waitingLiveSlot=false;_pendingCommands.clear();updateCommandDeck();if(!tlDisposed&&!document.hidden)_wsReconnectTimer=setTimeout(connectBattleWs,1500);};
     _wsBattle.onerror = (err) => { console.warn('[ws] error:', err); };
   } catch (e) { console.warn('[ws] connect failed:', e.message); }
+}
+
+function renderBattleSafetyLimit(frame){
+  const badge=document.getElementById('battleSafetyLimit'),detail=document.getElementById('battleSafetyDetail'),turn=document.getElementById('turnInfo');
+  if(!badge||!detail||!turn)return;
+  const limit=frame?.realtime===true?Number(frame.wall_clock_limit_seconds):NaN;
+  if(!Number.isFinite(limit)||limit<=0){badge.hidden=true;detail.hidden=true;turn.hidden=false;return;}
+  const seconds=Math.ceil(limit),minutes=Math.floor(seconds/60),rest=seconds%60;
+  const clock=minutes+':'+String(rest).padStart(2,'0');
+  const descriptions={
+    en:`System safety limit ${clock}. If neither side wins before the limit, the battle ends in a draw.`,
+    ko:`시스템 안전 상한 ${clock}. 그때까지 승패가 결정되지 않으면 무승부로 종료됩니다.`,
+    ja:`システムの安全上限 ${clock}。時間内に決着しない場合は引き分けです。`,
+    zh:`系统安全上限 ${clock}。到时仍未分胜负则以平局结束。`,
+    id:`Batas keamanan sistem ${clock}. Jika belum ada pemenang, pertempuran berakhir seri.`,
+    vi:`Giới hạn an toàn hệ thống ${clock}. Nếu chưa phân thắng bại, trận đấu kết thúc hòa.`,
+    th:`ขีดจำกัดความปลอดภัยของระบบ ${clock} หากยังไม่มีผู้ชนะ การต่อสู้จะเสมอ`
+  };
+  const description=descriptions[TLANG]||descriptions.en;
+  const compact={en:`max ${minutes}m`,ko:`상한 ${minutes}분`,ja:`上限${minutes}分`,zh:`上限${minutes}分`,id:`maks ${minutes}m`,vi:`tối đa ${minutes}p`,th:`สูงสุด${minutes}น.`};
+  badge.hidden=false;turn.hidden=true;badge.textContent=rest?'≤'+clock:(compact[TLANG]||compact.en);badge.setAttribute('aria-label',description);badge.title=description;
+  detail.hidden=false;detail.textContent=description;
 }
 
 function processBattleMessage(m,bid){
       if (!m || !m.type) return;
       if(m.type==='hello'){_commandWallet=String(m.wallet||'').toLowerCase();updateCommandDeck();return;}
+      if(m.type==='queue'&&m.reason==='battle_cancelled'){_waitingLiveSlot=false;_liveCancelled=true;updateCommandDeck();return;}
+      if(m.type==='queue'&&m.reason==='live_capacity'&&!_wsLastFrame&&!_liveCancelled){_waitingLiveSlot=true;updateCommandDeck();return;}
       if (m.type === 'frame') {
+        if(_liveCancelled)return;
+        _waitingLiveSlot=false;
         _wsLastFrame = m;
+        renderBattleSafetyLimit(m);
+        if(m.realtime===true&&Number.isFinite(Number(m.wall_clock_elapsed_seconds))&&m.wall_clock_elapsed_seconds!=null&&Number(m.wall_clock_elapsed_seconds)>=0)btMs=Number(m.wall_clock_elapsed_seconds)*1000;
         renderObjectiveBanner(m);
         // [실시간 전투] 라이브 프레임 판별 — 리플레이 스트림 프레임에는 realtime 플래그가 없다.
         if (m.realtime === true) _wsRealtime = true;
@@ -4468,6 +4504,7 @@ function processBattleMessage(m,bid){
 
 function closeBattleWs(reason) {
   clearTimeout(_wsReconnectTimer);_wsReconnectTimer=null;
+  _waitingLiveSlot=false;
   if (!_wsBattle) return;
   try {
     _wsBattle.onclose = null;

@@ -9,8 +9,8 @@ const origin='https://fixture.invalid';
 function fixture(status='ended'){
   const posted=[],events=[],drawn=[],elements=new Map(),parent={};
   const frames=[0,780,786,800].map(t=>({t,fleets:[{id:1,side:'atk',hp:100,maxHp:100},{id:2,side:'def',hp:t>=786?0:100,maxHp:100}],ships:[]}));
-  const iframe=vm.createContext({window:{parent},location:{origin},tlQuery:()=> '2',closeBattleWs(){},renderObjectiveBanner(){},loadPersistedActionSummary(){},syncServerShips(){},syncServerCombatEvents(){},updateCommandDeck(){},renderActionSummary(){},addLog(){},performance:{now:()=>1000},fleets:[],setTimeout(){},notifyParent(){}});
-  vm.runInContext("let _parentReplay=false,_battleUiReady=false,_queuedReplayFrame=null,_queuedReplayEnd=null,_wsRealtime=false,_wsLastFrame=null,_wsEndPayload=null,btMs=0,battleOver=false,_wsPrevShips=new Map();",iframe);
+  const iframe=vm.createContext({window:{parent},location:{origin},tlQuery:()=> '2',closeBattleWs(){},renderObjectiveBanner(){},renderBattleSafetyLimit(){},loadPersistedActionSummary(){},syncServerShips(){},syncServerCombatEvents(){},updateCommandDeck(){},renderActionSummary(){},addLog(){},performance:{now:()=>1000},fleets:[],setTimeout(){},notifyParent(){}});
+  vm.runInContext("let _parentReplay=false,_battleUiReady=false,_queuedReplayFrame=null,_queuedReplayEnd=null,_wsRealtime=false,_wsLastFrame=null,_wsEndPayload=null,_liveCancelled=false,btMs=0,battleOver=false,_wsPrevShips=new Map();",iframe);
   vm.runInContext(part(lab,'function receiveObjectiveReplayMessage(','window.addEventListener(\'message\',receiveObjectiveReplayMessage)'),iframe);
   vm.runInContext(part(lab,'function processBattleMessage(','function closeBattleWs('),iframe);
   const el=id=>{if(!elements.has(id))elements.set(id,{textContent:'',style:{},classList:{contains:()=>true,add(){},remove(){}},getContext:()=>({})});return elements.get(id);};

@@ -124,21 +124,26 @@ test('live simulation broadcasts every original frame while bounding only the sa
   const originalFrames = [], boundedFrames = [];
   const raw = await engine(data, true, immediateTimers).simulateBattleLive(1457, { onFrame: frame => originalFrames.push(frame) });
   const bounded = await engine(data, false, immediateTimers).simulateBattleLive(1457, { onFrame: frame => boundedFrames.push(frame) });
-  assert.deepEqual(withoutTimeline(bounded), withoutTimeline(raw));
-  assert.deepEqual(plain(boundedFrames), plain(originalFrames));
+  const { duration_seconds: boundedElapsed, ...boundedResult } = withoutTimeline(bounded);
+  const { duration_seconds: rawElapsed, ...rawResult } = withoutTimeline(raw);
+  assert.ok(boundedElapsed >= 0 && rawElapsed >= 0);
+  assert.deepEqual(boundedResult, rawResult);
+  const withoutElapsed = frames => plain(frames).map(({ wall_clock_elapsed_seconds, ...frame }) => frame);
+  assert.deepEqual(withoutElapsed(boundedFrames), withoutElapsed(originalFrames));
   assert.ok(boundedFrames.length > bounded.timeline.frames.length);
   assert.ok(bounded.timeline.frames.every(frame => !frame.realtime));
   assert.equal(bounded.timeline.frames.at(-1).t, bounded.duration_ticks);
   assert.ok(Buffer.byteLength(JSON.stringify(bounded.timeline)) < 8 * 1024 * 1024);
 });
 
-test('scheduler saves a large replay before applying unchanged results and distributing rewards once', async () => {
+test('scheduler settles a large replay before saving it and distributing rewards once', async () => {
   const data = fixture();
   const result = await engine(data).simulateBattle(1457);
   assert.ok(result.timeline.replay_frame_interval_ticks > 5);
   const calls = [], sqls = [];
   const query = async sql => {
     sqls.push(sql);
+    if (sql.includes('live_lease_token=NULL')) return { rowCount: 1, rows: [{ id: 1457 }] };
     if (sql.includes('RETURNING battle_type, phase, battle_summary')) return { rows: [{ battle_type: 'pvp_duel', phase: 'main', battle_summary: data.battle.battle_summary }] };
     return { rows: [] };
   };
@@ -147,19 +152,21 @@ test('scheduler saves a large replay before applying unchanged results and distr
   const scheduler = load(fs.readFileSync(path.join(__dirname, '../services/battleScheduler.js'), 'utf8'), {
     crypto: require('node:crypto'),
     './battleReplayPacing': require('../services/battleReplayPacing'),
+    './battleAuthority': { cleanupExpiredBattles: async () => ({ rows: [] }), acquireLiveAuthority: async () => ({ token: 'test', shouldAbort: () => false, stop() {} }) },
     '../db': { pool, getSetting: async (_key, fallback) => fallback },
     './battleEngine': { assertRegisteredFrontierBattle: async () => {}, assertRegisteredBattleModes: async () => ({}),
       simulateBattle: async () => result, applyBattleResults: async (id, actual) => {
-        assert.equal(id, 1457); assert.equal(actual, result); assert.deepEqual(calls, ['save']); calls.push('apply');
+        assert.equal(id, 1457); assert.equal(actual, result); assert.deepEqual(calls, []); calls.push('apply');
+        await timelineService.saveTimeline(id, actual.timeline); calls.push('save');
       } },
     './battleTimeline': { saveTimeline: async (id, actual) => { assert.equal(actual, result.timeline);
       const meta = await timelineService.saveTimeline(id, actual); calls.push('save'); return meta; } },
-    './battleRewards': { distributeRewards: async () => { assert.deepEqual(calls, ['save', 'apply']); calls.push('rewards'); return []; } },
+    './battleRewards': { distributeRewards: async () => { assert.deepEqual(calls, ['apply', 'save']); calls.push('rewards'); return []; } },
     './hijack': {}, './aiFleetManager': { scheduleRespawnIfNeeded: async () => {} },
     './aiStrategy': { applyAIStrategy: async () => null }, '../wsServer': { channelStats: () => ({}) },
   }, { process: { env: {} } });
   assert.equal(await scheduler.runBattle(1457), result);
-  assert.deepEqual(calls, ['save', 'apply', 'rewards']);
+  assert.deepEqual(calls, ['apply', 'save', 'rewards']);
   assert.ok(!sqls.some(sql => sql.includes("SET status='cancelled'")));
   assert.ok(sqls.some(sql => sql.includes('SET is_in_battle=false, current_battle_id=NULL')));
 });

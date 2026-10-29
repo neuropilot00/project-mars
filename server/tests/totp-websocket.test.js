@@ -4,9 +4,9 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
 const path=require('node:path');
-function fixture(check,{redis=false,declareAction}={}){
+function fixture(check,{redis=false,declareAction,battleStatus='active'}={}){
   let server,upgrades=0;
-  const redisClients=[],published=[];
+  const redisClients=[],published=[],dbQueries=[];
   class Redis { constructor(){this.events={};redisClients.push(this);} on(name,fn){this.events[name]=fn;} subscribe(channel,done){done(null);} publish(channel,raw){published.push(JSON.parse(raw));redisClients[1].events.message(channel,raw);return Promise.resolve();} }
   class Socket { constructor(){this.events={};this.readyState=1;this.closed=null;this.sent=[];this.bufferedAmount=0;} on(name,fn){this.events[name]=fn;} send(raw){this.sent.push(JSON.parse(raw));} close(...args){this.closed=args;this.readyState=3;} }
   class WebSocketServer { constructor(){server=this;this.events={};this.connections=[];} on(name,fn){this.events[name]=fn;} emit(name,...args){return this.events[name](...args);} handleUpgrade(req,socket,head,done){upgrades++;const ws=new Socket();this.connections.push(ws);done(ws);} }
@@ -14,6 +14,7 @@ function fixture(check,{redis=false,declareAction}={}){
     if(name==='crypto')return{randomUUID:()=> 'public-fixture-command-id'};
     if(name==='ws')return{WebSocketServer};if(name==='url')return require('node:url');
     if(name==='./utils/totpSessionBoundary')return{validateToken:check};
+    if(name==='./db')return{pool:{query:async(sql,args)=>{dbQueries.push({sql,args});return{rows:[{status:battleStatus}]};}}};
     if(name==='ioredis'&&redis)return Redis;
     if(name==='./services/liveBattle'&&declareAction)return{isActive:()=>false};
     if(name==='./services/commanderActions'&&declareAction)return{declareAction};
@@ -23,7 +24,7 @@ function fixture(check,{redis=false,declareAction}={}){
   const http={events:{},on(name,fn){this.events[name]=fn;}};context.module.exports.attachWsServer(http);
   function request(token='fixture',battleId='1'){return{url:'/ws/battle/'+battleId+'?token='+token,headers:{},socket:{remoteAddress:'127.0.0.1'}};}
   function transport(){return{destroyed:false,written:'',once(){},write(value){this.written+=value;},destroy(){this.destroyed=true;}};}
-  return{http,request,transport,api:context.module.exports,published,get server(){return server;},get upgrades(){return upgrades;}};
+  return{http,request,transport,api:context.module.exports,published,dbQueries,get server(){return server;},get upgrades(){return upgrades;}};
 }
 test('actual socket handler rejects revoked TOTP reconnection and commands after recovery',async()=>{
   let current=true;
@@ -32,6 +33,7 @@ test('actual socket handler rejects revoked TOTP reconnection and commands after
   current=false;const ws=f.server.connections[0];await ws.events.message(JSON.stringify({type:'cmd',cmd:'formation'}));
   assert.deepEqual(ws.closed,[1008,'session_expired']);
   const reconnect=f.transport();await f.http.events.upgrade(f.request(),reconnect,Buffer.alloc(0));assert.equal(f.upgrades,1);assert.equal(reconnect.destroyed,true);assert.match(reconnect.written,/401/);
+  assert.equal(f.dbQueries.length,1,'revoked reconnection never queries battle state');
 });
 test('a socket closed during asynchronous validation is never upgraded',async()=>{
   let resolveCheck;
@@ -46,6 +48,14 @@ test('legacy spectator connection remains available without new authentication s
 
 const owner='0x'+'1'.repeat(40),otherWallet='0x'+'2'.repeat(40);
 const flush=()=>new Promise(resolve=>setImmediate(resolve));
+test('an authorized reconnect sees a cancelled battle without exposing session data',async()=>{
+  const f=fixture(async()=>({wallet:owner,totp:true,revoked:false}),{battleStatus:'cancelled'});
+  await f.http.events.upgrade(f.request('fixture','71'),f.transport(),Buffer.alloc(0));await flush();
+  assert.equal(f.dbQueries.length,1);assert.equal(f.dbQueries[0].args[0],'71');
+  const message=f.server.connections[0].sent.find(m=>m.type==='queue');
+  assert.deepEqual(message,{type:'queue',battleId:'71',reason:'battle_cancelled'});
+  assert.equal('wallet' in message,false);assert.equal('token' in message,false);
+});
 for(const redis of [false,true]){
   test('idle revoked TOTP socket cannot receive wallet command results via '+(redis?'Redis fanout':'local delivery'),async()=>{
     let revoked=false,checks=0;

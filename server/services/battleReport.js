@@ -656,6 +656,11 @@ async function generateBattleReport(battleId, wallet) {
       );
     } catch (_pr) {}
 
+    // Historical rows stored simulated seconds; new results retain exact ticks in the summary.
+    const recordedTicks = safeJson(battle.battle_summary).duration_ticks;
+    const durationTicks = recordedTicks != null && Number.isFinite(Number(recordedTicks))
+      ? Number(recordedTicks)
+      : Math.round((Number(battle.duration_seconds) || 0) * 1000 / 200);
     return {
       battleId: toInt(battle.id),
       perspective,
@@ -668,7 +673,7 @@ async function generateBattleReport(battleId, wallet) {
       battle_type: battle.battle_type || 'pvp_duel',
       winner_side: battle.winner_side,
       ended_at: battle.ended_at,
-      duration_ticks: battle.duration_seconds || events.length,
+      duration_ticks: durationTicks || events.length,
       analysis_ko: battleAnalysis.analysis_ko,
       recommendations_ko: battleAnalysis.recommendations_ko,
       analysis_items: battleAnalysis.analysis_items,
@@ -686,7 +691,7 @@ async function generateBattleReport(battleId, wallet) {
         def: def.rating || null
       },
       summary: {
-        total_ticks: battle.duration_seconds || events.length,
+        total_ticks: durationTicks || events.length,
         total_ships_destroyed: atk.shipsDestroyed + def.shipsDestroyed,
         was_decisive: battle.winner_side !== 'draw' && battle.winner_side !== null
       }

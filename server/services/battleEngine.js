@@ -386,11 +386,25 @@ async function simulateBattleLive(battleId, hooks) {
   state.events = events;
   let winnerSide = null;
   const started = Date.now();
-  const wallClockMs = hooks.wallClockMs || (10 * 60 * 1000);
+  const configuredWallClockMs = hooks.wallClockMs || (10 * 60 * 1000);
+  const shipCount = state.fleets.reduce((total, fleet) => total + fleet.ships.length, 0);
+  // Preserve tactical response time while allowing larger non-objective battles to resolve.
+  const largeBattleMinimum = !state.objective && !battleData.standardConfig
+    ? shipCount >= 400 ? 45 * 60 * 1000 : shipCount >= 200 ? 30 * 60 * 1000 : 0 : 0;
+  const wallClockMs = Math.max(configuredWallClockMs, largeBattleMinimum);
   const tickMs = hooks.tickMs || TICK_MS;
   state.liveTickMs = tickMs;
+  if (typeof hooks.onLiveStart === 'function') await hooks.onLiveStart({ startedAt: started, wallClockMs });
+  async function broadcastFrame(frame) {
+    if (typeof hooks.shouldAbort === 'function' && hooks.shouldAbort()) throw new Error('AUTHORITY_LOST');
+    if (typeof hooks.onFrame !== 'function') return;
+    try { await hooks.onFrame(Object.assign({}, frame, { realtime: true,
+      wall_clock_limit_seconds: Math.round(wallClockMs / 1000),
+      wall_clock_elapsed_seconds: Math.max(0, Math.floor((Date.now() - started) / 1000)) })); } catch (_) {}
+  }
 
   for (let tick = 0; tick < MAX_TICKS; tick++) {
+    if (typeof hooks.shouldAbort === 'function' && hooks.shouldAbort()) throw new Error('AUTHORITY_LOST');
     state.tick = tick;
     // ① 명령 큐 드레인·적용
     if (typeof hooks.drainCommands === 'function') {
@@ -429,7 +443,7 @@ async function simulateBattleLive(battleId, hooks) {
       //   [적대검증 fix] realtime 스탬프는 broadcast 사본에만 — timeline 에 push 되는 원본에 찍으면
       //   saveTimeline 으로 영속돼 리플레이 서빙 프레임까지 라이브로 오판된다.
       recordFrame(fr);
-      if (typeof hooks.onFrame === 'function') { try { await hooks.onFrame(Object.assign({}, fr, { realtime: true })); } catch (_) {} }
+      await broadcastFrame(fr);
     }
 
     processAutoRetreat(state, events);
@@ -439,7 +453,7 @@ async function simulateBattleLive(battleId, hooks) {
     if (objectiveOutcome || (!state.objective && (atkAlive === 0 || defAlive === 0))) {
       winnerSide = objectiveOutcome ? objectiveOutcome.winner_side : atkAlive > 0 ? 'atk' : defAlive > 0 ? 'def' : 'draw';
       const fr = captureFrame(state, tick); recordFrame(fr); // realtime 은 broadcast 사본에만
-      if (typeof hooks.onFrame === 'function') { try { await hooks.onFrame(Object.assign({}, fr, { realtime: true })); } catch (_) {} }
+      await broadcastFrame(fr);
       events.push({ tick, type: 'battle_ended', payload: { winner_side: winnerSide, duration_ticks: tick } });
       break;
     }
@@ -447,23 +461,20 @@ async function simulateBattleLive(battleId, hooks) {
       winnerSide = 'draw';
       events.push({ tick, type: 'battle_timeout', payload: { winner_side: 'draw', reason: 'wall_clock' } });
       const fr = captureFrame(state, tick); recordFrame(fr);
-      if (typeof hooks.onFrame === 'function') { try { await hooks.onFrame(Object.assign({}, fr, { realtime: true })); } catch (_) {} }
+      await broadcastFrame(fr);
       break;
-    }
-    // 권위 lock 상실 — 이중 권위 방지 위해 결과 미기록 중단
-    if (typeof hooks.shouldAbort === 'function' && hooks.shouldAbort()) {
-      throw new Error('AUTHORITY_LOST');
     }
     await _sleep(tickMs);
   }
   if (!winnerSide) { winnerSide = 'draw'; events.push({ tick: state.tick, type: 'battle_timeout', payload: { winner_side: 'draw' } }); }
   if (timeline.frames.at(-1)?.t !== state.tick) {
     const fr = captureFrame(state, state.tick); recordFrame(fr);
-    if (typeof hooks.onFrame === 'function') { try { await hooks.onFrame(Object.assign({}, fr, { realtime: true })); } catch (_) {} }
+    await broadcastFrame(fr);
   }
+  if (typeof hooks.shouldAbort === 'function' && hooks.shouldAbort()) throw new Error('AUTHORITY_LOST');
   const stats = computeBattleStats(state);
   console.log(`[battleEngine] LIVE battle ${battleId} ended. Winner: ${winnerSide}. Ticks: ${state.tick}.`);
-  return { winner_side: winnerSide, duration_ticks: state.tick, duration_seconds: Math.round(state.tick * TICK_MS / 1000), timeline, events, stats, objective_result: state.objective?.progress || null };
+  return { winner_side: winnerSide, duration_ticks: state.tick, duration_seconds: Math.round((Date.now() - started) / 1000), timeline, events, stats, objective_result: state.objective?.progress || null };
 }
 
 // ─── 자동 퇴각 처리 ───
@@ -1114,6 +1125,8 @@ function processCombat(state, events) {
     state.empActive = null;
   }
 
+  const repairs = [], attacks = [], electronicWarfare = [];
+
   for (const fleet of state.fleets) {
     if (fleet.retreated || !fleet.ships.some(s => s.isAlive && !s.withdrawn)) continue;
 
@@ -1130,11 +1143,12 @@ function processCombat(state, events) {
         : 1;
       const effectiveFireInterval = ship.fireInterval * empMult * ewFireMult;
       if (ship.shootT < effectiveFireInterval) continue;
-      ship.shootT = 0;
+      // Preserve sub-tick progress, but do not bank a burst when EMP/EW expires.
+      ship.shootT = Math.min(TICK_MS, Math.max(0, ship.shootT - Math.max(TICK_MS, effectiveFireInterval)));
 
       // Repair는 아군 체력 회복
       if (ship.fireType === 'repair') {
-        processRepair(fleet, ship, state, events);
+        repairs.push({ fleet, ship });
         continue;
       }
 
@@ -1168,7 +1182,7 @@ function processCombat(state, events) {
       // EW ships are support picks: low direct damage, but they slow enemy fire
       // and soften enemy outgoing damage so buying them has a fleet-composition reason.
       if (ship.fireType === 'ew') {
-        processElectronicWarfare(targetFleet, ship, fleet, state, events);
+        electronicWarfare.push({ targetFleet, ship, fleet });
         continue;
       }
 
@@ -1180,14 +1194,22 @@ function processCombat(state, events) {
       if (focusTargetId && focusTargetId === normalizeFocusFleetId(targetFleet.id) && state.focusFireDmgBonus > 0) {
         damage = Math.floor(damage * (1 + state.focusFireDmgBonus / 100));
       }
-      applyDamage(target, targetFleet, damage, ship, fleet, state, events);
-      
-      // 레이저/폭격은 명중 확정 → laserHits 증가
-      if (ship.fireType === 'laser' || ship.fireType === 'stealth_bomb') {
-        targetFleet.laserHits = (targetFleet.laserHits || 0) + 1;
-        targetFleet.laserHitDecay = 2000;
-      }
+      attacks.push({ target, targetFleet, damage, ship, fleet });
     }
+  }
+  // Orders use the same start-of-tick state. Ready ships still fire if they
+  // are destroyed during this tick; support takes effect before the next one.
+  for (const { fleet, ship } of repairs) processRepair(fleet, ship, state, events);
+  for (const { target, targetFleet, damage, ship, fleet } of attacks) {
+    const overkill = !target.isAlive;
+    applyDamage(target, targetFleet, damage, ship, fleet, state, events);
+    if (!overkill && (ship.fireType === 'laser' || ship.fireType === 'stealth_bomb')) {
+      targetFleet.laserHits = (targetFleet.laserHits || 0) + 1;
+      targetFleet.laserHitDecay = 2000;
+    }
+  }
+  for (const { targetFleet, ship, fleet } of electronicWarfare) {
+    processElectronicWarfare(targetFleet, ship, fleet, state, events);
   }
 }
 
@@ -1441,6 +1463,8 @@ function getShipMatchupMult(attacker, target) {
 function applyDamage(target, targetFleet, damage, attacker, attackerFleet, state, events, fireType) {
   const beforeHp = target.hp;
   const beforeShield = target.shield_hp || 0;
+  const overkill = !target.isAlive;
+  if (overkill) damage = 0;
   // 실드가 있으면 먼저 실드로 흡수
   let remainingDamage = damage;
   if (target.shield_hp > 0) {
@@ -1453,7 +1477,7 @@ function applyDamage(target, targetFleet, damage, attacker, attackerFleet, state
   attacker.damageDealt += damage;
   targetFleet.hp = Math.max(0, targetFleet.hp - remainingDamage);
   
-  if (target.hp <= 0) {
+  if (target.hp <= 0 && !overkill) {
     target.hp = 0;
     target.isAlive = false;
     attacker.killsDealt++;
@@ -1513,7 +1537,8 @@ function applyDamage(target, targetFleet, damage, attacker, attackerFleet, state
     damage, hull_damage: Math.max(0, beforeHp - target.hp),
     shield_damage: Math.max(0, beforeShield - (target.shield_hp || 0)),
     target_hp: target.hp, target_shield_hp: target.shield_hp || 0,
-    destroyed: !target.isAlive,
+    destroyed: !overkill && !target.isAlive,
+    ...(overkill ? { overkill: true } : {}),
   });
 }
 
@@ -1698,7 +1723,7 @@ function distanceFleet(ship, fleet) {
  *   - ships 생존 상태 업데이트
  *   - fleets 전적 업데이트
  */
-async function applyBattleResults(battleId, result) {
+async function applyBattleResults(battleId, result, liveLeaseToken = null) {
   const client = await pool.connect();
   let progressParticipants = [];
   let progressWinnerSide = null;
@@ -1708,9 +1733,16 @@ async function applyBattleResults(battleId, result) {
 
     // [v7.63] 이중 적용 방지: FOR UPDATE로 전투 행 잠금 후 status 재확인
     const { rows: btRows } = await client.query(
-      `SELECT battle_type, status, governor_siege_id, battle_summary FROM fleet_battles WHERE id = $1 FOR UPDATE`, [battleId]
+      `SELECT battle_type, status, governor_siege_id, battle_summary, live_lease_token,
+              live_lease_expires_at > NOW() AS live_lease_valid FROM fleet_battles WHERE id = $1 FOR UPDATE`, [battleId]
     );
-    if (!btRows[0] || btRows[0].status === 'ended') {
+    let leaseValid = !liveLeaseToken && !btRows[0]?.live_lease_token;
+    if (liveLeaseToken && String(btRows[0]?.live_lease_token || '') === String(liveLeaseToken)) {
+      const lease = await client.query(`SELECT live_lease_expires_at > clock_timestamp() AS valid
+        FROM fleet_battles WHERE id=$1 AND live_lease_token=$2`, [battleId, liveLeaseToken]);
+      leaseValid = lease.rows[0]?.valid === true;
+    }
+    if (!btRows[0] || ['ended', 'cancelled'].includes(btRows[0].status) || !leaseValid) {
       await client.query('ROLLBACK');
       console.warn(`[battleEngine] applyBattleResults: battle ${battleId} already ended, skipping`);
       return { skipped: true };
@@ -1794,7 +1826,7 @@ async function applyBattleResults(battleId, result) {
         def_ships_lost = $6,
         ended_at = NOW(),
         battle_summary = COALESCE(battle_summary, '{}'::jsonb) || $7::jsonb
-      WHERE id = $8 AND status != 'ended'
+      WHERE id = $8 AND status NOT IN ('ended', 'cancelled')
     `, [
       result.winner_side,
       result.duration_seconds,
@@ -1803,6 +1835,7 @@ async function applyBattleResults(battleId, result) {
       result.stats.atk.ships_lost,
       result.stats.def.ships_lost,
       JSON.stringify({
+        duration_ticks: result.duration_ticks,
         atk: result.stats.atk,
         def: result.stats.def,
         by_player: result.stats.by_player,
@@ -2029,6 +2062,12 @@ async function applyBattleResults(battleId, result) {
     );
     progressParticipants = progressRows;
     
+    if (result.timeline) await require('./battleTimeline').saveTimeline(battleId, result.timeline, client);
+    if (liveLeaseToken) {
+      const lease = await client.query(`SELECT live_lease_expires_at > clock_timestamp() AS valid
+        FROM fleet_battles WHERE id=$1 AND live_lease_token=$2`, [battleId, liveLeaseToken]);
+      if (!lease.rows[0]?.valid) throw new Error('BATTLE_AUTHORITY_LOST');
+    }
     await client.query('COMMIT');
     try {
       recordBattleProgress(progressParticipants, progressWinnerSide, { isAiBattle: progressIsAiBattle });

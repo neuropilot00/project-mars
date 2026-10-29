@@ -130,6 +130,10 @@ function attachWsServer(httpServer) {
     _channels.get(bid).add(ws);
 
     ws.send(JSON.stringify({ type: 'hello', battleId: bid, wallet: ws.wallet || null }));
+    // A spectator who reconnects after cancellation must not remain in a queue forever.
+    require('./db').pool.query('SELECT status FROM fleet_battles WHERE id=$1', [bid])
+      .then(({ rows }) => { if (rows[0]?.status === 'cancelled') _safeSendOrTerminate(ws, JSON.stringify({ type: 'queue', battleId: bid, reason: 'battle_cancelled' })); })
+      .catch(() => {});
 
     ws.on('message', async (raw) => {
       let msg = null;
@@ -274,6 +278,7 @@ function _initRedisPubSub() {
       else if (m.kind === 'feed') _localFeed(m.event);
       else if (m.kind === 'battleFrame') _localBattleFrame(m.battleId, m.frame);
       else if (m.kind === 'battleEnd') _localBattleEnd(m.battleId, m.summary);
+      else if (m.kind === 'battleQueue') _localBattleQueue(m.battleId, m.reason);
       else if (m.kind === 'battleCmdResult') _localBattleCommandResult(m.battleId, m.result);
       else if (m.kind === 'battleCmd') {
         const queued = _enqueueLocalBattleCommand(m.battleId, m.command);
@@ -380,6 +385,20 @@ function _localBattleEnd(battleId, summary) {
   }
   return sent;
 }
+function _localBattleQueue(battleId, reason = 'live_capacity') {
+  battleId = _battleKey(battleId);
+  const set = _channels.get(battleId);
+  if (!set) return 0;
+  const payload = JSON.stringify({ type: 'queue', battleId, reason });
+  let sent = 0;
+  for (const ws of set) if (_safeSendOrTerminate(ws, payload)) sent++;
+  return sent;
+}
+function broadcastBattleQueue(battleId, reason = 'live_capacity') {
+  battleId = _battleKey(battleId);
+  if (!battleId) return;
+  _publishOrLocal('battleQueue', { battleId, reason }, () => _localBattleQueue(battleId, reason));
+}
 /** Battle frame broadcast (battleScheduler 가 매 tick 호출). 멀티 인스턴스 시 Redis 팬아웃. */
 function broadcastBattleFrame(battleId, frame) {
   battleId = _battleKey(battleId);
@@ -451,4 +470,4 @@ function channelStats() {
   return out;
 }
 
-module.exports = { attachWsServer, broadcastBattleFrame, broadcastBattleEnd, broadcastBattleCommandResult, broadcastChat, broadcastFeed, channelStats, routeBattleCommand, routeBattleCommandResult };
+module.exports = { attachWsServer, broadcastBattleQueue, broadcastBattleFrame, broadcastBattleEnd, broadcastBattleCommandResult, broadcastChat, broadcastFeed, channelStats, routeBattleCommand, routeBattleCommandResult };

@@ -24,9 +24,9 @@ const MAX_SIZE_LIMIT = 10 * 1024 * 1024;// 10MB 이상은 거부
  * @param {Object} timeline - battleEngine.simulateBattle()의 timeline 필드
  * @returns {Object} { storage_type, size_bytes }
  */
-async function saveTimeline(battleId, timeline) {
+async function saveTimeline(battleId, timeline, client = pool) {
   // 테이블 존재 확인 (없으면 생성)
-  await ensureTimelineTable();
+  await ensureTimelineTable(client);
   
   const json = JSON.stringify(timeline);
   const sizeBytes = Buffer.byteLength(json, 'utf8');
@@ -37,7 +37,7 @@ async function saveTimeline(battleId, timeline) {
   
   // 큰 타임라인은 별도 테이블
   if (sizeBytes > INLINE_SIZE_LIMIT) {
-    await pool.query(`
+    await client.query(`
       INSERT INTO fleet_battle_timelines (battle_id, timeline_json, size_bytes, frame_count)
       VALUES ($1, $2::jsonb, $3, $4)
       ON CONFLICT (battle_id) DO UPDATE SET
@@ -51,7 +51,7 @@ async function saveTimeline(battleId, timeline) {
   }
   
   // 작으면 battle_summary에 추가
-  await pool.query(`
+  await client.query(`
     UPDATE fleet_battles 
     SET battle_summary = COALESCE(battle_summary, '{}'::jsonb) || jsonb_build_object('timeline', $1::jsonb)
     WHERE id = $2
@@ -180,11 +180,11 @@ async function getBattleInfo(battleId) {
 // ─── 테이블 생성 (최초 1회) ───
 
 let tableEnsured = false;
-async function ensureTimelineTable() {
+async function ensureTimelineTable(client = pool) {
   if (tableEnsured) return;
   
   try {
-    await pool.query(`
+    await client.query(`
       CREATE TABLE IF NOT EXISTS fleet_battle_timelines (
         battle_id     BIGINT PRIMARY KEY REFERENCES fleet_battles(id) ON DELETE CASCADE,
         timeline_json JSONB NOT NULL,
@@ -193,7 +193,7 @@ async function ensureTimelineTable() {
         created_at    TIMESTAMPTZ DEFAULT NOW()
       );
     `);
-    tableEnsured = true;
+    if (client === pool) tableEnsured = true;
   } catch (err) {
     console.error('[battleTimeline] ensureTable error:', err);
   }

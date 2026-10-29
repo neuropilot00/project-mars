@@ -13,6 +13,7 @@ const battleRewards = require('./battleRewards');         // Phase B
 const hijackService = require('./hijack');                // Phase C
 const aiFleetManager = require('./aiFleetManager');       // Phase C
 const crypto = require('crypto');
+const { acquireLiveAuthority, cleanupExpiredBattles } = require('./battleAuthority');
 const { replayDelayMs, replaySpeed, replayStreamTtlMs } = require('./battleReplayPacing');
 
 function battleEventUuid(source) {
@@ -68,29 +69,14 @@ async function _readMaxConcurrent() {
 }
 
 async function cleanupStaleBattles() {
-  // On startup: any battle still 'active' after 30+ minutes is stuck (process crash).
-  // Mark them cancelled and free the fleet locks.
   try {
-    const { rows } = await pool.query(`
-      UPDATE fleet_battles
-      SET status = 'cancelled', ended_at = NOW(),
-          battle_summary = COALESCE(battle_summary,'{}')::jsonb
-            || '{"error":"scheduler_restart_cleanup"}'::jsonb
-      WHERE status = 'active'
-        AND battle_started_at < NOW() - INTERVAL '30 minutes'
-      RETURNING id
-    `);
-    for (const r of rows) {
-      await pool.query(
-        `UPDATE fleets SET is_in_battle=false, current_battle_id=NULL WHERE current_battle_id=$1`,
-        [r.id]
-      ).catch(() => {});
-      console.log(`[battleScheduler] cleaned up stale battle ${r.id}`);
+    const { rows } = await cleanupExpiredBattles(pool);
+    if (rows.length) {
+      const ws = require('../wsServer');
+      for (const row of rows) ws.broadcastBattleQueue(row.id, 'battle_cancelled');
+      console.log(`[battleScheduler] cleaned ${rows.length} expired battles`);
     }
-    if (rows.length > 0) console.log(`[battleScheduler] cleaned ${rows.length} stale battles on startup`);
-  } catch (err) {
-    console.warn('[battleScheduler] cleanupStaleBattles error:', err.message);
-  }
+  } catch (err) { console.warn('[battleScheduler] cleanupStaleBattles error:', err.message); }
 }
 
 function start() {
@@ -122,6 +108,7 @@ async function runOnce() {
   scanInProgress = true;
   try {
   // [v7.188 fix] 매 tick 마다 settings 재조회 — admin 이 런타임에 바꿔도 반영.
+  await cleanupStaleBattles();
   const maxC = await _readMaxConcurrent();
   if (currentlyRunning >= maxC) return { skipped: true, reason: 'concurrent_cap' };
 
@@ -148,7 +135,19 @@ async function runOnce() {
   }
 }
 
-async function runBattle(battleId) {
+const runningBattles = new Map();
+function runBattle(battleId) {
+  const key = String(battleId);
+  if (runningBattles.has(key)) return runningBattles.get(key);
+  const running = runBattleOwned(battleId).finally(() => runningBattles.delete(key));
+  runningBattles.set(key, running);
+  return running;
+}
+
+async function runBattleOwned(battleId) {
+  let claimedByUs = false;
+  const claimedToken = crypto.randomUUID();
+  let authority = null;
   currentlyRunning++;
   try {
     console.log(`[battleScheduler] running battle ${battleId}`);
@@ -166,10 +165,11 @@ async function runBattle(battleId) {
 
       const { rows: claimed } = await startClient.query(`
         UPDATE fleet_battles
-        SET status = 'active', battle_started_at = COALESCE(battle_started_at, NOW())
+        SET status = 'active', battle_started_at = COALESCE(battle_started_at, NOW()),
+            live_lease_token=$2, live_lease_expires_at=NOW()+INTERVAL '2 minutes', live_slot_acquired=false
         WHERE id = $1 AND status = 'preparing'
         RETURNING battle_type, phase, battle_summary
-      `, [battleId]);
+      `, [battleId, claimedToken]);
       if (!claimed[0]) {
         await startClient.query('ROLLBACK');
         console.log(`[battleScheduler] battle ${battleId} already claimed or not preparing`);
@@ -211,6 +211,7 @@ async function runBattle(battleId) {
       `, [battleId]);
 
       await startClient.query('COMMIT');
+      claimedByUs = true;
     } catch (claimErr) {
       try { await startClient.query('ROLLBACK'); } catch (_) {}
       throw claimErr;
@@ -260,6 +261,7 @@ async function runBattle(battleId) {
     //      두 모드 모두에서 제외 — npcArena 는 120초마다 스폰되어 concurrent 상한을 잠식할 수 있다.
     //    결과 shape 는 simulateBattle 과 동일 → 이후 경로 공통.
     let result;
+    let broadcastReplay = null;
     let _liveEnabled = false;
     let _liveTickMs = 250, _liveWallMin = 10;
     try {
@@ -286,7 +288,6 @@ async function runBattle(battleId) {
         //   tournament 등 8곳)로도 호출되어 battle_max_concurrent 를 우회한다. 라이브 루프는 수 분간
         //   워커를 점유하므로, 포화 상태면 이 전투만 precompute 로 강등해 무제한 동시 라이브·스케줄 기아를 막는다.
         //   (currentlyRunning 은 runBattle 진입 시 자기 몫 ++ 이후라 > 비교 — 상한 이내면 라이브 허용.)
-        if (_liveEnabled && currentlyRunning > MAX_CONCURRENT_CACHE) _liveEnabled = false;
         if (_liveEnabled) {
           _liveTickMs = parseInt(await getSetting('fleet_realtime_tick_ms', '120')) || 120;
           _liveWallMin = parseInt(await getSetting('fleet_realtime_wallclock_min', '6')) || 6;
@@ -303,10 +304,12 @@ async function runBattle(battleId) {
       //   권위: 이 워커(스케줄러 리더 = runBattle 실행자)가 단독 실행 + liveBattle.markActive 로 명령 수신 등록.
       const ws = require('../wsServer');
       const liveBattle = require('./liveBattle');
+      authority = await acquireLiveAuthority(pool, battleId, await _readMaxConcurrent(), () => ws.broadcastBattleQueue(battleId), claimedToken);
       liveBattle.markActive(battleId);
       try {
         result = await battleEngine.simulateBattleLive(battleId, {
           drainCommands: () => liveBattle.drainCommands(battleId),
+          shouldAbort: () => authority.shouldAbort(),
           onFrame: (frame) => { try { ws.broadcastBattleFrame(battleId, frame); } catch (_) {} },
           onCommandResult: (commandResult) => ws.broadcastBattleCommandResult(battleId, commandResult),
           tickMs: _liveTickMs, wallClockMs: _liveWallMin * 60 * 1000,
@@ -319,11 +322,11 @@ async function runBattle(battleId) {
           });
         }
       }
-      try {
-        ws.broadcastBattleEnd(battleId, { winner_side: result.winner_side, duration_seconds: result.duration_seconds, stats: result.stats });
-      } catch (_) {}
       console.log(`[battleScheduler] LIVE ${battleType} ${battleId} done. Winner: ${result.winner_side}`);
     } else {
+      const unlocked = await pool.query(`UPDATE fleet_battles SET live_lease_token=NULL, live_lease_expires_at=NULL
+        WHERE id=$1 AND status='active' AND live_lease_token=$2 AND live_lease_expires_at>NOW() RETURNING id`, [battleId, claimedToken]);
+      if (!unlocked.rowCount) throw new Error('BATTLE_AUTHORITY_LOST');
       result = await battleEngine.simulateBattle(battleId);
 
       // 2-bis. WebSocket 실시간 broadcast (precompute → setTimeout 체인 replay)
@@ -360,20 +363,21 @@ async function runBattle(battleId) {
             i++;
             setTimeout(streamNext, delay);
           };
-          streamNext();
-          console.log(`[battleScheduler] WS streaming ${frames.length} frames to ${stats[battleId]} subscribers`);
+          broadcastReplay = streamNext;
+          console.log(`[battleScheduler] WS prepared ${frames.length} frames for ${stats[battleId]} subscribers`);
         }
       } catch (wsErr) {
         console.warn(`[battleScheduler] ws broadcast failed:`, wsErr.message);
       }
     }
 
-    // 3. 타임라인 저장
-    const timelineSaved = await battleTimeline.saveTimeline(battleId, result.timeline);
-    console.log(`[battleScheduler] battle ${battleId} timeline saved: ${timelineSaved.size_bytes} bytes`);
-    
-    // 4. DB 반영
-    await battleEngine.applyBattleResults(battleId, result);
+    // Result and replay commit together after the live authority check.
+    const settled = await battleEngine.applyBattleResults(battleId, result, authority?.token);
+    if (settled?.skipped) throw new Error('BATTLE_SETTLEMENT_SKIPPED');
+    if (broadcastReplay) broadcastReplay();
+    if (_liveEnabled) {
+      try { require('../wsServer').broadcastBattleEnd(battleId, { winner_side: result.winner_side, duration_seconds: result.duration_seconds, stats: result.stats }); } catch (_) {}
+    }
     await recordBattleProductEvents(battleId, 'ended', battleType, battleSummary, result);
     if (result.winner_side === 'atk' && battleSummary?.trusted_source === 'starter_ops' &&
         battleSummary?.is_starter_battle === true && battleSummary?.starter_training === true &&
@@ -448,16 +452,22 @@ async function runBattle(battleId) {
     return result;
   } catch (err) {
     console.error(`[battleScheduler] battle ${battleId} error:`, err);
-    await pool.query(`
-      UPDATE fleet_battles SET status='cancelled', ended_at=NOW(),
-        battle_summary = COALESCE(battle_summary,'{}'::jsonb) || jsonb_build_object('error', $1::text)
-      WHERE id=$2
-    `, [err.message, battleId]).catch(()=>{});
-    await pool.query(`
-      UPDATE fleets SET is_in_battle=false, current_battle_id=NULL WHERE current_battle_id=$1
-    `, [battleId]).catch(()=>{});
+    if (claimedByUs) {
+      const cancelled = await pool.query(`WITH cancelled AS (
+        UPDATE fleet_battles SET status='cancelled', ended_at=NOW(), live_slot_acquired=false,
+          battle_summary = COALESCE(battle_summary,'{}'::jsonb) || jsonb_build_object('error', $1::text)
+        WHERE id=$2 AND status='active' AND (live_lease_token IS NULL OR live_lease_token=$3::uuid)
+        RETURNING id
+      ), unlocked AS (
+        UPDATE fleets SET is_in_battle=false, current_battle_id=NULL
+        WHERE current_battle_id IN (SELECT id FROM cancelled) RETURNING id
+      ) SELECT id FROM cancelled
+      `, [err.message, battleId, authority?.token || claimedToken]).catch(()=>({ rows: [] }));
+      if (cancelled.rows.length) { try { require('../wsServer').broadcastBattleQueue(battleId, 'battle_cancelled'); } catch (_) {} }
+    }
     throw err;
   } finally {
+    authority?.stop();
     await pool.query(`
       UPDATE fleets
       SET is_in_battle=false, current_battle_id=NULL

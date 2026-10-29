@@ -10,10 +10,11 @@ test('touch destinations invert the same portrait projection at every battlefiel
  assert.equal(c.battleServerPoint(-100,0,460,600),null);
 });
 test('selection can switch only between living owned fleets and outgoing commands name the selected fleet',()=>{
- const sent=[],c={_commandWallet:'owner',_selectedCommandFleetId:null,_moveOrderArmed:false,_wsLastFrame:{fleets:[{id:'11',owner_wallet:'owner',hp:100},{id:'12',owner_wallet:'OWNER',hp:100},{id:'22',owner_wallet:'enemy',hp:100},{id:'13',owner_wallet:'owner',hp:100,retreated:true}]},_wsRealtime:true,_wsEndPayload:null,_wsBattle:{readyState:1,send:x=>sent.push(JSON.parse(x))},_commandSeq:0,_pendingCommands:new Map(),navigationText:x=>x,commandText:x=>x,commandFeedback(){},updateCommandDeck(){}};
+ const sent=[],c={_commandWallet:'owner',_selectedCommandFleetId:null,_moveOrderArmed:false,_wsLastFrame:{fleets:[{id:'11',owner_wallet:'owner',hp:100},{id:'12',owner_wallet:'OWNER',hp:100},{id:'22',owner_wallet:'enemy',hp:100},{id:'13',owner_wallet:'owner',hp:100,retreated:true}]},_wsRealtime:true,_wsEndPayload:null,_liveCancelled:false,_wsBattle:{readyState:1,send:x=>sent.push(JSON.parse(x))},_commandSeq:0,_pendingCommands:new Map(),navigationText:x=>x,commandText:x=>x,commandFeedback(){},updateCommandDeck(){}};
  vm.createContext(c);vm.runInContext(part('function commandableFleets(','function advanceBattleClock(').replace(/function commandFeedback\([^]*?\nfunction sendLiveCommand/,'function sendLiveCommand'),c);
  assert.equal(c.selectCommandFleet('22'),false);assert.equal(c.selectCommandFleet('13'),false);assert.equal(c.selectCommandFleet('12'),true);
  c.sendLiveCommand('hold',{});assert.equal(sent[0].payload.fleetId,'12');
+ c._liveCancelled=true;assert.equal(c.sendLiveCommand('hold',{}),false,'a cancelled live battle cannot receive commands');c._liveCancelled=false;
  c._wsEndPayload={};assert.equal(c.selectCommandFleet('11'),false);assert.equal(c.sendLiveCommand('move',{x:10,y:10}),false);assert.equal(sent.length,1);
 });
 test('armed canvas input sends real server coordinates once; replay/spectator/ended input cannot send',()=>{
