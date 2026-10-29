@@ -18,7 +18,7 @@
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/assets/pwa/occupy-mars-icon-realistic.png">
 <title>OCCUPY MARS — Claim Your Territory</title>
-<script src="/assets/app-config.js?v=7511"></script>
+<script src="/assets/app-config.js?v=7513"></script>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
 <link href="/assets/tactical-lab-modal.css?v=7485" rel="stylesheet">
@@ -32,7 +32,7 @@
 <link href="/assets/utility-overlays.css?v=release-20261021-13" rel="stylesheet">
 <link href="/assets/faction-modal.css?v=7485" rel="stylesheet">
 <link href="/assets/codex-guide.css?v=7485" rel="stylesheet">
-<link href="/assets/main.css?v=7513-territory-coalition" rel="stylesheet">
+<link href="/assets/main.css?v=7513-territory-coalition-2" rel="stylesheet">
 <link rel="stylesheet" href="/assets/item-art.css?v=image28-release">
 <link rel="stylesheet" href="/assets/assembly-fusion.css?v=image28-release">
 <script src="/assets/item-art.js?v=image28-release"></script>
@@ -1184,7 +1184,7 @@
         </div>
 
         <!-- ─── 내 영토 목록 ─────────────────────────────── -->
-        <div class="base-section-title" style="margin-top:12px;display:flex;align-items:center;justify-content:space-between">
+        <div class="base-section-title" id="territoryListActions" style="margin-top:12px;display:flex;align-items:center;justify-content:space-between">
           <span>🗺️ <span data-i18n="my_territory_title">My Territory</span></span>
           <span style="display:flex;align-items:center;gap:6px">
             <button onclick="harvestAllTerritories()" style="font-size:8px;padding:3px 8px;border-radius:6px;background:rgba(255,209,102,.12);border:1px solid rgba(255,209,102,.35);color:#ffd166;cursor:pointer;font-family:var(--fn)" data-i18n="harvest_all_btn">⛏ HARVEST ALL</button>
@@ -4949,7 +4949,7 @@
   </div>
 </div>
 
-<script src="/assets/shipyard-modal.js?v=7509"></script>
+<script src="/assets/shipyard-modal.js?v=7513"></script>
 
 <!-- ═══ A-3: Fleet Command Modal ═══ -->
 <div class="fleetcmd-modal-backdrop" id="fleetCmdModal">

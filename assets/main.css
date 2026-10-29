@@ -3584,3 +3584,9 @@ body:not(.command-center-open)>#chatOverlay.collapsed{left:auto!important;right:
  #mobSizeControls button{min-height:44px;padding:8px!important}
  #mobSizeLabel{white-space:nowrap}#mobCostLabel{overflow-wrap:anywhere}
 }
+
+@media(max-width:768px){
+ #territoryListActions{flex-wrap:wrap;gap:8px;font-size:11px}
+ #territoryListActions>span:last-child{width:100%;display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto}
+ #territoryListActions button{min-height:44px;font-size:11px!important;padding:8px!important}
+}

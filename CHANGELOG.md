@@ -1,9 +1,11 @@
 ## 2026-10-29 v7.513 — 영토 터치와 대규모 연합전 지휘
 
-- 초보 무료 지역 바로 선택, 1×1 크기, 누적 터치 이동, 극지 전체 경계와 잠긴 구역 사전 표시. 320px 선택 버튼 넘침 수정.
+- 조선소가 공통 릴리스 버전을 과거값으로 덮지 않도록 하고 설정/조선소 캐시 키를 새 버전으로 갱신.
+
+- 초보 무료 지역 바로 선택, 1×1 크기, 누적 터치 이동, 극지 전체 경계와 잠긴 구역 사전 표시. 320px 선택 버튼 넘침 수정. 영토 관리의 일괄 수확/정비도44px 버튼 두 칸으로 정리.
 - 6번째 이후 함대의 중앙 중첩 출발 수정. 모든 생존 선체를 그리고 80척 초과 전투의 불꽃·HP·라벨 밀도를 조절해 함급과 표적이 읽히도록 개선.
 - 내 함대 선택판에 이름·생존 척수·HP 제공. 지휘 함대 전환과 공격을 구분하고 표적 함대 이름을 표시.
-- 실제 엔진의 200/300/600척 합성 연합전·서버 명령/손실 집계, 320/390px 실제 UI와 정상 신규 무료 점령 검수. 569회귀와 SEA2849 통과. 경제·수확률·운영 제한 시간은 보존.
+- 실제 엔진의 200/300/600척 합성 연합전·서버 명령/손실 집계, 320/390px 실제 UI와 정상 신규 무료 점령 검수. 572회귀와 SEA2849 통과. 경제·수확률·운영 제한 시간은 보존.
 
 ## 2026-10-28 v7.512 — 진행 중 멈춤 방지와 시뮬레이션 검수 완료
 
@@ -4036,7 +4038,7 @@ Codex 독립 검토가 v7.125 에서 찾은 결함 3개 보강(현재 USDT=0 이
 
 - `server/routes/dailyOps.js` `POST /daily-ops/progress` — `requireAuth`만 있어 일반 유저가 임의 `mission_type`으로 자신의 미션 진행도를 직접 올려 GP 보상 farming 가능. `requireAdmin` (x-admin-secret 헤더 체크) 추가. 서버 내부 호출은 `module.exports.notifyMissionProgress()` 직접 함수 export 경로 사용이므로 영향 없음.
 - `server/routes/battleExtras.js` `POST /battles/siege/create` — "관리자/테스트 전용" 엔드포인트가 `requireAuth`만 있어 일반 유저가 임의 fleet ID로 타인 fleet을 강제 전투에 등록 가능. `requireAdmin` 추가.
-- `server/routes/tacticalLab.js` `GET /tactical-lab/fleet-presets` — 비인증 공개 엔드포인트에서 전체 `ownerWallet` 주소 노출. SERIAL `battleId`로 열거 가능. `0x1234...5698` 형식 마스킹 처리.
+- `server/routes/tacticalLab.js` `GET /tactical-lab/fleet-presets` — 비인증 공개 엔드포인트에서 전체 `ownerWallet` 주소 노출. SERIAL `battleId`로 열거 가능. `0x1234...5728` 형식 마스킹 처리.
 
 **수정 (LOW):**
 
