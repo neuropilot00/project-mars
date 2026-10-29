@@ -35,7 +35,7 @@ function dock(){
  const nodes={};for(const id of ['battleCommandDock','combatCommandTray','combatTrayOptions','combatTrayTitle','combatDoctrineLabel','combatTargetLabel','combatDoctrineValue','combatTargetValue','combatWeaponName','combatDockStatus','combatFire','combatCharge','doctrineChoice','skillChoice','focusChoice'])nodes[id]=new Node();
  nodes.doctrineChoice.value='breakthrough';nodes.skillChoice.value='beam';nodes.focusChoice.options=[{value:'22',textContent:'Enemy · HP 90%'}];
  const calls=[],mine={beamCharge:45,missileCharge:100,overdriveCharge:0,hasAssembled:false};
- const c={document:{getElementById:id=>nodes[id]||null,querySelectorAll:()=>[],createElement:tag=>Object.assign(new Node(),{tag})},Math,Map,Array,JSON,Number,String,TLANG:'ko',TL_MODE:'battle',ownedLiveFleet:()=>mine,_pendingCommands:new Map(),focusFleet:null,fleets:[],commandText:k=>k,tl:k=>k,cmdDoctrine:()=>calls.push('doctrine:'+nodes.doctrineChoice.value),cmdFocus:()=>calls.push('focus:'+nodes.focusChoice.value),cmdSelectedSkill:()=>calls.push('fire:'+nodes.skillChoice.value),updateCommandDeck:()=>c.updateCombatDock(true,'live')};
+ const c={document:{getElementById:id=>nodes[id]||null,querySelectorAll:()=>[],createElement:tag=>Object.assign(new Node(),{tag})},Math,Map,Array,JSON,Number,String,TLANG:'ko',TL_MODE:'battle',ownedLiveFleet:()=>mine,commandableFleets:()=>[],_wsLastFrame:{ships:[]},_pendingCommands:new Map(),focusFleet:null,fleets:[],commandText:k=>k,tl:k=>k,cmdDoctrine:()=>calls.push('doctrine:'+nodes.doctrineChoice.value),cmdFocus:()=>calls.push('focus:'+nodes.focusChoice.value),cmdSelectedSkill:()=>calls.push('fire:'+nodes.skillChoice.value),updateCommandDeck:()=>c.updateCombatDock(true,'live')};
  vm.createContext(c);vm.runInContext(extract("let combatPanel=''",'function updateCommandDeck('),c);
  function click(dataset,attr){const control=new Node();control.dataset=dataset;if(attr)control.attrs[attr]='';control.disabled=attr==='data-combat-fire'?nodes.combatFire.disabled:false;c.handleCombatDockClick({target:{closest:()=>control}});}
  return {c,nodes,calls,mine,click};
@@ -83,4 +83,11 @@ test('result art metadata includes real destroyed hulls and excludes local catal
  const c={TL_MODE:'battle',TL_QUERY:new URLSearchParams('bid=1507'),ships:[{dbShipId:1,tid:'fsp_int',dead:true,fleet:{dbFleetId:11}},{tid:'fake',fleet:{dbFleetId:11}}],fleets:[{dbFleetId:11,side:'atk'}]};
  vm.createContext(c);vm.runInContext(extract('function battleResultArtSnapshot(','const BATTLE_VIEWPORT_RIM='),c);
  const actual=JSON.parse(JSON.stringify(c.battleResultArtSnapshot()));assert.deepEqual(actual,{battleId:'1507',ships:[{id:1,fid:11,code:'fsp_int',dead:true}],fleets:[{id:11,side:'atk'}]});
+});
+
+test('multi-fleet picker lists only commandable fleets and selection never fires a weapon',()=>{
+ const f=dock();f.c.commandableFleets=()=>[{id:'11',name:'Alpha',hp:100,maxHp:100},{id:'12',name:'Beta',hp:50,maxHp:100}];f.c._wsLastFrame={ships:[{id:'1',fid:'11',hp:100},{id:'2',fid:'12',hp:100}]};f.c.selectCommandFleet=id=>f.calls.push('select:'+id);
+ f.c.updateCombatDock(true,'live');f.click({combatPanel:'fleet'});assert.equal(f.nodes.combatTrayOptions.children.length,2);assert.equal(f.nodes.combatTrayOptions.children[1].children[0].textContent,'Beta');
+ f.click({combatChoice:'fleet',value:'foreign'});assert.equal(f.calls.length,0);f.click({combatChoice:'fleet',value:'12'});assert.deepEqual(f.calls,['select:12']);
+ f.c.updateCombatDock(false,'replay');f.click({combatChoice:'fleet',value:'11'});assert.equal(f.calls.length,1);
 });

@@ -459,7 +459,7 @@ html[data-tl-mode="battle"] .combat-field-tools{display:block;}
 <canvas id="c" width="460" height="600"></canvas>
 <nav class="combat-field-tools" aria-label="Fleet navigation">
   <small id="combatSelectedFleet" role="status"></small>
-  <div><button type="button" data-combat-order="move" aria-pressed="false">Move</button><button type="button" data-combat-order="hold">Hold</button><button type="button" data-combat-order="auto">Auto</button></div>
+  <div><button type="button" id="combatFleetPicker" data-combat-panel="fleet" aria-expanded="false" hidden></button><button type="button" data-combat-order="move" aria-pressed="false">Move</button><button type="button" data-combat-order="hold">Hold</button><button type="button" data-combat-order="auto">Auto</button></div>
 </nav>
 <button class="speed-cycle" id="speedCycle" onclick="cycleSimSpeed()">×1</button>
 <button class="sound-toggle" id="soundToggle" onclick="toggleBattleAudio()">SOUND</button>
@@ -2611,14 +2611,15 @@ function shipDisplayMetrics(sh, displayScale){
   const ratio=img?img.width/Math.max(1,img.height):1;
   const nominal=shipVisualLength(t)*(String(t.code||'').startsWith('pilgrim_')?.7:1)*Math.max(1,ratio);
   const compact=_frameLiving<=12;
-  const readable=({frigate:48,destroyer:66,cruiser:90,battleship:132,titan:188}[t.size]||48)*(compact?1:0.34);
+  const densityScale=compact?1:Math.max(.12,.34*Math.min(1,Math.sqrt(80/Math.max(1,_frameLiving))));
+  const readable=({frigate:48,destroyer:66,cruiser:90,battleship:132,titan:188}[t.size]||48)*densityScale;
   const extra=Math.max(1,readable/(nominal*pixelScale));
   const scale=baseScale*extra;
-  return {scale,pixelScale,compact,radius:Math.max(t.r*scale,nominal*extra/2)};
+  return {scale,pixelScale,compact,length:nominal*extra,radius:Math.max(t.r*scale,nominal*extra/2)};
 }
 
-function shipScreenRadius(sh){
-  const metrics=shipDisplayMetrics(sh);
+function shipScreenRadius(sh,displayScale){
+  const metrics=shipDisplayMetrics(sh,displayScale);
   return metrics.radius+16/metrics.pixelScale;
 }
 
@@ -2631,8 +2632,8 @@ function shipVisualLength(s){
 //   drawShips2 에서 매 프레임 throw → 루프가 죽어 함선이 아예 안 그려지던 크래시 방지.
 function facOf(code){ return FACTIONS[code] || FACTIONS.mcc || {color:'#4fc3f7',colorDark:'#0277bd',colorBright:'#81d4fa'}; }
 function facColor(code){ return facOf(code).color || '#4fc3f7'; }
-function drawEngineFlame(ctx,x,y,facing,type,pulse=1,visualScale=1){
-  const len=shipVisualLength(type)*visualScale;
+function drawEngineFlame(ctx,x,y,facing,type,pulse=1,visualScale=1,hullLength){
+  const len=hullLength==null?shipVisualLength(type)*visualScale:hullLength;
   const size=Math.max(2.4,len*.16);
   const back=len*.58+size*.7;
   const ex=x-Math.cos(facing)*back;
@@ -2761,8 +2762,10 @@ function drawFleets(){
       CX.restore();
     }
   }
+  const selectedLive=TL_MODE==='battle'?ownedLiveFleet():null;
   fleets.forEach(f=>{
     if(f.dead)return;
+    if(_frameLiving>80&&TL_MODE==='battle'&&f!==focusFleet&&(!selectedLive||String(f.dbFleetId)!==String(selectedLive.id)))return;
     const fc=f.flagship?facColor(f.flagship.type.faction):'#4fc3f7';
     // 함대 영역 원(그라디언트 디스크) 제거 — 난잡함 원인 (사용자 요청). 라벨/HP바만 유지.
 
@@ -2804,11 +2807,11 @@ function drawFleets(){
 const TEAM_COLOR={atk:'#29b6f6',def:'#ef5350'};
 
 function drawShips2(){
+  const rect=CVs.getBoundingClientRect(),displayScale=Math.min(rect.width/W,rect.height/H);
   const sorted=[...ships].sort((a,b)=>b.type.r-a.type.r);
   sorted.forEach((sh,idx)=>{
     if(sh.dead)return;
     const t=sh.type;
-    if(PERF_MODE&&_frameLiving>12&&isSmall(sh)&&!sh.isFlagship&&idx%2===1)return;
     const F=facOf(t.faction);
 
     // 팀 식별 링(함선 주변 원) 제거 — 난잡함 원인 (사용자 요청).
@@ -2819,7 +2822,7 @@ function drawShips2(){
     CX.save();
     CX.translate(sh.x,sh.y);
     CX.rotate(sh.facing);
-    const metrics=shipDisplayMetrics(sh);
+    const metrics=shipDisplayMetrics(sh,displayScale);
     const classScale=metrics.scale;
     // Visual response only: never move the server hull, hitbox or target marker.
     const recoil=Math.max(0,Math.min(1,((sh.recoilUntil||0)-Date.now())/180));
@@ -2837,9 +2840,9 @@ function drawShips2(){
       const role=t.role==='tank'?'▣':t.role==='logi'||t.role==='ewar'?'✚':'▲';
       if(TL_MODE!=='battle')CX.fillText(role,sh.x,sh.y+metrics.radius+18*unit);CX.restore();
     }
-    if(drawn&&t.r>=2&&(!PERF_MODE||sh.isFlagship||!isSmall(sh))){
+    if(drawn&&t.r>=2&&(_frameLiving<=80||sh.isFlagship)&&(!PERF_MODE||sh.isFlagship||!isSmall(sh))){
       const ef=.6+.4*Math.sin(sh.engF*.18);
-      drawEngineFlame(CX,sh.x,sh.y,sh.facing,t,ef,classScale);
+      drawEngineFlame(CX,sh.x,sh.y,sh.facing,t,ef,classScale,metrics.length);
     }
     // (실드 v7.400) 실드 버블 — 선체에 밀착(너무 컸음 1.55→1.08). 평소 은은, 피격 시만 번쩍.
     if(drawn && sh.shieldMax>0 && sh.shield>0 && (!PERF_MODE||!isSmall(sh)||sh.isFlagship)){
@@ -2853,9 +2856,9 @@ function drawShips2(){
       if(_hit>0.05){ CX.globalAlpha=0.16*_hit; CX.fillStyle='#aee9ff'; CX.fill(); }
       CX.restore();
     }
-    // HP바: 대형함 항상 표시 + 기함 항상 표시 + 소규모 전투(≤12척)에서 전체 표시
-    const showHpBar = t.size==='cruiser'||t.size==='battleship'||t.size==='titan'
-      || sh.isFlagship || metrics.compact;
+    // HP: all small-battle hulls, capitals up to 80 hulls, flagships at coalition scale.
+    const showHpBar = sh.isFlagship || metrics.compact || (_frameLiving<=80 &&
+      (t.size==='cruiser'||t.size==='battleship'||t.size==='titan'));
     if(drawn && showHpBar){
       const barW = Math.max(t.r*(sh.isFlagship?3.2:2.2)*classScale,18/metrics.pixelScale);
       const barH = (sh.isFlagship ? 3 : 2)/metrics.pixelScale;
@@ -3210,14 +3213,12 @@ function loop(ts){
       if(dist<pair.dist)pair={a,d,dist};
     }));
     const aliveShips=ships.filter(s=>!s.dead);
-    const xs=aliveShips.flatMap(s=>{
-      const r=shipScreenRadius(s);
-      return [s.x-r,s.x+r];
-    });
-    const ys=aliveShips.flatMap(s=>{
-      const r=shipScreenRadius(s);
-      return [s.y-r-18,s.y+r+24];
-    });
+    const rect=CVs.getBoundingClientRect(),displayScale=Math.min(rect.width/W,rect.height/H);
+    const xs=[],ys=[];
+    for(const ship of aliveShips){
+      const r=shipScreenRadius(ship,displayScale);
+      xs.push(ship.x-r,ship.x+r);ys.push(ship.y-r-18,ship.y+r+24);
+    }
     if(!xs.length){
       _aliveF.forEach(f=>{
         xs.push(f.cx-f.radius,f.cx+f.radius);
@@ -4147,7 +4148,11 @@ function updateNavigationControls(enabled){
  if(!enabled)_moveOrderArmed=false;
  const fleet=ownedLiveFleet(),order=fleet&&fleet.navigation;
  const pending=Array.from(_pendingCommands.values()).some(command=>['move','hold','auto'].includes(command.cmd)&&String(command.payload.fleetId)===String(fleet&&fleet.id));
- status.textContent=_moveOrderArmed?navigationText('hint'):fleet?'▲ '+String(fleet.id)+' · '+(order?navigationText(order.mode):navigationText('auto')):navigationText('pick');
+ const own=commandableFleets(),hulls=fleet&&_wsLastFrame?(_wsLastFrame.ships||[]).filter(s=>String(s.fid)===String(fleet.id)&&Number(s.hp)>0).length:0;
+ const picker=document.getElementById('combatFleetPicker');
+ if(picker){picker.hidden=own.length<2;picker.disabled=!enabled;picker.textContent=tl('fleets')+' '+(own.findIndex(f=>String(f.id)===String(fleet&&fleet.id))+1)+'/'+own.length+' ▾';picker.setAttribute('aria-label',tl('fleets'));}
+ const selected=fleet&&fleets.find(f=>String(f.dbFleetId)===String(fleet.id));
+ status.textContent=_moveOrderArmed?navigationText('hint'):fleet?(selected?selected.userId:String(fleet.id))+' · '+hulls+' '+tl('ships')+' · '+(order?navigationText(order.mode):navigationText('auto')):navigationText('pick');
  document.querySelectorAll('[data-combat-order]').forEach(button=>{
    button.disabled=!enabled||pending;button.textContent=navigationText(button.dataset.combatOrder);
    button.setAttribute('aria-label',navigationText(button.dataset.combatOrder));
@@ -4190,11 +4195,11 @@ function updateCombatDock(enabled,mode){
  });
  const selected=document.getElementById('skillChoice').value,weapon=skills.find(x=>x.id===selected)||skills[0];
  const target=fleets.find(f=>f===focusFleet&&f.hp>0&&!f.retreated);
- combatDockState={enabled,mode,skills,selected,doctrine:document.getElementById('doctrineChoice').value,targets:Array.from(document.getElementById('focusChoice').options).map(o=>({id:o.value,text:o.textContent}))};
+ combatDockState={enabled,mode,skills,selected,ownFleets:commandableFleets().map(f=>({id:String(f.id),name:f.name||(fleets.find(v=>String(v.dbFleetId)===String(f.id))||{}).userId||String(f.id),ships:(_wsLastFrame.ships||[]).filter(s=>String(s.fid)===String(f.id)&&Number(s.hp)>0).length,hp:Math.max(0,Math.round(f.hp/f.maxHp*100))})),doctrine:document.getElementById('doctrineChoice').value,targets:Array.from(document.getElementById('focusChoice').options).map(o=>({id:o.value,text:o.textContent}))};
  document.getElementById('combatDoctrineLabel').textContent=combatLabel('TACTICS','전술');
  document.getElementById('combatTargetLabel').textContent=combatLabel('TARGET','표적');
  document.getElementById('combatDoctrineValue').textContent=commandText(combatDockState.doctrine);
- document.getElementById('combatTargetValue').textContent=target?'HP '+Math.max(0,Math.round(target.hp/target.maxHp*100))+'%':combatLabel('Select target','표적 선택');
+ document.getElementById('combatTargetValue').textContent=target?target.userId+' · HP '+Math.max(0,Math.round(target.hp/target.maxHp*100))+'%':combatLabel('Select target','표적 선택');
  document.getElementById('combatWeaponName').textContent=tl(selected==='missile'?'missile':selected);
  document.getElementById('combatDockStatus').textContent=commandText(mode);
  const fire=document.getElementById('combatFire');fire.disabled=!weapon.ready;fire.classList.toggle('ready',!!weapon.ready);fire.style.setProperty('--charge',weapon.charge+'%');
@@ -4209,7 +4214,10 @@ function renderCombatTray(){
  const signature=JSON.stringify([combatPanel,state]);if(signature===combatTraySignature)return;combatTraySignature=signature;
  const title=document.getElementById('combatTrayTitle'),rows=[];
  function choice(kind,value,titleText,note,disabled){rows.push({kind,value,title:titleText,note,disabled:!!disabled});}
- if(combatPanel==='doctrine'){
+ if(combatPanel==='fleet'){
+  title.textContent=tl('fleets');
+  for(const f of state.ownFleets||[])choice('fleet',f.id,f.name,f.ships+' '+tl('ships')+' · HP '+f.hp+'%',!state.enabled);
+ }else if(combatPanel==='doctrine'){
   title.textContent=combatLabel('Fleet tactics','함대 전술');
   for(const id of ['breakthrough','protect','flank'])choice('doctrine',id,commandText(id),commandText(id+'Note'),!state.enabled);
  }else if(combatPanel==='target'){
@@ -4246,7 +4254,8 @@ function handleCombatDockClick(event){
   document.querySelectorAll('[data-combat-panel]').forEach(b=>b.setAttribute('aria-expanded',String(b.dataset.combatPanel===combatPanel)));return;
  }
  const state=combatDockState;if(!state||control.disabled)return;
- if(control.dataset.combatChoice==='doctrine'&&state.enabled&&['breakthrough','protect','flank'].includes(control.dataset.value)){document.getElementById('doctrineChoice').value=control.dataset.value;cmdDoctrine();}
+ if(control.dataset.combatChoice==='fleet'&&state.enabled&&(state.ownFleets||[]).some(f=>f.id===control.dataset.value)){selectCommandFleet(control.dataset.value);}
+ else if(control.dataset.combatChoice==='doctrine'&&state.enabled&&['breakthrough','protect','flank'].includes(control.dataset.value)){document.getElementById('doctrineChoice').value=control.dataset.value;cmdDoctrine();}
  else if(control.dataset.combatChoice==='target'&&state.enabled&&state.targets.some(t=>t.id===control.dataset.value)){document.getElementById('focusChoice').value=control.dataset.value;cmdFocus();}
  else if(control.dataset.combatChoice==='skill'&&state.skills.some(t=>t.id===control.dataset.value)){document.getElementById('skillChoice').value=control.dataset.value;updateCommandDeck();}
  closeCombatTray();

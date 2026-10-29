@@ -3575,3 +3575,12 @@ body:not(.command-center-open)>#chatOverlay.collapsed{left:auto!important;right:
   body:not(.command-center-open)>#chatOverlay.collapsed{width:44px!important;height:44px!important;min-width:44px;min-height:44px}
 }
 @media(max-width:390px){#topbar #chainIndicator{display:none!important}}
+
+/* Territory selection: keep controls inside narrow screens and separate from chat/nav. */
+@media(max-width:768px){
+ #mobSizeControls>div{display:grid!important;grid-template-columns:64px minmax(0,1fr);gap:8px!important;width:100%}
+ #mobJoystickWrap{width:64px!important;height:64px!important;flex-basis:64px!important}
+ #mobSizeControls>div>div:last-child{grid-column:1/-1;display:grid!important;grid-template-columns:1fr 1fr;gap:8px!important}
+ #mobSizeControls button{min-height:44px;padding:8px!important}
+ #mobSizeLabel{white-space:nowrap}#mobCostLabel{overflow-wrap:anywhere}
+}

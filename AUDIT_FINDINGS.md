@@ -1,3 +1,11 @@
+## 2026-10-29 v7.513 — 영토 진입 마찰·100척 연합전
+
+- 모바일 작은 터치 이동의 격자 반올림 손실/핀치 후 좌표 도약, 크기 조작 최소5 제한, .1/.22 경계 불일치와 320px 넘침을 재현·수정.
+- 침공 미리보기를 실제 최다 겹침 소유자로 맞추고 오래된 비동기 응답이 다른 선택지에 덮이지 않도록 방어.
+- 6번째 이후 함대가 공통 중앙으로 떨어지는 초기 배치와 소형 선체 절반 생략을 수정. 대규모 화면의 이중 확대된 엔진 불꽃과 과도한 라벨/HP를 실제600척 UI에서 확인하고 밀도 조절.
+- 실제 엔진 합성200/300/600척의 종료·HP·전체 손실/생존 일치. 전술14명령 적용/외부 함대1거절. 루프백 UI 두 번째 함대의 진형·기동·집중·빔·정지 실제 적용 확인. 물리기기·운영 다인 부하/장기 재미와 구분.
+- 569/569격리 회귀, SEA2849/2849. 설계·레퍼런스·템포 한계는 docs/TERRITORY_COALITION_REVIEW_2026-10-29.md. 운영 배포와 공개 파일은 별도 영수증 확인 후 기록.
+
 ## 2026-10-28 v7.512 — 미완성 캠페인 연결·중단 검수 마무리
 
 - 캠페인 getStatus/start/resume/complete가 DB 연결을 잡은 채 objective를 별도 pool에서 읽던 경로 확인. 단일 연결 SQL 검사에서 실제 대기 재현. 상태 조회는 연결 점유 전 읽고, 시작·재개·완료는 같은 계정 거래의 연결을 재사용한다. 선택적 구버전 열/표 조회의 0 폴백은 savepoint로 유지하며 거래를 중단시키지 않는다. 같은 연결의 objective 조회는 순차 실행한다.
@@ -2752,7 +2760,7 @@ db_smoke 4/4, smoke_capital_recipes 11/11, 3002 핵심 엔드포인트(health/co
 | `server/routes/alliance.js` GET/POST 엔드포인트 | 서비스에 없는 5개 함수 호출(`getAlliances/getSettings/getAllianceLog/depositTreasury/withdrawTreasury`) → TypeError: not a function → 모든 alliance 엔드포인트 500 크래시 | 🔴 CRITICAL | ✅ `listAlliances`, `getSetting()` 직접 조회, 빈 배열 반환, 501 stub으로 교체 |
 | `server/routes/dailyOps.js` `POST /progress` | requireAuth만 → 일반 유저가 임의 mission_type으로 진행도 자체 보고 → GP 보상 farming | 🔴 HIGH | ✅ requireAdmin (x-admin-secret) 추가 |
 | `server/routes/battleExtras.js` `POST /siege/create` | requireAuth만 → 일반 유저가 임의 fleet ID로 타 플레이어 fleet 강제 전투 등록 | 🔴 HIGH | ✅ requireAdmin 추가 |
-| `server/routes/tacticalLab.js` `GET /fleet-presets` | 비인증 공개 엔드포인트에서 ownerWallet 전체 주소 노출, battleId SERIAL 열거 가능 | 🟡 HIGH (Privacy) | ✅ `0x1234...5678` 마스킹 |
+| `server/routes/tacticalLab.js` `GET /fleet-presets` | 비인증 공개 엔드포인트에서 ownerWallet 전체 주소 노출, battleId SERIAL 열거 가능 | 🟡 HIGH (Privacy) | ✅ `0x1234...5698` 마스킹 |
 | `phaseD/phaseC/onboardingRoutes/prestige.js` `getWallet()` | `?.` optional chaining + `.toLowerCase().trim()` 누락 — case mismatch로 소유권 체크 우회 가능 | 🟡 LOW | ✅ 4개 파일 패턴 통일 |
 
 ### 추가 감사 영역 (버그 없음)

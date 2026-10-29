@@ -291,7 +291,12 @@ function _showMobSizeControls(show){
   var el=document.getElementById('mobSizeControls');
   if(!el) return;
   el.style.display=show?'flex':'none';
-  if(show) _updateMobLabels();
+  if(show){
+    var starter=document.getElementById('mobStarterArea'),offer=_currentFirstClaimOffer();
+    if(starter){starter.hidden=!(offer&&offer.eligible);starter.textContent=tl('Choose beginner area','초보 지역 선택','初心者エリアを選ぶ','选择新手区域','Pilih area pemula','Chọn khu vực tân thủ','เลือกพื้นที่ผู้เริ่มต้น');
+      if(!starter.dataset.bound){starter.dataset.bound='1';starter.addEventListener('click',_chooseFirstClaimArea);}}
+    _updateMobLabels();
+  }
 }
 function _mobConfirmLand(){
   if(!landDragRect){showToast(tl('Tap Mars to set location first','먼저 화성을 탭해 위치를 정하세요','まず火星をタップして位置を決めてください','请先点击火星设置位置'),'error');return;}
@@ -310,7 +315,12 @@ function _updateMobLabels(){
   var el=document.getElementById('mobSizeLabel');
   if(el) el.textContent=_mobLandW+' × '+_mobLandH;
   var cl=document.getElementById('mobCostLabel');
-  if(!landDragRect){if(cl) cl.textContent=(_mobLandW*_mobLandH).toLocaleString()+'px';return;}
+  var confirm=document.getElementById('mobConfirmLand');
+  if(!landDragRect){if(cl)cl.textContent=(_mobLandW*_mobLandH).toLocaleString()+'px';if(confirm)confirm.disabled=true;return;}
+  var blocked=_getBlockedSector(landDragRect.lat,landDragRect.lng);
+  if(confirm)confirm.disabled=!!blocked;
+  if(blocked){if(cl){cl.textContent=(_mobLandW*_mobLandH).toLocaleString()+'px · 🔒 Lv '+blocked.entryMinLevel;cl.style.color='var(--red)';}return;}
+  if(cl)cl.style.color='';
   var ci=calcStampCost(landDragRect.lat,landDragRect.lng,landDragRect.w,landDragRect.h);
   if(cl) cl.textContent=(_mobLandW*_mobLandH).toLocaleString()+'px · '+(_firstClaimFreeAt(landDragRect.lat,landDragRect.lng,landDragRect.w,landDragRect.h,ci)?_firstClaimFreeLabel():'≈'+ci.total.toFixed(1)+' PP')+(ci.overlapCount>0?' ('+ci.overlapCount+'⚔)':'');
 }
@@ -335,10 +345,11 @@ function _updateMobLabels(){
       if(Math.abs(dx)>0.3) dw=dx>0?1:-1;
       if(Math.abs(dy)>0.3) dh=dy<0?1:-1; // up = H+
       if(dw===0&&dh===0) return;
-      _mobLandW=Math.max(5,Math.min(200,_mobLandW+dw));
-      _mobLandH=Math.max(5,Math.min(200,_mobLandH+dh));
+      _mobLandW=Math.max(1,Math.min(200,_mobLandW+dw));
+      _mobLandH=Math.max(1,Math.min(200,_mobLandH+dh));
       if(landDragStart){
-        landDragRect={lat:landDragStart.lat,lng:landDragStart.lng,w:_mobLandW,h:_mobLandH};
+        landDragRect=snapLandCenter(landDragStart.lat,landDragStart.lng,_mobLandW,_mobLandH);
+        landDragStart={lat:landDragRect.lat,lng:landDragRect.lng};
         updateLandSelectUI();
         _setDragPreviewPolygon(landDragRect);
       }
@@ -350,7 +361,7 @@ function _updateMobLabels(){
     e.preventDefault();
     var t=e.touches?e.touches[0]:e;
     var rawDx=t.clientX-cx, rawDy=t.clientY-cy;
-    var maxR=32;
+    var maxR=Math.max(12,Math.min(32,wrap.getBoundingClientRect().width/2-17));
     var dist=Math.sqrt(rawDx*rawDx+rawDy*rawDy);
     if(dist>maxR){rawDx=rawDx/dist*maxR;rawDy=rawDy/dist*maxR;}
     dx=rawDx/maxR; dy=rawDy/maxR;
@@ -374,25 +385,32 @@ function _updateMobLabels(){
   document.addEventListener('mouseup',function(){if(active)onEnd();});
 })();
 
+function snapLandCenter(lat,lng,w,h){
+  var minLat=Math.ceil((-70+h*GRID_SIZE/2)/GRID_SIZE)*GRID_SIZE;
+  var maxLat=Math.floor((70-h*GRID_SIZE/2)/GRID_SIZE)*GRID_SIZE;
+  return {lat:Math.max(minLat,Math.min(maxLat,Math.round(lat/GRID_SIZE)*GRID_SIZE)),
+    lng:Math.round((((lng+180)%360+360)%360-180)/GRID_SIZE)*GRID_SIZE,w:w,h:h};
+}
+
 // Mobile: single-finger drag to move territory position after pin placed
 (function(){
   var globeWrap=document.getElementById('globe-wrap');
   if(!globeWrap) return;
-  var dragActive=false, lastTouch=null;
+  var dragActive=false, lastTouch=null, rawCenter=null;
   globeWrap.addEventListener('touchstart',function(e){
     // Only single-finger, only in landSelectMode with pin placed
-    if(e.touches.length!==1||!landSelectMode||!landDragStart) return;
+    if(e.touches.length!==1||!landSelectMode||!landDragStart){dragActive=false;lastTouch=null;rawCenter=null;return;}
     // Don't intercept if touching joystick/controls area
     var t=e.target;
     while(t&&t!==globeWrap){
       if(t.id==='mobSizeControls') return;
       t=t.parentElement;
     }
-    dragActive=true;
+    dragActive=true;rawCenter={lat:landDragStart.lat,lng:landDragStart.lng};
     lastTouch={x:e.touches[0].clientX,y:e.touches[0].clientY};
   },{passive:true});
   globeWrap.addEventListener('touchmove',function(e){
-    if(!dragActive||e.touches.length!==1) return;
+    if(!landSelectMode||!dragActive||e.touches.length!==1){dragActive=false;lastTouch=null;rawCenter=null;return;}
     var tx=e.touches[0].clientX, ty=e.touches[0].clientY;
     if(!lastTouch){lastTouch={x:tx,y:ty};return;}
     // Convert screen delta to globe coordinates
@@ -404,12 +422,10 @@ function _updateMobLabels(){
     var dlat=-(ty-lastTouch.y)*degPerPx;
     lastTouch={x:tx,y:ty};
     // Move the territory
-    var newLat=Math.round(Math.max(-70,Math.min(70,landDragStart.lat+dlat))/GRID_SIZE)*GRID_SIZE;
-    var newLng=Math.round((landDragStart.lng+dlng)/GRID_SIZE)*GRID_SIZE;
-    if(newLng>180) newLng-=360;
-    if(newLng<-180) newLng+=360;
-    landDragStart={lat:newLat,lng:newLng};
-    landDragRect={lat:newLat,lng:newLng,w:_mobLandW,h:_mobLandH};
+    // Preserve sub-cell movement instead of discarding it at every touch event.
+    rawCenter.lat=Math.max(-70,Math.min(70,rawCenter.lat+dlat));rawCenter.lng+=dlng;
+    landDragRect=snapLandCenter(rawCenter.lat,rawCenter.lng,_mobLandW,_mobLandH);
+    landDragStart={lat:landDragRect.lat,lng:landDragRect.lng};
     if(!_hoverDirty){
       _hoverDirty=true;
       requestAnimationFrame(function(){
@@ -423,8 +439,8 @@ function _updateMobLabels(){
     }
     e.preventDefault();
   },{passive:false});
-  globeWrap.addEventListener('touchend',function(){dragActive=false;lastTouch=null;});
-  globeWrap.addEventListener('touchcancel',function(){dragActive=false;lastTouch=null;});
+  globeWrap.addEventListener('touchend',function(){dragActive=false;lastTouch=null;rawCenter=null;});
+  globeWrap.addEventListener('touchcancel',function(){dragActive=false;lastTouch=null;rawCenter=null;});
 })();
 
 function cancelLandSelect(){
@@ -654,8 +670,8 @@ function _attachGlobeClick(){
       lat=Math.round(lat/GRID_SIZE)*GRID_SIZE;
       lng=Math.round(lng/GRID_SIZE)*GRID_SIZE;
       // Mobile: single tap sets center, joystick to fine-tune, size buttons to resize
-      landDragStart={lat:lat,lng:lng};
-      landDragRect={lat:lat,lng:lng,w:_mobLandW,h:_mobLandH};
+      landDragRect=snapLandCenter(lat,lng,_mobLandW,_mobLandH);
+      landDragStart={lat:landDragRect.lat,lng:landDragRect.lng};
       updateLandSelectUI();
       _updateMobLabels();
       showToast(tl('📍 Pin placed! Drag to move · pinch to zoom','📍 핀이 배치되었습니다! 드래그로 이동 · 핀치로 확대/축소','📍 ピンを配置しました！ドラッグで移動・ピンチで拡大縮小','📍 已放置标记！拖动移动 · 双指缩放'));
@@ -3012,7 +3028,9 @@ async function openClaimModal(){
   if(selectedPlot!==openingPlot){_claimFlowPreparing=false;return;}
   var m=document.getElementById('claimModal');
   m.classList.add('open');_claimFlowPreparing=false;
-  document.getElementById('modalCoords').textContent=selectedPlot.lat.toFixed(1)+'°, '+selectedPlot.lng.toFixed(1)+'°';
+  var selectedSector=typeof findSectorAtLatLng==='function'?findSectorAtLatLng(selectedPlot.lat,selectedPlot.lng):null;
+  var sectorName=selectedSector&&(selectedSector['name_'+LANG]||selectedSector.name||selectedSector.code);
+  document.getElementById('modalCoords').textContent=selectedPlot.lat.toFixed(1)+'°, '+selectedPlot.lng.toFixed(1)+'°'+(sectorName?' · '+sectorName:'');
   var hw=document.getElementById('hijackWarn'),tl=document.getElementById('modalTitle');
 
   var cw=selectedPlot.w||stampW, ch=selectedPlot.h||stampH;
@@ -3034,15 +3052,9 @@ async function openClaimModal(){
 
     // ── 상대방 함대 미리보기 (auto-win vs fleet battle 사전 안내) ──
     // 가장 많은 픽셀을 가진 owner를 primary defender로 선정 (서버 로직과 동일)
-    var _maxPx=0, _primaryDef=null;
-    for(var _ow in costInfo.affectedOwners){
-      var _ct=(costInfo.affectedOwners[_ow].refund>0)
-        ? Object.keys(costInfo.affectedOwners).reduce(function(s,k){return s+(k===_ow?1:0);},0)
-        : 0;
-      // simpler: count overlap pixels per owner from pixelGrid scan — but we can use refund>0 as proxy
-    }
-    // 정확한 primary defender = ownerKeys 중 첫번째 (보통 1명)
-    _primaryDef = ownerKeys[0] || null;
+    var _primaryDef = ownerKeys.reduce(function(best,owner){
+      return !best||costInfo.affectedOwners[owner].pixelCount>costInfo.affectedOwners[best].pixelCount?owner:best;
+    },null);
     var _di = document.getElementById('hijackDefenderInfo');
     var _dt = document.getElementById('hijackDefenderInfoText');
     var _dic = document.getElementById('hijackDefenderInfoIcon');
@@ -3056,6 +3068,7 @@ async function openClaimModal(){
       fetch('/api/hijack/defender-info?targetWallet='+encodeURIComponent(_primaryDef))
         .then(function(r){ if(!r.ok) throw new Error('http '+r.status); return r.json(); })
         .then(function(d){
+          if(selectedPlot!==openingPlot||!m.classList.contains('open'))return;
           if(!d || typeof d !== 'object') throw new Error('bad response');
           var fleets = parseInt(d.availableFleets) || 0;
           var ships  = parseInt(d.aliveShips) || 0;
@@ -3075,6 +3088,7 @@ async function openClaimModal(){
           }
         })
         .catch(function(){
+          if(selectedPlot!==openingPlot||!m.classList.contains('open'))return;
           _dt.textContent=t('hijack_fleet_info_fail')||(LANG==='ko'?'적 함대 정보 조회 실패':LANG==='ja'?'敵艦隊情報の確認に失敗':LANG==='zh'?'无法获取敌方舰队信息':'Failed to check enemy fleet info');
           _di.style.background='rgba(255,255,255,.04)';
           _di.style.border='1px solid rgba(255,255,255,.15)';
@@ -3387,8 +3401,8 @@ async function confirmClaim(){
   // 이미지 없이도 땅 구매 가능 (나중에 이미지 추가)
 
   // 극지방 제한: 스탬프 영역이 ±70° 넘으면 차단
-  var claimLatMax=selectedPlot.lat+ch*0.1/2;
-  var claimLatMin=selectedPlot.lat-ch*0.1/2;
+  var claimLatMax=selectedPlot.lat+ch*GRID_SIZE/2;
+  var claimLatMin=selectedPlot.lat-ch*GRID_SIZE/2;
   if(claimLatMax>70||claimLatMin<-70){
     showToast(tl('Polar zone — cannot claim beyond ±70° latitude','극지대는 ±70° 위도를 넘어 점령할 수 없습니다','極地帯では ±70° 緯度を超えて領土を確保できません','极地区域无法在 ±70° 纬度之外占领'));
     if(btn){btn.disabled=false;btn.textContent=t('confirm_claim');}

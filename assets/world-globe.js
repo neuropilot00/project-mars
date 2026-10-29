@@ -2606,7 +2606,7 @@ function _getSectorPixelPrice(lat,lng){
 function calcStampCost(lat,lng,w,h){
   var pixels=getClaimPixels(lat,lng,w,h);
   var baseCost=0, hijackCost=0, overlapCount=0, newCount=0, ownSkipCount=0;
-  var affectedOwners={}; // owner → {refund, bonus}
+  var affectedOwners={}; // owner → {refund, bonus, pixelCount}
   var myAddr=(walletState.address||'').toLowerCase();
   pixels.forEach(function(p){
     var k=pxKey(p.lat,p.lng);
@@ -2624,7 +2624,8 @@ function calcStampCost(lat,lng,w,h){
         var pxCost = refPrice * HIJACK_MULT;
         hijackCost+=pxCost;
         overlapCount++;
-        if(!affectedOwners[existing.owner]) affectedOwners[existing.owner]={refund:0,bonus:0};
+        if(!affectedOwners[existing.owner]) affectedOwners[existing.owner]={refund:0,bonus:0,pixelCount:0};
+        affectedOwners[existing.owner].pixelCount++;
         affectedOwners[existing.owner].refund+=parseFloat(existing.price)||0;
         affectedOwners[existing.owner].bonus+=(pxCost-(parseFloat(existing.price)||0))*0.5;
       }

@@ -658,7 +658,14 @@ function initBattleState(battleData) {
   let atkIdx = 0, defIdx = 0;
   const stateFleets = fleets.map(f => {
     const positions = f.side === 'atk' ? atkPositions : defPositions;
-    const pos = positions[f.side === 'atk' ? atkIdx++ : defIdx++] || { cx: FIELD_W/2, cy: FIELD_H/2 };
+    const index = f.side === 'atk' ? atkIdx++ : defIdx++;
+    const sideCount = fleets.filter(other => other.side === f.side).length;
+    const rows = Math.min(5, sideCount), columns = Math.ceil(sideCount / rows);
+    // Additional coalition fleets keep distinct deployment slots on their own side.
+    const pos = sideCount <= positions.length ? positions[index] : {
+      cx: FIELD_W * (f.side === 'atk' ? .10 + Math.floor(index / rows) * .16 / Math.max(1, columns - 1) : .90 - Math.floor(index / rows) * .16 / Math.max(1, columns - 1)),
+      cy: FIELD_H * (.15 + (index % rows) * .70 / Math.max(1, rows - 1)),
+    };
     
     const maxHp = f.ships.reduce((sum, s) => sum + parseInt(s.max_hp) + parseInt(s.bonus_hp || 0), 0);
     const radius = Math.max(50, Math.sqrt(f.ships.length) * 4.8 + 25);
