@@ -146,6 +146,7 @@ test('scheduler saves a large replay before applying unchanged results and distr
   const timelineService = storage().service;
   const scheduler = load(fs.readFileSync(path.join(__dirname, '../services/battleScheduler.js'), 'utf8'), {
     crypto: require('node:crypto'),
+    './battleReplayPacing': require('../services/battleReplayPacing'),
     '../db': { pool, getSetting: async (_key, fallback) => fallback },
     './battleEngine': { assertRegisteredFrontierBattle: async () => {}, assertRegisteredBattleModes: async () => ({}),
       simulateBattle: async () => result, applyBattleResults: async (id, actual) => {

@@ -13,6 +13,7 @@ const battleRewards = require('./battleRewards');         // Phase B
 const hijackService = require('./hijack');                // Phase C
 const aiFleetManager = require('./aiFleetManager');       // Phase C
 const crypto = require('crypto');
+const { replayDelayMs, replaySpeed, replayStreamTtlMs } = require('./battleReplayPacing');
 
 function battleEventUuid(source) {
   const namespace = Buffer.from('6ba7b8109dad11d180b400c04fd430c8', 'hex');
@@ -339,7 +340,7 @@ async function runBattle(battleId) {
               global.__streamLockRedis.on('error', () => {});
             }
             const lockKey = 'om:battle_stream:' + battleId;
-            const got = await global.__streamLockRedis.set(lockKey, process.pid, 'NX', 'PX', 60000).catch(() => null);
+            const got = await global.__streamLockRedis.set(lockKey, process.pid, 'NX', 'PX', replayStreamTtlMs(result.timeline?.frames || [], result.timeline?.tick_ms)).catch(() => null);
             _streamOwnership = (got === 'OK');
             if (!_streamOwnership) console.log(`[battleScheduler] battle ${battleId} frame stream lock held by another worker — skipping`);
           }
@@ -347,6 +348,7 @@ async function runBattle(battleId) {
         if (_streamOwnership && stats[battleId]) {
           const frames = result.timeline?.frames || [];
           const tickMs = result.timeline?.tick_ms || 200;
+          const playbackSpeed = replaySpeed(frames, tickMs);
           let i = 0;
           const streamNext = () => {
             if (i >= frames.length) {
@@ -354,8 +356,9 @@ async function runBattle(battleId) {
               return;
             }
             ws.broadcastBattleFrame(battleId, frames[i]);
+            const delay = replayDelayMs(frames[i], frames[i + 1], tickMs, playbackSpeed);
             i++;
-            setTimeout(streamNext, Math.max(10, tickMs / 8));
+            setTimeout(streamNext, delay);
           };
           streamNext();
           console.log(`[battleScheduler] WS streaming ${frames.length} frames to ${stats[battleId]} subscribers`);

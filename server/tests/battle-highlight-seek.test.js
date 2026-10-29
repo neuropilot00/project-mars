@@ -18,7 +18,7 @@ function fixture(status='ended'){
   const c=vm.createContext({URLSearchParams,location:{origin},document:{getElementById:el},walletState:{address:'commander'},
     bv:{_viewerSeq:0,shownEvents:new Set(),speed:1},BATTLEFIELD_LABELS:{},
     getLang:()=> 'en',getTacticalLabAssetVersion:()=> 'fixture',
-    loadBvSidePanels(){},renderHudSides(){},renderBvCmdBanner(){},rememberBattleContext(){},
+    loadBvSidePanels(){},renderHudSides(){},renderBvCmdBanner(){},rememberBattleContext(){},defaultReplaySpeed:()=>2,setSpeed(){},showReplaySpeedControl(){},
     _pageIsActive:()=>true,_activeSleep:async()=>{},performance:{now:()=>1000},
     requestAnimationFrame:()=>1,bvAnimLoop(){},cancelAnimationFrame(){},_clearActiveTimeout(){},showFactionToast(){},
     drawBattleFrame:f=>drawn.push(f),updateHudFleets(){},showBvEvent:e=>events.push(e),
@@ -46,7 +46,7 @@ test('actual parent timeline jump queues the first recorded highlight frame into
 test('invalid and out-of-range ticks clamp safely; sparse recordings forward an actual earlier stored frame',async()=>{
   for(const [requested,expected,stored] of [[undefined,0,0],['invalid',0,0],[Infinity,0,0],[-10,0,0],[9999,800,800],[785.9,785,780]]){
     const f=fixture();await f.c.openBattleViewer(2,requested);
-    assert.equal(f.c.bv.currentTick,expected);assert.equal(f.posted[0].payload.tick,stored);
+    assert.equal(f.c.bv.currentTick,expected);assert.equal(f.posted[0].payload.t,stored);assert.equal(f.posted[0].payload.tick,expected);
   }
 });
 test('an active ordinary battle keeps live mode and does not receive a stored-frame seek or replay command',async()=>{

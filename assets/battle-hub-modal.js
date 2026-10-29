@@ -2616,6 +2616,8 @@ async function openBattleViewer(battleId, startTick) {
   bv._battleStatusSeen = false;
   bv._objectiveReplayEndSent = false;
   bv._objectiveReplayLastTick = null;
+  const replaySpeedControl = document.getElementById('bvReplaySpeed');
+  if (replaySpeedControl) replaySpeedControl.hidden = true;
   if (bv._finalFallback) { _clearActiveTimeout(bv._finalFallback); bv._finalFallback = null; }
 
   // 준비 중이면 잠시 대기
@@ -2745,6 +2747,10 @@ async function openBattleViewer(battleId, startTick) {
   // 총 시간
   const totalTicks = bv.timeline.frames[bv.timeline.frames.length - 1]?.t || 0;
   document.getElementById('bvHudTotal').textContent = '/ ' + formatTickTime(totalTicks);
+  if (battleDone) {
+    setSpeed(defaultReplaySpeed(totalTicks, bv.timeline.tick_ms));
+    showReplaySpeedControl();
+  }
   
   // 이벤트 타임라인 정렬
   bv.shownEvents.clear();
@@ -2806,8 +2812,30 @@ function togglePlayback() {
   }
 }
 
+function defaultReplaySpeed(ticks, tickMs) {
+  const seconds = Math.max(0, Number(ticks) || 0) * (Number(tickMs) > 0 ? Number(tickMs) : 200) / 1000;
+  return seconds > 720 ? 8 : seconds > 360 ? 4 : 2;
+}
+
+function showReplaySpeedControl() {
+  let button = document.getElementById('bvReplaySpeed');
+  if (!button) {
+    button = document.createElement('button');button.id = 'bvReplaySpeed';button.type = 'button';
+    button.style.cssText = 'position:absolute;top:4px;left:50%;transform:translateX(-50%);z-index:31;min-width:44px;min-height:44px;padding:0 8px;background:rgba(4,12,22,.92);border:1px solid #49798f;border-radius:8px;color:#aeeaff;font:700 14px system-ui;cursor:pointer';
+    button.addEventListener('click', () => { const speeds=[1,2,4,8];setSpeed(speeds[(speeds.indexOf(bv.speed)+1)%speeds.length]); });
+    document.querySelector('#battleViewer .bv-stage').appendChild(button);
+  }
+  button.hidden = false;
+  setSpeed(bv.speed);
+}
+
 function setSpeed(s) {
   bv.speed = s;
+  const replayButton = document.getElementById('bvReplaySpeed');
+  if (replayButton) {
+    replayButton.textContent = '×' + s;
+    replayButton.setAttribute('aria-label', (({en:'Replay speed',ko:'재생 속도',ja:'再生速度',zh:'播放速度',id:'Kecepatan putar',vi:'Tốc độ phát',th:'ความเร็วการเล่น'})[typeof LANG !== 'undefined' ? LANG : 'en'] || 'Replay speed') + ' ×' + s);
+  }
   document.querySelectorAll('.bv-speed-btn').forEach(b => {
     b.classList.toggle('active', parseInt(b.dataset.speed) === s);
   });
@@ -2896,18 +2924,43 @@ _onPageHidden(function(){
   }
 });
 
-function forwardObjectiveReplayFrame(frame) {
-  if (!bv._objectiveReplay || !frame || bv._objectiveReplayLastTick === frame.t) return;
+function forwardObjectiveReplayFrame(frame, next, ratio) {
+  if (!bv._objectiveReplay || !frame) return;
   const iframe = document.getElementById('bvTacticalFrame');
   if (!iframe || !iframe.contentWindow) return;
+  const now = typeof performance !== 'undefined' ? performance.now() : Date.now();
+  const sameFrame = bv._objectiveReplayLastTick === frame.t;
+  const interpolate = next && next !== frame && ratio > 0 && ratio < 1;
+  const tick = Number.isFinite(bv.currentTick) ? bv.currentTick : frame.t;
+  const pausedSeek = !bv.playing && tick !== bv._objectiveReplayLastVisualTick;
+  if (sameFrame && !pausedSeek && (!interpolate || (bv.playing && now - (bv._objectiveReplayLastSentAt || 0) < 100))) return;
+  let visual = frame;
+  if (interpolate) {
+    // Only positions are interpolated; HP, losses and events remain recorded facts.
+    function positions(current, later, x, y) {
+      if (!Array.isArray(current) || !Array.isArray(later)) return current;
+      const byId = new Map(later.map(item => [String(item.id), item]));
+      return current.map(item => {
+        const target = byId.get(String(item.id));
+        if (!target || ![item[x], item[y], target[x], target[y]].every(Number.isFinite)) return item;
+        return Object.assign({}, item, { [x]:item[x]+(target[x]-item[x])*ratio, [y]:item[y]+(target[y]-item[y])*ratio });
+      });
+    }
+    visual = Object.assign({}, frame, { fleets:positions(frame.fleets,next.fleets,'cx','cy'), ships:positions(frame.ships,next.ships,'x','y') });
+  }
+  if (sameFrame) visual = Object.assign({}, visual, {combat_events:[]});
   bv._objectiveReplayLastTick = frame.t;
-  iframe.contentWindow.postMessage({source:'occupy-battle-viewer',cmd:'replay_frame',battleId:bv.battle.id,payload:Object.assign({},frame,{type:'frame',tick:frame.t,realtime:false,tick_ms:bv.timeline.tick_ms})},location.origin);
+  bv._objectiveReplayLastVisualTick = tick;
+  bv._objectiveReplayLastSentAt = now;
+  iframe.contentWindow.postMessage({source:'occupy-battle-viewer',cmd:'replay_frame',battleId:bv.battle.id,payload:Object.assign({},visual,{type:'frame',tick,realtime:false,tick_ms:bv.timeline.tick_ms})},location.origin);
 }
 function forwardObjectiveReplayEnd() {
   if (!bv._objectiveReplay || bv._objectiveReplayEndSent) return;
   const iframe = document.getElementById('bvTacticalFrame');
   if (!iframe || !iframe.contentWindow) return;
   bv._objectiveReplayEndSent = true;
+  const replaySpeedControl = document.getElementById('bvReplaySpeed');
+  if (replaySpeedControl) replaySpeedControl.hidden = true;
   iframe.contentWindow.postMessage({source:'occupy-battle-viewer',cmd:'replay_end',battleId:bv.battle.id,payload:{type:'end',winner_side:bv.battle.winner_side,duration_seconds:bv.battle.duration_seconds,objective_result:battleObjectiveResult(bv.battle)}},location.origin);
 }
 
@@ -2917,9 +2970,9 @@ function redrawCurrentFrame() {
   let i = 0;
   while (i < frames.length - 1 && frames[i+1].t <= bv.currentTick) i++;
   const f1 = frames[i];
-  forwardObjectiveReplayFrame(f1);
   const f2 = frames[Math.min(i + 1, frames.length - 1)];
   const t = f2.t > f1.t ? (bv.currentTick - f1.t) / (f2.t - f1.t) : 0;
+  forwardObjectiveReplayFrame(f1,f2,Math.min(1,Math.max(0,t)));
   
   // 렌더링
   drawBattleFrame(f1, f2, Math.min(1, Math.max(0, t)));
