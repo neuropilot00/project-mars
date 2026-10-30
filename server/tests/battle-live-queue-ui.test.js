@@ -10,7 +10,7 @@ const part=(start,end)=>html.slice(html.indexOf(start),html.indexOf(end,html.ind
 test('slot waiting stays locked until a real frame, and stale queue messages cannot hide live play',()=>{
  const modes=[],elements={};
  const el=id=>elements[id]||(elements[id]={textContent:'',options:[],value:'breakthrough',disabled:false,replaceChildren(){this.options=[];},appendChild(option){this.options.push(option);}});
- const c={TL_MODE:'battle',TLANG:'ko',_wsLastFrame:null,_wsEndPayload:null,_wsRealtime:false,_waitingLiveSlot:false,_liveCancelled:false,_wsBattle:{readyState:1},battleOver:false,
+ const c={TL_MODE:'battle',TLANG:'ko',_wsLastFrame:null,_wsEndPayload:null,_wsRealtime:false,_waitingLiveSlot:false,_battleSyncWaiting:false,_battleAwaitFrame:false,_battleSyncIncomplete:false,_liveCancelled:false,_wsBattle:{readyState:1},battleOver:false,
   document:{getElementById:el,createElement:()=>({}),querySelectorAll:()=>[el('focusChoice'),el('focusApply')]},
   commandText:key=>key,canCommandBattle:()=>false,updateCombatDock:(_enabled,mode)=>modes.push(mode),
   renderBattleSafetyLimit(){},renderObjectiveBanner(){},syncServerShips(){},syncServerCombatEvents(){},loadPersistedActionSummary(){},fleets:[],_wsPrevShips:new Map()};
@@ -27,7 +27,7 @@ test('slot waiting stays locked until a real frame, and stale queue messages can
 
 test('cancelled waiting is explicit and stays locked even if a stale queue or frame arrives',()=>{
  const modes=[],elements={};const el=id=>elements[id]||(elements[id]={textContent:'',options:[],value:'breakthrough',disabled:false,replaceChildren(){this.options=[];},appendChild(option){this.options.push(option);}});
- const c={TL_MODE:'battle',TLANG:'ko',_wsLastFrame:null,_wsEndPayload:null,_wsRealtime:false,_waitingLiveSlot:false,_liveCancelled:false,_wsBattle:{readyState:1},battleOver:false,
+ const c={TL_MODE:'battle',TLANG:'ko',_wsLastFrame:null,_wsEndPayload:null,_wsRealtime:false,_waitingLiveSlot:false,_battleSyncWaiting:false,_battleAwaitFrame:false,_battleSyncIncomplete:false,_liveCancelled:false,_wsBattle:{readyState:1},battleOver:false,
   document:{getElementById:el,createElement:()=>({}),querySelectorAll:()=>[el('focusChoice'),el('focusApply')]},commandText:key=>key,canCommandBattle:()=>false,updateCombatDock:(_enabled,mode)=>modes.push(mode)};
  vm.createContext(c);vm.runInContext(part('function updateCommandDeck(){','// ─── WebSocket 실시간 frame 수신'),c);
  vm.runInContext(part('function processBattleMessage(','function closeBattleWs('),c);

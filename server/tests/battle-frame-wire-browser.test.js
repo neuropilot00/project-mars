@@ -6,11 +6,15 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const zlib = require('node:zlib');
+const { createVisualJournal } = require('../services/battleVisualJournal');
 
 const root = path.resolve(__dirname, '../..');
 const codecSource = fs.readFileSync(path.join(root, 'assets/battle-frame-wire.js'), 'utf8');
 const lab = fs.readFileSync(path.join(root, 'assets/tactical-lab-v11.html'), 'utf8');
 const connectSource = lab.slice(lab.indexOf('function connectBattleWs() {'), lab.indexOf('function renderBattleSafetyLimit('));
+test('battle iframe requests the v2 wire helper with a fresh cache key', () => {
+  assert.match(lab, /<script src="battle-frame-wire\.js\?v=20261030-gzip2"><\/script>/);
+});
 
 function makeCodec(overrides = {}) {
   const window = { DecompressionStream, Blob, TextDecoder, atob, ...overrides };
@@ -19,7 +23,11 @@ function makeCodec(overrides = {}) {
 }
 function envelope(frame) {
   const bytes = Buffer.from(JSON.stringify(frame));
-  return { type: 'frame_gzip_v1', bytes: bytes.length, data: zlib.gzipSync(bytes).toString('base64') };
+  const data = zlib.gzipSync(bytes).toString('base64');
+  const codec = makeCodec(), visual_digest = codec.summarize(frame);
+  return { type: 'frame_gzip_v1', bytes: bytes.length, data, visual_digest,
+    visual_checksum: codec.checksum(data, visual_digest, frame._continuity, frame._continuity_before), ...(frame._continuity ? {_continuity:frame._continuity} : {}),
+    ...(frame._continuity_before ? {_continuity_before:frame._continuity_before} : {}) };
 }
 async function waitFor(predicate) {
   const deadline = Date.now() + 2000;
@@ -31,13 +39,14 @@ async function waitFor(predicate) {
 function socketFixture(codec) {
   const sockets = [], received = [], timers = [], logs = [];
   class Socket {
-    constructor(url) { this.url = url; this.readyState = 1; this.closeArgs = null; sockets.push(this); }
+    constructor(url) { this.url = url; this.readyState = 1; this.closeArgs = null; this.sent = []; sockets.push(this); }
+    send(data) { this.sent.push(JSON.parse(data)); }
     close(...args) { this.closeArgs = args; this.readyState = 3; queueMicrotask(() => this.onclose?.()); }
   }
   const sandbox = {
     tlDisposed: false, document: { hidden: false }, _parentReplay: false, TL_MODE: 'battle', _battleUiReady: true,
     tlQuery: () => '71', _wsBattle: null, _wsReconnectTimer: null, _battleWireDisabled: false,
-    _waitingLiveSlot: false, _pendingCommands: new Map(),
+    _waitingLiveSlot: false, _battleSyncWaiting:false, _battleAwaitFrame:false, _pendingCommands: new Map(),
     window: { parent: { localStorage: { getItem: () => '' } } },
     location: { protocol: 'https:', host: 'game.invalid' }, URLSearchParams, WebSocket: Socket,
     OccupyBattleFrameWire: codec, Promise, console, addLog: (...args) => logs.push(args),
@@ -89,7 +98,7 @@ test('unsupported browsers keep plain JSON and never request gzip', async () => 
 
 test('compressed frame, acknowledgement and end are delivered in socket order before close', async () => {
   const f = socketFixture(makeCodec()), socket = f.sockets[0];
-  assert.equal(new URL(socket.url).searchParams.get('wire'), 'gzip-v1');
+  assert.equal(new URL(socket.url).searchParams.get('wire'), 'gzip-v2');
   socket.onmessage({ data: JSON.stringify(envelope({ type: 'frame', battleId: '71', t: 3 })) });
   socket.onmessage({ data: JSON.stringify({ type: 'cmd_ok', commandId: 'c' }) });
   socket.onmessage({ data: JSON.stringify({ type: 'end', winner_side: 'atk' }) });
@@ -142,7 +151,7 @@ test('unbounded control-message backlog closes the connection rather than retain
   assert.equal(socket.closeArgs[0], 4001);
   await waitFor(() => f.timers.length === 1);
   f.timers[0]();
-  assert.equal(new URL(f.sockets[1].url).searchParams.get('wire'), 'gzip-v1');
+  assert.equal(new URL(f.sockets[1].url).searchParams.get('wire'), 'gzip-v2');
 });
 
 test('stalled decompression times out and cannot prevent an uncompressed reconnect', async () => {
@@ -164,4 +173,42 @@ test('invalid gzip transport JSON reconnects without negotiated compression', as
   assert.equal(socket.closeArgs[0], 4000);
   f.timers[0]();
   assert.equal(new URL(f.sockets[1].url).searchParams.has('wire'), false);
+});
+
+test('only applied frames are acknowledged, duplicates are suppressed, and the applied cursor resumes', async () => {
+  const journal = createVisualJournal(), codec = makeCodec(), f = socketFixture(codec), socket = f.sockets[0];
+  const before = journal.currentCursor();
+  const frame = {type:'frame',battleId:'71',t:1,combat_events:[],combat_salvos:[]};
+  frame._continuity = journal.push(frame); frame._continuity_before = before;
+  const message = JSON.stringify(envelope(frame));
+  socket.onmessage({data:message}); socket.onmessage({data:message});
+  await waitFor(() => socket.sent.length === 1);
+  assert.equal(f.received.length, 1);
+  assert.equal(socket.sent[0].type, 'frame_ack'); assert.equal(socket.sent[0].cursor.seq, 1);
+  socket.readyState = 3; socket.onclose(); await waitFor(() => f.timers.length === 1); f.timers[0]();
+  assert.equal(JSON.parse(new URL(f.sockets[1].url).searchParams.get('resume')).seq, 1);
+});
+
+test('first corrupt frame reconnects with its signed predecessor, never acknowledging it', async () => {
+  const journal = createVisualJournal(), f = socketFixture(makeCodec()), socket = f.sockets[0];
+  const frame = {type:'frame',battleId:'71',t:1,combat_events:[],combat_salvos:[]};
+  frame._continuity_before = journal.currentCursor(); frame._continuity = journal.push(frame);
+  const broken = envelope(frame); broken.data = Buffer.from('bad').toString('base64');
+  socket.onmessage({data:JSON.stringify(broken)}); await waitFor(() => f.timers.length === 1);
+  assert.equal(socket.sent.length, 0); f.timers[0]();
+  assert.equal(JSON.parse(new URL(f.sockets[1].url).searchParams.get('resume')).seq, 0);
+});
+
+test('adjacent cursor totals detect a modified visual digest even if its checksum is recomputed', async () => {
+  const journal = createVisualJournal(), codec = makeCodec(), f = socketFixture(codec), socket = f.sockets[0];
+  function next(t) {
+    const frame = {type:'frame',battleId:'71',t,combat_events:[{type:'shot_hit',seq:t,source_side:'atk',fire_type:'laser',from:{x:1,y:2},to:{x:3,y:4}}]};
+    frame._continuity_before = journal.currentCursor(); frame._continuity = journal.push(frame); return frame;
+  }
+  socket.onmessage({data:JSON.stringify(envelope(next(1)))}); await waitFor(() => socket.sent.length === 1);
+  const altered = envelope(next(2)); altered.visual_digest[0].count = 2;
+  altered.visual_checksum = codec.checksum(altered.data, altered.visual_digest, altered._continuity, altered._continuity_before);
+  socket.onmessage({data:JSON.stringify(altered)}); await waitFor(() => f.timers.length === 1);
+  assert.equal(socket.closeArgs[0], 4000); assert.equal(f.received.length, 1);
+  f.timers[0](); assert.equal(JSON.parse(new URL(f.sockets[1].url).searchParams.get('resume')).seq, 1);
 });

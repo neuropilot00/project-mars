@@ -10,12 +10,32 @@ test('touch destinations invert the same portrait projection at every battlefiel
  assert.equal(c.battleServerPoint(-100,0,460,600),null);
 });
 test('selection can switch only between living owned fleets and outgoing commands name the selected fleet',()=>{
- const sent=[],c={_commandWallet:'owner',_selectedCommandFleetId:null,_moveOrderArmed:false,_wsLastFrame:{fleets:[{id:'11',owner_wallet:'owner',hp:100},{id:'12',owner_wallet:'OWNER',hp:100},{id:'22',owner_wallet:'enemy',hp:100},{id:'13',owner_wallet:'owner',hp:100,retreated:true}]},_wsRealtime:true,_wsEndPayload:null,_liveCancelled:false,_wsBattle:{readyState:1,send:x=>sent.push(JSON.parse(x))},_commandSeq:0,_pendingCommands:new Map(),navigationText:x=>x,commandText:x=>x,commandFeedback(){},updateCommandDeck(){}};
- vm.createContext(c);vm.runInContext(part('function commandableFleets(','function advanceBattleClock(').replace(/function commandFeedback\([^]*?\nfunction sendLiveCommand/,'function sendLiveCommand'),c);
+ const sent=[],c={_commandWallet:'owner',_selectedCommandFleetId:null,_moveOrderArmed:false,_wsLastFrame:{fleets:[{id:'11',owner_wallet:'owner',hp:100},{id:'12',owner_wallet:'OWNER',hp:100},{id:'22',owner_wallet:'enemy',hp:100},{id:'13',owner_wallet:'owner',hp:100,retreated:true}]},_wsRealtime:true,_wsEndPayload:null,_liveCancelled:false,_battleSyncWaiting:false,_battleAwaitFrame:false,_wsBattle:{readyState:1,send:x=>sent.push(JSON.parse(x))},_commandSeq:0,_pendingCommands:new Map(),_uncertainCommands:new Map(),setTimeout:()=>1,clearTimeout(){},navigationText:x=>x,commandText:x=>x,commandFeedback(){},updateCommandDeck(){}};
+ vm.createContext(c);vm.runInContext(part('function commandableFleets(','function advanceBattleClock(').replace(/function commandFeedback\([^]*?\nfunction scheduleCommandTimeout/,'function scheduleCommandTimeout'),c);
  assert.equal(c.selectCommandFleet('22'),false);assert.equal(c.selectCommandFleet('13'),false);assert.equal(c.selectCommandFleet('12'),true);
- c.sendLiveCommand('hold',{});assert.equal(sent[0].payload.fleetId,'12');
+ assert.equal(c.sendLiveCommand('hold',{}),true);assert.equal(sent[0].payload.fleetId,'12');
  c._liveCancelled=true;assert.equal(c.sendLiveCommand('hold',{}),false,'a cancelled live battle cannot receive commands');c._liveCancelled=false;
  c._wsEndPayload={};assert.equal(c.selectCommandFleet('11'),false);assert.equal(c.sendLiveCommand('move',{x:10,y:10}),false);assert.equal(sent.length,1);
+});
+test('unconfirmed accepted command unlocks without retry and a late result is shown once',()=>{
+ const sent=[],feedback=[],timers=[];
+ const c={_commandWallet:'owner',_selectedCommandFleetId:null,_moveOrderArmed:false,
+  _wsLastFrame:{fleets:[{id:'11',owner_wallet:'owner',hp:100}]},_wsRealtime:true,_wsEndPayload:null,_liveCancelled:false,_battleSyncWaiting:false,_battleAwaitFrame:false,
+  _wsBattle:{readyState:1,send:x=>sent.push(JSON.parse(x))},_commandSeq:0,_pendingCommands:new Map(),_uncertainCommands:new Map(),_confirmedActions:new Map(),fleets:[],
+  setTimeout:(fn,ms)=>{timers.push({fn,ms});return timers.length;},clearTimeout(){},navigationText:x=>x,commandText:x=>x,commandReason:x=>x,
+  TLANG:'en',document:{getElementById:()=>null},addLog:(_kind,text)=>feedback.push(text),updateCommandDeck(){},performance:{now:()=>0}};
+ vm.createContext(c);vm.runInContext(part('function commandableFleets(','function rememberAppliedAction('),c);
+ vm.runInContext(part('function processBattleMessage(','function closeBattleWs('),c);
+ c.rememberAppliedAction=()=>{};
+ assert.equal(c.sendLiveCommand('hold',{}),true);assert.equal(timers[0].ms,9000);
+ const id=sent[0].commandId;assert.equal(c._pendingCommands.has(id),true);
+ c.processBattleMessage({type:'cmd_ok',commandId:id,status:'accepted',cmd:'hold'},'71');assert.match(feedback.at(-1),/accepted/);
+ assert.equal(timers.length,2);assert.equal(timers[1].ms,9000);
+ c.processBattleMessage({type:'cmd_ok',commandId:id,status:'accepted',cmd:'hold'},'71');assert.equal(timers.length,2,'duplicate acknowledgement does not extend timeout');
+ timers[1].fn();assert.equal(c._pendingCommands.has(id),false);assert.equal(c._uncertainCommands.has(id),true);assert.match(feedback.at(-1),/result_unknown/);assert.equal(sent.length,1);
+ c.handleCommandResult({commandId:id,status:'applied',cmd:'hold',tick:12,fleetId:'11'});
+ assert.equal(c._uncertainCommands.has(id),false);assert.match(feedback.at(-1),/applied/);const count=feedback.length;
+ c.handleCommandResult({commandId:id,status:'applied',cmd:'hold',tick:12,fleetId:'11'});assert.equal(feedback.length,count);
 });
 test('armed canvas input sends real server coordinates once; replay/spectator/ended input cannot send',()=>{
  const calls=[],c={ships:[{}],TL_MODE:'battle',_moveOrderArmed:true,canCommandBattle:()=>true,_canvasToWorld:()=>({wx:230,wy:450,displayScale:1}),W:460,H:600,sendLiveCommand:(cmd,p)=>{calls.push({cmd,p});return true;},updateCommandDeck(){},commandFeedback(){},navigationText:x=>x};

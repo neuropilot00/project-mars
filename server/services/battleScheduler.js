@@ -146,6 +146,7 @@ function runBattle(battleId) {
 
 async function runBattleOwned(battleId) {
   let claimedByUs = false;
+  let battleCompleted = false;
   const claimedToken = crypto.randomUUID();
   let authority = null;
   currentlyRunning++;
@@ -305,6 +306,7 @@ async function runBattleOwned(battleId) {
       const ws = require('../wsServer');
       const liveBattle = require('./liveBattle');
       authority = await acquireLiveAuthority(pool, battleId, await _readMaxConcurrent(), () => ws.broadcastBattleQueue(battleId), claimedToken);
+      ws.setBattleRecoveryGuard?.(battleId, () => !authority.shouldAbort());
       liveBattle.markActive(battleId);
       try {
         result = await battleEngine.simulateBattleLive(battleId, {
@@ -373,6 +375,7 @@ async function runBattleOwned(battleId) {
               nextViewerCheck = Date.now() + (hasViewers || Date.now() - replayStarted < 2000 ? 500 : 2000);
             }
             if (hasViewers) ws.broadcastBattleFrame(battleId, frames[i]);
+            else ws.recordBattleFrame?.(battleId, frames[i]);
             const delay = replayDelayMs(frames[i], frames[i + 1], tickMs, playbackSpeed);
             i++;
             const timer = setTimeout(() => streamNext().catch(err => console.warn(`[battleScheduler] replay stream failed:`, err.message)), delay);
@@ -393,6 +396,7 @@ async function runBattleOwned(battleId) {
     if (_liveEnabled) {
       try { require('../wsServer').broadcastBattleEnd(battleId, { winner_side: result.winner_side, duration_seconds: result.duration_seconds, stats: result.stats }); } catch (_) {}
     }
+    battleCompleted = true;
     await recordBattleProductEvents(battleId, 'ended', battleType, battleSummary, result);
     if (result.winner_side === 'atk' && battleSummary?.trusted_source === 'starter_ops' &&
         battleSummary?.is_starter_battle === true && battleSummary?.starter_training === true &&
@@ -482,6 +486,7 @@ async function runBattleOwned(battleId) {
     }
     throw err;
   } finally {
+    if (authority && !battleCompleted) { try { require('../wsServer').abandonBattleRecovery?.(battleId); } catch (_) {} }
     authority?.stop();
     await pool.query(`
       UPDATE fleets
@@ -557,8 +562,8 @@ async function _postBattleHooks(battleId, result) {
 // ─── 길드전 Hook ───────────────────────────────────────────────
 // 함대전 승리 시 진행 중인 길드전에 포인트 자동 적립 (fire-and-forget)
 async function _guildWarHook(battleId, result) {
-  const winnerSide = result.winner_side; // 'atk' | 'def'
-  if (!winnerSide) return; // draw or no result
+  const winnerSide = result?.winner_side;
+  if (winnerSide !== 'atk' && winnerSide !== 'def') return;
 
   // 참여자 wallet 조회
   const { rows: parts } = await pool.query(

@@ -40,6 +40,16 @@ test('seeking an actual recording backward clears prior tracers and permits the 
  const{c}=render();c.syncServerCombatEvents({t:20,combat_events:[shot('71:combat:1')]});assert.equal(c.lasers.length,1);
  c.syncServerCombatEvents({t:10,combat_events:[shot('71:combat:1')]});assert.equal(c.lasers.length,1);assert.equal(c.syncServerCombatEvents.seen.size,1);
 });
+test('replay seek and battle reinitialization cancel prior delayed visual groups',()=>{
+ const {c}=render();let cancelled=[];c.clearTimeout=id=>cancelled.push(id);
+ c.syncServerCombatEvents.pending=[{count:8}];c.syncServerCombatEvents.retryTimer=37;
+ c.syncServerCombatEvents({t:2,replay_seek:true,combat_events:[]});
+ assert.equal(c.syncServerCombatEvents.pending.length,0);assert.equal(c.syncServerCombatEvents.retryTimer,null);assert.deepEqual(cancelled,[37]);
+ c.syncServerCombatEvents.pending=[{count:9}];c.syncServerCombatEvents.retryTimer=38;
+ Object.assign(c,{ATK_FLEETS:[],DEF_FLEETS:[],W:460,H:600,TLANG:'ko',centeredPos:()=>[],document:{getElementById:()=>null},addLog(){},clearUnconfirmedBattleHud(){}});
+ vm.runInContext(part(script,'function initBattle(){','function mkFleet('),c);c.initBattle();
+ assert.equal(c.syncServerCombatEvents.pending.length,0);assert.equal(c.syncServerCombatEvents.retryTimer,null);assert.deepEqual(cancelled,[37,38]);
+});
 test('bounded salvo effects use confirmed samples, do not alter damage, and deduplicate on resend',()=>{
  const{c,ship}=render();let now=1000;c.Date={now:()=>now};
  const salvo={id:'71:salvo:1:200:atk:laser',source_side:'atk',fire_type:'laser',count:200,samples:[{from:{x:0,y:0},to:{x:1000,y:440}},{from:{x:100,y:50},to:{x:900,y:400}}]};
@@ -124,7 +134,7 @@ test('a one-frame real result never claims an unverified automatic territory cap
 
 test('disabled targets and detailed fleet status never expose catalogue HP before the first authoritative frame',()=>{
  const elements={};const element=id=>elements[id]||(elements[id]={textContent:'HP 100%',options:[],value:'breakthrough',disabled:false,replaceChildren(){this.options=[];},appendChild(option){this.options.push(option);}});
- const c={TL_MODE:'battle',TLANG:'en',_wsLastFrame:null,_wsEndPayload:null,_wsRealtime:false,_waitingLiveSlot:false,_liveCancelled:false,_wsBattle:null,battleOver:false,commandText:key=>key,canCommandBattle:()=>false,document:{getElementById:element,createElement:()=>({}),querySelectorAll:()=>[element('focusChoice'),element('focusApply')]}};
+ const c={TL_MODE:'battle',TLANG:'en',_wsLastFrame:null,_wsEndPayload:null,_wsRealtime:false,_waitingLiveSlot:false,_liveCancelled:false,_battleSyncWaiting:false,_battleAwaitFrame:false,_battleSyncIncomplete:false,_wsBattle:null,battleOver:false,commandText:key=>key,canCommandBattle:()=>false,document:{getElementById:element,createElement:()=>({}),querySelectorAll:()=>[element('focusChoice'),element('focusApply')]}};
  vm.createContext(c);vm.runInContext(part(script,'function updateCommandDeck(){','// ─── WebSocket 실시간 frame 수신'),c);vm.runInContext(part(script,'function renderFleetStatus(){','function renderRegistry('),c);
  c.updateCommandDeck();c.renderFleetStatus();
  assert.equal(elements.focusChoice.options[0].textContent,'connecting');assert.equal(elements.focusApply.disabled,true);assert.equal(elements.skillApply.textContent,'—');

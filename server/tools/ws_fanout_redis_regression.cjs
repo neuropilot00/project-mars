@@ -33,7 +33,7 @@ async function launchRedis(port) {
 function instance(port, redisClients) {
   class TrackedRedis extends Redis { constructor(...args) { super(...args); redisClients.push(this); } }
   const context = { module: { exports: {} }, process: { env: { REDIS_URL: `redis://127.0.0.1:${port}`, WS_MAX_PER_IP: '50' } },
-    console: { log() {}, warn() {}, error() {} }, Buffer, setTimeout, clearTimeout, setInterval, clearInterval,
+    console: { log() {}, warn() {}, error() {} }, Buffer, JSON, setTimeout, clearTimeout, setInterval, clearInterval,
     require(name) {
       if (name === 'ioredis') return TrackedRedis;
       if (name === 'ws') return WebSocket;
@@ -41,6 +41,7 @@ function instance(port, redisClients) {
       if (name === 'crypto') return require('node:crypto');
       if (name === './utils/totpSessionBoundary') return { validateToken: async () => ({ wallet: null, totp: false, revoked: false }) };
       if (name === './db') return { pool: { query: async () => ({ rows: [] }) } };
+      if (name === './services/battleVisualJournal') return require('../services/battleVisualJournal');
       throw Error('Unexpected dependency: ' + name);
     } };
   vm.runInNewContext(source, context, { filename: 'wsServer.js' });
@@ -76,12 +77,13 @@ async function connect(instance, clients) {
     assert.deepEqual(a, [1, 2]); assert.deepEqual(b, [1]);
     redis = await launchRedis(port);
     await until(() => redisClients.every(c => c.status === 'ready'), 'Redis reconnect', 500);
-    await pause(200);
+    await until(() => b.includes(2), 'missed frame recovery after Redis reconnect', 500);
+    await pause(100);
     instances[0].api.broadcastBattleFrame('71', { t: 3 });
     await until(() => b.includes(3), 'remote frame after reconnect', 500);
     await pause(50);
-    assert.deepEqual(a, [1, 2, 3]); assert.deepEqual(b, [1, 3]);
-    console.log(JSON.stringify({ result: 'passed', actual: 'two isolated wsServer modules and localhost Redis', initialLocalFrames: [1], initialRemoteFrames: [1], localRedisOutageFrames: [2], remoteOutageFrames: [], recoveredFrames: [3], duplicateFrames: 0, recoveryIsReplay: false, productionTraffic: false }));
+    assert.deepEqual(a, [1, 2, 3]); assert.deepEqual(b, [1, 2, 3]);
+    console.log(JSON.stringify({ result: 'passed', actual: 'two isolated wsServer modules and localhost Redis', initialLocalFrames: [1], initialRemoteFrames: [1], localRedisOutageFrames: [2], remoteOutageFrames: [], recoveredFrames: [2, 3], duplicateFrames: 0, recoveryIsReplay: 'bounded summary', productionTraffic: false }));
   } finally {
     clients.forEach(c => c.terminate());
     for (const i of instances) { await new Promise(resolve => i.wss.close(resolve)); await new Promise(resolve => i.server.close(resolve)); }

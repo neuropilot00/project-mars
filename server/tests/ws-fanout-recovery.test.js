@@ -30,6 +30,7 @@ function fixture() {
       if (name === 'ws') return { WebSocketServer };
       if (name === 'url') return require('node:url');
       if (name === 'crypto') return { randomUUID: () => 'fixture-instance' };
+      if (name === './services/battleVisualJournal') return require('../services/battleVisualJournal');
       if (name === './utils/totpSessionBoundary') return { validateToken: async () => ({ wallet: null }) };
       if (name === './db') return { pool: { query: async () => ({ rows: [] }) } };
       throw Error('Unexpected dependency: ' + name);
@@ -70,5 +71,5 @@ test('disconnected subscriber keeps local delivery and resubscribes on reconnect
   f.api.broadcastBattleFrame('71', { t: 5 });
   await flush();
   assert.deepEqual(frames(f).map(m => m.t), [4, 5]);
-  assert.equal(f.pub.published.length, 1);
+  assert.equal(f.pub.published.filter(m => m.kind === 'battleFrame').length, 1);
 });

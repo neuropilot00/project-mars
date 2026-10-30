@@ -44,7 +44,7 @@
 <link rel="stylesheet" href="fleet-field-guide.css">
 <script src="fleet-field-guide.js" defer></script>
 <script src="battlefield-art.js?v=image28-release"></script>
-<script src="battle-frame-wire.js?v=20261030-gzip1"></script>
+<script src="battle-frame-wire.js?v=20261030-gzip2"></script>
 <title>OCCUPY MARS — Tactical Lab v11.1 + VFX (v7.229)</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
@@ -1789,6 +1789,7 @@ function initBattle(){
   _homingCount=0;
   _wsPrevShips = new Map();
   syncServerCombatEvents.seen=new Set();syncServerCombatEvents.lastTick=null;
+  syncServerCombatEvents.pending=[];if(syncServerCombatEvents.retryTimer)clearTimeout(syncServerCombatEvents.retryTimer);syncServerCombatEvents.retryTimer=null;
   beamCharge=0;missileCharge=20;empCharge=0;overdriveCharge=0;
   const atkPos = centeredPos(ATK_FLEETS.length, 'atk');
   const defPos = centeredPos(DEF_FLEETS.length, 'def');
@@ -2818,6 +2819,8 @@ const TEAM_COLOR={atk:'#29b6f6',def:'#ef5350'};
 
 function drawShips2(){
   const rect=CVs.getBoundingClientRect(),displayScale=Math.min(rect.width/W,rect.height/H);
+  const viewerSide=commandSide(),frameNow=Date.now();
+  const reducedMotion=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   const sorted=[...ships].sort((a,b)=>b.type.r-a.type.r);
   sorted.forEach((sh,idx)=>{
     if(sh.dead)return;
@@ -2835,8 +2838,8 @@ function drawShips2(){
     const metrics=shipDisplayMetrics(sh,displayScale);
     const classScale=metrics.scale;
     // Visual response only: never move the server hull, hitbox or target marker.
-    const recoil=Math.max(0,Math.min(1,((sh.recoilUntil||0)-Date.now())/180));
-    if(recoil&&!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches))CX.translate(-recoil*Math.min(metrics.radius*.12,3/metrics.pixelScale),0);
+    const recoil=Math.max(0,Math.min(1,((sh.recoilUntil||0)-frameNow)/180));
+    if(recoil&&!reducedMotion)CX.translate(-recoil*Math.min(metrics.radius*.12,3/metrics.pixelScale),0);
     CX.scale(classScale,classScale);
     if(sh.flash>0)CX.filter='brightness(1.8)';
     const drawn=drawShipByFaction(CX,t);
@@ -2844,7 +2847,7 @@ function drawShips2(){
     CX.shadowBlur=0;
     if(drawn&&metrics.compact){
       const unit=1/metrics.pixelScale;
-      CX.save();CX.fillStyle=TEAM_COLOR[sh.side===commandSide()?'atk':'def'];
+      CX.save();CX.fillStyle=TEAM_COLOR[sh.side===viewerSide?'atk':'def'];
       CX.fillRect(sh.x-8*unit,sh.y+metrics.radius+2*unit,16*unit,2*unit);
       CX.font=`bold ${12*unit}px system-ui,sans-serif`;CX.textAlign='center';
       const role=t.role==='tank'?'▣':t.role==='logi'||t.role==='ewar'?'✚':'▲';
@@ -3044,6 +3047,8 @@ function drawExps(){
   // [v7.180 VFX] 8단계 스프라이트가 모두 로드되면 위에 PNG 시퀀스도 합성 (additive).
   // [v7.188 fix] ready 가 정확히 8 이고 fail 이 0 일 때만 PNG 합성 — 일부 실패 시 캔버스 폴백만.
   const spritesReady = (VFX_EXPLOSION_READY===8 && VFX_EXPLOSION_FAIL===0);
+  // Render every confirmed explosion; spread decorative particles across frames during mass losses.
+  const particleStride = TL_MODE==='battle' ? Math.max(1,Math.ceil(exps.length/24)) : 1;
   exps=exps.filter(ex=>{
     const prog=ex.age/ex.ttl;
     // [v7.180 VFX] PNG 스프라이트 — 폭발 크기에 비례한 박스에 8장 순차 합성
@@ -3060,7 +3065,8 @@ function drawExps(){
     // 1) 연기 (additive 아님, 어두움) — 폭발 뒤에 깔림
     if(ex.smoke && ex.age>2){
       const smokeProg=Math.min(1,(ex.age-2)/ex.ttl);
-      ex.smoke.forEach(sm=>{
+      ex.smoke.forEach((sm,i)=>{
+        if(i%particleStride!==ex.age%particleStride)return;
         CX.globalAlpha=sm.al*(1-smokeProg)*.55;
         CX.fillStyle='#1a1a22';
         const sx=ex.x+sm.vx*ex.age, sy=ex.y+sm.vy*ex.age;
@@ -3084,8 +3090,9 @@ function drawExps(){
     }
     // 3) 파편 파티클 (additive 글로우)
     CX.globalCompositeOperation='lighter';
-    ex.ptcl.forEach(p=>{
+    ex.ptcl.forEach((p,i)=>{
       p.al*=(p.decay||.985);
+      if(i%particleStride!==ex.age%particleStride)return;
       CX.globalAlpha=p.al*(1-prog);CX.fillStyle=p.c;
       CX.fillRect(ex.x+p.vx*ex.age-p.sz/2,ex.y+p.vy*ex.age-p.sz/2,p.sz,p.sz);
     });
@@ -3973,6 +3980,7 @@ let _commandWallet='';
 let _selectedCommandFleetId=null,_moveOrderArmed=false;
 let _commandSeq=0;
 const _pendingCommands=new Map();
+const _uncertainCommands=new Map();
 const _confirmedActions=new Map();
 let _summaryFetchStarted=false;
 const COMMAND_COPY={
@@ -3981,7 +3989,10 @@ const COMMAND_COPY={
 };
 const BATTLE_QUEUE_COPY={en:'Waiting for a battle slot · commands locked',ko:'서버 전투 슬롯 대기 · 시작 시 지휘 가능',ja:'戦闘枠を待機中 · 指揮は開始後',zh:'等待战斗席位 · 开战后可指挥',id:'Menunggu slot pertempuran · perintah terkunci',vi:'Đang chờ lượt chiến đấu · lệnh bị khóa',th:'รอช่องการต่อสู้ · คำสั่งถูกล็อก'};
 const BATTLE_CANCEL_COPY={en:'Battle cancelled · commands locked',ko:'전투 취소됨 · 지휘 잠금',ja:'戦闘中止 · 指揮は使用不可',zh:'战斗已取消 · 无法指挥',id:'Pertempuran dibatalkan · perintah terkunci',vi:'Trận đấu đã hủy · lệnh bị khóa',th:'ยกเลิกการต่อสู้ · คำสั่งถูกล็อก'};
-function commandText(key){if(key==='waiting_slot')return BATTLE_QUEUE_COPY[TLANG]||BATTLE_QUEUE_COPY.en;if(key==='cancelled')return BATTLE_CANCEL_COPY[TLANG]||BATTLE_CANCEL_COPY.en;return (COMMAND_COPY[TLANG]||COMMAND_COPY.en)[key]||COMMAND_COPY.en[key]||key;}
+const BATTLE_SYNC_COPY={en:'Reconnecting battle · commands locked',ko:'전투 동기화 중 · 지휘 잠금',ja:'戦闘を同期中 · 指揮は使用不可',zh:'正在同步战斗 · 无法指挥',id:'Menyelaraskan pertempuran · perintah terkunci',vi:'Đang đồng bộ trận đấu · lệnh bị khóa',th:'กำลังซิงก์การต่อสู้ · คำสั่งถูกล็อก'};
+const BATTLE_INCOMPLETE_COPY={en:'Battle resumed · some earlier effects unavailable',ko:'전투 재연결됨 · 이전 효과 일부 복구 불가',ja:'戦闘再接続 · 一部演出を復元できません',zh:'战斗已重连 · 部分先前特效无法恢复',id:'Terhubung kembali · sebagian efek sebelumnya tidak tersedia',vi:'Đã kết nối lại · thiếu một số hiệu ứng trước đó',th:'เชื่อมต่ออีกครั้ง · เอฟเฟกต์ก่อนหน้าบางส่วนไม่พร้อม'};
+const COMMAND_UNKNOWN_COPY={en:'Application unconfirmed · check battle status',ko:'적용 결과 확인 불가 · 전투 상태 확인',ja:'適用結果を確認できません · 戦闘状況を確認',zh:'无法确认执行结果 · 请检查战斗状态',id:'Hasil penerapan belum diketahui · periksa status pertempuran',vi:'Chưa xác nhận kết quả · kiểm tra trạng thái trận đấu',th:'ไม่ทราบผลการใช้คำสั่ง · ตรวจสอบสถานะการต่อสู้'};
+function commandText(key){if(key==='waiting_slot')return BATTLE_QUEUE_COPY[TLANG]||BATTLE_QUEUE_COPY.en;if(key==='cancelled')return BATTLE_CANCEL_COPY[TLANG]||BATTLE_CANCEL_COPY.en;if(key==='syncing')return BATTLE_SYNC_COPY[TLANG]||BATTLE_SYNC_COPY.en;if(key==='sync_incomplete')return BATTLE_INCOMPLETE_COPY[TLANG]||BATTLE_INCOMPLETE_COPY.en;if(key==='result_unknown')return COMMAND_UNKNOWN_COPY[TLANG]||COMMAND_UNKNOWN_COPY.en;return (COMMAND_COPY[TLANG]||COMMAND_COPY.en)[key]||COMMAND_COPY.en[key]||key;}
 function commandReason(reason){return reason==='invalid_destination'?navigationText('invalid'):commandText(reason||'unknown');}
 function commandableFleets(){
  if(!_commandWallet||!_wsLastFrame)return [];
@@ -3999,17 +4010,26 @@ function selectCommandFleet(id){
  commandFeedback(navigationText('selected'));updateCommandDeck();return true;
 }
 function commandSide(){const f=ownedLiveFleet();return f?f.side:'atk';}
-function canCommandBattle(){return _wsRealtime&&!_wsEndPayload&&!_liveCancelled&&!!ownedLiveFleet()&&!!_wsBattle&&_wsBattle.readyState===1;}
+function canCommandBattle(){return _wsRealtime&&!_wsEndPayload&&!_liveCancelled&&!_battleSyncWaiting&&!_battleAwaitFrame&&!!ownedLiveFleet()&&!!_wsBattle&&_wsBattle.readyState===1;}
 function commandFeedback(text){const el=document.getElementById('commandFeedback');if(el)el.textContent=text;addLog('tc',text);}
+function scheduleCommandTimeout(commandId,message){
+ clearTimeout(message._timer);
+ message._timer=setTimeout(()=>{
+  if(_pendingCommands.get(commandId)!==message)return;
+  _pendingCommands.delete(commandId);_uncertainCommands.set(commandId,message);
+  if(_uncertainCommands.size>100)_uncertainCommands.delete(_uncertainCommands.keys().next().value);
+  commandFeedback(commandText('result_unknown')+' · '+message.cmd);updateCommandDeck();
+ },9000);
+}
 function sendLiveCommand(cmd,payload){
- if(!canCommandBattle()){commandFeedback(commandText(_wsEndPayload?'ended':_wsRealtime?'spectator':'replay'));return false;}
+ if(!canCommandBattle()){commandFeedback(commandText(_wsEndPayload?'ended':(_battleSyncWaiting||_battleAwaitFrame)?'syncing':_wsRealtime?'spectator':'replay'));return false;}
  const f=ownedLiveFleet();
  const commandId='tl-'+Date.now().toString(36)+'-'+(++_commandSeq);
  const message={type:'cmd',cmd,commandId,payload:Object.assign({},payload,{fleetId:f.id})};
  _pendingCommands.set(commandId,message);
  updateCommandDeck();
- if(_pendingCommands.size>100)_pendingCommands.delete(_pendingCommands.keys().next().value);
- try{_wsBattle.send(JSON.stringify(message));commandFeedback(commandText('sent')+' · '+cmd);return true;}
+ if(_pendingCommands.size>100){const oldest=_pendingCommands.keys().next().value;clearTimeout(_pendingCommands.get(oldest)?._timer);_pendingCommands.delete(oldest);}
+ try{_wsBattle.send(JSON.stringify(message));scheduleCommandTimeout(commandId,message);commandFeedback(commandText('sent')+' · '+cmd);return true;}
  catch(_){_pendingCommands.delete(commandId);commandFeedback(commandText('disconnected'));return false;}
 }
 function advanceBattleClock(rawDt){
@@ -4024,8 +4044,10 @@ function advanceBattleClock(rawDt){
 }
 function handleCommandResult(m){
  if(m.status==='applied')rememberAppliedAction(m);
- if(!_pendingCommands.has(m.commandId))return;
+ if(!_pendingCommands.has(m.commandId)&&!_uncertainCommands.has(m.commandId))return;
+ clearTimeout(_pendingCommands.get(m.commandId)?._timer);
  _pendingCommands.delete(m.commandId);
+ _uncertainCommands.delete(m.commandId);
  let text=commandText(m.status==='applied'?'applied':'rejected')+' · '+m.cmd+' · tick '+m.tick;
  if(m.reason)text+=' · '+commandReason(m.reason);
  if(m.status==='rejected'&&Number.isFinite(m.charge))text+=' · '+m.charge+'/'+(m.requiredCharge||100)+'%';
@@ -4113,43 +4135,56 @@ function syncServerShips(frame){
 function syncServerCombatEvents(frame){
  if(TL_MODE!=='battle'||(!Array.isArray(frame.combat_events)&&!Array.isArray(frame.combat_salvos)))return;
  const seen=syncServerCombatEvents.seen||(syncServerCombatEvents.seen=new Set());
- if(frame.replay_seek===true){seen.clear();lasers=lasers.filter(l=>!l.visual);}
+ if(frame.replay_seek===true){seen.clear();lasers=lasers.filter(l=>!l.visual);syncServerCombatEvents.pending=[];if(syncServerCombatEvents.retryTimer)clearTimeout(syncServerCombatEvents.retryTimer);syncServerCombatEvents.retryTimer=null;}
  const tick=frame.t??frame.tick;
  if(Number.isFinite(tick)){
-  if(Number.isFinite(syncServerCombatEvents.lastTick)&&tick<syncServerCombatEvents.lastTick){seen.clear();lasers.length=0;}
+  if(Number.isFinite(syncServerCombatEvents.lastTick)&&tick<syncServerCombatEvents.lastTick){seen.clear();lasers.length=0;syncServerCombatEvents.pending=[];if(syncServerCombatEvents.retryTimer)clearTimeout(syncServerCombatEvents.retryTimer);syncServerCombatEvents.retryTimer=null;}
   syncServerCombatEvents.lastTick=tick;
  }
  const byId=new Map(ships.filter(s=>s.dbShipId!=null).map(s=>[String(s.dbShipId),s]));
  const now=Date.now();
  lasers=lasers.filter(l=>!l.durationMs||now-l.createdAt-(l.delayMs||0)<l.durationMs);
- function makeVisualRoom(){
+ function makeVisualRoom(side){
   if(lasers.length<256)return true;
-  const index=lasers.findIndex(l=>l.visual&&!l.beamCannon&&!l.volley&&!l.critical);
+  // Keep both sides represented if a slow device fills the visual budget.
+  let index=lasers.findIndex(l=>l.visual&&!l.beamCannon&&!l.volley&&!l.critical);
+  if(index<0)index=lasers.findIndex(l=>l.visual&&l.side===side&&!l.critical&&!l.beamCannon);
+  if(index<0)index=lasers.findIndex(l=>l.visual&&!l.critical&&!l.beamCannon);
   if(index<0)return false;
   lasers.splice(index,1);return true;
  }
  let heavySoundPlayed=false;
+ const deferredSalvos=[], deferredEvents=[];
  // Each salvo represents confirmed shots outside the individual-event budget.
  // Two real trajectories at most represent the bounded group, never extra damage.
  for(const salvo of (Array.isArray(frame.combat_salvos)?frame.combat_salvos:[]).slice(0,22)){
   if(!salvo||typeof salvo.id!=='string'||salvo.id.length>180||!salvo.id||seen.has(salvo.id)||!['atk','def'].includes(salvo.source_side)||!Number.isSafeInteger(salvo.count)||salvo.count<1||!Array.isArray(salvo.samples))continue;
   const samples=salvo.samples.slice(0,2).filter(p=>p?.from&&p?.to&&[p.from.x,p.from.y,p.to.x,p.to.y].every(Number.isFinite));
   if(!samples.length)continue;
-  seen.add(salvo.id);if(seen.size>512)seen.delete(seen.values().next().value);
   const color=salvo.fire_type==='overdrive'?'#bf98ff':salvo.fire_type==='beam'?'#91e9ff':salvo.fire_type==='missile'?'#ffbb6a':salvo.source_side==='atk'?'#60dcff':'#ff805b';
   const width=Math.min(7,2+Math.log2(salvo.count+1)*.65)/Math.max(.5,camScale);
+  let represented=false;
   for(let i=0;i<samples.length;i++){
    const sample=samples[i];
-   if(!makeVisualRoom())break;
    const from=battleWorldPoint(sample.from.x,sample.from.y,W,H),to=battleWorldPoint(sample.to.x,sample.to.y,W,H);
-   lasers.push({x1:from.x,y1:from.y,x2:to.x,y2:to.y,color,width,alpha:.9,ttl:75,age:0,createdAt:now,delayMs:i*400,durationMs:1100,dmg:0,applied:true,visual:true,volley:true,side:salvo.source_side});
+   const key=salvo.source_side+':'+salvo.fire_type+':'+i;
+   const existing=lasers.find(l=>l.visual&&l.volley&&l.salvoKey===key);
+   if(existing){
+    existing.x1=from.x;existing.y1=from.y;existing.x2=to.x;existing.y2=to.y;
+    existing.width=Math.max(existing.width||0,width);existing.createdAt=now;existing.age=0;existing.alpha=.9;
+    existing.visualCount=Math.min(Number.MAX_SAFE_INTEGER,(existing.visualCount||0)+salvo.count);represented=true;
+   }else if(makeVisualRoom(salvo.source_side)){
+    lasers.push({x1:from.x,y1:from.y,x2:to.x,y2:to.y,color,width,alpha:.9,ttl:75,age:0,createdAt:now,delayMs:i*400,durationMs:1100,dmg:0,applied:true,visual:true,volley:true,side:salvo.source_side,salvoKey:key,visualCount:salvo.count});represented=true;
+   }
   }
+  if(represented){seen.add(salvo.id);if(seen.size>512)seen.delete(seen.values().next().value);}
+  else deferredSalvos.push(salvo);
  }
  for(const event of (Array.isArray(frame.combat_events)?frame.combat_events:[]).slice(0,128)){
   if(!event||event.type!=='shot_hit'||typeof event.id!=='string'||event.id.length>128||!event.id||seen.has(event.id))continue;
   if(!event.from||!event.to||![event.from.x,event.from.y,event.to.x,event.to.y].every(Number.isFinite)||!['atk','def'].includes(event.source_side))continue;
   seen.add(event.id);if(seen.size>512)seen.delete(seen.values().next().value);
-  if(lasers.length>=256&&(!event.destroyed||!makeVisualRoom()))continue;
+  if(lasers.length>=256&&(!event.destroyed||!makeVisualRoom(event.source_side))){deferredEvents.push(event);continue;}
   const source=byId.get(String(event.source_ship_id)),target=byId.get(String(event.target_ship_id));
   if(source)source.recoilUntil=Date.now()+180;
   const from=source&&Number.isFinite(source.x)&&Number.isFinite(source.y)?{x:source.x,y:source.y}:battleWorldPoint(event.from.x,event.from.y,W,H),to=target&&Number.isFinite(target.x)&&Number.isFinite(target.y)?{x:target.x,y:target.y}:battleWorldPoint(event.to.x,event.to.y,W,H);
@@ -4164,6 +4199,19 @@ function syncServerCombatEvents(frame){
   if(heavy&&!heavySoundPlayed&&typeof playBeamCannonSound==='function'){playBeamCannonSound();heavySoundPlayed=true;}
   else if(typeof playLaserSound==='function'&&beam)playLaserSound();
   else if(typeof playBulletSound==='function')playBulletSound();
+ }
+ if((deferredEvents.length||deferredSalvos.length)&&typeof OccupyBattleFrameWire!=='undefined'&&typeof OccupyBattleFrameWire.mergeVisual==='function'){
+  // Bounded side/weapon groups retain real shots until a visual slot becomes free.
+  syncServerCombatEvents.pending=OccupyBattleFrameWire.mergeVisual(syncServerCombatEvents.pending,deferredSalvos,OccupyBattleFrameWire.summarize({combat_events:deferredEvents}));
+  if(!syncServerCombatEvents.retryTimer)syncServerCombatEvents.retryTimer=setTimeout(()=>{
+   syncServerCombatEvents.retryTimer=null;
+   if(typeof tlDisposed!=='undefined'&&tlDisposed){syncServerCombatEvents.pending=[];return;}
+   const pending=syncServerCombatEvents.pending||[];syncServerCombatEvents.pending=[];
+   if(!pending.length)return;
+   const id=typeof tlQuery==='function'?tlQuery('bid'):'battle';
+   const retry=OccupyBattleFrameWire.carryInto({combat_salvos:[]},pending,id);
+   syncServerCombatEvents({t:syncServerCombatEvents.lastTick,combat_salvos:retry.combat_salvos});
+  },80);
  }
 }
 function fleetRoleText(f){
@@ -4309,7 +4357,7 @@ function updateCommandDeck(){
  set('doctrineLabel',commandText('doctrine'));set('focusLabel',commandText('focus'));set('skillLabel',commandText('skill'));set('doctrineApply',commandText('order'));set('focusApply',commandText('aim'));set('advancedLabel',commandText('advanced'));set('fieldGuideBtn',TLANG==='ko'?'함대 역할 도감':'Fleet field guide');
  const d=document.getElementById('doctrineChoice');for(const o of d.options)o.textContent=commandText(o.value);
  set('doctrineNote',commandText(d.value+'Note'));
- const mode=TL_MODE==='sandbox'?'training':_wsEndPayload?'ended':_liveCancelled?'cancelled':!_wsLastFrame?(_waitingLiveSlot?'waiting_slot':'connecting'):!_wsRealtime?'replay':!_wsBattle||_wsBattle.readyState!==1?'disconnected':canCommandBattle()?'live':'spectator';
+ const mode=TL_MODE==='sandbox'?'training':_wsEndPayload?'ended':_liveCancelled?'cancelled':_battleSyncWaiting?'syncing':!_wsLastFrame?(_waitingLiveSlot?'waiting_slot':'connecting'):!_wsRealtime?'replay':!_wsBattle||_wsBattle.readyState!==1?'disconnected':_battleAwaitFrame?'syncing':_battleSyncIncomplete?'sync_incomplete':canCommandBattle()?'live':'spectator';
  set('battleModeStatus',commandText(mode));
  const enabled=TL_MODE==='sandbox'?!battleOver:canCommandBattle();
  document.querySelectorAll('.command-row select,.command-row button,.advanced-controls button').forEach(e=>{e.disabled=!enabled;});
@@ -4364,6 +4412,7 @@ let _wsEndPayload = null;
 let _wsMaxHpCalibrated = false;
 let _waitingLiveSlot = false;
 let _liveCancelled = false;
+let _battleSyncWaiting = false, _battleSyncIncomplete = false, _battleAwaitFrame = false;
 // [실시간 전투] 서버 도메인은 라이브 스케줄 프레임에만 realtime:true 를 넣는다(사전계산 리플레이 스트림에는 없음).
 // 한 번 라이브로 확인되면 세션 내내 라이브로 취급한다(sticky) — WS 순단으로 스킬 버튼이 깜빡이지 않게.
 let _wsRealtime = false;
@@ -4394,12 +4443,23 @@ function connectBattleWs() {
     const useWire = !_battleWireDisabled && typeof OccupyBattleFrameWire !== 'undefined' && OccupyBattleFrameWire.supported();
     const params = new URLSearchParams();
     if (token) params.set('token', token);
-    if (useWire) params.set('wire', 'gzip-v1');
+    // v2 includes a bounded visual digest. Older servers safely send plain JSON.
+    if (useWire) params.set('wire', 'gzip-v2');
+    const cursor = connectBattleWs._cursor;
+    if (cursor?.battleId === String(bid) && typeof OccupyBattleFrameWire !== 'undefined' && OccupyBattleFrameWire.validCursor?.(cursor.value)) {
+      params.set('resume', JSON.stringify(cursor.value));
+    }
     const query = params.toString();
     const url = proto + '://' + location.host + '/ws/battle/' + encodeURIComponent(bid) + (query ? '?' + query : '');
     const socket = _wsBattle = new WebSocket(url);
+    _battleSyncWaiting = false; _battleAwaitFrame = true;
     const queue = [];
     let processing = false, wireFailed = false, networkClosed = false, overloaded = false;
+    let receivedEpoch = cursor?.battleId === String(bid) ? cursor.value.epoch : null;
+    let receivedSeq = cursor?.battleId === String(bid) ? cursor.value.seq : 0;
+    let receivedCursor = cursor?.battleId === String(bid) ? cursor.value : null;
+    let receivedLegacyTick = -1;
+    let receivedLegacyPayload = null;
     const finish = () => {if(_wsBattle!==socket)return;socket._battleDraining=false;addLog('ev',commandText('disconnected'));_wsBattle=null;_waitingLiveSlot=false;_pendingCommands.clear();updateCommandDeck();if(!tlDisposed&&!document.hidden)_wsReconnectTimer=setTimeout(connectBattleWs,1500);};
     async function drain() {
       if (processing) return;
@@ -4422,7 +4482,31 @@ function connectBattleWs() {
             } finally { if (timeout) clearTimeout(timeout); }
           }
           if (!wireFailed && !overloaded && _wsBattle === socket) {
-            try { processBattleMessage(m,bid); } catch (_) { console.warn('[ws] battle message processing failed'); }
+            const continuity = m?._continuity;
+            if (item.compressed && item.message._continuity && JSON.stringify(item.message._continuity) !== JSON.stringify(continuity)) {
+              wireFailed = true; _battleWireDisabled = true; queue.length = 0;
+              try { socket.close(4000, 'compressed frame continuity invalid'); } catch (_) { try { socket.close(); } catch (_) {} }
+              break;
+            }
+            if (item.compressed && item.message._continuity_before && JSON.stringify(item.message._continuity_before) !== JSON.stringify(m?._continuity_before)) {
+              wireFailed = true; _battleWireDisabled = true; queue.length = 0;
+              try { socket.close(4000, 'compressed frame cursor invalid'); } catch (_) { try { socket.close(); } catch (_) {} }
+              break;
+            }
+            if (item.isFrame && item.carry?.length && typeof OccupyBattleFrameWire !== 'undefined' && typeof OccupyBattleFrameWire.carryInto === 'function') {
+              m = OccupyBattleFrameWire.carryInto(m, item.carry, bid);
+            }
+            try {
+              processBattleMessage(m,bid);
+              // Queued frames do not advance the resumable cursor until applied.
+              if (item.isFrame && continuity?.seq > 0 && typeof OccupyBattleFrameWire !== 'undefined' && OccupyBattleFrameWire.validCursor?.(continuity)) {
+                connectBattleWs._cursor = {battleId:String(bid), value:continuity};
+                // Acknowledge only after this authoritative frame was applied locally.
+                if (socket.readyState === 1) {
+                  try { socket.send(JSON.stringify({type:'frame_ack',cursor:continuity})); } catch (_) {}
+                }
+              }
+            } catch (_) { console.warn('[ws] battle message processing failed'); }
           }
         }
       } finally {
@@ -4444,16 +4528,65 @@ function connectBattleWs() {
       }
       const compressed = !!message && message.type === 'frame_gzip_v1';
       const isFrame = compressed || (!!message && message.type === 'frame');
+      // Initial signed predecessor lets the server recover even if frame 1 fails to decode.
+      // Its proof is verified by the server before use; it is never acknowledged as applied.
+      if (isFrame && !receivedCursor && typeof OccupyBattleFrameWire !== 'undefined' &&
+          OccupyBattleFrameWire.validCursor?.(message._continuity_before) && OccupyBattleFrameWire.validCursor?.(message._continuity) &&
+          message._continuity_before.epoch === message._continuity.epoch && message._continuity_before.seq + 1 === message._continuity.seq) {
+        receivedCursor = message._continuity_before;
+        receivedEpoch = receivedCursor.epoch; receivedSeq = receivedCursor.seq;
+        connectBattleWs._cursor = {battleId:String(bid), value:receivedCursor};
+      }
+      if (compressed && useWire && typeof OccupyBattleFrameWire !== 'undefined' && typeof OccupyBattleFrameWire.validEnvelope === 'function' && !OccupyBattleFrameWire.validEnvelope(message)) {
+        wireFailed = true; _battleWireDisabled = true; queue.length = 0;
+        try { socket.close(4000, 'invalid frame digest'); } catch (_) { try { socket.close(); } catch (_) {} }
+        return;
+      }
       if (isFrame) {
-        // Preserve command/end ordering while replacing stale visual snapshots on a slow device.
+        const c = message._continuity;
+        if (c != null && typeof OccupyBattleFrameWire !== 'undefined' && typeof OccupyBattleFrameWire.validCursor === 'function' && !OccupyBattleFrameWire.validCursor(c)) {
+          wireFailed = true; _battleWireDisabled = true; queue.length = 0;
+          try { socket.close(4000, 'invalid battle continuity'); } catch (_) { try { socket.close(); } catch (_) {} }
+          return;
+        }
+        if (typeof OccupyBattleFrameWire !== 'undefined' && OccupyBattleFrameWire.validCursor?.(c)) {
+          if (c.epoch === receivedEpoch && c.seq <= receivedSeq) return;
+          if (compressed && typeof OccupyBattleFrameWire.digestMatchesCursor === 'function' &&
+              !OccupyBattleFrameWire.digestMatchesCursor(receivedCursor,c,message.visual_digest)) {
+            wireFailed = true; _battleWireDisabled = true; queue.length = 0;
+            try { socket.close(4000, 'inconsistent frame digest'); } catch (_) { try { socket.close(); } catch (_) {} }
+            return;
+          }
+          if (c.epoch !== receivedEpoch) { receivedEpoch = c.epoch; receivedSeq = 0; }
+          receivedSeq = c.seq;
+          receivedCursor = c;
+        } else if (Number.isSafeInteger(message.t)) {
+          // A terminal snapshot can legitimately reuse the prior tick with different state.
+          if (message.t < receivedLegacyTick || (message.t === receivedLegacyTick && e.data === receivedLegacyPayload)) return;
+          receivedLegacyTick = message.t;
+          receivedLegacyPayload = e.data;
+        }
+      }
+      let carry = [];
+      if (isFrame) {
+        // Keep only recent state snapshots, but carry their confirmed visual counts forward.
         const frames = queue.reduce((n, item) => n + (item.isFrame ? 1 : 0), 0);
-        if (frames >= 3) queue.splice(queue.findIndex(item => item.isFrame), 1);
+        if (frames >= 3) {
+          const index = queue.findIndex(item => item.isFrame);
+          const removed = queue.splice(index, 1)[0];
+          if (typeof OccupyBattleFrameWire !== 'undefined' && typeof OccupyBattleFrameWire.mergeVisual === 'function') {
+            const digest = removed.compressed ? removed.message.visual_digest : OccupyBattleFrameWire.summarize(removed.message);
+            carry = OccupyBattleFrameWire.mergeVisual(removed.carry, digest);
+            const next = queue.slice(index).find(item => item.isFrame);
+            if (next) { next.carry = OccupyBattleFrameWire.mergeVisual(carry, next.carry); carry = []; }
+          }
+        }
       } else if (queue.length >= 64) {
         overloaded = true; queue.length = 0;
         try { socket.close(4001, 'client control backlog'); } catch (_) { try { socket.close(); } catch (_) {} }
         return;
       }
-      queue.push({ message, compressed, isFrame });
+      queue.push({ message, compressed, isFrame, carry });
       drain();
     };
     socket.onclose = () => {
@@ -4490,10 +4623,16 @@ function renderBattleSafetyLimit(frame){
 function processBattleMessage(m,bid){
       if (!m || !m.type) return;
       if(m.type==='hello'){_commandWallet=String(m.wallet||'').toLowerCase();updateCommandDeck();return;}
+      if(m.type==='battle_sync'){
+        if(m.status==='waiting')_battleSyncWaiting=true;
+        else if(m.status==='restored'||m.status==='incomplete'){_battleSyncWaiting=false;_battleSyncIncomplete=m.status==='incomplete';}
+        updateCommandDeck();return;
+      }
       if(m.type==='queue'&&m.reason==='battle_cancelled'){_waitingLiveSlot=false;_liveCancelled=true;updateCommandDeck();return;}
       if(m.type==='queue'&&m.reason==='live_capacity'&&!_wsLastFrame&&!_liveCancelled){_waitingLiveSlot=true;updateCommandDeck();return;}
       if (m.type === 'frame') {
         if(_liveCancelled)return;
+        _battleAwaitFrame=false;
         _waitingLiveSlot=false;
         _wsLastFrame = m;
         renderBattleSafetyLimit(m);
@@ -4588,12 +4727,14 @@ function processBattleMessage(m,bid){
         try { notifyParent('ws_end', Object.assign({},m,{objectiveResult:m.objective_result||(_wsLastFrame&&_wsLastFrame.objective)||null,confirmedCommands:Array.from(_confirmedActions.values()).sort((a,b)=>Number(a.tick)-Number(b.tick)).slice(-2)}), bid); } catch (_) {}
       } else if (m.type === 'cmd_ok') {
         if(_pendingCommands.has(m.commandId)){
-          if(m.status==='declared'){_pendingCommands.delete(m.commandId);commandFeedback((TLANG==='ko'?'사전 지휘 등록 · 현재 전투 적용 아님':'Pre-battle order registered')+' · '+m.cmd);updateCommandDeck();}
-          else commandFeedback(commandText('accepted')+' · '+m.cmd);
+          if(m.status==='declared'){clearTimeout(_pendingCommands.get(m.commandId)?._timer);_pendingCommands.delete(m.commandId);commandFeedback((TLANG==='ko'?'사전 지휘 등록 · 현재 전투 적용 아님':'Pre-battle order registered')+' · '+m.cmd);updateCommandDeck();}
+          else {const command=_pendingCommands.get(m.commandId);if(!command._accepted){command._accepted=true;scheduleCommandTimeout(m.commandId,command);}commandFeedback(commandText('accepted')+' · '+m.cmd);}
         }
       } else if (m.type === 'cmd_result') {
         handleCommandResult(m);
       } else if (m.type === 'cmd_err') {
+        if(!_pendingCommands.has(m.commandId)&&!_uncertainCommands.has(m.commandId))return;
+        clearTimeout(_pendingCommands.get(m.commandId)?._timer);_uncertainCommands.delete(m.commandId);
         _pendingCommands.delete(m.commandId);
         commandFeedback(commandText('rejected')+' · '+m.cmd+' · '+commandReason(m.error));updateCommandDeck();
       }

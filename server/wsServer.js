@@ -108,7 +108,17 @@ function attachWsServer(httpServer) {
       _wss.handleUpgrade(req, socket, head, (ws) => {
         _upgradeGuard.upgraded = true; // [v7.189] socket-level release 비활성화 — ws.close 가 release 담당
         ws.battleId = battleId; ws.wallet = wallet; ws._ip = ip;
-        ws.battleWireGzip = parsed.query.wire === 'gzip-v1';
+        ws.battleWireGzip = parsed.query.wire === 'gzip-v1' || parsed.query.wire === 'gzip-v2';
+        ws.battleWireDigest = parsed.query.wire === 'gzip-v2';
+        if (typeof parsed.query.resume === 'string' && parsed.query.resume.length <= 4096) {
+          try {
+            const cursor = JSON.parse(parsed.query.resume);
+            if (cursor && typeof cursor.epoch === 'string' && cursor.epoch.length <= 80 &&
+                Number.isSafeInteger(cursor.seq) && cursor.seq >= 0) ws._battleResume = cursor;
+          } catch (_) {}
+        }
+        ws._battleCursor = ws._battleResume || null;
+        ws._battleAppliedCursor = ws._battleResume || null;
         ws.totpToken = session.totp ? parsed.query.token : null;
         _wss.emit('connection', ws, req);
       });
@@ -132,15 +142,31 @@ function attachWsServer(httpServer) {
     if (_channels.get(bid).size === 1) _battlePresence(bid, true);
 
     ws.send(JSON.stringify({ type: 'hello', battleId: bid, wallet: ws.wallet || null }));
+    if (ws._battleResume) _requestBattleSync(bid, ws, ws._battleResume);
     // A spectator who reconnects after cancellation must not remain in a queue forever.
     require('./db').pool.query('SELECT status FROM fleet_battles WHERE id=$1', [bid])
       .then(({ rows }) => { if (rows[0]?.status === 'cancelled') _safeSendOrTerminate(ws, JSON.stringify({ type: 'queue', battleId: bid, reason: 'battle_cancelled' })); })
       .catch(() => {});
 
     ws.on('message', async (raw) => {
+      if (raw.length > 16384) return;
       let msg = null;
       try { msg = JSON.parse(raw.toString()); } catch (_) { return; }
       if (!msg || !msg.type) return;
+      if (msg.type === 'frame_ack') {
+        if (!ws.battleWireDigest || !msg.cursor || typeof msg.cursor.epoch !== 'string' || !Number.isSafeInteger(msg.cursor.seq)) return;
+        const sent = ws._battleSentCursors?.get(`${msg.cursor.epoch}:${msg.cursor.seq}`);
+        if (!sent || sent.proof !== msg.cursor.proof || sent.epoch !== ws._battleCursor?.epoch) return;
+        const previous = ws._battleAppliedCursor;
+        if (previous && previous.epoch === sent.epoch && previous.seq >= sent.seq) return;
+        ws._battleAppliedCursor = sent;
+        // A frame applied during recovery changes the exact missing range.
+        if (ws._battleSyncWaiting) {
+          _removeSocketFromSync(ws); ws._battleSyncWaiting = false; ws._battleSyncId = null;
+          _requestBattleSync(bid, ws, sent);
+        }
+        return;
+      }
       if (msg.type === 'cmd') {
         const commandId = typeof msg.commandId === 'string' && /^[A-Za-z0-9._:-]{1,80}$/.test(msg.commandId)
           ? msg.commandId : randomUUID();
@@ -156,10 +182,14 @@ function attachWsServer(httpServer) {
           _commandAck(ws, msg.cmd, commandId, 'wallet_required');
           return;
         }
+        if (ws._battleSyncWaiting) { _commandAck(ws, msg.cmd, commandId, 'delivery_unavailable'); return; }
         // [Phase 3 실시간] 라이브 전투 진행 중이면 실시간 명령 큐로 라우팅 (commanderActions 는 pre-battle 전용).
         //   소유권(participant 함대) 검증 + rate limit(기본 3/s). 단일 인스턴스: 권위 워커=WS 워커 동일.
         try {
           const liveBattle = require('./services/liveBattle');
+          if (process.env.REDIS_URL && !_redisReady && !liveBattle.isActive(bid)) {
+            _commandAck(ws, msg.cmd, commandId, 'delivery_unavailable'); return;
+          }
           if (liveBattle.isActive(bid) || _redisReady) {
             const now = Date.now();
             ws._cmdTimes = (ws._cmdTimes || []).filter((t) => now - t < 1000);
@@ -229,6 +259,7 @@ function attachWsServer(httpServer) {
     });
 
     ws.on('close', () => {
+      _removeSocketFromSync(ws);
       const set = _channels.get(bid);
       if (set) {
         set.delete(ws);
@@ -252,6 +283,161 @@ const _PUB_CH = 'om:ws';
 const _WATCH_PREFIX = 'om:ws:watch:';
 const _PUB_ORIGIN = randomUUID();
 let _pub = null, _sub = null, _redisReady = false;
+// Keep only presentation summaries and one latest snapshot per recently active battle.
+const _battleJournals = new Map();
+const _battleRecoveryGuards = new Map();
+const _pendingBattleSync = new Map();
+const _pendingBattleSyncKeys = new Map();
+const MAX_BATTLE_JOURNALS = 64;
+const MAX_PENDING_BATTLE_SYNCS = 128;
+function setBattleRecoveryGuard(battleId, guard) {
+  battleId = _battleKey(battleId);
+  if (battleId && typeof guard === 'function') _battleRecoveryGuards.set(battleId, guard);
+}
+function abandonBattleRecovery(battleId) {
+  battleId = _battleKey(battleId);
+  if (!battleId) return;
+  _battleRecoveryGuards.delete(battleId);
+  _battleJournals.delete(battleId);
+}
+function _journalEntry(battleId) {
+  const entry = _battleJournals.get(battleId);
+  const guard = _battleRecoveryGuards.get(battleId);
+  if (!entry || (guard && !entry.end && !guard())) return null;
+  return entry;
+}
+function recordBattleFrame(battleId, frame) {
+  battleId = _battleKey(battleId);
+  if (!battleId || !frame || typeof frame !== 'object') return null;
+  let entry = _battleJournals.get(battleId);
+  if (!entry || entry.end) {
+    if (_battleJournals.size >= MAX_BATTLE_JOURNALS) {
+      const candidates = [..._battleJournals.entries()];
+      const oldest = candidates.find(([, value]) => value.end) || candidates.find(([id]) => !_battleRecoveryGuards.has(id));
+      // Never evict the journal of a live battle with a valid authority guard.
+      if (!oldest) return frame;
+      _battleJournals.delete(oldest[0]);
+    }
+    entry = { journal: require('./services/battleVisualJournal').createVisualJournal(), end: null };
+    _battleJournals.set(battleId, entry);
+  }
+  const before = entry.cursor || entry.journal.currentCursor();
+  const cursor = entry.journal.push(frame);
+  entry.cursor = cursor;
+  return { ...frame, _continuity: cursor, _continuity_before: before };
+}
+function _socketRecoveryCursor(ws) {
+  return ws.battleWireDigest ? (ws._battleAppliedCursor || ws._battleStartCursor || null) : (ws._battleCursor || null);
+}
+function _syncStatus(ws, status) {
+  _safeSendOrTerminate(ws, JSON.stringify({ type: 'battle_sync', battleId: ws.battleId, status }));
+}
+function _sendBattleEnd(ws, battleId, summary) {
+  const next = summary?._continuity, ended = ws._battleEnded;
+  if (ended === true || (next && ended && ended.epoch === next.epoch && ended.seq >= next.seq)) return false;
+  if (!_safeSendOrTerminate(ws, JSON.stringify({ type: 'end', battleId, ...summary }))) return false;
+  ws._battleEnded = next || ws._battleCursor || true;
+  return true;
+}
+function _forgetBattleSync(group) {
+  if (!group) return;
+  clearTimeout(group.timer);
+  _pendingBattleSync.delete(group.id);
+  _pendingBattleSyncKeys.delete(group.key);
+}
+function _removeSocketFromSync(ws) {
+  clearTimeout(ws._battleSyncRetryTimer);
+  const group = _pendingBattleSync.get(ws._battleSyncId);
+  if (!group) return;
+  group.sockets.delete(ws);
+  if (!group.sockets.size) _forgetBattleSync(group);
+}
+function _syncResult(group, recovery, end) {
+  if (!group || !_pendingBattleSync.has(group.id)) return;
+  const recipients = [...group.sockets].filter(ws => ws.readyState === 1);
+  _forgetBattleSync(group);
+  if (!recipients.length) return;
+  const frame = recovery?.frame ? { ...recovery.frame, combat_salvos: recovery.combat_salvos || [],
+    _continuity: recovery.cursor, recovery_incomplete: !!recovery.incomplete } : null;
+  for (const ws of recipients) { ws._battleSyncWaiting = false; ws._battleSyncId = null; }
+  if (frame) _localBattleFrame(group.battleId, frame, new Set(recipients), true);
+  for (const ws of recipients) {
+    _syncStatus(ws, recovery?.incomplete ? 'incomplete' : 'restored');
+    const finalEnd = end || ws._battleDeferredEnd;
+    ws._battleDeferredEnd = null;
+    const deferred = ws._battleDeferredFrame;
+    ws._battleDeferredFrame = null;
+    if (deferred) _localBattleFrame(group.battleId, deferred, new Set([ws]));
+    if (ws._battleSyncWaiting) ws._battleDeferredEnd = finalEnd;
+    else if (finalEnd) _sendBattleEnd(ws, group.battleId, finalEnd);
+  }
+}
+async function _restoreFinishedBattle(group) {
+  try {
+    const { rows } = await require('./db').pool.query('SELECT status, winner_side, duration_seconds FROM fleet_battles WHERE id=$1', [group.battleId]);
+    if (!_pendingBattleSync.has(group.id)) return;
+    if (rows[0]?.status === 'cancelled') {
+      _forgetBattleSync(group);
+      for (const ws of group.sockets) { ws._battleSyncWaiting = false; _safeSendOrTerminate(ws, JSON.stringify({ type: 'queue', battleId: group.battleId, reason: 'battle_cancelled' })); }
+      return;
+    }
+    if (rows[0]?.status !== 'ended') return;
+    const saved = await require('./services/battleTimeline').getTimeline(group.battleId);
+    const frame = saved?.timeline?.frames?.at(-1) || null;
+    _syncResult(group, { frame, cursor: null, combat_salvos: [], incomplete: true },
+      { winner_side: rows[0].winner_side, duration_seconds: rows[0].duration_seconds });
+  } catch (_) { /* A later retry may find the committed result. */ }
+}
+function _retryBattleSync(group) {
+  if (!_pendingBattleSync.has(group.id)) return;
+  group.sockets = new Set([...group.sockets].filter(ws => ws.readyState === 1));
+  if (!group.sockets.size) { _forgetBattleSync(group); return; }
+  const entry = _journalEntry(group.battleId);
+  if (entry) { _syncResult(group, entry.journal.recover(group.cursor), entry.end); return; }
+  if (_redisReady && _pub) {
+    try { _pub.publish(_PUB_CH, JSON.stringify({ kind: 'battleSyncRequest', origin: _PUB_ORIGIN,
+      requester: _PUB_ORIGIN, requestId: group.id, battleId: group.battleId, cursor: group.cursor })).catch(() => {}); } catch (_) {}
+  }
+  group.attempts++;
+  if (group.attempts % 3 === 0) _restoreFinishedBattle(group);
+  group.timer = setTimeout(() => _retryBattleSync(group), 2000);
+  group.timer.unref?.();
+}
+function _requestBattleSync(battleId, ws, cursor) {
+  if (!ws || ws.readyState !== 1 || ws._battleSyncWaiting) return;
+  let cursorText = '';
+  try { cursorText = JSON.stringify(cursor || null); } catch (_) { return; }
+  if (cursorText.length > 4096) return;
+  const key = `${battleId}:${cursorText}`;
+  let group = _pendingBattleSyncKeys.get(key);
+  if (!group) {
+    if (_pendingBattleSync.size >= MAX_PENDING_BATTLE_SYNCS) {
+      ws._battleSyncWaiting = true;
+      _syncStatus(ws, 'waiting');
+      ws._battleSyncRetryTimer = setTimeout(() => {
+        ws._battleSyncRetryTimer = null;
+        ws._battleSyncWaiting = false;
+        if (ws.readyState === 1) _requestBattleSync(battleId, ws, cursor);
+      }, 2000);
+      ws._battleSyncRetryTimer.unref?.();
+      return;
+    }
+    group = { id: randomUUID(), key, battleId, cursor: cursor || null, sockets: new Set(), attempts: 0, timer: null };
+    _pendingBattleSync.set(group.id, group); _pendingBattleSyncKeys.set(key, group);
+  }
+  group.sockets.add(ws); ws._battleSyncWaiting = true; ws._battleSyncId = group.id;
+  _syncStatus(ws, 'waiting');
+  if (!group.timer) _retryBattleSync(group);
+}
+function _announceBattleJournals() {
+  if (!_redisReady || !_pub || (_pub.status && _pub.status !== 'ready')) return;
+  for (const [battleId] of _battleJournals) {
+    const entry = _journalEntry(battleId);
+    if (!entry?.cursor) continue;
+    try { _pub.publish(_PUB_CH, JSON.stringify({ kind: 'battleSyncAvailable', origin: _PUB_ORIGIN,
+      battleId, cursor: entry.cursor, ended: !!entry.end })).catch(() => {}); } catch (_) {}
+  }
+}
 const _viewerChecks = new Map();
 let _viewerCheckTimer = null;
 function _battlePresence(battleId, present) {
@@ -315,8 +501,17 @@ function _initRedisPubSub() {
       if (err) { console.warn('[WS] Redis subscribe 실패 — 로컬 폴백:', err.message); _redisReady = false; return; }
       _redisReady = true;
       console.log('[WS] Redis Pub/Sub 팬아웃 활성 (멀티 인스턴스)');
+      _announceBattleJournals();
+      for (const group of _pendingBattleSync.values()) { clearTimeout(group.timer); group.timer = null; _retryBattleSync(group); }
     });
-    _sub.on('close', () => { _redisReady = false; });
+    _pub.on('ready', _announceBattleJournals);
+    _sub.on('close', () => {
+      _redisReady = false;
+      for (const [battleId, sockets] of _channels) {
+        if (_journalEntry(battleId)) continue;
+        for (const ws of sockets) _requestBattleSync(battleId, ws, _socketRecoveryCursor(ws));
+      }
+    });
     _sub.on('ready', () => { subscribe(); for (const battleId of _channels.keys()) _battlePresence(battleId, true); });
     subscribe();
     _sub.on('message', (ch, raw) => {
@@ -331,6 +526,39 @@ function _initRedisPubSub() {
       else if (m.kind === 'battleEnd') _localBattleEnd(m.battleId, m.summary);
       else if (m.kind === 'battleQueue') _localBattleQueue(m.battleId, m.reason);
       else if (m.kind === 'battleCmdResult') _localBattleCommandResult(m.battleId, m.result);
+      else if (m.kind === 'battleSyncAvailable') {
+        const battleId = _battleKey(m.battleId), next = m.cursor;
+        if (!battleId || !next || typeof next.epoch !== 'string' || !Number.isSafeInteger(next.seq)) return;
+        for (const ws of _channels.get(battleId) || []) {
+          const last = _socketRecoveryCursor(ws);
+          const ended = ws._battleEnded;
+          const needsEnd = m.ended && (!ended || (ended !== true && (ended.epoch !== next.epoch || ended.seq < next.seq)));
+          if (!last || last.epoch !== next.epoch || last.seq < next.seq || needsEnd) {
+            _requestBattleSync(battleId, ws, last || null);
+          }
+        }
+      }
+      else if (m.kind === 'battleSyncRequest') {
+        const battleId = _battleKey(m.battleId);
+        if (!battleId || typeof m.requester !== 'string' || m.requester.length > 80 ||
+            typeof m.requestId !== 'string' || m.requestId.length > 80) return;
+        let cursorSize = 0;
+        try { cursorSize = JSON.stringify(m.cursor || null).length; } catch (_) { return; }
+        if (cursorSize > 4096) return;
+        const entry = _journalEntry(battleId);
+        if (!entry || !_pub) return;
+        try {
+          const recovery = entry.journal.recover(m.cursor);
+          if (recovery) _pub.publish(_PUB_CH, JSON.stringify({ kind: 'battleSyncResponse', origin: _PUB_ORIGIN,
+            target: m.requester, requestId: m.requestId, battleId, recovery, end: entry.end })).catch(() => {});
+        } catch (_) {}
+      } else if (m.kind === 'battleSyncResponse' && m.target === _PUB_ORIGIN) {
+        const group = _pendingBattleSync.get(m.requestId);
+        if (!group || group.battleId !== _battleKey(m.battleId) || !m.recovery?.cursor) return;
+        const current = m.recovery.cursor;
+        if (group.cursor && current.epoch === group.cursor.epoch && current.seq < group.cursor.seq) return;
+        _syncResult(group, m.recovery, m.end || null);
+      }
       else if (m.kind === 'battleCmd') {
         const queued = _enqueueLocalBattleCommand(m.battleId, m.command);
         if (!queued.accepted && queued.reason !== 'not_authority') {
@@ -415,18 +643,36 @@ function _safeSendOrTerminate(ws, payload) {
   }
   try { ws.send(payload); return true; } catch (_) { return false; }
 }
-function _localBattleFrame(battleId, frame) {
+function _localBattleFrame(battleId, frame, recipients = null, recovering = false) {
   battleId = _battleKey(battleId);
-  const set = _channels.get(battleId);
+  const set = recipients || _channels.get(battleId);
   if (!set || set.size === 0) return 0;
   let payload, compressed;
   if (Array.from(set).some(ws => ws.battleWireGzip && ws.readyState === 1)) {
-    try { ({ raw: payload, compressed } = require('./utils/battleFrameWire').encodeBattleFrame(battleId, frame, true)); } catch (_) {}
+    try { ({ raw: payload, compressed } = require('./utils/battleFrameWire').encodeBattleFrame(battleId, frame, true, Array.from(set).some(ws => ws.battleWireDigest && ws.readyState === 1))); } catch (_) {}
   }
   if (!payload) payload = JSON.stringify({ type: 'frame', battleId, ...frame });
   let sent = 0;
   for (const ws of set) {
-    if (_safeSendOrTerminate(ws, ws.battleWireGzip && compressed ? compressed : payload)) sent++;
+    if (!recovering && ws._battleSyncWaiting) { ws._battleDeferredFrame = frame; continue; }
+    const next = frame._continuity, last = ws._battleCursor;
+    if (next && last && next.epoch === last.epoch && next.seq <= last.seq && !recovering) continue;
+    if (!recovering && next && last && (next.epoch !== last.epoch || next.seq > last.seq + 1)) {
+      ws._battleDeferredFrame = frame;
+      _requestBattleSync(battleId, ws, _socketRecoveryCursor(ws));
+      continue;
+    }
+    if (_safeSendOrTerminate(ws, ws.battleWireGzip && compressed ? compressed : payload)) {
+      if (next && last && next.epoch !== last.epoch) ws._battleEnded = null;
+      if (next) {
+        if (!ws._battleStartCursor || ws._battleStartCursor.epoch !== next.epoch) ws._battleStartCursor = frame._continuity_before || null;
+        ws._battleCursor = next;
+        const sent = ws._battleSentCursors || (ws._battleSentCursors = new Map());
+        sent.set(`${next.epoch}:${next.seq}`, next);
+        if (sent.size > 128) sent.delete(sent.keys().next().value);
+      }
+      sent++;
+    }
   }
   return sent;
 }
@@ -434,10 +680,17 @@ function _localBattleEnd(battleId, summary) {
   battleId = _battleKey(battleId);
   const set = _channels.get(battleId);
   if (!set || set.size === 0) return 0;
-  const payload = JSON.stringify({ type: 'end', battleId, ...summary });
   let sent = 0;
   for (const ws of set) {
-    if (_safeSendOrTerminate(ws, payload)) sent++;
+    if (ws._battleSyncWaiting) { ws._battleDeferredEnd = summary; continue; }
+    const next = summary?._continuity, last = ws._battleCursor;
+    if (next && last && next.epoch === last.epoch && next.seq < last.seq) continue;
+    if (next && last && (next.epoch !== last.epoch || next.seq > last.seq)) {
+      ws._battleDeferredEnd = summary;
+      _requestBattleSync(battleId, ws, _socketRecoveryCursor(ws));
+      continue;
+    }
+    if (_sendBattleEnd(ws, battleId, summary)) sent++;
   }
   return sent;
 }
@@ -459,12 +712,24 @@ function broadcastBattleQueue(battleId, reason = 'live_capacity') {
 function broadcastBattleFrame(battleId, frame) {
   battleId = _battleKey(battleId);
   if (!battleId) return;
-  _publishOrLocal('battleFrame', { battleId, frame }, () => _localBattleFrame(battleId, frame));
+  const recorded = recordBattleFrame(battleId, frame);
+  // Redis can be down even though the battle authority and its viewers are local.
+  // Wake local waiters from the authoritative journal before broadcasting.
+  for (const ws of _channels.get(battleId) || []) {
+    if (!ws._battleSyncWaiting) continue;
+    const group = _pendingBattleSync.get(ws._battleSyncId);
+    if (group) _retryBattleSync(group);
+    else { clearTimeout(ws._battleSyncRetryTimer); ws._battleSyncWaiting = false; _requestBattleSync(battleId, ws, _socketRecoveryCursor(ws)); }
+  }
+  _publishOrLocal('battleFrame', { battleId, frame: recorded }, () => _localBattleFrame(battleId, recorded));
 }
 /** Battle 종료 broadcast — winner / summary. */
 function broadcastBattleEnd(battleId, summary) {
   battleId = _battleKey(battleId);
   if (!battleId) return;
+  const entry = _battleJournals.get(battleId);
+  if (entry) { summary = { ...summary, _continuity: entry.cursor }; entry.end = summary; }
+  _battleRecoveryGuards.delete(battleId);
   _publishOrLocal('battleEnd', { battleId, summary }, () => _localBattleEnd(battleId, summary));
 }
 
@@ -526,4 +791,6 @@ function channelStats() {
   return out;
 }
 
-module.exports = { attachWsServer, broadcastBattleQueue, broadcastBattleFrame, broadcastBattleEnd, broadcastBattleCommandResult, broadcastChat, broadcastFeed, channelStats, hasBattleViewers, routeBattleCommand, routeBattleCommandResult };
+module.exports = { attachWsServer, broadcastBattleQueue, broadcastBattleFrame, recordBattleFrame,
+  setBattleRecoveryGuard, abandonBattleRecovery, broadcastBattleEnd, broadcastBattleCommandResult,
+  broadcastChat, broadcastFeed, channelStats, hasBattleViewers, routeBattleCommand, routeBattleCommandResult };

@@ -13,6 +13,7 @@ function fixture(check,{redis=false,declareAction,battleStatus='active'}={}){
   const context={module:{exports:{}},process:{env:redis?{REDIS_URL:'fixture-no-network'}:{}},console:{log(){},warn(){},error(){}},setInterval:()=>({unref(){}}),clearInterval(){},setTimeout,clearTimeout,Buffer,require(name){
     if(name==='crypto')return{randomUUID:()=> 'public-fixture-command-id'};
     if(name==='ws')return{WebSocketServer};if(name==='url')return require('node:url');
+    if(name==='./services/battleVisualJournal')return require('../services/battleVisualJournal');
     if(name==='./utils/totpSessionBoundary')return{validateToken:check};
     if(name==='./db')return{pool:{query:async(sql,args)=>{dbQueries.push({sql,args});return{rows:[{status:battleStatus}]};}}};
     if(name==='ioredis'&&redis)return Redis;
