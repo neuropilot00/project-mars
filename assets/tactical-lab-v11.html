@@ -44,6 +44,7 @@
 <link rel="stylesheet" href="fleet-field-guide.css">
 <script src="fleet-field-guide.js" defer></script>
 <script src="battlefield-art.js?v=image28-release"></script>
+<script src="battle-frame-wire.js?v=20261030-gzip1"></script>
 <title>OCCUPY MARS — Tactical Lab v11.1 + VFX (v7.229)</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap');
@@ -2350,6 +2351,12 @@ function updateSpecialCharge(dt){
 }
 
 function mkExp(x,y,sz){
+  // Keep the largest confirmed explosions visible under mass losses.
+  if(TL_MODE==='battle'&&exps.length>=96){
+    const smaller=exps.findIndex(e=>e.sz<sz);
+    if(smaller<0)return;
+    exps.splice(smaller,1);
+  }
   playExplosionSound();
   // [v7.179 VFX] 다층 폭발 — 코어 플래시 + 파편 + 연기 + 글로우
   const n=Math.min(5+sz*(PERF_MODE?1.6:3.4),PERF_MODE?14:26);
@@ -2983,11 +2990,14 @@ function drawBullets(_wsActive){
 
 function drawLasers(_wsActive){
   lasers=lasers.filter(l=>{
+    const elapsed=l.durationMs?Date.now()-l.createdAt-(l.delayMs||0):0;
+    if(l.durationMs&&elapsed<0)return true;
+    if(l.durationMs&&elapsed>=l.durationMs)return false;
     if(l.age===0&&!l.applied){
       l.applied=true;
       if(!l.visual&&!_wsActive&&l.target&&!l.target.dead)applyDmg(l.target,l.dmg,true,l.attackerType);
     }
-    const prog=l.age/l.ttl;
+    const prog=l.durationMs?elapsed/l.durationMs:l.age/l.ttl;
     const travel=l.projectile?Math.min(1,prog*1.38):1,tail=Math.max(0,travel-.15);
     const startX=l.projectile?l.x1+(l.x2-l.x1)*tail:l.x1,startY=l.projectile?l.y1+(l.y2-l.y1)*tail:l.y1;
     const endX=l.projectile?l.x1+(l.x2-l.x1)*travel:l.x2,endY=l.projectile?l.y1+(l.y2-l.y1)*travel:l.y2;
@@ -2995,7 +3005,7 @@ function drawLasers(_wsActive){
     CX.shadowColor=l.color;CX.shadowBlur=l.beamCannon?(PERF_MODE?8:18):(PERF_MODE?0:6);
     CX.strokeStyle=l.color;CX.lineWidth=l.width;
     CX.beginPath();CX.moveTo(startX,startY);CX.lineTo(endX,endY);CX.stroke();
-    if(l.beamCannon){
+    if(l.beamCannon||l.volley){
       CX.globalAlpha=(1-prog)*.22;
       CX.strokeStyle=l.color;CX.lineWidth=l.width*2.4;
       CX.beginPath();CX.moveTo(startX,startY);CX.lineTo(endX,endY);CX.stroke();
@@ -3025,7 +3035,7 @@ function drawLasers(_wsActive){
       CX.globalCompositeOperation='source-over';
     }
     CX.shadowBlur=0;CX.lineWidth=1;CX.globalAlpha=1;
-    l.age++;return l.age<l.ttl;
+    l.age++;return l.durationMs?true:l.age<l.ttl;
   });
 }
 
@@ -4101,27 +4111,53 @@ function syncServerShips(frame){
 // Resolved server hits supply both endpoints. This effect never performs local
 // target selection, hit detection or damage, and is absent on old recordings.
 function syncServerCombatEvents(frame){
- if(TL_MODE!=='battle'||!Array.isArray(frame.combat_events))return;
+ if(TL_MODE!=='battle'||(!Array.isArray(frame.combat_events)&&!Array.isArray(frame.combat_salvos)))return;
  const seen=syncServerCombatEvents.seen||(syncServerCombatEvents.seen=new Set());
+ if(frame.replay_seek===true){seen.clear();lasers=lasers.filter(l=>!l.visual);}
  const tick=frame.t??frame.tick;
  if(Number.isFinite(tick)){
   if(Number.isFinite(syncServerCombatEvents.lastTick)&&tick<syncServerCombatEvents.lastTick){seen.clear();lasers.length=0;}
   syncServerCombatEvents.lastTick=tick;
  }
+ const byId=new Map(ships.filter(s=>s.dbShipId!=null).map(s=>[String(s.dbShipId),s]));
+ const now=Date.now();
+ lasers=lasers.filter(l=>!l.durationMs||now-l.createdAt-(l.delayMs||0)<l.durationMs);
+ function makeVisualRoom(){
+  if(lasers.length<256)return true;
+  const index=lasers.findIndex(l=>l.visual&&!l.beamCannon&&!l.volley&&!l.critical);
+  if(index<0)return false;
+  lasers.splice(index,1);return true;
+ }
  let heavySoundPlayed=false;
- for(const event of frame.combat_events.slice(0,128)){
+ // Each salvo represents confirmed shots outside the individual-event budget.
+ // Two real trajectories at most represent the bounded group, never extra damage.
+ for(const salvo of (Array.isArray(frame.combat_salvos)?frame.combat_salvos:[]).slice(0,22)){
+  if(!salvo||typeof salvo.id!=='string'||salvo.id.length>180||!salvo.id||seen.has(salvo.id)||!['atk','def'].includes(salvo.source_side)||!Number.isSafeInteger(salvo.count)||salvo.count<1||!Array.isArray(salvo.samples))continue;
+  const samples=salvo.samples.slice(0,2).filter(p=>p?.from&&p?.to&&[p.from.x,p.from.y,p.to.x,p.to.y].every(Number.isFinite));
+  if(!samples.length)continue;
+  seen.add(salvo.id);if(seen.size>512)seen.delete(seen.values().next().value);
+  const color=salvo.fire_type==='overdrive'?'#bf98ff':salvo.fire_type==='beam'?'#91e9ff':salvo.fire_type==='missile'?'#ffbb6a':salvo.source_side==='atk'?'#60dcff':'#ff805b';
+  const width=Math.min(7,2+Math.log2(salvo.count+1)*.65)/Math.max(.5,camScale);
+  for(let i=0;i<samples.length;i++){
+   const sample=samples[i];
+   if(!makeVisualRoom())break;
+   const from=battleWorldPoint(sample.from.x,sample.from.y,W,H),to=battleWorldPoint(sample.to.x,sample.to.y,W,H);
+   lasers.push({x1:from.x,y1:from.y,x2:to.x,y2:to.y,color,width,alpha:.9,ttl:75,age:0,createdAt:now,delayMs:i*400,durationMs:1100,dmg:0,applied:true,visual:true,volley:true,side:salvo.source_side});
+  }
+ }
+ for(const event of (Array.isArray(frame.combat_events)?frame.combat_events:[]).slice(0,128)){
   if(!event||event.type!=='shot_hit'||typeof event.id!=='string'||event.id.length>128||!event.id||seen.has(event.id))continue;
   if(!event.from||!event.to||![event.from.x,event.from.y,event.to.x,event.to.y].every(Number.isFinite)||!['atk','def'].includes(event.source_side))continue;
   seen.add(event.id);if(seen.size>512)seen.delete(seen.values().next().value);
-  if(lasers.length>=256)continue;
-  const source=ships.find(s=>String(s.dbShipId)===String(event.source_ship_id)),target=ships.find(s=>String(s.dbShipId)===String(event.target_ship_id));
+  if(lasers.length>=256&&(!event.destroyed||!makeVisualRoom()))continue;
+  const source=byId.get(String(event.source_ship_id)),target=byId.get(String(event.target_ship_id));
   if(source)source.recoilUntil=Date.now()+180;
   const from=source&&Number.isFinite(source.x)&&Number.isFinite(source.y)?{x:source.x,y:source.y}:battleWorldPoint(event.from.x,event.from.y,W,H),to=target&&Number.isFinite(target.x)&&Number.isFinite(target.y)?{x:target.x,y:target.y}:battleWorldPoint(event.to.x,event.to.y,W,H);
   const type=source&&source.type||{fireType:event.fire_type,faction:event.source_side==='atk'?'mcc':'cv'};
   const heavy=event.fire_type==='beam'||event.fire_type==='overdrive';
   const beam=heavy||event.fire_type==='laser'||event.fire_type==='mixed';
   const color=event.fire_type==='overdrive'?'#bf98ff':event.fire_type==='beam'?'#91e9ff':event.fire_type==='missile'?'#ffbb6a':weaponColor(type);
-  lasers.push({x1:from.x,y1:from.y,x2:to.x,y2:to.y,color,width:(heavy?9:beam?2.2:2)/Math.max(.5,camScale),alpha:beam?.95:.85,ttl:heavy?120:beam?42:30,beamCannon:heavy,projectile:!beam,age:0,dmg:0,applied:true,visual:true,side:event.source_side});
+  lasers.push({x1:from.x,y1:from.y,x2:to.x,y2:to.y,color,width:(heavy?9:beam?2.2:2)/Math.max(.5,camScale),alpha:beam?.95:.85,ttl:heavy?120:beam?42:30,beamCannon:heavy,projectile:!beam,age:0,dmg:0,applied:true,visual:true,critical:!!event.destroyed,side:event.source_side});
   const distance=Math.max(1,Math.hypot(to.x-from.x,to.y-from.y));
   if(typeof mkMuzzle==='function')mkMuzzle(from.x,from.y,(to.x-from.x)/distance,(to.y-from.y)/distance,color,heavy?2.5:1.3,true);
   // Audio remains opt-in and throttled by the existing sound engine.
@@ -4322,6 +4358,7 @@ function updateCommandDeck(){
 // 현재는 end 만 부모(viewer)에 전달해 결과 카드 즉시 표시. frame data 시각화 매핑은 다음 사이클.
 let _wsBattle = null;
 let _wsReconnectTimer=null;
+let _battleWireDisabled=false;
 let _wsLastFrame = null;
 let _wsEndPayload = null;
 let _wsMaxHpCalibrated = false;
@@ -4351,19 +4388,80 @@ function connectBattleWs() {
     if (tlDisposed || document.hidden || _parentReplay || (TL_MODE==='battle'&&!_battleUiReady)) return;
     const bid = tlQuery('bid');
     if (!bid) return;
-    if (_wsBattle && (_wsBattle.readyState === 0 || _wsBattle.readyState === 1)) return;
+    if (_wsBattle && (_wsBattle.readyState === 0 || _wsBattle.readyState === 1 || _wsBattle._battleDraining)) return;
     const token = (window.parent && window.parent.localStorage && window.parent.localStorage.getItem('pw_token')) || '';
     const proto = location.protocol === 'https:' ? 'wss' : 'ws';
-    const url = proto + '://' + location.host + '/ws/battle/' + encodeURIComponent(bid) + (token ? ('?token=' + encodeURIComponent(token)) : '');
-    _wsBattle = new WebSocket(url);
-    _wsBattle.onopen = () => {addLog('ev', commandText('connected'));updateCommandDeck();};
-    _wsBattle.onmessage = (e) => {
-      let m = null;
-      try { m = JSON.parse(e.data); } catch (_) { return; }
-      processBattleMessage(m,bid);
+    const useWire = !_battleWireDisabled && typeof OccupyBattleFrameWire !== 'undefined' && OccupyBattleFrameWire.supported();
+    const params = new URLSearchParams();
+    if (token) params.set('token', token);
+    if (useWire) params.set('wire', 'gzip-v1');
+    const query = params.toString();
+    const url = proto + '://' + location.host + '/ws/battle/' + encodeURIComponent(bid) + (query ? '?' + query : '');
+    const socket = _wsBattle = new WebSocket(url);
+    const queue = [];
+    let processing = false, wireFailed = false, networkClosed = false, overloaded = false;
+    const finish = () => {if(_wsBattle!==socket)return;socket._battleDraining=false;addLog('ev',commandText('disconnected'));_wsBattle=null;_waitingLiveSlot=false;_pendingCommands.clear();updateCommandDeck();if(!tlDisposed&&!document.hidden)_wsReconnectTimer=setTimeout(connectBattleWs,1500);};
+    async function drain() {
+      if (processing) return;
+      processing = true;
+      try {
+        while (queue.length && !wireFailed && !overloaded && _wsBattle === socket) {
+          const item = queue.shift();
+          let m = item.message, timeout;
+          if (item.compressed) {
+            try {
+              if (!useWire) throw new Error('unexpected compressed frame');
+              m = await Promise.race([
+                OccupyBattleFrameWire.decode(m, bid),
+                new Promise((_, reject) => { timeout = setTimeout(() => reject(new Error('frame decode timeout')), 2000); })
+              ]);
+            } catch (_) {
+              wireFailed = true; _battleWireDisabled = true; queue.length = 0;
+              try { socket.close(4000, 'compressed frame invalid'); } catch (_) { try { socket.close(); } catch (_) {} }
+              break;
+            } finally { if (timeout) clearTimeout(timeout); }
+          }
+          if (!wireFailed && !overloaded && _wsBattle === socket) {
+            try { processBattleMessage(m,bid); } catch (_) { console.warn('[ws] battle message processing failed'); }
+          }
+        }
+      } finally {
+        processing = false;
+        if (networkClosed && !queue.length) finish();
+        else if (queue.length && !wireFailed && !overloaded && _wsBattle === socket) drain();
+      }
+    }
+    socket.onopen = () => {addLog('ev', commandText('connected'));updateCommandDeck();};
+    socket.onmessage = (e) => {
+      if (wireFailed || overloaded) return;
+      let message;
+      try { message = JSON.parse(e.data); } catch (_) {
+        if (useWire) {
+          wireFailed = true; _battleWireDisabled = true; queue.length = 0;
+          try { socket.close(4000, 'invalid battle message'); } catch (_) { try { socket.close(); } catch (_) {} }
+        }
+        return;
+      }
+      const compressed = !!message && message.type === 'frame_gzip_v1';
+      const isFrame = compressed || (!!message && message.type === 'frame');
+      if (isFrame) {
+        // Preserve command/end ordering while replacing stale visual snapshots on a slow device.
+        const frames = queue.reduce((n, item) => n + (item.isFrame ? 1 : 0), 0);
+        if (frames >= 3) queue.splice(queue.findIndex(item => item.isFrame), 1);
+      } else if (queue.length >= 64) {
+        overloaded = true; queue.length = 0;
+        try { socket.close(4001, 'client control backlog'); } catch (_) { try { socket.close(); } catch (_) {} }
+        return;
+      }
+      queue.push({ message, compressed, isFrame });
+      drain();
     };
-    _wsBattle.onclose = () => {addLog('ev',commandText('disconnected'));_wsBattle=null;_waitingLiveSlot=false;_pendingCommands.clear();updateCommandDeck();if(!tlDisposed&&!document.hidden)_wsReconnectTimer=setTimeout(connectBattleWs,1500);};
-    _wsBattle.onerror = (err) => { console.warn('[ws] error:', err); };
+    socket.onclose = () => {
+      networkClosed = true; socket._battleDraining = true;
+      // A broken connection never waits for stalled work to finish before reconnecting.
+      if (wireFailed || overloaded || (!processing && !queue.length)) finish();
+    };
+    socket.onerror = (err) => { console.warn('[ws] error:', err); };
   } catch (e) { console.warn('[ws] connect failed:', e.message); }
 }
 

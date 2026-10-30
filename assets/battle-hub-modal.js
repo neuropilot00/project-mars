@@ -2616,6 +2616,7 @@ async function openBattleViewer(battleId, startTick) {
   bv._battleStatusSeen = false;
   bv._objectiveReplayEndSent = false;
   bv._objectiveReplayLastTick = null;
+  bv._objectiveReplaySeekPending = false;
   const replaySpeedControl = document.getElementById('bvReplaySpeed');
   if (replaySpeedControl) replaySpeedControl.hidden = true;
   if (bv._finalFallback) { _clearActiveTimeout(bv._finalFallback); bv._finalFallback = null; }
@@ -2758,6 +2759,7 @@ async function openBattleViewer(battleId, startTick) {
   const requestedTick = Number(startTick);
   bv.currentTick = bv._objectiveReplay && Number.isFinite(requestedTick)
     ? Math.max(0, Math.min(totalTicks, Math.floor(requestedTick))) : 0;
+  if (bv._objectiveReplay && bv.currentTick > 0) bv._objectiveReplaySeekPending = true;
   for (const ev of bv.events) {
     if (ev.tick < bv.currentTick) bv.shownEvents.add(ev.id || `${ev.tick}-${ev.type}`);
   }
@@ -2844,6 +2846,7 @@ function setSpeed(s) {
 function jumpBattle(seconds) {
   const tickDelta = seconds * (1000 / bv.timeline.tick_ms);
   bv.currentTick = Math.max(0, Math.min(getLastTick(), bv.currentTick + tickDelta));
+  if (bv._objectiveReplay) bv._objectiveReplaySeekPending = true;
   redrawCurrentFrame();
 }
 
@@ -2852,6 +2855,7 @@ function seekBattle(event) {
   const rect = bar.getBoundingClientRect();
   const pct = (event.clientX - rect.left) / rect.width;
   bv.currentTick = Math.max(0, Math.min(getLastTick(), pct * getLastTick()));
+  if (bv._objectiveReplay) bv._objectiveReplaySeekPending = true;
   
   // 이전 이벤트들 shown으로 처리 (다시 안 뜨게)
   for (const ev of bv.events) {
@@ -2930,10 +2934,11 @@ function forwardObjectiveReplayFrame(frame, next, ratio) {
   if (!iframe || !iframe.contentWindow) return;
   const now = typeof performance !== 'undefined' ? performance.now() : Date.now();
   const sameFrame = bv._objectiveReplayLastTick === frame.t;
+  const seeking = !!bv._objectiveReplaySeekPending;
   const interpolate = next && next !== frame && ratio > 0 && ratio < 1;
   const tick = Number.isFinite(bv.currentTick) ? bv.currentTick : frame.t;
   const pausedSeek = !bv.playing && tick !== bv._objectiveReplayLastVisualTick;
-  if (sameFrame && !pausedSeek && (!interpolate || (bv.playing && now - (bv._objectiveReplayLastSentAt || 0) < 100))) return;
+  if (sameFrame && !seeking && !pausedSeek && (!interpolate || (bv.playing && now - (bv._objectiveReplayLastSentAt || 0) < 100))) return;
   let visual = frame;
   if (interpolate) {
     // Only positions are interpolated; HP, losses and events remain recorded facts.
@@ -2948,11 +2953,12 @@ function forwardObjectiveReplayFrame(frame, next, ratio) {
     }
     visual = Object.assign({}, frame, { fleets:positions(frame.fleets,next.fleets,'cx','cy'), ships:positions(frame.ships,next.ships,'x','y') });
   }
-  if (sameFrame) visual = Object.assign({}, visual, {combat_events:[]});
+  if (sameFrame || seeking) visual = Object.assign({}, visual, {combat_events:[], combat_salvos:[]});
   bv._objectiveReplayLastTick = frame.t;
   bv._objectiveReplayLastVisualTick = tick;
   bv._objectiveReplayLastSentAt = now;
-  iframe.contentWindow.postMessage({source:'occupy-battle-viewer',cmd:'replay_frame',battleId:bv.battle.id,payload:Object.assign({},visual,{type:'frame',tick,realtime:false,tick_ms:bv.timeline.tick_ms})},location.origin);
+  bv._objectiveReplaySeekPending = false;
+  iframe.contentWindow.postMessage({source:'occupy-battle-viewer',cmd:'replay_frame',battleId:bv.battle.id,payload:Object.assign({},visual,{type:'frame',tick,realtime:false,tick_ms:bv.timeline.tick_ms,replay_seek:seeking})},location.origin);
 }
 function forwardObjectiveReplayEnd() {
   if (!bv._objectiveReplay || bv._objectiveReplayEndSent) return;

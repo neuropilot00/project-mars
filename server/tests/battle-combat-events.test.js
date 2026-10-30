@@ -47,15 +47,39 @@ test('lethal hit preserves destruction events and reports only actual hull loss 
   assert.equal(hit.target_hp, 0); assert.equal(hit.destroyed, true); assert.equal(f.target.isAlive, false);
   assert.equal(f.state.events.filter(e => e.type === 'ship_destroyed').length, 1); assert.equal(f.attacker.killsDealt, 1);
 });
-test('visual queue caps at 128 with explicit omissions without dropping calculated damage', () => {
+test('visual queue caps details and accounts for displaced shots without changing damage', () => {
   const f = fixture(); f.target.hp = f.target.maxHp = f.targetFleet.hp = 1000;
   for (let i = 0; i < 140; i++) f.hit(1);
   assert.equal(f.state.pendingCombatEvents.length, 128);
   const frame = engine.captureFrame(f.state, 7);
   assert.equal(frame.combat_events.length, 128); assert.equal(frame.combat_events_dropped, 12);
+  assert.equal(frame.combat_salvos.length, 1); assert.equal(frame.combat_salvos[0].count, 12);
+  assert.equal(frame.combat_salvos[0].source_side, 'atk'); assert.equal(frame.combat_salvos[0].samples.length, 2);
+  assert.equal(frame.combat_salvos[0].samples[0].from.x, 123.5);
   assert.equal(frame.combat_events[0].seq, 13); assert.equal(frame.combat_events.at(-1).seq, 140);
   assert.equal(f.target.hp, 880); assert.equal(f.attacker.damageDealt, 140);
-  assert.equal(engine.captureFrame(f.state, 8).combat_events_dropped, undefined);
+  const next=engine.captureFrame(f.state, 8);assert.equal(next.combat_events_dropped, undefined);assert.equal(next.combat_salvos,undefined);
+});
+test('large two-sided volleys keep exact counts, sampled real trajectories and critical destructions', () => {
+  const f=fixture(),s=f.state,[atk,def]=s.fleets;
+  for(const fleet of s.fleets)Object.assign(fleet.ships[0],{hp:100000,maxHp:100000});
+  for(let i=0;i<200;i++){
+    const from=i%2?def:atk,to=i%2?atk:def;
+    from.ships[0].x=i;from.ships[0].y=200;to.ships[0].x=800;to.ships[0].y=220;
+    engine.applyDamage(to.ships[0],to,1,from.ships[0],from,s,s.events);
+  }
+  const frame=engine.captureFrame(s,8),groups=Array.from(frame.combat_salvos);
+  for(const side of ['atk','def']){
+    const individual=frame.combat_events.filter(e=>e.source_side===side).length;
+    const grouped=groups.filter(e=>e.source_side===side).reduce((n,e)=>n+e.count,0);
+    assert.equal(individual+grouped,100,side);
+  }
+  assert.equal(groups.reduce((n,e)=>n+e.count,0),72);
+  assert.ok(groups.every(g=>g.samples.length<=2&&g.samples.every(p=>p.from.x>=0&&p.from.x<200)));
+  const q=fixture();q.target.hp=1;q.target.shield_hp=0;q.hit(1);for(let i=0;i<200;i++)q.hit(0);
+  const final=engine.captureFrame(q.state,9);
+  assert.equal(final.combat_events.filter(e=>e.destroyed).length,1,'lethal evidence stays in bounded detail');
+  assert.equal(final.combat_events.length+final.combat_salvos.reduce((n,e)=>n+e.count,0),201);
 });
 test('actual combat cooldown generates no cosmetic attacks until its real damage is applied', () => {
   const f = fixture();

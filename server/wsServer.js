@@ -108,6 +108,7 @@ function attachWsServer(httpServer) {
       _wss.handleUpgrade(req, socket, head, (ws) => {
         _upgradeGuard.upgraded = true; // [v7.189] socket-level release 비활성화 — ws.close 가 release 담당
         ws.battleId = battleId; ws.wallet = wallet; ws._ip = ip;
+        ws.battleWireGzip = parsed.query.wire === 'gzip-v1';
         ws.totpToken = session.totp ? parsed.query.token : null;
         _wss.emit('connection', ws, req);
       });
@@ -128,6 +129,7 @@ function attachWsServer(httpServer) {
     const bid = ws.battleId;
     if (!_channels.has(bid)) _channels.set(bid, new Set());
     _channels.get(bid).add(ws);
+    if (_channels.get(bid).size === 1) _battlePresence(bid, true);
 
     ws.send(JSON.stringify({ type: 'hello', battleId: bid, wallet: ws.wallet || null }));
     // A spectator who reconnects after cancellation must not remain in a queue forever.
@@ -230,7 +232,7 @@ function attachWsServer(httpServer) {
       const set = _channels.get(bid);
       if (set) {
         set.delete(ws);
-        if (set.size === 0) _channels.delete(bid);
+        if (set.size === 0) { _channels.delete(bid); _battlePresence(bid, false); }
       }
       _releaseConn(ws._ip);
     });
@@ -247,7 +249,52 @@ function attachWsServer(httpServer) {
 // ⚠️ battleScheduler 가 워커(RUN_SCHEDULERS)에서만 돌고 viewer 는 web 인스턴스에 붙으므로,
 //    멀티 인스턴스에서 battle frame 도 반드시 pub/sub 로 팬아웃돼야 한다.
 const _PUB_CH = 'om:ws';
+const _WATCH_PREFIX = 'om:ws:watch:';
+const _PUB_ORIGIN = randomUUID();
 let _pub = null, _sub = null, _redisReady = false;
+const _viewerChecks = new Map();
+let _viewerCheckTimer = null;
+function _battlePresence(battleId, present) {
+  // Redis removes subscriptions when the instance disconnects; no stale counters.
+  if (!_sub || _sub.status !== 'ready') return;
+  try {
+    const pending = present ? _sub.subscribe(_WATCH_PREFIX + battleId) : _sub.unsubscribe(_WATCH_PREFIX + battleId);
+    pending?.catch(() => {});
+  } catch (_) {}
+}
+async function _flushViewerChecks() {
+  _viewerCheckTimer = null;
+  const pending = [..._viewerChecks.entries()];
+  _viewerChecks.clear();
+  for (let start = 0; start < pending.length; start += 128) {
+    const batch = pending.slice(start, start + 128);
+    let counts = [], timeout;
+    try {
+      if (_redisReady && _pub) counts = await Promise.race([
+        _pub.call('PUBSUB', 'NUMSUB', ...batch.map(([id]) => _WATCH_PREFIX + id)),
+        new Promise((_, reject) => { timeout = setTimeout(() => reject(new Error('viewer check timeout')), 250); })
+      ]);
+    } catch (_) {} finally { if (timeout) clearTimeout(timeout); }
+    if (!Array.isArray(counts)) counts = [];
+    const active = new Set();
+    for (let i = 0; i + 1 < counts.length; i += 2) if (Number(counts[i + 1]) > 0) active.add(counts[i]);
+    for (const [id, resolvers] of batch) {
+      const found = !!_channels.get(id)?.size || active.has(_WATCH_PREFIX + id);
+      for (const resolve of resolvers) resolve(found);
+    }
+  }
+}
+function hasBattleViewers(battleId) {
+  battleId = _battleKey(battleId);
+  if (!battleId) return Promise.resolve(false);
+  if (_channels.get(battleId)?.size) return Promise.resolve(true);
+  if (!_redisReady || !_pub) return Promise.resolve(false);
+  return new Promise(resolve => {
+    if (!_viewerChecks.has(battleId)) _viewerChecks.set(battleId, []);
+    _viewerChecks.get(battleId).push(resolve);
+    if (!_viewerCheckTimer) _viewerCheckTimer = setTimeout(_flushViewerChecks, 20);
+  });
+}
 function _enqueueLocalBattleCommand(battleId, command) {
   try {
     const liveBattle = require('./services/liveBattle');
@@ -262,18 +309,22 @@ function _initRedisPubSub() {
   try { Redis = require('ioredis'); } catch (e) { console.warn('[WS] ioredis 미설치 — 로컬 broadcast 폴백'); return; }
   try {
     _pub = new Redis(process.env.REDIS_URL, { family: 0, maxRetriesPerRequest: 2, enableOfflineQueue: false });
-    _sub = new Redis(process.env.REDIS_URL, { family: 0, maxRetriesPerRequest: 2 });
+    _sub = new Redis(process.env.REDIS_URL, { family: 0, maxRetriesPerRequest: 2, autoResubscribe: false });
     _pub.on('error', () => {}); _sub.on('error', () => {});
-    _sub.subscribe(_PUB_CH, (err) => {
+    const subscribe = () => _sub.subscribe(_PUB_CH, (err) => {
       if (err) { console.warn('[WS] Redis subscribe 실패 — 로컬 폴백:', err.message); _redisReady = false; return; }
       _redisReady = true;
       console.log('[WS] Redis Pub/Sub 팬아웃 활성 (멀티 인스턴스)');
     });
+    _sub.on('close', () => { _redisReady = false; });
+    _sub.on('ready', () => { subscribe(); for (const battleId of _channels.keys()) _battlePresence(battleId, true); });
+    subscribe();
     _sub.on('message', (ch, raw) => {
       if (ch !== _PUB_CH) return;
       let m = null; try { m = JSON.parse(raw); } catch (_) { return; }
       if (!m || !m.kind) return;
-      // 로컬 클라이언트에 전달 (origin 인스턴스 포함 — broadcast* 는 publish 만 하고 직접 로컬전달 안 함)
+      // Origin already delivered its own broadcasts synchronously.
+      if (m.origin === _PUB_ORIGIN) return;
       if (m.kind === 'chat') _localChat(m.channel, m.message);
       else if (m.kind === 'feed') _localFeed(m.event);
       else if (m.kind === 'battleFrame') _localBattleFrame(m.battleId, m.frame);
@@ -294,10 +345,11 @@ function _initRedisPubSub() {
 }
 // Redis 활성 시 publish, 아니면 로컬 전달.
 function _publishOrLocal(kind, payload, localFn) {
-  if (_redisReady && _pub) {
-    try { _pub.publish(_PUB_CH, JSON.stringify(Object.assign({ kind }, payload))); return; } catch (_) {}
-  }
+  // Local delivery cannot depend on Redis availability or a pending publish.
   localFn();
+  if (_redisReady && _pub) {
+    try { _pub.publish(_PUB_CH, JSON.stringify(Object.assign({ kind, origin: _PUB_ORIGIN }, payload))).catch(() => {}); } catch (_) {}
+  }
 }
 function routeBattleCommand(battleId, command) {
   return routeBattleCommandResult(battleId, command).accepted;
@@ -367,10 +419,14 @@ function _localBattleFrame(battleId, frame) {
   battleId = _battleKey(battleId);
   const set = _channels.get(battleId);
   if (!set || set.size === 0) return 0;
-  const payload = JSON.stringify({ type: 'frame', battleId, ...frame });
+  let payload, compressed;
+  if (Array.from(set).some(ws => ws.battleWireGzip && ws.readyState === 1)) {
+    try { ({ raw: payload, compressed } = require('./utils/battleFrameWire').encodeBattleFrame(battleId, frame, true)); } catch (_) {}
+  }
+  if (!payload) payload = JSON.stringify({ type: 'frame', battleId, ...frame });
   let sent = 0;
   for (const ws of set) {
-    if (_safeSendOrTerminate(ws, payload)) sent++;
+    if (_safeSendOrTerminate(ws, ws.battleWireGzip && compressed ? compressed : payload)) sent++;
   }
   return sent;
 }
@@ -470,4 +526,4 @@ function channelStats() {
   return out;
 }
 
-module.exports = { attachWsServer, broadcastBattleQueue, broadcastBattleFrame, broadcastBattleEnd, broadcastBattleCommandResult, broadcastChat, broadcastFeed, channelStats, routeBattleCommand, routeBattleCommandResult };
+module.exports = { attachWsServer, broadcastBattleQueue, broadcastBattleFrame, broadcastBattleEnd, broadcastBattleCommandResult, broadcastChat, broadcastFeed, channelStats, hasBattleViewers, routeBattleCommand, routeBattleCommandResult };

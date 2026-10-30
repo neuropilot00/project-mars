@@ -40,6 +40,40 @@ test('seeking an actual recording backward clears prior tracers and permits the 
  const{c}=render();c.syncServerCombatEvents({t:20,combat_events:[shot('71:combat:1')]});assert.equal(c.lasers.length,1);
  c.syncServerCombatEvents({t:10,combat_events:[shot('71:combat:1')]});assert.equal(c.lasers.length,1);assert.equal(c.syncServerCombatEvents.seen.size,1);
 });
+test('bounded salvo effects use confirmed samples, do not alter damage, and deduplicate on resend',()=>{
+ const{c,ship}=render();let now=1000;c.Date={now:()=>now};
+ const salvo={id:'71:salvo:1:200:atk:laser',source_side:'atk',fire_type:'laser',count:200,samples:[{from:{x:0,y:0},to:{x:1000,y:440}},{from:{x:100,y:50},to:{x:900,y:400}}]};
+ c.syncServerCombatEvents({t:10,combat_events:[],combat_salvos:[salvo]});assert.equal(c.lasers.length,2);
+ assert.ok(c.lasers.every(l=>l.volley&&l.visual&&l.dmg===0&&l.applied&&l.durationMs===1100));
+ assert.equal(c.lasers[0].delayMs,0);assert.equal(c.lasers[1].delayMs,400);assert.equal(ship.hp,100);
+ c.syncServerCombatEvents({t:10,combat_events:[],combat_salvos:[salvo]});assert.equal(c.lasers.length,2);
+ c.syncServerCombatEvents({t:12,replay_seek:true,combat_events:[],combat_salvos:[]});assert.equal(c.lasers.length,0,'forward seek clears delayed effects');
+ c.syncServerCombatEvents({t:10,combat_events:[],combat_salvos:[salvo]});assert.equal(c.lasers.length,2);
+ now=3000;c.syncServerCombatEvents({t:15,combat_events:[],combat_salvos:[]});assert.equal(c.lasers.length,0);
+ c.syncServerCombatEvents({t:5,combat_events:[],combat_salvos:[salvo]});assert.equal(c.lasers.length,2,'backward seek replays recorded groups');
+});
+test('salvo rendering cannot evict heavy and authoritative critical effects',()=>{
+ const{c}=render();c.Date={now:()=>1000};for(let i=0;i<256;i++)c.lasers.push({visual:true,beamCannon:true});
+ const salvo={id:'salvo',source_side:'atk',fire_type:'laser',count:10,samples:[{from:{x:0,y:0},to:{x:1,y:1}}]};
+ c.syncServerCombatEvents({combat_events:[],combat_salvos:[salvo]});assert.equal(c.lasers.length,256);assert.ok(c.lasers.every(l=>l.beamCannon));
+});
+test('mass confirmed explosions keep a bounded particle budget and favor larger hulls',()=>{
+ const c={TL_MODE:'battle',PERF_MODE:true,exps:[],playExplosionSound(){}};vm.createContext(c);
+ vm.runInContext(part(script,'function mkExp(','function mkShockwave('),c);
+ for(let i=0;i<200;i++)c.mkExp(i,0,1);
+ assert.equal(c.exps.length,96);c.mkExp(0,0,6);assert.equal(c.exps.length,96);
+ assert.ok(c.exps.some(e=>e.sz===6));assert.ok(c.exps.every(e=>e.ptcl.length<=14&&e.smoke.length<=4));
+});
+for(const fps of [30,60])test(`two-sided salvos remain visible and expire by wall time at ${fps} fps`,()=>{
+ const{c}=render();let now=1000;c.Date={now:()=>now};c.PERF_MODE=true;c.VFX_IMPACT={};c.vfxImpactKeyForColor=()=>'';
+ c.CX={beginPath(){},moveTo(){},lineTo(){},stroke(){},arc(){},fill(){},createRadialGradient(){return{addColorStop(){}}}};
+ vm.runInContext(part(script,'function drawLasers(','function drawExps('),c);
+ const group=side=>({id:side,source_side:side,fire_type:'laser',count:300,samples:[{from:{x:0,y:0},to:{x:900,y:400}},{from:{x:100,y:50},to:{x:800,y:300}}]});
+ const frame={t:10,combat_events:[],combat_salvos:[group('atk'),group('def')]};c.syncServerCombatEvents(frame);assert.equal(c.lasers.length,4);
+ for(let elapsed=0;elapsed<=1500;elapsed+=1000/fps){now=1000+elapsed;c.drawLasers(true);if(elapsed>500&&elapsed<550)assert.deepEqual(new Set(c.lasers.filter(l=>l.age>0).map(l=>l.side)),new Set(['atk','def']));}
+ now=2600;c.drawLasers(true);assert.equal(c.lasers.length,0);
+ c.syncServerCombatEvents(frame);assert.equal(c.lasers.length,0,'re-sent frame is not repeated');
+});
 test('combat effects and deduplication memory remain bounded under repeated large frames',()=>{
  const{c}=render();for(let n=0;n<8;n++)c.syncServerCombatEvents({combat_events:Array.from({length:200},(_,i)=>shot('71:combat:'+(n*200+i)))});
  assert.equal(c.lasers.length,256);assert.equal(c.syncServerCombatEvents.seen.size,512);

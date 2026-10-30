@@ -54,7 +54,7 @@ function engine(data, clock, comparisonSource = source) {
   class SimDate extends Date { static now() { return clock.ms; } }
   const box = { module: { exports: {} }, fixture: structuredClone(data), Math: math, Date: SimDate,
     Buffer, console: { log() {}, warn() {}, error() {} },
-    setTimeout(fn, ms) { clock.ms += clock.step || ms; queueMicrotask(fn); },
+    setTimeout(fn, ms) { if (clock.sleeps) clock.sleeps.push(ms); clock.ms += clock.step || ms; queueMicrotask(fn); },
     require(name) {
       if (name === '../db') return { getSetting: async (_key, fallback) => fallback };
       if (name === './objectiveOperations') return objective;
@@ -178,4 +178,89 @@ test('authority lost during the finishing frame prevents a result from being ret
     tickMs: 250, wallClockMs: 360000,
     onFrame() { lost = true; }, shouldAbort() { return lost; },
   }), /AUTHORITY_LOST/);
+});
+
+test('live tick cadence includes processing time and still yields under overload or clock reversal', async () => {
+  for (const cost of [40, 300, -500]) {
+    const data = scenario(30), clock = { ms: 1000, sleeps: [] }, frames = [];
+    delete data.objectiveConfig;
+    let calls = 0;
+    await assert.rejects(engine(data, clock).simulateBattleLive(701, {
+      tickMs: 250,
+      drainCommands() { clock.ms += cost < 0 ? (calls++ === 0 ? cost : 0) : cost; return []; },
+      onFrame(frame) { frames.push({ tick: frame.t, wall: clock.ms }); },
+      shouldAbort() { return frames.length >= 2; },
+    }), /AUTHORITY_LOST/);
+    if (cost === 40) assert.equal(frames[1].wall - frames[0].wall, 1250);
+    if (cost === 300) {
+      assert.equal(frames[1].wall - frames[0].wall, 1500);
+      assert.ok(clock.sleeps.every(ms => ms === 0), 'overload must yield, without catch-up bursts');
+    }
+    if (cost === -500) assert.equal(clock.sleeps[0], 250, 'clock reversal cannot extend a tick sleep');
+  }
+});
+
+test('processing-time compensation keeps objective deadlines and manual control close to real time', async () => {
+  const data = scenario(30), clock = { ms: 0 }, commands = [], frames = [];
+  data.objectiveConfig.deadlineSeconds = 150;
+  let sent = false;
+  const result = await engine(data, clock).simulateBattleLive(701, {
+    tickMs: 200, wallClockMs: 360000,
+    drainCommands() {
+      clock.ms += 40;
+      if (!sent && clock.ms >= 1000) {
+        sent = true;
+        return [{ commandId: 'formation', fleetId: '1', wallet: 'atk-0', action: 'formation', params: { formation: 'wedge' } }];
+      }
+      return [];
+    },
+    onCommandResult(command) { commands.push({ ...command, wall: clock.ms }); },
+    onFrame(frame) {
+      if (frame.t <= 60) frames.push({ tick: frame.t, wall: clock.ms,
+        remaining: frame.fleets.find(f => String(f.id) === '1')?.manualControlRemainingMs });
+    },
+  });
+  const command = commands.find(c => c.commandId === 'formation');
+  assert.equal(command?.status, 'applied');
+  assert.equal(command?.manualControlRemainingMs, 10000);
+  const after = frames.find(frame => frame.tick === command.manualControlUntilTick);
+  assert.equal(after?.remaining, 0);
+  assert.equal(after.wall - command.wall, 10000);
+  assert.equal(result.objective_result?.reason, 'objective_deadline');
+  assert.equal(result.objective_result?.elapsed_seconds, 150);
+  assert.ok(clock.ms >= 149800 && clock.ms <= 150000, `objective finished at ${clock.ms}ms`);
+});
+
+test('same tick-indexed commands preserve combat outcomes while wall-time command ticks can change', async () => {
+  const baseline = source.replace('    const tickStartedAt = Date.now();\n', '')
+    .replace('await _sleep(Math.max(0, tickMs - Math.max(0, Date.now() - tickStartedAt)));', 'await _sleep(tickMs);');
+  assert.notEqual(baseline, source);
+  async function run(engineSource, byWall) {
+    const clock = { ms: 0 }, data = scenario(30), commands = [];
+    let calls = 0, sent = false;
+    const result = await engine(data, clock, engineSource).simulateBattleLive(701, {
+      tickMs: 200, wallClockMs: 10000,
+      drainCommands() {
+        clock.ms += 40;
+        calls++;
+        if (!sent && (byWall ? clock.ms >= 1000 : calls === 3)) {
+          sent = true;
+          return [{ commandId: 'formation', fleetId: '1', wallet: 'atk-0', action: 'formation', params: { formation: 'wedge' } }];
+        }
+        return [];
+      },
+      onCommandResult(command) { commands.push(command); },
+    });
+    return { result, commands, wall: clock.ms };
+  }
+  const previous = await run(baseline, false), current = await run(source, false);
+  assert.equal(previous.commands[0].tick, current.commands[0].tick);
+  assert.equal(JSON.stringify(previous.result.stats), JSON.stringify(current.result.stats));
+  assert.equal(JSON.stringify(previous.result.events), JSON.stringify(current.result.events));
+  assert.equal(previous.result.winner_side, current.result.winner_side);
+  assert.equal(previous.result.duration_ticks, current.result.duration_ticks);
+  assert.ok(current.wall < previous.wall);
+  const wallPrevious = await run(baseline, true), wallCurrent = await run(source, true);
+  assert.ok(wallCurrent.commands[0].tick > wallPrevious.commands[0].tick,
+    'a fixed wall-time command may affect a different simulation tick');
 });

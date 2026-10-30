@@ -69,7 +69,11 @@ test('three-hour NPC simulation stays below the real storage guard with identica
   assert.equal(bounded.timeline.frames[0].t, 0);
   assert.equal(bounded.timeline.frames.at(-1).t, 53999);
   assert.deepEqual(plain(bounded.timeline.frames[0]), plain(raw.timeline.frames[0]));
-  assert.deepEqual(plain(bounded.timeline.frames.at(-1)), plain(raw.timeline.frames.at(-1)));
+  const { combat_salvos: carriedFire, combat_events_dropped: compactedFire, ...boundedLast } = plain(bounded.timeline.frames.at(-1));
+  const { combat_events_dropped: originalCompactedFire, ...rawLast } = plain(raw.timeline.frames.at(-1));
+  assert.deepEqual(boundedLast, rawLast, 'the final state and individual events remain exact');
+  assert.ok(carriedFire?.length, 'omitted frames are carried into the final replay frame');
+  assert.ok((compactedFire || 0) >= (originalCompactedFire || 0));
   assert.ok(bounded.timeline.replay_frame_interval_ticks > 5);
   assert.ok(bounded.timeline.frames.every((f, i, all) => !i || f.t > all[i - 1].t));
   const saved = storage();
@@ -116,6 +120,43 @@ test('large evolving frames retain a bounded recording, actual endpoints and unt
   assert.ok(timeline.frames.length < broadcast.length);
   assert.ok(timeline.frames.every(f => !f.realtime));
   assert.equal(broadcast.at(-1).ships[0].hp, 401);
+});
+
+test('replay compaction carries every real shot once, with original endpoints and no live-frame mutation', () => {
+  const timeline = { battle_id: '1457', tick_ms: 200, frames: [] };
+  const record = engine(fixture()).createTimelineRecorder(timeline);
+  const point = seq => ({ from: { x: seq, y: 0 }, to: { x: seq, y: 10 } });
+  let last;
+  for (let i = 0; i < 500; i++) {
+    const base = i * 5;
+    const frame = { t: i * 5, payload: 'x'.repeat(48000),
+      combat_events: [
+        { id: `atk:${base + 2}`, seq: base + 2, source_side: 'atk', fire_type: 'laser', destroyed: true, ...point(base + 2) },
+        { id: `def:${base + 5}`, seq: base + 5, source_side: 'def', fire_type: 'laser', ...point(base + 5) },
+      ],
+      combat_salvos: [{ source_side: 'atk', fire_type: 'laser', count: 3,
+        first_seq: base + 1, last_seq: base + 4, samples: [point(base + 1), point(base + 4)] }],
+      combat_events_dropped: 3 };
+    const before = JSON.stringify(frame);
+    record(frame);
+    assert.equal(JSON.stringify(frame), before, 'recording never mutates a live broadcast frame');
+    last = frame;
+  }
+  assert.equal(timeline.frames[0].t, 0);
+  assert.equal(timeline.frames.at(-1).t, last.t);
+  assert.ok(timeline.frames.length < 500);
+  assert.ok(Buffer.byteLength(JSON.stringify(timeline)) < 8 * 1024 * 1024);
+  const totals = { atk: 0, def: 0 };
+  for (const frame of timeline.frames) {
+    for (const event of frame.combat_events || []) totals[event.source_side]++;
+    assert.equal((frame.combat_salvos || []).reduce((sum, salvo) => sum + salvo.count, 0), frame.combat_events_dropped || 0);
+    for (const salvo of frame.combat_salvos || []) {
+      totals[salvo.source_side] += salvo.count;
+      assert.equal(salvo.samples[0].from.x, salvo.first_seq, 'first representative is an actual first-sequence shot');
+      assert.equal(salvo.samples.at(-1).from.x, salvo.last_seq, 'last representative is an actual last-sequence shot');
+    }
+  }
+  assert.deepEqual(totals, { atk: 2000, def: 500 });
 });
 
 test('live simulation broadcasts every original frame while bounding only the saved replay', async () => {

@@ -405,6 +405,7 @@ async function simulateBattleLive(battleId, hooks) {
 
   for (let tick = 0; tick < MAX_TICKS; tick++) {
     if (typeof hooks.shouldAbort === 'function' && hooks.shouldAbort()) throw new Error('AUTHORITY_LOST');
+    const tickStartedAt = Date.now();
     state.tick = tick;
     // ① 명령 큐 드레인·적용
     if (typeof hooks.drainCommands === 'function') {
@@ -464,7 +465,8 @@ async function simulateBattleLive(battleId, hooks) {
       await broadcastFrame(fr);
       break;
     }
-    await _sleep(tickMs);
+    // Include computation in the tick interval; always yield when overloaded.
+    await _sleep(Math.max(0, tickMs - Math.max(0, Date.now() - tickStartedAt)));
   }
   if (!winnerSide) { winnerSide = 'draw'; events.push({ tick: state.tick, type: 'battle_timeout', payload: { winner_side: 'draw' } }); }
   if (timeline.frames.at(-1)?.t !== state.tick) {
@@ -1460,6 +1462,38 @@ function getShipMatchupMult(attacker, target) {
   return Math.max(0.62, Math.min(1.42, mult));
 }
 
+// Bounded by side and weapon kind, irrespective of fleet or ship count.
+const SALVO_WEAPONS = new Set(['beam', 'overdrive', 'laser', 'mixed', 'missile', 'bullet', 'stealth_bomb', 'disruptor', 'lance', 'railgun']);
+function addCombatSalvo(groups, event) {
+  if (!event || !['atk', 'def'].includes(event.source_side)) return;
+  const weapon = SALVO_WEAPONS.has(event.fire_type) ? event.fire_type : 'other';
+  const key = event.source_side + ':' + weapon;
+  const seq = Number.isFinite(event.seq) ? event.seq : 0;
+  const first = Number.isFinite(event.first_seq) ? event.first_seq : seq;
+  const last = Number.isFinite(event.last_seq) ? event.last_seq : seq;
+  const count = Number.isSafeInteger(event.count) && event.count > 0 ? event.count : 1;
+  const samples = Array.isArray(event.samples) ? event.samples : [{ from: event.from, to: event.to }];
+  let group = groups[key];
+  if (!group) group = groups[key] = { source_side:event.source_side, fire_type:weapon, count:0, samples:[], first_seq:first, last_seq:last };
+  group.count += count;
+  group.first_seq = Math.min(group.first_seq, first);
+  group.last_seq = Math.max(group.last_seq, last);
+  for (let i=0;i<samples.length;i++) {
+    const sample = samples[i];
+    if (!sample?.from || !sample?.to || ![sample.from.x,sample.from.y,sample.to.x,sample.to.y].every(Number.isFinite)) continue;
+    const sampleSeq = Number.isFinite(sample.seq) ? sample.seq : (i === 0 ? first : last);
+    const point = { seq:sampleSeq, from:{...sample.from}, to:{...sample.to} };
+    if (!group.samples.length) group.samples.push(point);
+    else if (sampleSeq < group.samples[0].seq) group.samples.unshift(point);
+    else if (sampleSeq > group.samples[group.samples.length-1].seq) group.samples.push(point);
+    if (group.samples.length > 2) group.samples.splice(1,group.samples.length-2);
+  }
+}
+function finishCombatSalvos(groups, battleId) {
+  return Object.values(groups || {}).map(group => ({...group,
+    id:`${battleId}:salvo:${group.first_seq}:${group.last_seq}:${group.source_side}:${group.fire_type}`}));
+}
+
 function applyDamage(target, targetFleet, damage, attacker, attackerFleet, state, events, fireType) {
   const beforeHp = target.hp;
   const beforeShield = target.shield_hp || 0;
@@ -1522,11 +1556,7 @@ function applyDamage(target, targetFleet, damage, attacker, attackerFleet, state
   // damage from client projectile travel. IDs survive stored replay/resends.
   const seq = state.combatEventSeq = (state.combatEventSeq || 0) + 1;
   const queue = state.pendingCombatEvents || (state.pendingCombatEvents = []);
-  if (queue.length >= MAX_COMBAT_EVENTS_PER_FRAME) {
-    queue.shift();
-    state.droppedCombatEvents = (state.droppedCombatEvents || 0) + 1;
-  }
-  queue.push({
+  const visualEvent = {
     id: `${state.battle_id}:combat:${seq}`, seq, tick: state.tick,
     type: 'shot_hit',
     source_ship_id: attacker.id, source_fleet_id: attackerFleet.id, source_side: attackerFleet.side,
@@ -1539,7 +1569,16 @@ function applyDamage(target, targetFleet, damage, attacker, attackerFleet, state
     target_hp: target.hp, target_shield_hp: target.shield_hp || 0,
     destroyed: !overkill && !target.isAlive,
     ...(overkill ? { overkill: true } : {}),
-  });
+  };
+  if (queue.length >= MAX_COMBAT_EVENTS_PER_FRAME) {
+    // Prefer confirmed destruction details; aggregate all other displaced shots.
+    const index = queue.findIndex(item => !item.destroyed);
+    const displaced = index < 0 ? (visualEvent.destroyed ? queue.shift() : visualEvent) : queue.splice(index, 1)[0];
+    addCombatSalvo(state.pendingCombatSalvos || (state.pendingCombatSalvos = Object.create(null)), displaced);
+    state.droppedCombatEvents = (state.droppedCombatEvents || 0) + 1;
+    if (displaced === visualEvent) return;
+  }
+  queue.push(visualEvent);
 }
 
 // ─── 프레임 캡처 (렌더링용 스냅샷) ───
@@ -1550,11 +1589,29 @@ function createTimelineRecorder(timeline) {
   let sizeBytes = headerBytes;
   let frameBytes = [];
   let interval = 5;
+  function carryFire(droppedFrames, target) {
+    if (!droppedFrames.length) return target;
+    const groups = Object.create(null);
+    let compacted = 0;
+    for (const previous of droppedFrames) {
+      const fire = [...(previous.combat_events || []), ...(previous.combat_salvos || [])];
+      fire.sort((a, b) => (a.first_seq ?? a.seq ?? 0) - (b.first_seq ?? b.seq ?? 0));
+      for (const event of fire) addCombatSalvo(groups, event);
+      compacted += (Number(previous.combat_events_dropped) || 0) +
+        (previous.combat_events || []).filter(event => event && ['atk', 'def'].includes(event.source_side)).length;
+    }
+    for (const salvo of target.combat_salvos || []) addCombatSalvo(groups, salvo);
+    const result = { ...target };
+    const salvos = finishCombatSalvos(groups, `${timeline.battle_id}:replay:${target.t}`);
+    if (salvos.length) result.combat_salvos = salvos;
+    if (compacted) result.combat_events_dropped = (Number(target.combat_events_dropped) || 0) + compacted;
+    return result;
+  }
   return (frame) => {
     // After sampling, keep only the newest off-grid snapshot as the endpoint.
     const last = timeline.frames.at(-1);
     if (interval > 5 && timeline.frames.length > 1 && last.t % interval !== 0) {
-      timeline.frames.pop();
+      frame = carryFire([timeline.frames.pop()], frame);
       sizeBytes -= frameBytes.pop();
     }
     timeline.frames.push(frame);
@@ -1564,11 +1621,14 @@ function createTimelineRecorder(timeline) {
     while (sizeBytes > REPLAY_SIZE_BUDGET && timeline.frames.length > 2) {
       interval *= 2;
       const keptFrames = [], keptBytes = [];
+      let omitted = [];
       for (let i = 0; i < timeline.frames.length; i++) {
         if (i === 0 || i === timeline.frames.length - 1 || timeline.frames[i].t % interval === 0) {
-          keptFrames.push(timeline.frames[i]);
-          keptBytes.push(frameBytes[i]);
-        }
+          const kept = carryFire(omitted, timeline.frames[i]);
+          keptFrames.push(kept);
+          keptBytes.push(Buffer.byteLength(JSON.stringify(kept), 'utf8') + 1);
+          omitted = [];
+        } else omitted.push(timeline.frames[i]);
       }
       timeline.frames = keptFrames;
       frameBytes = keptBytes;
@@ -1582,12 +1642,15 @@ function createTimelineRecorder(timeline) {
 
 function captureFrame(state, tick) {
   const combatEvents = state.pendingCombatEvents || [];
+  const salvos = finishCombatSalvos(state.pendingCombatSalvos, state.battle_id);
   const dropped = state.droppedCombatEvents || 0;
   state.pendingCombatEvents = [];
+  state.pendingCombatSalvos = Object.create(null);
   state.droppedCombatEvents = 0;
   return {
     t: tick,
     combat_events: combatEvents,
+    ...(salvos.length ? { combat_salvos: salvos } : {}),
     ...(dropped ? { combat_events_dropped: dropped } : {}),
     ...(state.objective ? { objective: { ...state.objective.progress } } : {}),
     fleets: state.fleets.map(f => ({

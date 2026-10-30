@@ -333,7 +333,6 @@ async function runBattleOwned(battleId) {
       //   [v7.192 F1] 멀티 인스턴스 frame stream 중복 차단 — _streamLock Redis SETNX 로 한 워커만 stream.
       try {
         const ws = require('../wsServer');
-        const stats = ws.channelStats();
         let _streamOwnership = true;
         try {
           if (process.env.REDIS_URL) {
@@ -343,28 +342,44 @@ async function runBattleOwned(battleId) {
               global.__streamLockRedis.on('error', () => {});
             }
             const lockKey = 'om:battle_stream:' + battleId;
-            const got = await global.__streamLockRedis.set(lockKey, process.pid, 'NX', 'PX', replayStreamTtlMs(result.timeline?.frames || [], result.timeline?.tick_ms)).catch(() => null);
-            _streamOwnership = (got === 'OK');
+            try {
+              const got = await global.__streamLockRedis.set(lockKey, process.pid, 'NX', 'PX', replayStreamTtlMs(result.timeline?.frames || [], result.timeline?.tick_ms));
+              _streamOwnership = (got === 'OK');
+            } catch (_) {
+              // The battle's atomic DB claim still prevents a second worker from
+              // starting it. Redis failure must not suppress local playback.
+              _streamOwnership = true;
+            }
             if (!_streamOwnership) console.log(`[battleScheduler] battle ${battleId} frame stream lock held by another worker — skipping`);
           }
         } catch (_e) {}
-        if (_streamOwnership && stats[battleId]) {
+        if (_streamOwnership) {
           const frames = result.timeline?.frames || [];
           const tickMs = result.timeline?.tick_ms || 200;
           const playbackSpeed = replaySpeed(frames, tickMs);
-          let i = 0;
-          const streamNext = () => {
+          let i = 0, hasViewers = false, nextViewerCheck = 0;
+          const replayStarted = Date.now();
+          const streamNext = async () => {
             if (i >= frames.length) {
               ws.broadcastBattleEnd(battleId, { winner_side: result.winner_side, duration_seconds: result.duration_seconds, stats: result.stats });
               return;
             }
-            ws.broadcastBattleFrame(battleId, frames[i]);
+            // Recheck cluster-wide interest as viewers can connect on a different
+            // instance or join after playback has already started.
+            if (Date.now() >= nextViewerCheck) {
+              try { hasViewers = await ws.hasBattleViewers(battleId); }
+              catch (_) { hasViewers = !!ws.channelStats()[battleId]; }
+              // Keep initial/active joins responsive; idle NPC streams poll less.
+              nextViewerCheck = Date.now() + (hasViewers || Date.now() - replayStarted < 2000 ? 500 : 2000);
+            }
+            if (hasViewers) ws.broadcastBattleFrame(battleId, frames[i]);
             const delay = replayDelayMs(frames[i], frames[i + 1], tickMs, playbackSpeed);
             i++;
-            setTimeout(streamNext, delay);
+            const timer = setTimeout(() => streamNext().catch(err => console.warn(`[battleScheduler] replay stream failed:`, err.message)), delay);
+            timer?.unref?.();
           };
           broadcastReplay = streamNext;
-          console.log(`[battleScheduler] WS prepared ${frames.length} frames for ${stats[battleId]} subscribers`);
+          console.log(`[battleScheduler] WS prepared ${frames.length} frames for cluster viewers`);
         }
       } catch (wsErr) {
         console.warn(`[battleScheduler] ws broadcast failed:`, wsErr.message);
@@ -374,7 +389,7 @@ async function runBattleOwned(battleId) {
     // Result and replay commit together after the live authority check.
     const settled = await battleEngine.applyBattleResults(battleId, result, authority?.token);
     if (settled?.skipped) throw new Error('BATTLE_SETTLEMENT_SKIPPED');
-    if (broadcastReplay) broadcastReplay();
+    if (broadcastReplay) broadcastReplay().catch(err => console.warn(`[battleScheduler] replay stream failed:`, err.message));
     if (_liveEnabled) {
       try { require('../wsServer').broadcastBattleEnd(battleId, { winner_side: result.winner_side, duration_seconds: result.duration_seconds, stats: result.stats }); } catch (_) {}
     }
